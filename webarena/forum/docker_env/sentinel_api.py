@@ -61,7 +61,7 @@ async def startup_event():
     events_file_handle = gzip.open("/var/www/html/events.jsonl.gz", "rt") 
     next_event = await _read_next_event()
     simulation_time = 0
-    state = "running"
+    state = "preinit"
     print("[startup] events file opened")
 
 @app.on_event("shutdown")
@@ -76,6 +76,26 @@ async def shutdown_event():
 
 @app.get("/status")
 async def status():
+    next_event_time = None
+    if next_event is not None:
+        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
+
+    return JSONResponse(
+        status_code=fastapi.status.HTTP_200_OK,
+        content={
+            "success": True,
+            "status": state,
+            "simulation_time": simulation_time,
+            "next_event_time": next_event_time,
+        }
+    )
+
+@app.post("/init")
+async def status(request: fastapi.Request):
+    data = await request.json()
+
+    state = "running"
+
     next_event_time = None
     if next_event is not None:
         next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
