@@ -5,7 +5,7 @@ import fastapi
 import signal
 import os
 from fastapi.responses import JSONResponse
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import uvicorn
 import psycopg2
 import gzip
@@ -17,9 +17,21 @@ file_lock = asyncio.Lock()
 events_file_handle = None
 next_event = None
 
-reference_time = datetime.fromisoformat("2023-02-19T00:00:00+00:00")
-db_reference_time = "2023-02-19 00:00:00"
+# Time of simulation start in the original WebArena data
+# This is time originally used in the database (prior to shifting done init),
+# as well as the time that appears in the events.jsonl.gz file
+webarena_reference_time = datetime.fromisoformat("2023-02-19T00:00:00+00:00")
 
+# The wall-clock time of when the simulation has started.
+# It is set in init(), and is the epoch from which simulation_time is measured
+simulation_reference_time = None
+
+# The number of seconds between simulation_reference_time and webarena_reference_time.
+# It is set in the init() method and reused rather than recomputed on every event.
+webarena_offset = None
+
+# This is the number of seconds passed since simulation_reference_time
+# This is how time is expressed to through all public APIs
 simulation_time = 0
 
 async def _read_next_event():
@@ -45,6 +57,7 @@ async def startup_event():
     global conn
     global cur
     global state 
+    global simulation_time
     global events_file_handle
     global next_event
 
@@ -78,7 +91,7 @@ async def shutdown_event():
 async def status():
     next_event_time = None
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
+        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
 
     return JSONResponse(
         status_code=fastapi.status.HTTP_200_OK,
@@ -92,13 +105,49 @@ async def status():
 
 @app.post("/init")
 async def status(request: fastapi.Request):
+    global simulation_reference_time
+    global webarena_offset
+    global simulation_time
+    global state
+
     data = await request.json()
 
+    # Compute the simulation reference time, and then shift the database accordingly
+    simulation_reference_time = datetime.now(timezone.utc)
+    webarena_offset = simulation_reference_time.timestamp() - webarena_reference_time.timestamp()
+    simulation_time = 0
+
+    # Shift about 2 days of data forward (we don't shift it all, as this would be too slow)
+    cur.execute(f"SELECT MAX(\"timestamp\") FROM submissions")
+    max_timestamp = None
+    for row in cur.fetchall():
+        max_timestamp = row[0]
+        break
+    shift_from = max_timestamp - timedelta(hours=48)
+
+    # Shift every record in the database
+    cur.execute(f"""
+        UPDATE submissions SET
+            "timestamp" = "timestamp" + INTERVAL '{webarena_offset} seconds',
+            edited_at = NULL,
+            last_active = last_active + INTERVAL '{webarena_offset} seconds'
+            WHERE "timestamp" > '{shift_from.isoformat()}'
+    """)
+
+    cur.execute(f"""
+        UPDATE comments SET
+            "timestamp" = "timestamp" + INTERVAL '{webarena_offset} seconds',
+            edited_at = NULL
+            WHERE "timestamp" > '{shift_from.isoformat()}'
+    """)
+    conn.commit()
+
+    # Switch to running
     state = "running"
 
     next_event_time = None
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
+        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
 
     return JSONResponse(
         status_code=fastapi.status.HTTP_200_OK,
@@ -121,7 +170,7 @@ async def next(t: int):
     processed_events = []
 
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
+        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
 
         while next_event_time <= t:
             processed_events.append(next_event)
@@ -138,11 +187,11 @@ async def next(t: int):
             if next_event is None:
                 break
             else:
-                next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
+                next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
 
     simulation_time = t
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - reference_time.timestamp()
+        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
 
     return JSONResponse(
         status_code=fastapi.status.HTTP_200_OK,

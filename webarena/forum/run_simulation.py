@@ -38,6 +38,8 @@ def main():
     response.raise_for_status()
     response_data = response.json()
 
+    print("Done init()")
+
     simulation_time = response_data["simulation_time"]
     next_event_time = response_data["next_event_time"]
 
