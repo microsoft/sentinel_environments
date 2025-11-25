@@ -235,12 +235,15 @@ def insert_submission(conn, cur, data):
     data = json.loads(json.dumps(data))
 
     # Change from relative to absolute times
+    # NOTE: If running the simulation faster than real-time, events might be in
+    # the future and this will look weird in the UI. Max out at now() if necessary
+    now = datetime.now(timezone.utc)
     if data["timestamp"] is not None:
-        data["timestamp"] = simulation_reference_time + timedelta(seconds=data["timestamp"])
+        data["timestamp"] = min(now, simulation_reference_time + timedelta(seconds=data["timestamp"]))
     if data["edited_at"] is not None:
-        data["edited_at"] = simulation_reference_time + timedelta(seconds=data["edited_at"])
+        data["edited_at"] = min(now, simulation_reference_time + timedelta(seconds=data["edited_at"]))
     if data["last_active"] is not None:
-        data["last_active"] = simulation_reference_time + timedelta(seconds=data["last_active"])
+        data["last_active"] = min(now, simulation_reference_time + timedelta(seconds=data["last_active"]))
 
     sql = """
         INSERT INTO submissions (
@@ -299,10 +302,11 @@ def insert_comment(conn, cur, data):
     data = json.loads(json.dumps(data))
 
     # Change from relative to absolute times
+    now = datetime.now(timezone.utc)
     if data["timestamp"] is not None:
-        data["timestamp"] = simulation_reference_time + timedelta(seconds=data["timestamp"])
+        data["timestamp"] = min(now, simulation_reference_time + timedelta(seconds=data["timestamp"]))
     if data["edited_at"] is not None:
-        data["edited_at"] = simulation_reference_time + timedelta(seconds=data["edited_at"])
+        data["edited_at"] = min(now, simulation_reference_time + timedelta(seconds=data["edited_at"]))
 
     sql = """
     INSERT INTO comments (
