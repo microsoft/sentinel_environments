@@ -17,18 +17,14 @@ file_lock = asyncio.Lock()
 events_file_handle = None
 next_event = None
 
-# Time of simulation start in the original WebArena data
-# This is time originally used in the database (prior to shifting done init),
-# as well as the time that appears in the events.jsonl.gz file
+# Time of simulation start in the original WebArena data This is time
+# ORIGINALLY used in the database (prior to shifting done in the
+# Dockerfile or init()). This is the time basis uses in events.jsonl.gz 
 webarena_reference_time = datetime.fromisoformat("2023-02-19T00:00:00+00:00")
 
 # The wall-clock time of when the simulation has started.
-# It is set in init(), and is the epoch from which simulation_time is measured
+# It is set to now() in init(), and is from where simulation_time is measured
 simulation_reference_time = None
-
-# The number of seconds between simulation_reference_time and webarena_reference_time.
-# It is set in the init() method and reused rather than recomputed on every event.
-webarena_offset = None
 
 # This is the number of seconds passed since simulation_reference_time
 # This is how time is expressed to through all public APIs
@@ -40,7 +36,18 @@ async def _read_next_event():
         if line == "":
             return None
         else:
-            return json.loads(line)
+            event_data = json.loads(line)
+
+            # Make the timestamps relative
+            event_data["time"] = datetime.fromisoformat(event_data["time"]).timestamp() - webarena_reference_time.timestamp()
+
+            # Other time fields
+            payload = event_data["payload"]
+            for tf in ["timestamp", "edited_at", "last_active"]:
+                if tf in payload and payload[tf] is not None:
+                    payload[tf] = datetime.fromisoformat(payload[tf]).timestamp() - webarena_reference_time.timestamp()
+
+            return event_data
 
 @app.exception_handler(Exception)
 async def internal_server_error_handler(request: fastapi.Request, exc: Exception):
@@ -74,8 +81,9 @@ async def startup_event():
     events_file_handle = gzip.open("/var/www/html/events.jsonl.gz", "rt") 
     next_event = await _read_next_event()
     simulation_time = 0
+
     state = "preinit"
-    print("[startup] events file opened")
+    print("[startup] database opened")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -91,7 +99,7 @@ async def shutdown_event():
 async def status():
     next_event_time = None
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
+        next_event_time = next_event["time"]
 
     return JSONResponse(
         status_code=fastapi.status.HTTP_200_OK,
@@ -104,17 +112,16 @@ async def status():
     )
 
 @app.post("/init")
-async def status(request: fastapi.Request):
+async def init(request: fastapi.Request):
     global simulation_reference_time
-    global webarena_offset
     global simulation_time
+    global next_event
     global state
 
     data = await request.json()
 
     # Compute the simulation reference time, and then shift the database accordingly
     simulation_reference_time = datetime.now(timezone.utc)
-    webarena_offset = simulation_reference_time.timestamp() - webarena_reference_time.timestamp()
     simulation_time = 0
 
     # Shift about 2 days of data forward (we don't shift it all, as this would be too slow)
@@ -124,30 +131,30 @@ async def status(request: fastapi.Request):
         max_timestamp = row[0]
         break
     shift_from = max_timestamp - timedelta(hours=48)
+    offset = simulation_reference_time.timestamp() - max_timestamp.timestamp()
 
     # Shift every record in the database
     cur.execute(f"""
         UPDATE submissions SET
-            "timestamp" = "timestamp" + INTERVAL '{webarena_offset} seconds',
+            "timestamp" = "timestamp" + INTERVAL '{offset} seconds',
             edited_at = NULL,
-            last_active = last_active + INTERVAL '{webarena_offset} seconds'
+            last_active = last_active + INTERVAL '{offset} seconds'
             WHERE "timestamp" > '{shift_from.isoformat()}'
     """)
 
     cur.execute(f"""
         UPDATE comments SET
-            "timestamp" = "timestamp" + INTERVAL '{webarena_offset} seconds',
+            "timestamp" = "timestamp" + INTERVAL '{offset} seconds',
             edited_at = NULL
             WHERE "timestamp" > '{shift_from.isoformat()}'
     """)
     conn.commit()
 
-    # Switch to running
     state = "running"
 
     next_event_time = None
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
+        next_event_time = next_event["time"]
 
     return JSONResponse(
         status_code=fastapi.status.HTTP_200_OK,
@@ -170,7 +177,10 @@ async def next(t: int):
     processed_events = []
 
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
+
+        next_event_time = None
+        if next_event is not None:
+            next_event_time = next_event["time"]
 
         while next_event_time <= t:
             processed_events.append(next_event)
@@ -187,11 +197,11 @@ async def next(t: int):
             if next_event is None:
                 break
             else:
-                next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
+                next_event_time = next_event["time"]
 
     simulation_time = t
     if next_event is not None:
-        next_event_time = datetime.fromisoformat(next_event["time"]).timestamp() - webarena_reference_time.timestamp()
+        next_event_time = next_event["time"]
 
     return JSONResponse(
         status_code=fastapi.status.HTTP_200_OK,
@@ -220,6 +230,18 @@ async def status():
     )
 
 def insert_submission(conn, cur, data):
+
+    # Clone data
+    data = json.loads(json.dumps(data))
+
+    # Change from relative to absolute times
+    if data["timestamp"] is not None:
+        data["timestamp"] = simulation_reference_time + timedelta(seconds=data["timestamp"])
+    if data["edited_at"] is not None:
+        data["edited_at"] = simulation_reference_time + timedelta(seconds=data["edited_at"])
+    if data["last_active"] is not None:
+        data["last_active"] = simulation_reference_time + timedelta(seconds=data["last_active"])
+
     sql = """
         INSERT INTO submissions (
             id,
@@ -272,6 +294,16 @@ def insert_submission(conn, cur, data):
 
 
 def insert_comment(conn, cur, data):
+
+    # Clone data
+    data = json.loads(json.dumps(data))
+
+    # Change from relative to absolute times
+    if data["timestamp"] is not None:
+        data["timestamp"] = simulation_reference_time + timedelta(seconds=data["timestamp"])
+    if data["edited_at"] is not None:
+        data["edited_at"] = simulation_reference_time + timedelta(seconds=data["edited_at"])
+
     sql = """
     INSERT INTO comments (
     id,
