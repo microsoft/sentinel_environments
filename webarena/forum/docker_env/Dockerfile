@@ -38,6 +38,18 @@ RUN python3 merge.py | gzip > /var/www/html/events.jsonl.gz
 # Patch Postmill
 COPY SubmissionPage.php /var/www/html/src/Pagination/SubmissionPage.php
 
+# Bust the cache daily
+ARG BUILD_DATE=None
+RUN echo "Build date: $BUILD_DATE" > /build_date
+
+# Shift all times forward (do this later to reduce the time needed to rebuild)
+COPY shift_times.sql /var/www/html/shift_times.sql
+USER postgres
+RUN pg_ctl -D "$PGDATA" -o "-c listen_addresses=''" -w start \
+    && psql -d postmill -f /var/www/html/shift_times.sql \
+    && pg_ctl -D "$PGDATA" -m fast -w stop 
+USER root
+
 # Copy the sentinel server
 COPY sentinel_api.py /var/www/html/sentinel_api.py
 COPY fastapi.ini /etc/supervisor.d/fastapi.ini

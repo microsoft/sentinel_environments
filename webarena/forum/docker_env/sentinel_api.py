@@ -10,11 +10,21 @@ import uvicorn
 import psycopg2
 import gzip
 
+# Submissions scheduled by init start at ID 200,000 and end at 299,999
+# Comments scheduled by init start at ID 3,000,000 and end at 3,999,999
+
 app = fastapi.FastAPI()
 state = "starting"
 
+# Events passed via init()
+custom_events = []
+
+# Events files
 file_lock = asyncio.Lock()
 events_file_handle = None
+next_file_event = None
+
+# Next event (merged)
 next_event = None
 
 # Time of simulation start in the original WebArena data This is time
@@ -30,7 +40,8 @@ simulation_reference_time = None
 # This is how time is expressed to through all public APIs
 simulation_time = 0
 
-async def _read_next_event():
+async def _next_file_event():
+    """ Return the next event from the events file. """
     async with file_lock:
         line = events_file_handle.readline().strip()
         if line == "":
@@ -49,6 +60,29 @@ async def _read_next_event():
 
             return event_data
 
+
+async def _next_event():
+    global custom_events
+    global next_file_event
+
+    if len(custom_events) == 0:
+        # No custom events, just read from the file
+        result = next_file_event
+        next_file_event = await _next_file_event()
+    elif next_file_event is None:
+        # No file events, just read from the custom events list
+        if len(custom_events) > 0:
+            result = custom_events.pop(0)
+    else:
+        # Return whichever event is earliest
+        if custom_events[0]["time"] <= next_file_event["time"]:
+            result = custom_events.pop(0)
+        else:
+            result = next_file_event
+            next_file_event = await _next_file_event()
+    return result
+
+
 @app.exception_handler(Exception)
 async def internal_server_error_handler(request: fastapi.Request, exc: Exception):
     return JSONResponse(
@@ -66,6 +100,7 @@ async def startup_event():
     global state 
     global simulation_time
     global events_file_handle
+    global next_file_event
     global next_event
 
     conn = None
@@ -79,7 +114,10 @@ async def startup_event():
     cur = conn.cursor()
 
     events_file_handle = gzip.open("/var/www/html/events.jsonl.gz", "rt") 
-    next_event = await _read_next_event()
+
+    # Prime things
+    next_file_event = await _next_file_event()
+    next_event = await _next_event()
     simulation_time = 0
 
     state = "preinit"
@@ -115,10 +153,15 @@ async def status():
 async def init(request: fastapi.Request):
     global simulation_reference_time
     global simulation_time
+    global custom_events
     global next_event
     global state
 
     data = await request.json()
+    custom_events = data["events"]
+
+    # TODO validate data
+
 
     # Compute the simulation reference time, and then shift the database accordingly
     simulation_reference_time = datetime.now(timezone.utc)
@@ -193,7 +236,7 @@ async def next(t: int):
             elif next_event["type"] == "comment_vote":
                 vote_on_comment(conn, cur, next_event["payload"])
 
-            next_event = await _read_next_event()
+            next_event = await _next_event()
             if next_event is None:
                 break
             else:

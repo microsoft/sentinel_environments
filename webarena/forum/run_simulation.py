@@ -1,7 +1,38 @@
 import time
 import requests
+import json
 
 DOCKER_SENTINEL_URL = "http://localhost:8000"
+
+submission = json.loads("""
+{
+    "time": 20,
+    "type": "submission",
+    "payload": {
+        "id": 200001,
+        "forum_id": 10021,
+        "user_id": 70133,
+        "title": "Testing a new scheduled submission!",
+        "timestamp": 20,
+        "url": "",
+        "body": "This is the body of a task-specific scheduled submission! It should insert after 20 seconds.",
+        "image_id": null,
+        "ip": null,
+        "sticky": false,
+        "ranking": 7,
+        "edited_at": null,
+        "moderated": false,
+        "user_flag": "t3_115w23z",
+        "locked": false,
+        "search_doc": "",
+        "last_active": 20,
+        "comment_count": 0,
+        "net_score": 1,
+        "visibility": "visible",
+        "media_type": "url"
+    }
+}
+""")
 
 def _poll_until(target_states, valid_states=None):
     """
@@ -32,7 +63,7 @@ def main():
 
     # Initialize the server
     init_events = {
-        "events": []  # No events to add in this example
+        "events": [submission] 
     }
     response = requests.post(f"{DOCKER_SENTINEL_URL}/init", json=init_events)
     response.raise_for_status()

@@ -15,19 +15,13 @@ UPDATE submissions s
   WHERE c.submission_id = s.id;
 COMMIT;
 
--- Shift everything forward in time
-BEGIN;
-CREATE TEMP TABLE t_delta AS SELECT now() - max("timestamp") AS delta FROM submissions;
-
-UPDATE submissions SET
-    "timestamp" = "timestamp" + (SELECT delta FROM t_delta),
-    edited_at = NULL,
-    "last_active" = "last_active" + (SELECT delta FROM t_delta);
-
-UPDATE comments SET
-    "timestamp" = "timestamp" + (SELECT delta FROM t_delta),
-    edited_at = NULL;
-COMMIT;
+-- Make space in the sequences (Not sure why there are two sequences each for both tables)
+-- Submissions scheduled by init() can range from 200,000 - 299,999
+-- Comments scheduled by init() can range from 3,000,000 - 3,999,999
+SELECT setval('submission_id_seq', 300000, true);
+SELECT setval('submissions_id_seq', 300000, true);
+SELECT setval('comment_id_seq', 4000000, true);
+SELECT setval('comments_id_seq', 4000000, true);
 
 -- Clean up --
 SET max_parallel_maintenance_workers = 0;
