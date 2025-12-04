@@ -284,6 +284,33 @@ async def status():
     )
 
 
+@app.get("/play")
+async def play():
+
+    asyncio.create_task(_run_scenario())
+
+    if next_event is not None:
+        next_event_time = next_event["time"]
+
+    return JSONResponse(
+        status_code=fastapi.status.HTTP_200_OK,
+        content={
+            "success": True,
+            "status": state,
+            "simulation_time": simulation_time,
+            "next_event_time": next_event_time,
+        },
+    )
+
+
+async def _run_scenario():
+    while True:
+        if next_event is None:
+            break
+        await asyncio.sleep(1)
+        await next(t=simulation_time+1)
+
+
 def insert_submission(conn, cur, data):
     # Clone data
     data = json.loads(json.dumps(data))
