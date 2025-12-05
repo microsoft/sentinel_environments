@@ -162,10 +162,11 @@ Example Successful Response (200 OK):
   "simulation_time": 11,
   "next_event_time": null
 }
+```
 
 
 ## Other Considerations
 
-- All responses include `success`, `simulation_time`, and `next_event_time` fields.
+- All responses include `success`, `simulation\_time`, and `next\_event\_time` fields.
 - All timestamps are expressed as seconds from simulation start (i.e., the moment init() is called)
 - The generic schema of an event is `{ "time": "<SIMULATION_TIME>", "type": "<EVENT_TYPE>", "payload": <ARBITRARY_JSON_DATA> }`
