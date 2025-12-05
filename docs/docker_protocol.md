@@ -56,8 +56,8 @@ Returns the status of the Docker sentinel environment. Results are returned in J
 ### POST /init
 Initializes the Docker sentinel environment with task-specific events (in addition to the default events). The request body should contain a JSON object with an array of events.
 
-**Required state**: preinit
-**Next state**: ready
+**Required state**: `preinit`
+**Next state**: `ready`
 
 Example Request Body:
 ```json
@@ -98,7 +98,7 @@ Example Successful Response (200 OK):
 
 Advances the simulation time to the specified time, processing all events scheduled up to, and including, that time. Conistent with all other time representations in the API, the `time` parameter is the number of seconds from simulation start.
 
-**Required state**: ready or `running_manual`
+**Required state**: `ready` or `running_manual`
 **Next state**: `running_manual`
 
 Example Request:
@@ -135,7 +135,7 @@ Example Successful Response (200 OK):
 
 Starts automatic advancement of the simulation, processing events as their scheduled times are reached. The simulation will continue to advance indefinitely or until the `/close` endpoint is called.
 
-**Required state**: `ready or running_manual`
+**Required state**: `ready` or `running_manual`
 **Next state**: `running_auto`
 
 Example Successful Response (200 OK):
