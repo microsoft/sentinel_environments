@@ -2,10 +2,35 @@
 
 This document outlines the minimal REST api protocol, to be hosted in the Docker sentinal environment container, for advancing scheduled events.
 
+# States/Statuses
+
+The Docker sentinel environment can be in one of various states, as reported by the `/status` endpoint:
+
+* `starting`: The environment is starting up but is not yet ready to initialize. (e.g., it could be opening files, setting up connections, etc.)
+
+* `preinit`: The environment is ready to be initialized, but init has not yet been called. In this state, the environment can accept an `/init` call to schedule task-specific events and set task-specific parameters.
+
+* `ready': The environment has been initialized and is ready for either autoplay via the `/play` endpoint, or manual advancement via the `/advance` endpoint.
+
+* `running\_auto`: The environment is currently autoplaying events via the `/play` endpoint.
+
+* `running\_manual`: The environment is currently being advanced manually via the `/advance` endpoint.
+
+* `stopping`: The environment has been closed and is in the process of stopping. There is no `stopped` state, as the environment will exit the Docker container upon stopping.
+
+
+The following state transitions are allowed:
+
+![State Transition Diagram](sentinel_env_state.png)
+
+
 ## Endpoints
 
 ### GET /status
 Returns the status of the Docker sentinel environment. Results are returned in JSON format. The HTTP response codes will be 200 for success, 500 for server error, etc.
+
+**Required state**: Any state
+**Next state**: No change
 
 #### Example Successful Response (200 OK):
 ```json
@@ -16,12 +41,6 @@ Returns the status of the Docker sentinel environment. Results are returned in J
   "next_event_time": 11
 }
 ```
-
-Status codes can include:
-
-- "*starting*": The environment is starting up.
-- "*preinit*":  The environment is ready, but init has not yet been called.
-- "*running*":  The environment is ready for agent interactions
 
 **NOTE:** Calling `/status` does not modify the state of the environment and can be use to learn the simulaiton time
 
@@ -36,6 +55,9 @@ Status codes can include:
 
 ### POST /init
 Initializes the Docker sentinel environment with task-specific events (in addition to the default events). The request body should contain a JSON object with an array of events.
+
+**Required state**: preinit
+**Next state**: ready
 
 Example Request Body:
 ```json
@@ -76,6 +98,9 @@ Example Successful Response (200 OK):
 
 Advances the simulation time to the specified time, processing all events scheduled up to, and including, that time. Conistent with all other time representations in the API, the `time` parameter is the number of seconds from simulation start.
 
+**Required state**: ready or running_manual
+**Next state**: running_manual
+
 Example Request:
 ```
 GET /advance?time=11
@@ -102,14 +127,33 @@ Example Successful Response (200 OK):
 }
 ```
 
-**NOTE 1**: If there are no more scheduled events after processing, the `next_event_time` field will be `null`.
+**NOTE 1**: If there are no more scheduled events after processing, the `next\_event\_time` field will be `null`.
 **NOTE 2**: If the specified `time` is earlier than the current simulation time, an error will be returned.
+
+
+### GET /play
+
+Starts automatic advancement of the simulation, processing events as their scheduled times are reached. The simulation will continue to advance indefinitely or until the `/close` endpoint is called.
+
+**Required state**: ready or running_manual
+**Next state**: running_auto
+
+Example Successful Response (200 OK):
+```json
+{ 
+  "success": true,
+  "simulation_time": 11,
+  "next_event_time": 14
+}
+```
 
 
 ### GET /close
 
 Exits the current Docker container (assuming the simulation is running in Docker), by killing pid 1. When the Docker container exits, the test harness should immediately instantiate a new container to reset the simulation state.
 
+**Required state**: Any state, but probably `running\_auto`, or `running\_manual`
+**Next state**: N/A (container exits)
 
 Example Successful Response (200 OK):
 ```json
