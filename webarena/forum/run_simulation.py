@@ -57,6 +57,8 @@ def main(scenario_file_path: str, docker_sentinel_url: str, playback_speed: floa
     _raise_for_status_with_body(response)
     response_data = response.json()
 
+    assert response_data["status"] == "ready"
+
     print("Done init()")
 
     simulation_time = response_data["simulation_time"]

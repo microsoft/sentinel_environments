@@ -10,11 +10,18 @@ import uvicorn
 import psycopg2
 import gzip
 
+STATE_STARTING = "starting"
+STATE_PREINIT = "preinit"
+STATE_READY = "ready"
+STATE_RUNNING_AUTO = "running_auto"
+STATE_RUNNING_MANUAL = "running_manual"
+STATE_STOPPING = "stopping"
+
 # Submissions scheduled by init start at ID 200,000 and end at 299,999
 # Comments scheduled by init start at ID 3,000,000 and end at 3,999,999
 
 app = fastapi.FastAPI()
-state = "starting"
+state = STATE_STARTING
 
 # Events passed via init()
 custom_events = []
@@ -128,7 +135,7 @@ async def startup_event():
     next_event = await _next_event()
     simulation_time = 0
 
-    state = "preinit"
+    state = STATE_PREINIT
     print("[startup] database opened")
 
 
@@ -168,6 +175,9 @@ async def init(request: fastapi.Request):
     global next_event
     global state
 
+    if state != STATE_PREINIT:
+        raise RuntimeError(f"Wrong state: /init must be called when in state '{STATE_PREINIT}'. Current state is '{state}'.")
+
     data = await request.json()
     custom_events = data["events"]
 
@@ -203,7 +213,7 @@ async def init(request: fastapi.Request):
     """)
     conn.commit()
 
-    state = "running"
+    state = STATE_READY
 
     next_event_time = None
     if next_event is not None:
@@ -221,9 +231,27 @@ async def init(request: fastapi.Request):
 
 
 @app.get("/advance")
-async def next(t: int):
+async def advance(t: int):
+    global state
+
+    if state != STATE_READY and state != STATE_RUNNING_MANUAL:
+        raise RuntimeError(f"Wrong state: /advance must be called when in state '{STATE_READY}' or '{STATE_RUNNING_MANUAL}'. Current state is '{state}'.")
+
+    state = STATE_RUNNING_MANUAL
+    result = await _advance(t)
+
+    return JSONResponse(
+        status_code=fastapi.status.HTTP_200_OK,
+        content=result,
+    )
+
+async def _advance(t: int):
+    """
+    Helper function to advance the simulation to a given time. Called by advance() and play()
+    """
     global simulation_time
     global next_event
+    global state
 
     if t <= simulation_time:
         raise ValueError("Simulation time cannot go backwards.")
@@ -256,37 +284,22 @@ async def next(t: int):
     if next_event is not None:
         next_event_time = next_event["time"]
 
-    return JSONResponse(
-        status_code=fastapi.status.HTTP_200_OK,
-        content={
-            "success": True,
-            "status": state,
-            "simulation_time": simulation_time,
-            "next_event_time": next_event_time,
-            "processed_events": processed_events,
-        },
-    )
-
-
-@app.get("/close")
-async def status():
-    global state
-
-    state = "stopping"
-    os.kill(1, signal.SIGTERM)  # Will kill the docker container
-
-    return JSONResponse(
-        status_code=fastapi.status.HTTP_200_OK,
-        content={
-            "success": True,
-            "status": state,
-        },
-    )
-
+    return {
+        "success": True,
+        "status": state,
+        "simulation_time": simulation_time,
+        "next_event_time": next_event_time,
+        "processed_events": processed_events,
+    }
 
 @app.get("/play")
 async def play():
+    global state
 
+    if state != STATE_READY and state != STATE_RUNNING_MANUAL:
+        raise RuntimeError(f"Wrong state: /play must be called when in state '{STATE_READY}' or '{STATE_RUNNING_MANUAL}'. Current state is '{state}'.")
+
+    state = STATE_RUNNING_AUTO
     asyncio.create_task(_run_scenario())
 
     if next_event is not None:
@@ -308,7 +321,23 @@ async def _run_scenario():
         if next_event is None:
             break
         await asyncio.sleep(1)
-        await next(t=simulation_time+1)
+        await _advance(t=simulation_time+1)
+
+
+@app.get("/close")
+async def status():
+    global state
+
+    state = STATE_STOPPING
+    os.kill(1, signal.SIGTERM)  # Will kill the docker container
+
+    return JSONResponse(
+        status_code=fastapi.status.HTTP_200_OK,
+        content={
+            "success": True,
+            "status": state,
+        },
+    )
 
 
 def insert_submission(conn, cur, data):
