@@ -1,0 +1,61 @@
+[project]
+name = "sentinel_environments"
+version = "0.1.0"
+description = "Environments for testing and training web Sentinel agents."
+authors = [
+    {name = "Microsoft", email = "noreply@microsoft.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "ruff",
+    "poethepoet",
+    "codespell",
+    "requests>=2.32.4",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+exclude = [
+    ".git",
+    "__pycache__",
+    ".venv",
+    "venv",
+    ".pytest_cache",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+    "D", # docstrings
+]
+ignore = ["E501"]  # line too long
+
+[tool.poe.tasks]
+# Formatting tasks
+format = "ruff format --check --diff webarena"
+format-fix = "ruff format webarena"
+
+# Linting tasks
+lint = "ruff check webarena"
+lint-fix = "ruff check --fix --unsafe-fixes webarena"
+
+# Spell checking
+spell = "codespell -I .codespellignore docs/**/*.md"
+
+# Combined quality checks
+check-all = ["format", "lint", "spell"]
+fix-all = ["format-fix", "lint-fix"]

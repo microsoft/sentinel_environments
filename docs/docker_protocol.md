@@ -1,6 +1,6 @@
 # Docker Protocol for Advancing Events
 
-This document outlines the minimal REST api protocol, to be hosted in the Docker sentinal environment container, for advancing scheduled events.
+This document outlines the minimal REST api protocol, to be hosted in the Docker sentinel environment container, for advancing scheduled events.
 
 # States/Statuses
 
@@ -42,7 +42,7 @@ Returns the status of the Docker sentinel environment. Results are returned in J
 }
 ```
 
-**NOTE:** Calling `/status` does not modify the state of the environment and can be use to learn the simulaiton time
+**NOTE:** Calling `/status` does not modify the state of the environment and can be use to learn the simulation time
 
 #### Example Error Response (500 Internal Server Error):
 ```json
