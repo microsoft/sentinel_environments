@@ -115,7 +115,7 @@ def _poll_until(target_states, valid_states=None):
     Poll the server until it is in the desired state.
 
     target_states: the function returns when the server is in one of these states
-    valid_states: [Optiona] list of valid states. Raise an error if not in one of these states.
+    valid_states: [Optional] list of valid states. Raise an error if not in one of these states.
     """
 
     while True:

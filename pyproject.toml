@@ -54,7 +54,7 @@ lint = "ruff check webarena"
 lint-fix = "ruff check --fix --unsafe-fixes webarena"
 
 # Spell checking
-spell = "codespell -I .codespellignore docs/**/*.md"
+spell = "codespell -I .codespellignore docs/**/*.md webarena/**/*.py webarena/**/*.md webarena/**/*.bash webarena/forum/**/*.json"
 
 # Combined quality checks
 check-all = ["format", "lint", "spell"]
