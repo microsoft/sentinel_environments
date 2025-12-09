@@ -19,7 +19,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install project dependencies
-        run: pip install --system -e .
+        run: pip install -e .
 
       - name: Run Ruff format check
         run: poe format 
