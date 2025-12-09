@@ -21,6 +21,8 @@ from reviews import add_product_review
 SERVER_URL = (
     f"{os.environ.get('SERVER_URL', 'gcr-sandbox-009.redmond.corp.microsoft.com')}"
 )
+SIMULATION_START_TIME = "2025-12-03T16:44:25+00:00"
+WEBARENA_SHOP_START_TIME = "2023-04-18T14:30:42+00:00"
 
 app = fastapi.FastAPI()
 state = "starting"
@@ -36,10 +38,33 @@ simulation_time = 0
 
 
 # Time of simulation start (at when shopping events were generated.)
-webarena_reference_time = datetime.fromisoformat("2025-12-03T16:44:25+00:00")
+webarena_reference_time = datetime.fromisoformat(SIMULATION_START_TIME)
 
 # This is how time is expressed to through all public APIs
 simulation_time = 0
+
+
+def _adjust_review_start_time():
+    """Adjust the start time of reviews to be within the simulation time."""
+    db = _connect_to_mariadb()
+    curr = db.cursor()
+
+    # For each row in the review table, compute the difference between the review's created_at and 2023-04-18 14:30:42
+    # Then, adjust the created_at time to be SIMULATION_START_TIME plus the difference between the two timestamps.
+    SIM_TIME = datetime.fromisoformat(SIMULATION_START_TIME).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+    WEBARENA_TIME = datetime.fromisoformat(WEBARENA_SHOP_START_TIME).strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    curr.execute(
+        f"UPDATE review SET created_at = DATE_ADD('{SIM_TIME}', INTERVAL (TIMESTAMPDIFF(SECOND, '{WEBARENA_TIME}', created_at)) SECOND)"
+    )
+    db.commit()
+    curr.close()
+    db.close()
+    print(f"[_adjust_review_start_time] {curr.rowcount} rows updated")
 
 
 def _connect_to_mariadb():
@@ -178,6 +203,9 @@ async def startup_event():
 
     # Connect to the db, initialize settings    """Handle uncaught exceptions and return a JSON response."""
     _setup_magento()
+
+    # Adjust the review start times to be within the simulation time, rather than the original time from webarena in 2023
+    _adjust_review_start_time()
 
     state = "preinit"
     print("[startup] events file opened")
