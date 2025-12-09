@@ -5,7 +5,7 @@ import gzip
 import json
 import os
 import signal
-from datetime import timezone, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import fastapi
 import psycopg2
