@@ -42,7 +42,7 @@ select = [
     "UP", # pyupgrade
     "D", # docstrings
 ]
-ignore = ["E501"]  # line too long
+ignore = ["E501", "UP017"]  # line too long, UTC alias
 
 [tool.poe.tasks]
 # Formatting tasks

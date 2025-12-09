@@ -51,7 +51,7 @@ def remove_product_sales_rule(token, product_id):
             print(f"✗ Failed to remove sales rule with ID: {rule_id}")
 
     # # Find the sales rule ID for the given product_id
-    # KEEP FOR LATER -- This is not working as expected and is commented out for now, and instead we are removing all sales rules istead of product specific ones.
+    # KEEP FOR LATER -- This is not working as expected and is commented out for now, and instead we are removing all sales rules instead of product specific ones.
     # rule_id = None
     # for rule in sales_rules.get("items", []):
     #     product_ids = rule.get("product_ids", [])
