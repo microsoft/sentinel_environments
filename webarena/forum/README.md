@@ -18,10 +18,6 @@ bash rebuild.bash start
 
 You can now connect to the forum in a browser, either at http://localhost:9999, or use the hostname of the GCR machine (if applicable).
 
-Likewise, you can also march the events forwards or reset, using the api by fetching (via http GET):
+Likewise, you can also interact with the Sentinel API on port 8000. E.g.,
 
-http://localhost:8000/next
-
-and
-
-http://localhost:8000/reset
+http://localhost:8000/status
