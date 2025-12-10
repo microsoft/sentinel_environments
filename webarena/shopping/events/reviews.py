@@ -1,7 +1,9 @@
 """Functions for generating and managing product reviews in the Magento store."""
 
-from completions import get_structured_completion_from_openai
-from store_requests import make_authenticated_request
+from webarena.shopping.utils.completions import (
+    get_structured_completion_from_openai,
+)
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 def get_product_review_from_description(original_name, description):

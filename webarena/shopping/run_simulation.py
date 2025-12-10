@@ -12,8 +12,8 @@ import requests
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "docker_env"))
 
-from docker_env.auth import get_admin_token
-from docker_env.store_requests import make_authenticated_request
+from webarena.shopping.utils.auth import get_admin_token
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 DOCKER_SENTINEL_URL = "http://gcr-sandbox-009.redmond.corp.microsoft.com:8000"
 ADOBE_COMMERCE_STORE_URL = "http://gcr-sandbox-009.redmond.corp.microsoft.com:7770"

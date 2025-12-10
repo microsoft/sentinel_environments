@@ -8,10 +8,11 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import requests
-from auth import STORE_URL
 from bs4 import BeautifulSoup
-from completions import get_completion_from_openai
-from store_requests import make_authenticated_request
+
+from webarena.shopping.utils.auth import STORE_URL
+from webarena.shopping.utils.completions import get_completion_from_openai
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 def get_image_sources(url):

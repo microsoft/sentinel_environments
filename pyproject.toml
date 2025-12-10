@@ -1,6 +1,7 @@
 [project]
 name = "sentinel_environments"
 version = "0.1.0"
+packages = ["webarena"]
 description = "Environments for testing and training web Sentinel agents."
 authors = [
     {name = "Microsoft", email = "noreply@microsoft.com"}
@@ -12,6 +13,9 @@ dependencies = [
     "poethepoet",
     "codespell",
     "requests>=2.32.4",
+    "beautifulsoup4>=4.14.3",
+    "openai>=2.9.0",
+    "mysql-connector-python>=9.5.0",
 ]
 
 [tool.ruff]

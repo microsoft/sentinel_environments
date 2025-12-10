@@ -9,13 +9,14 @@ from enum import Enum
 from pathlib import Path
 from time import sleep
 
-from auth import get_admin_token, get_customer_token
-from product_sales import (
+from tqdm import tqdm
+
+from webarena.shopping.events.product_sales import (
     add_product_sales_rule,
     generate_sales_rule_for_product,
     remove_product_sales_rule,
 )
-from products import (
+from webarena.shopping.events.products import (
     add_product,
     generate_product_from_catalog,
     generate_restock_event,
@@ -23,9 +24,9 @@ from products import (
     remove_product,
     update_stock_for_product,
 )
-from reviews import add_product_review, generate_product_review
-from store_requests import make_authenticated_request
-from tqdm import tqdm
+from webarena.shopping.events.reviews import add_product_review, generate_product_review
+from webarena.shopping.utils.auth import get_admin_token, get_customer_token
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 event_types = Enum(
     "EventType",
