@@ -8,4 +8,9 @@ authors = [
 requires-python = ">=3.10"
 
 [tool.setuptools]
-packages = ["webarena"]
+packages = [
+  "webarena",
+  "webarena.shopping",
+  "webarena.shopping.events",
+  "webarena.shopping.utils",
+]

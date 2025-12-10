@@ -114,6 +114,18 @@ def get_product_link_by_entity_id(token, entity_id):
         return None
 
 
+def _raise_for_status_with_body(resp: requests.Response) -> None:
+    """Like resp.raise_for_status(), but includes the response body in the error message."""
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError as e:
+        body = (resp.text or "").strip()
+        if len(body) > 2000:
+            body = body[:2000] + "... [truncated]"
+        msg = f"{e}\n\nResponse body:\n{body}"
+        raise requests.HTTPError(msg, response=resp) from e
+
+
 def _poll_until(target_states, valid_states=None):
     """Poll the server until it is in the desired state.
 
@@ -122,7 +134,7 @@ def _poll_until(target_states, valid_states=None):
     """
     while True:
         response = requests.get(f"{DOCKER_SENTINEL_URL}/status")
-        response.raise_for_status()
+        _raise_for_status_with_body(response)
         status_data = response.json()
 
         if status_data["status"] in target_states:
@@ -181,12 +193,14 @@ def main():
     response_data = _poll_until(target_states=["preinit"], valid_states=["starting"])
 
     # Initialize the server
-    events = {
+    init_events = {
         "events": scenario_data["events"],
     }
-    response = requests.post(f"{DOCKER_SENTINEL_URL}/init", json=events)
-    response.raise_for_status()
+    response = requests.post(f"{DOCKER_SENTINEL_URL}/init", json=init_events)
+    _raise_for_status_with_body(response)
     response_data = response.json()
+
+    assert response_data["status"] == "ready"
 
     print("Done init()")
 
@@ -207,7 +221,7 @@ def main():
         response = requests.get(
             f"{DOCKER_SENTINEL_URL}/advance", params={"t": next_event_time}
         )
-        response.raise_for_status()
+        _raise_for_status_with_body(response)
         response_data = response.json()
 
         simulation_time = response_data["simulation_time"]
@@ -221,6 +235,8 @@ def main():
             print("    " + e["type"])
 
             if args.demo:
+                # Demo mode: open product pages in browser for certain events
+                # so that we can more easily see the effects of the events
                 if e["type"] == event_types.ADD_PRODUCT_REVIEW.name:
                     review = e["payload"]["review"]
                     print(

@@ -18,7 +18,12 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["webarena"]
+packages = [
+  "webarena",
+  "webarena.shopping",
+  "webarena.shopping.events",
+  "webarena.shopping.utils",
+]
 
 [tool.ruff]
 line-length = 88
