@@ -21,17 +21,22 @@ RUN python3 -m ensurepip
 # Install required Python packages
 RUN pip3 install --no-cache --upgrade pip setuptools && pip3 install mysql-connector-python fastapi uvicorn requests openai beautifulsoup4
 
-# Copy scripts for event generation
-COPY ../events/product_sales.py /var/www/html/product_sales.py
-COPY ../events/products.py /var/www/html/products.py
-COPY ../events/store_requests.py /var/www/html/store_requests.py
-COPY ../events/reviews.py /var/www/html/reviews.py
-COPY ../utils/completions.py /var/www/html/completions.py
-COPY ../utils/auth.py /var/www/html/auth.py
-COPY .env /var/www/html/.env
+
+# Copy events and product images
 COPY events.jsonl.gz /var/www/html/events.jsonl.gz
 COPY product_images.tar.gz /var/www/html/product_images.tar.gz
 RUN tar -xzf /var/www/html/product_images.tar.gz -C /var/www/html/
+
+# Copy scripts for installing the webarena.shopping package and interacting w/ the magento store
+COPY pyproject.toml /var/www/html/pyproject.toml
+RUN mkdir -p /var/www/html/webarena
+COPY ../../__init__.py /var/www/html/webarena/__init__.py
+RUN mkdir -p /var/www/html/webarena/shopping
+COPY ../__init__.py /var/www/html/webarena/shopping/__init__.py
+COPY ../events/ /var/www/html/webarena/shopping/events/
+COPY ../utils/ /var/www/html/webarena/shopping/utils/
+WORKDIR /var/www/html
+RUN pip3 install . 
 
 # Copy the sentinel server
 COPY sentinel_api.py /var/www/html/sentinel_api.py
