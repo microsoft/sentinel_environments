@@ -287,16 +287,13 @@ async def _advance(t: int):
     if next_event is not None:
         next_event_time = next_event["time"]
 
-    return JSONResponse(
-        status_code=fastapi.status.HTTP_200_OK,
-        content={
-            "success": True,
-            "status": state,
-            "simulation_time": simulation_time,
-            "next_event_time": next_event_time,
-            "processed_events": processed_events,
-        },
-    )
+    return {
+        "success": True,
+        "status": state,
+        "simulation_time": simulation_time,
+        "next_event_time": next_event_time,
+        "processed_events": processed_events,
+    }
 
 
 @app.get("/play")
