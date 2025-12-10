@@ -1,9 +1,11 @@
 [project]
 name = "sentinel_docker_environments"
 version = "0.1.0"
-packages = ["webarena"]
 description = "Environments for testing and training web Sentinel agents."
 authors = [
     {name = "Microsoft", email = "noreply@microsoft.com"}
 ]
 requires-python = ">=3.10"
+
+[tool.setuptools]
+packages = ["webarena"]

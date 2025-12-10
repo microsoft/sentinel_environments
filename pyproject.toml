@@ -1,7 +1,6 @@
 [project]
 name = "sentinel_environments"
 version = "0.1.0"
-packages = ["webarena"]
 description = "Environments for testing and training web Sentinel agents."
 authors = [
     {name = "Microsoft", email = "noreply@microsoft.com"}
@@ -17,6 +16,9 @@ dependencies = [
     "openai>=2.9.0",
     "mysql-connector-python>=9.5.0",
 ]
+
+[tool.setuptools]
+packages = ["webarena"]
 
 [tool.ruff]
 line-length = 88
