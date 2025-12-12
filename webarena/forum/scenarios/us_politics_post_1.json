@@ -32,7 +32,7 @@
     ],
     "answer": "Trump administration says it will withhold SNAP from Democrat-led states if they don’t provide data",
     "answer_time": 178,
-    "annotator_notes": "This is a subjective task, but the prompt is clear enought that classification should be straightforward. The post is about US domestic politics, specifically actions taken by the Trump administration that affect states within the US. There are no foreign affairs or diplomatic issues involved.",
+    "annotator_notes": "This is a subjective task, but the prompt is clear enough that classification should be straightforward. The post is about US domestic politics, specifically actions taken by the Trump administration that affect states within the US. There are no foreign affairs or diplomatic issues involved.",
     "taxonomy": {
         "criteria": "subjective",
         "milestone_type": "absolute",
