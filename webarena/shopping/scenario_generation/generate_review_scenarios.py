@@ -197,7 +197,7 @@ if __name__ == "__main__":
     if args.product:
         # Generate reviews for a specific product SKU
         sku = args.product
-        num_reviews = args.num_reviews
+        num_reviews = args.num_reviews_per_product
         time_spacing = args.time_spacing
         events = generate_product_review_events(
             sku,
