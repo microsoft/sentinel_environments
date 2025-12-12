@@ -1,0 +1,99 @@
+{
+    "start_page": "HOST_ADDRESS/f/worldnews/new",
+    "prompt": "I am admin /f/worldnews. Please monitor this forum for new posts and let me know if any are about internal US Politics (i.e., involving no diplomacy or foreign affairs) -- as this would violate forum rules.  If found, provide the exact title of the post.",
+    "events": [
+        {
+            "time": 68,
+            "type": "submission",
+            "payload": {
+                "id": 200001,
+                "forum_id": 10090,
+                "user_id": 10450,
+                "title": "US sanctions Venezuelan President Maduro’s 3 nephews as pressure campaign ratchets up",
+                "timestamp": 68,
+                "url": "https://apnews.com/article/treasury-state-department-sanctions-trump-venezuela-a542e7d3f01fe6b9d8ae8ff3cad6f792",
+                "body": "Honestly, watching the U.S. sanction Maduro's nephews again feels like we're stuck in a rerun. Trump's out here seizing tankers, dropping sanctions on anyone remotely tied to Venezuelan oil, and calling it a war on cartels, while two of these same nephews were literally traded back to Venezuela in 2022. It's starting to feel less like foreign policy and more like a long-running grudge match. I'm not convinced any of this actually changes what's happening on the ground in Venezuela...",
+                "image_id": null,
+                "ip": null,
+                "sticky": false,
+                "ranking": 7,
+                "edited_at": null,
+                "moderated": false,
+                "user_flag": "t3_115w23z",
+                "locked": false,
+                "search_doc": "",
+                "last_active": 20,
+                "comment_count": 0,
+                "net_score": 1,
+                "visibility": "visible",
+                "media_type": "url"
+            }
+        },
+        {
+            "time": 137,
+            "type": "submission",
+            "payload": {
+                "id": 200002,
+                "forum_id": 10090,
+                "user_id": 10433,
+                "title": "UN chief warns a global trade war triggered by US tarriffs will lead to losses for all",
+                "timestamp": 137,
+                "url": "https://apnews.com/video/un-chief-warns-a-global-trade-war-triggered-by-us-tarriffs-will-lead-to-losses-for-all-37ed7040257f42a6b25c42755949c973",
+                "body": "Turns out setting the world economy on fire isn't great for anyone. Shocking.",
+                "image_id": null,
+                "ip": null,
+                "sticky": false,
+                "ranking": 7,
+                "edited_at": null,
+                "moderated": false,
+                "user_flag": "t3_115w23z",
+                "locked": false,
+                "search_doc": "",
+                "last_active": 20,
+                "comment_count": 0,
+                "net_score": 1,
+                "visibility": "visible",
+                "media_type": "url"
+            }
+        },
+        {
+            "time": 178,
+            "type": "submission",
+            "payload": {
+                "id": 200003,
+                "forum_id": 10090,
+                "user_id": 79621,
+                "title": "Trump administration says it will withhold SNAP from Democrat-led states if they don’t provide data",
+                "timestamp": 178,
+                "url": "https://apnews.com/article/food-aid-snap-rollins-blue-states-edf7a10ab409fe471ae81a13823484ab?utm_source=copy&utm_medium=share",
+                "body": "The Trump team is basically threatening to cut off SNAP for millions in Democratic-run states unless those states hand over a giant pile of personal data on food-aid recipients, even though a federal judge already told them to chill. Experts say the actual fraudsters are organized crime, not people just trying to eat. Democrats are calling it what it looks like: political revenge dressed up as \"fraud prevention,\" with governors openly asking why the administration seems so intent on making people go hungry. And all this is happening while SNAP's already been thrown into chaos by new work requirements and shutdown drama, leaving states scrambling to keep food on the table while the White House plays chicken with low-income families' grocery money.",
+                "image_id": null,
+                "ip": null,
+                "sticky": false,
+                "ranking": 7,
+                "edited_at": null,
+                "moderated": false,
+                "user_flag": "t3_115w23z",
+                "locked": false,
+                "search_doc": "",
+                "last_active": 20,
+                "comment_count": 0,
+                "net_score": 1,
+                "visibility": "visible",
+                "media_type": "url"
+            }
+        }
+    ],
+    "answer": "Trump administration says it will withhold SNAP from Democrat-led states if they don’t provide data",
+    "answer_time": 178,
+    "annotator_notes": "Two international stories, involving the US, serve as distractors. The third story is clearly about internal US politics, involving a federal policy affecting domestic food aid programs and state governments.",
+    "taxonomy": {
+        "criteria": "subjective",
+        "milestone_type": "absolute",
+        "event_persistence": "persistent",
+        "monitoring_approach": "passive",
+        "failure_tolerance": "high_precision",
+        "difficulty": "medium",
+        "distraction_level": "medium"
+    }
+}
