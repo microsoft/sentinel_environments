@@ -6,10 +6,10 @@ Used for generation of shopping scenarios.
 import base64
 import json
 
-from auth import get_admin_token
-from generate_events import event_types
-from products import generate_product_from_product
-from store_requests import make_authenticated_request
+from webarena.shopping.events.generate_events import event_types
+from webarena.shopping.events.products import generate_product_from_product
+from webarena.shopping.utils.auth import get_admin_token
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 # Use the Adobe Commerce REST API to search for products for a given search query

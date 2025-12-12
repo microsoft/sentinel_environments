@@ -1,24 +1,46 @@
 """Functions for generating and managing product reviews in the Magento store."""
 
+import random
+
 from webarena.shopping.utils.completions import (
     get_structured_completion_from_openai,
 )
 from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
-def get_product_review_from_description(original_name, description):
+def get_product_review_from_description(original_name, description, positive=True):
     """Generate a new product review based on the original name and description, using an LLM."""
-    prompt = """Using the following product description and original name from an online store,
-    generate a detailed and engaging product review that highlights the key features and benefits of the product.
-    The review should include a rating out of 5, a title, a nickname for the person posting the review,
-    and a descriptive text that would help potential customers make an informed purchasing decision,
-    and can be either positive or negative based on the description.
+    rating = random.randint(3, 5) if positive else random.randint(1, 2)
+    review_length = random.choice(["short", "detailed"])
 
-    Original Product Name: "{original_name}"
+    print(
+        f"Review specifications: Length={review_length}, Positive={positive}, Rating={rating}"
+    )
+
+    prompt = f"""Using the following product description and original name from an online store,
+    generate a {review_length} and engaging product review that highlights the key features, benefits, and drawbacks of the product.
+
+    Short review: Less than 250 characters.
+    Detailed review: More than 250 characters.
+    """
+
+    if positive:
+        prompt += f""" The review should be mostly positive in tone, emphasizing reasons why customers would desire this product.  \n
+        The rating should be {rating} stars and the positive sentiment of the review should be proportional to the rating."""
+    else:
+        prompt += f""" The review should be negative in tone, emphasizing the drawbacks and issues with this product. \n
+        The rating should be {rating} stars and the negative sentiment of the review should be proportional to the rating."""
+
+    sentiment = "positive" if positive else "negative"
+    prompt += f""" The review should also include a title, a nickname for the person posting the review,
+    and a descriptive text that would help potential customers make an informed purchasing decision,
+    and should be "{sentiment}"."""
+
+    prompt += f"""\nOriginal Product Name: "{original_name}"
     Product Description: "{description}"""
 
     response = get_structured_completion_from_openai(
-        prompt.format(original_name=original_name, description=description),
+        prompt,
         model="gpt-5",
     )
 

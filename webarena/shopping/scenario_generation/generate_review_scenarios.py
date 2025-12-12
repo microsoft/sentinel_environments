@@ -4,11 +4,14 @@ Used in scenario generation for shopping scenarios.
 
 """
 
+import argparse
 import json
+import random
 
-from auth import get_admin_token
-from reviews import get_product_review_from_description
-from store_requests import make_authenticated_request
+from webarena.shopping.events.products import get_product_by_sku
+from webarena.shopping.events.reviews import get_product_review_from_description
+from webarena.shopping.utils.auth import get_admin_token
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 # Use the Adobe Commerce REST API to search for products for a given search query
@@ -25,62 +28,78 @@ def search_products(query, token):
     return []
 
 
-def generate_similar_product_reviews(query):
-    """Generate product review events for products matching the search query."""
+def generate_review_payload(product, review):
+    """Generate the review payload for a given product and review."""
+    product_id = product["id"]
+    review_payload = {
+        "review": {
+            "entity_pk_value": product_id,  # Product ID
+            "title": review.review_title,
+            "detail": review.review_text,
+            "nickname": review.nickname,
+            "ratings": [
+                {
+                    "rating_id": 4,  # Assuming '4' corresponds to 'Rating'
+                    "rating_name": "Rating",
+                    "value": review.rating,
+                    "percent": (review.rating / 5) * 100,
+                }
+            ],
+            "review_entity": "product",
+            "review_type": 2,
+            "review_status": 1,
+            "store_id": 1,
+            "stores": [1],
+        }
+    }
+    return review_payload
+
+
+def generate_review_for_product(product, sentiment="positive"):
+    """Generate a review for a given product based on sentiment."""
+    product_description = list(
+        filter(
+            lambda x: x["attribute_code"] == "description",
+            product["custom_attributes"],
+        )
+    )
+    description_text = product_description[0]["value"] if product_description else ""
+
+    # Generate a new review for this product
+    sent = (  # Whether the review is positive or negative
+        random.choice([True, False])
+        if sentiment == "either"
+        else sentiment == "positive"
+    )
+    review = get_product_review_from_description(
+        product["name"],
+        description_text,
+        positive=sent,
+    )
+    return review
+
+
+def generate_product_review_events(
+    sku, num_reviews=20, time_spacing=20, sentiment="positive"
+):
+    """Generate product review events for a specific product SKU."""
     admin_token = get_admin_token()
-    products = search_products(query, admin_token)
-    print(f"Found {len(products)} products matching query '{query}'")
+    product = get_product_by_sku(admin_token, sku)
+    if not product:
+        print(f"✗ No product found with SKU '{sku}'")
+        return []
 
     events = []
-
-    # select a subset of results
-    products = products[:20]  # Limit to first 20 products for simplicity
-    for i, product in enumerate(products):
-        product_id = product["id"]
-
-        print(f"Product name: {product['name']}, id: {product_id}")
-
-        product_description = list(
-            filter(
-                lambda x: x["attribute_code"] == "description",
-                product["custom_attributes"],
-            )
-        )
-
-        # Generate a new review for this product
-        review = get_product_review_from_description(
-            product["name"],
-            product_description[0]["value"] if product_description else "",
-        )
-
+    for i in range(0, num_reviews):
+        review = generate_review_for_product(product, sentiment=sentiment)
         print(
             f"Generated review: Title={review.review_title}, Rating={review.rating}, Text={review.review_text}"
         )
-        review_payload = {
-            "review": {
-                "entity_pk_value": product_id,  # Product ID
-                "title": review.review_title,
-                "detail": review.review_text,
-                "nickname": review.nickname,
-                "ratings": [
-                    {
-                        "rating_id": 4,  # Assuming '4' corresponds to 'Rating'
-                        "rating_name": "Rating",
-                        "value": review.rating,
-                        "percent": (review.rating / 5) * 100,
-                    }
-                ],
-                "review_entity": "product",
-                "review_type": 2,
-                "review_status": 1,
-                "store_id": 1,
-                "stores": [1],
-            }
-        }
+        review_payload = generate_review_payload(product, review)
 
         events += [
             {
-                "time": i * 20,  # Space events by 10 seconds
+                "time": i * time_spacing,  # Space events by specified time spacing
                 "type": "ADD_PRODUCT_REVIEW",
                 "payload": review_payload,
             }
@@ -89,10 +108,123 @@ def generate_similar_product_reviews(query):
     return events
 
 
-if __name__ == "__main__":
-    query = "google pixel 4"
-    events = generate_similar_product_reviews(query)
+def generate_similar_product_reviews(
+    query,
+    num_products=20,
+    num_reviews_per_product=20,
+    time_spacing=20,
+    sentiment="positive",
+):
+    """Generate product review events for products matching the search query."""
+    admin_token = get_admin_token()
+    products = search_products(query, admin_token)
+    print(f"Found {len(products)} products matching query '{query}'")
 
-    with open("product_review_events.json", "w") as f:
+    events = []
+
+    # Create a list of tuples (product, i) to generate reviews for where i is the index of the review ranging from 0 to num_reviews_per_product - 1
+    reviews_to_generate = []
+    for product in products:
+        for i in range(num_reviews_per_product):
+            reviews_to_generate.append((product, i))
+
+    # Shuffle the list to randomize the order of review generation
+    random.shuffle(reviews_to_generate)
+
+    # select a subset of products
+    count = 0
+    for product, _ in reviews_to_generate:
+        review = generate_review_for_product(product, sentiment=sentiment)
+        print(
+            f"Generated review: Title={review.review_title}, Rating={review.rating}, Text={review.review_text}"
+        )
+        review_payload = generate_review_payload(product, review)
+
+        events += [
+            {
+                "time": (
+                    count * time_spacing
+                ),  # Space events by specified time spacing
+                "type": "ADD_PRODUCT_REVIEW",
+                "payload": review_payload,
+            }
+        ]
+
+        count += 1
+
+    # Verify we only have the requested number of reviews
+    assert len(events) == num_products * num_reviews_per_product
+
+    return events
+
+
+if __name__ == "__main__":
+    # use argparse to get the query
+    parser = argparse.ArgumentParser(
+        description="Generate product review events for a given search query."
+    )
+    parser.add_argument("--query", type=str, help="Search query for products")
+    parser.add_argument(
+        "--product", type=str, help="Specific product SKU to generate reviews for"
+    )
+    parser.add_argument(
+        "--sentiment",
+        choices=["positive", "negative", "either"],
+        help="Sentiment of the reviews to generate",
+        default="positive",
+    )
+    parser.add_argument(
+        "--num-reviews-per-product",
+        type=int,
+        help="Number of reviews to generate per product",
+        default=20,
+    )
+    parser.add_argument(
+        "--num-products",
+        type=int,
+        help="Number of products to generate reviews for",
+        default=20,
+    )
+
+    parser.add_argument(
+        "--time-spacing",
+        type=int,
+        help="Time spacing between review events in seconds",
+        default=20,
+    )
+    args = parser.parse_args()
+
+    if args.product:
+        # Generate reviews for a specific product SKU
+        sku = args.product
+        num_reviews = args.num_reviews
+        time_spacing = args.time_spacing
+        events = generate_product_review_events(
+            sku,
+            num_reviews=num_reviews,
+            time_spacing=time_spacing,
+            sentiment=args.sentiment,
+        )
+    elif args.query:
+        # Generate reviews for similar products based on the search query passed in
+        # used to generate distracting reviews appearing on a similar search query
+        query = args.query
+        num_reviews = args.num_reviews_per_product
+        time_spacing = args.time_spacing
+        num_products = args.num_products
+        events = generate_similar_product_reviews(
+            query,
+            num_products=num_products,
+            num_reviews_per_product=num_reviews,
+            time_spacing=time_spacing,
+            sentiment=args.sentiment,
+        )
+
+        print(f"Generated {len(events)} product review events for query '{query}'")
+
+    else:
+        print("Please provide either a --query or --product argument.")
+        exit(1)
+
+    with open("output_events.json", "w") as f:
         json.dump(events, f, indent=4)
-    print(f"Generated {len(events)} product review events for query '{query}'")

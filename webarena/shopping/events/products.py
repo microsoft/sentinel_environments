@@ -192,6 +192,25 @@ def get_random_product_from_catalog(token, in_stock=True):
         return None
 
 
+def get_product_by_sku(token, sku):
+    """Get a product from the catalog by SKU.
+
+    Args:
+        token: Bearer token for authentication
+        sku: Product SKU to search for
+
+    """
+    endpoint = f"/rest/V1/products/{sku}"
+    result = make_authenticated_request(token, endpoint)
+
+    if result:
+        print(f"✓ Found product: SKU={result.get('sku')}, Name={result.get('name')}")
+        return result
+    else:
+        print(f"✗ Failed to find product with SKU: {sku}")
+        return None
+
+
 def get_product_name_from_description(original_name, description):
     """Generate a new product name based on the original name and description, using an LLM."""
     prompt = """Using the following product description and original name from an online store,
