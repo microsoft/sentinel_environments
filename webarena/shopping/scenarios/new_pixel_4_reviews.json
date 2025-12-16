@@ -1,7 +1,7 @@
 {
     "id": "new_pixel_4_reviews",
     "start_page": "HOST_ADDRESS/cell-phones-accessories/cell-phones.html",
-    "prompt": "I am interested in reading reviews for the Google Pixel 4. Please check this page to see if there are new reviews. Once found, tell me who submitted the review.",
+    "prompt": "I am interested in reading reviews for the Google Pixel 4. Please check this page to see if there are new reviews. Make sure to refresh the page after every check. Once found, tell me who submitted the review.",
     "events": [
         {
             "time": 0,

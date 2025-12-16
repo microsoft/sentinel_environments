@@ -1,7 +1,7 @@
 {
-    "id": "restock_playstation",
-    "start_page": "HOST_ADDRESS/sony-playstation-vita-sapphire-blue-3g-wi-fi-pch-1100-ab04.html",
-    "prompt": "I am wanting to by egyptian cotton sheets but all of the options are out of stock. Can you monitor the products to let me know when these sheets are back in stock? Then, let me know the number of reviews for the product. ",
+    "id": "restock_sheets",
+    "start_page": "HOST_ADDRESS",
+    "prompt": "I am wanting to by egyptian cotton sheets but all of the options are out of stock. Can you monitor the products to let me know when these sheets are back in stock? Note that just because a product appears in search results does not mean it is in stock. Make sure to refresh the page after every check. Then, let me know the number of reviews for the product. ",
     "events": [
         {
             "time": 0,
