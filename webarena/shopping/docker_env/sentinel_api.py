@@ -15,7 +15,11 @@ from fastapi.responses import JSONResponse
 
 from webarena.shopping.events.generate_events import event_types
 from webarena.shopping.events.product_sales import add_product_sales_rule
-from webarena.shopping.events.products import add_product, update_stock_for_product
+from webarena.shopping.events.products import (
+    add_product,
+    remove_product,
+    update_stock_for_product,
+)
 from webarena.shopping.events.reviews import add_product_review
 from webarena.shopping.utils.auth import create_customer_account, get_admin_token
 
@@ -255,6 +259,9 @@ async def _advance(t: int):
                     sku=next_event["payload"]["product"]["sku"],
                     product=next_event["payload"],
                 )
+            elif event_type == event_types.REMOVE_PRODUCT:
+                sku = next_event["payload"].get("sku")
+                remove_product(admin_token, sku)
             elif event_type == event_types.ADD_SALE:
                 product_id = (
                     next_event["payload"].get("rule", {}).get("product_ids", [None])[0]

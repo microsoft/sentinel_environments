@@ -3,30 +3,17 @@
 import argparse
 import json
 import os
-import sys
 import time
 from collections import defaultdict
-from enum import Enum
 
 import requests
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "docker_env"))
-
+from webarena.shopping.events import event_types
 from webarena.shopping.utils.auth import get_admin_token
 from webarena.shopping.utils.store_requests import make_authenticated_request
 
 DOCKER_SENTINEL_URL = "http://gcr-sandbox-009.redmond.corp.microsoft.com:8000"
 ADOBE_COMMERCE_STORE_URL = "http://gcr-sandbox-009.redmond.corp.microsoft.com:7770"
-event_types = Enum(
-    "EventType",
-    [
-        "ADD_PRODUCT",
-        "UNSTOCK_PRODUCT",
-        "RESTOCK_PRODUCT",
-        "ADD_SALE",
-        "ADD_PRODUCT_REVIEW",
-    ],
-)
 
 
 def generate_shopping_init_events():

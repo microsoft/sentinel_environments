@@ -80,7 +80,7 @@ def generate_review_for_product(product, sentiment="positive"):
 
 
 def generate_product_review_events(
-    sku, num_reviews=20, time_spacing=20, sentiment="positive"
+    sku, num_reviews=20, time_spacing=20, time_start=0, sentiment="positive"
 ):
     """Generate product review events for a specific product SKU."""
     admin_token = get_admin_token()
@@ -99,7 +99,8 @@ def generate_product_review_events(
 
         events += [
             {
-                "time": i * time_spacing,  # Space events by specified time spacing
+                "time": time_start
+                + i * time_spacing,  # Space events by specified time spacing
                 "type": "ADD_PRODUCT_REVIEW",
                 "payload": review_payload,
             }
@@ -164,8 +165,12 @@ if __name__ == "__main__":
         description="Generate product review events for a given search query."
     )
     parser.add_argument("--query", type=str, help="Search query for products")
+
+    # type can be a specific product SKU or comma separated list of SKUs
     parser.add_argument(
-        "--product", type=str, help="Specific product SKU to generate reviews for"
+        "--products",
+        help="Specific product(s) SKU to generate reviews for",
+        nargs="+",
     )
     parser.add_argument(
         "--sentiment",
@@ -192,19 +197,36 @@ if __name__ == "__main__":
         help="Time spacing between review events in seconds",
         default=20,
     )
+
+    parser.add_argument(
+        "--time-start",
+        type=int,
+        help="Offset for the start time of the first review event in seconds",
+        default=0,
+    )
     args = parser.parse_args()
 
-    if args.product:
-        # Generate reviews for a specific product SKU
-        sku = args.product
+    events = []
+    if args.products:
+        # Generate reviews for a specific product SKU or list of SKUs passed in
+        skus = args.products
+
         num_reviews = args.num_reviews_per_product
         time_spacing = args.time_spacing
-        events = generate_product_review_events(
-            sku,
-            num_reviews=num_reviews,
-            time_spacing=time_spacing,
-            sentiment=args.sentiment,
-        )
+
+        time_start = args.time_start
+        for sku in skus:
+            print(f"Generating reviews for product SKU: {sku}")
+            events_for_product = generate_product_review_events(
+                sku,
+                num_reviews=num_reviews,
+                time_start=time_start,
+                time_spacing=time_spacing,
+                sentiment=args.sentiment,
+            )
+            events.extend(events_for_product)
+
+            time_start += len(events_for_product) * time_spacing
     elif args.query:
         # Generate reviews for similar products based on the search query passed in
         # used to generate distracting reviews appearing on a similar search query

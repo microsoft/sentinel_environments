@@ -32,6 +32,7 @@ event_types = Enum(
     "EventType",
     [
         "ADD_PRODUCT",
+        "REMOVE_PRODUCT",
         "UNSTOCK_PRODUCT",
         "RESTOCK_PRODUCT",
         "ADD_SALE",
@@ -99,12 +100,15 @@ def example_api_calls(token):
     )
 
 
-def generate_events(token, num_sales, num_products, num_reviews, num_restocks):
+def generate_events(
+    token, num_sales, num_add_products, num_remove_products, num_reviews, num_restocks
+):
     """Generate product sales and add product events."""
     # Generate a list of the right amount of each event type
     all_events = (
         [event_types.ADD_SALE] * num_sales
-        + [event_types.ADD_PRODUCT] * num_products
+        + [event_types.ADD_PRODUCT] * num_add_products
+        + [event_types.REMOVE_PRODUCT] * num_remove_products
         + [event_types.ADD_PRODUCT_REVIEW] * num_reviews
         + [event_types.RESTOCK_PRODUCT] * num_restocks
     )
@@ -145,6 +149,25 @@ def generate_events(token, num_sales, num_products, num_reviews, num_restocks):
                 "time": datetime.now().isoformat(timespec="milliseconds"),
                 "type": event_types.ADD_PRODUCT.name,
                 "payload": product,
+            }
+            events.append(event)
+
+        elif event == event_types.REMOVE_PRODUCT:
+            print("\nGenerating product remove event...")
+
+            # Generate a remove event for an existing product
+            product = get_random_product_from_catalog(token)
+            if not product:
+                print("✗ No products found in catalog to create remove event.")
+                continue
+
+            sku = product.get("sku")
+            print(f"Creating remove event for product SKU: {sku}...")
+
+            event = {
+                "time": datetime.now().isoformat(timespec="milliseconds"),
+                "type": event_types.REMOVE_PRODUCT.name,
+                "payload": {"sku": sku},
             }
             events.append(event)
 
@@ -198,6 +221,13 @@ def add_events(token, event_type, payload, demo=False):
 
         if demo:
             display_product_pages(sku, payload["product"])
+
+    elif event_type == event_types.REMOVE_PRODUCT:
+        sku = payload.get("sku")
+        remove_product(token, sku)
+
+        if demo:
+            display_product_pages(sku, payload.get("product"))
 
     elif event_type == event_types.ADD_SALE:
         product_id = payload.get("rule", {}).get("product_ids")[0]
@@ -335,9 +365,15 @@ if __name__ == "__main__":
         required=True,
     )
     parser.add_argument(
-        "--num-products",
+        "--num-add-products",
         type=int,
         help="Number of products to add",
+        default=0,
+    )
+    parser.add_argument(
+        "--num-remove-products",
+        type=int,
+        help="Number of products to remove",
         default=0,
     )
     parser.add_argument(
@@ -383,7 +419,8 @@ if __name__ == "__main__":
         all_events = generate_events(
             token,
             args.num_sales,
-            args.num_products,
+            args.num_add_products,
+            args.num_remove_products,
             args.num_reviews,
             args.num_restocks,
         )
