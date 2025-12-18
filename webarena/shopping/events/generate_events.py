@@ -22,6 +22,7 @@ from webarena.shopping.events.products import (
     generate_restock_event,
     get_random_product_from_catalog,
     remove_product,
+    update_product,
     update_stock_for_product,
 )
 from webarena.shopping.events.reviews import add_product_review, generate_product_review
@@ -33,6 +34,7 @@ event_types = Enum(
     [
         "ADD_PRODUCT",
         "REMOVE_PRODUCT",
+        "UPDATE_PRODUCT",
         "UNSTOCK_PRODUCT",
         "RESTOCK_PRODUCT",
         "ADD_SALE",
@@ -121,7 +123,7 @@ def generate_events(
             # Use the adobe commerce API to create a product sale event modifying the salesrule table
             product = get_random_product_from_catalog(token)
             if not product:
-                print("✗ No products found in catalog to create sales event.")
+                print("No products found in catalog to create sales event.")
                 continue
 
             sku = product.get("sku")
@@ -151,7 +153,6 @@ def generate_events(
                 "payload": product,
             }
             events.append(event)
-
         elif event == event_types.REMOVE_PRODUCT:
             print("\nGenerating product remove event...")
 
@@ -228,7 +229,16 @@ def add_events(token, event_type, payload, demo=False):
 
         if demo:
             display_product_pages(sku, payload.get("product"))
+    elif event_type == event_types.UPDATE_PRODUCT:
+        sku = payload["product"].get("sku")
 
+        # delete sku from payload to avoid conflict
+        del payload["sku"]
+
+        update_product(token, sku, payload)
+
+        if demo:
+            display_product_pages(sku, payload["product"])
     elif event_type == event_types.ADD_SALE:
         product_id = payload.get("rule", {}).get("product_ids")[0]
         sales_rule = add_product_sales_rule(token, product_id, payload)
