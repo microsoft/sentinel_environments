@@ -1,4 +1,5 @@
 {
+    "id": "new_kids_headphones_products",
     "start_page": "HOST_ADDRESS/catalogsearch/result/?q=+over-ear+headphones",
     "prompt": "I am shopping for a new pair of headphones for my son for Christmas. Let me know if the following page shows any new results for kids headphones that are less than $5 - http://gcr-sandbox-009.redmond.corp.microsoft.com:7770/electronics/headphones/over-ear-headphones.html?product_list_order=price. Refresh the page after every check. If found, let me know the price of the headphones.",
     "events": [
@@ -1845,5 +1846,14 @@
     ],
     "answer": "$2.00",
     "answer_time": 60,
-    "annotator_notes": "N/A"
+    "annotator_notes": "N/A",
+    "taxonomy": {
+        "trigger_interpretability": "objective",
+        "event_persistence": "persistent",
+        "milestone_type": "relative",
+        "monitoring_approach": "passive",
+        "precision_vs_recall": "high_recall",
+        "difficulty": "medium",
+        "distraction_level": "medium"
+    }
 }

@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from store_requests import make_authenticated_request
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 def add_product_sales_rule(token, name, rule_data):

@@ -1,0 +1,289 @@
+{
+    "id": "chipmonk_keto_cookies_reviews",
+    "start_page": "HOST_ADDRESS/catalogsearch/result/?q=chipmonk",
+    "prompt": "I am the owner of ChipMonk Keto Snacks and we are selling our cookies on this online shop. Can you notify me when both of our cookie bites products has 5 more reviews?. Make sure to refresh the page after every check. Then, please tell me the nickname of the person who wrote the most recent review for our ChipMonk Keto Cookie Bites - 1 pouch",
+    "events": [
+        {
+            "time": 0,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 35319,
+                    "title": "Decadent Keto Treats That Won\u2019t Spike Your Sugar",
+                    "detail": "Short: Crunchy, buttery keto bliss! ChipMonk\u2019s Chocolate Chip Pecan Bites deliver rich chocolate and nutty flavor with just 1g net carbs and <1g sugar. Gluten-free, monk fruit/allulose sweetened, and perfectly portable. Wish the pouch had more! Detailed: These ChipMonk Keto Cookie Bites are a game-changer for low-carb snacking. The chocolate chip and pecan combo tastes decadent\u2014think mini pecan pie meets cookie dough\u2014yet each bite has just 1g net carbs, <1g sugar, and 80\u201390 calories. Almond flour gives a tender, satisfying texture, while higher fats and a touch of protein keep you full without spiking blood sugar. I love that they\u2019re gluten-free and sweetened with monk fruit and allulose, so they\u2019re diabetic- and keto-friendly. The resealable pouch is ideal for gym bags, commutes, or late-night cravings. Drawback? You\u2019ll wish there were more bites per pouch. If you want a clean-ingredient dessert that actually supports your macros, these are a must-try.",
+                    "nickname": "KetoSnackFan",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 5,
+                            "percent": 100.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 20,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 33870,
+                    "title": "Good keto treat with smart macros, but a bit pricey",
+                    "detail": "Short: Tasty keto bites with real banana-cinnamon vibes and chocolate chips. Love the 1g net carbs, gluten- and nut-free, and resealable pouches. Texture\u2019s a bit dense and price per bite feels high, but solid for mindful snacking.\n\nDetailed: If you\u2019re keto or watching sugars, ChipMonk Keto Cookie Bites hit a nice middle ground. The monk fruit/allulose sweetness feels clean\u2014no big blood sugar swings\u2014and 1g net carbs per bite is great for staying on track. I like the sunflower seed flour for a nut-free, gluten-free option with decent protein and satisfying fats. Flavor leans banana bread with cinnamon and dark chips; more \u201csnack bite\u201d than bakery cookie, with a slightly dense, gritty texture that some may notice. The resealable pouches are perfect for the gym bag or desk, and 80\u201385 calories per bite makes portioning easier. Downsides: price is on the higher side and the serving size is small, so they go quickly. Overall, a convenient, diabetic- and keto-friendly treat when you want something sweet without the crash.",
+                    "nickname": "MacroMindedMike",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 3,
+                            "percent": 60.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 40,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 35319,
+                    "title": "Keto convenience with clean ingredients\u2014taste is good, texture is dense",
+                    "detail": "Short: Tasty keto bites with real pecans and chocolate. Love the 1g net carbs, GF, and resealable pouch. Texture is a bit dense and sweetness leans monk-fruity. Pricey for 8 bites, but solid on-the-go keto fix. Detailed: If you\u2019re craving a sweet, keto-friendly nibble, ChipMonk\u2019s Chocolate Chip Pecan Keto Bites deliver on macros and convenience. Each bite is around 80\u201390 calories with 1g net carbs, <1g sugar, and 7\u20138g fat, making them easy to fit into a ketogenic or low-sugar plan. The almond flour base, real pecans, and chocolate chips provide a satisfying nutty-chocolate flavor, and the resealable pouch is perfect for the gym bag or commute. Sweetened with monk fruit and allulose, they don\u2019t spike blood sugar, but the sweetness has a distinct alternative-sweetener aftertaste some may notice. Texture runs dense and slightly dry versus a traditional cookie, and the pouch yields only 8 bites, which feels expensive for frequent snacking. Still, for gluten-free, diabetic-friendly snacking with clean ingredients and reliable macros, these are a convenient, portion-controlled treat worth trying.",
+                    "nickname": "BalancedKetoBiter",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 3,
+                            "percent": 60.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 60,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 35319,
+                    "title": "Keto-friendly sweet bites with real crunch, modest satisfaction",
+                    "detail": "Short: Tasty keto bites with real pecans and chocolate, only 1g net carbs and <1g sugar. Great on-the-go, but portion is small and sweetness from allulose/monk fruit won\u2019t suit everyone. Solid snack for keto, not a full dessert fix. Detailed: As a keto-friendly treat, ChipMonk Keto Cookie Bites deliver on macros\u2014about 80\u201390 calories, 7\u20138g fat, 1g net carbs, and minimal sugar per bite. The almond flour base, real pecans, and chocolate chips make for a satisfying, nutty chew and a nice hit of sweetness without blood sugar spikes. The resealable pouch is convenient for gym bags or desk drawers, and the ingredients are gluten-free and diabetic-friendly. That said, the pouch is small (8 bites), so value may feel just okay, and the texture can be a bit dense compared to traditional cookies. The monk fruit/allulose blend is clean but leaves a mild cooling aftertaste that some may notice. If you\u2019re keeping carbs low and want a quick, portion-controlled sweet bite, these are a practical choice\u2014just temper expectations if you\u2019re craving a classic cookie experience.",
+                    "nickname": "Carb-Conscious Casey",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 3,
+                            "percent": 60.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 80,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 35319,
+                    "title": "Good Keto Macros, Decent Taste\u2014Price and Sweetener Feel Hold It Back",
+                    "detail": "Short review: Tasty keto-friendly bites with real chocolate and pecans, great macros and convenient pouch, but the sweetness from allulose/monk fruit and the price per pouch may not suit everyone.\n\nDetailed review: As someone who tracks carbs and prefers gluten-free options, ChipMonk\u2019s Keto Cookie Bites hit several marks. The chocolate chip pecan combo is genuinely satisfying, with a pleasant crunch from pecans and a soft cookie center. Each bite is 80\u201390 calories with about 1g net carbs and less than 1g sugar, which makes portion control and macro planning easy. I also appreciate the clean ingredient list\u2014almond flour, chocolate chips, real pecans\u2014and the use of monk fruit and allulose to keep blood sugar steady. The resealable pouch is convenient for the gym bag or desk drawer and keeps the bites fresh for a day\u2019s worth of snacking.\n\nA few trade-offs explain my 3-star rating. The sweetness profile leans \u201csugar-alternative\u201d and may taste slightly cooling to sensitive palates. Texture-wise, they\u2019re more dense than a classic cookie, which is expected for almond flour but worth noting. Value is just okay\u2014eight small bites go quickly, so frequent snackers may find the cost adds up. Still, for keto dieters, people monitoring glucose, or anyone wanting a low-carb treat without gluten, these are a practical, tasty option that deliver on macros with mostly natural ingredients and convenient packaging.",
+                    "nickname": "MacroMindedBaker",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 3,
+                            "percent": 60.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 100,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 35319,
+                    "title": "Convenient keto crunch with clean ingredients, but small portion",
+                    "detail": "Short: Tasty keto bites with real pecans and chocolate, just 1g net carb and <1g sugar. Great resealable pouch. Texture can be a bit dense and price feels high for 8 pieces. Solid option for diabetics or keto folks on the go.\n\nDetailed: If you\u2019re craving a sweet, keto-friendly treat, ChipMonk\u2019s Chocolate Chip Pecan Keto Cookie Bites deliver solid macros and decent flavor. Each bite is around 80\u201390 calories, 7\u20138g fat, about 1g net carb, and \u22641g sugar, sweetened with monk fruit and allulose, which kept my blood sugar steady. The almond flour base, real pecans, and chocolate chips make them satisfying and gluten-free, with a nice nutty chocolate profile.\n\nPositives: the resealable pouch is genuinely convenient for on\u2011the\u2011go snacking; the ingredients are clean; and the macros fit ketogenic or diabetic goals without the aftertaste some sugar-free snacks have. Downsides: the texture leans dense and slightly dry compared to traditional cookies, flavor is good but not indulgent, and the pouch only has 8 bites, so value may feel light for the price.\n\nBottom line: Not a splurge-worthy dessert, but a practical, portable keto snack that helps curb cravings without the carb crash.",
+                    "nickname": "MacroMindedMike",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 3,
+                            "percent": 60.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 120,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 33870,
+                    "title": "Banana Bread Bliss, Keto-Style",
+                    "detail": "Short: Guilt-free banana bread vibes! Soft, chocolatey bites with 1g net carb, <1g sugar, gluten- and nut-free. Monk fruit/allulose sweetening, resealable pouches. Pricey per bite, but taste and macros are worth it. Detailed: These ChipMonk Keto Cookie Bites nail the banana bread\u2013meets\u2013chocolate chip flavor without the sugar crash. Each bite is 80\u201385 calories with about 1g net carb, <1g sugar, and 7\u20138g fat\u2014ideal for keto or anyone watching glucose. The sunflower seed flour keeps them gluten- and nut-free, while monk fruit and allulose deliver a clean sweetness that doesn\u2019t spike blood sugar. Texture is tender and satisfying, not chalky, with cinnamon and vanilla rounding out the banana notes. Resealable pouches make them perfect for gym bags, travel, or desk snacking. Downsides: smaller portion than traditional cookies and a premium price. But for great taste, stellar macros, and diabetic-friendly ingredients, these bites are a smart, convenient treat.",
+                    "nickname": "KetoCookieCraver",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 5,
+                            "percent": 100.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 140,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 33870,
+                    "title": "Guilt-Free Banana Bread Bliss in Bite-Size Form",
+                    "detail": "Short review: Tasty, low-carb cookie bites that feel like a real treat without the sugar crash. Great banana-chocolate flavor, smart macros, and super convenient pouches\u2014just a tad pricey and portions are small.  \n\nDetailed review: ChipMonk Keto Cookie Bites deliver a surprisingly indulgent banana chocolate chip flavor with a soft, cake-like bite and hints of cinnamon and vanilla. If you\u2019re keto, diabetic, or just carb-conscious, the nutrition is a standout: about 80\u201385 calories per bite, roughly 1g net carbs, less than 1g sugar, and 7\u20138g of fat for that satisfying, satiating feel. The use of monk fruit and allulose means sweetness without the blood sugar spikes, and I didn\u2019t notice any odd aftertaste or crash.  \n\nI also appreciate the thoughtful ingredient list\u2014sunflower seed flour (nut-free and gluten-free) makes these accessible for more diets while adding protein and fiber. The resealable pouches are perfect for tossing in a gym bag or desk drawer, and the bites hold up well at room temp.  \n\nA couple of trade-offs: the bites are on the small side, so portion control is easy but you might want more than one; and the price per bite is higher than typical cookies\u2014but you\u2019re paying for clean ingredients and keto-friendly macros.  \n\nOverall, these are a delicious, convenient, guilt-free treat that genuinely satisfies a banana bread craving on a low-carb plan. Great for travel, post-workout, or coffee breaks\u2014especially if you\u2019re managing carbs or avoiding gluten and nuts.",
+                    "nickname": "KetoCravingsChaser",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 4,
+                            "percent": 80.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 220,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 33870,
+                    "title": "Keto Banana Bread Bliss in Bite-Sized Form",
+                    "detail": "Short: Guilt-free banana bread vibes! Soft, chocolatey bites with just 1g net carbs, <1g sugar, gluten- and nut-free. Monk fruit/allulose sweetening tastes legit. Resealable pouches are perfect on-the-go. Slightly pricey, but totally worth it. Detailed: These ChipMonk Keto Cookie Bites are a lifesaver for keto and diabetic-friendly snacking. The banana chocolate chip flavor nails that fresh banana bread aroma with cinnamon and vanilla, and the texture is soft and satisfying\u2014not chalky. With 1g net carbs and 1g or less of sugar per bite, plus 7\u20138g fat and some protein and fiber, they keep me full without spiking blood sugar. Sunflower seed flour is a great gluten- and nut-free base, ideal for those with allergies. Monk fruit and allulose deliver clean sweetness with no weird aftertaste or crashes. The resealable pouches make them easy to toss in a gym bag or desk drawer, and they store well. Only drawback is the cost per bite, but the quality ingredients and taste justify it. If you\u2019re craving dessert while staying low-carb, these are a smart, delicious pick.",
+                    "nickname": "LowCarbLaura",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 5,
+                            "percent": 100.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 240,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 33870,
+                    "title": "Banana-bread bliss with keto-friendly crunch",
+                    "detail": "Short: Guilt-free cookie bliss! Soft, banana-bread flavor with dark chips, just 1g net carb and <1g sugar per bite. Gluten- and nut-free, resealable pouches are perfect on-the-go. Slightly pricey for the size, but taste and macros are worth it.\n\nDetailed: These ChipMonk Keto Cookie Bites are a keto snacker\u2019s dream. Think mini banana bread cookies studded with dark chocolate, sweetened with monk fruit and allulose\u2014no sugar crash, just steady energy. Each bite is 80\u201385 calories with about 7g fat, 1g net carbs, and 1g or less sugar, making them ideal for ketogenic diets and diabetics. I love the sunflower seed flour base: gluten-free, nut-free, and surprisingly tender with notes of cinnamon and vanilla. The resealable pouches make portion control and travel easy\u2014gym bag, desk drawer, road trips. Pros: delicious flavor, soft texture, clean ingredients, diabetic-friendly, and great macros. Cons: the bites are small and priced premium, and refrigeration helps freshness. If you want a satisfying cookie fix without blowing your carbs, these deliver big on taste and convenience.",
+                    "nickname": "LowCarbLauren",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 5,
+                            "percent": 100.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        }
+    ],
+    "answer": "",
+    "answer_time": 820,
+    "annotator_notes": "N/A",
+    "taxonomy": {
+        "criteria": "objective",
+        "milestone_type": "relative",
+        "event_persistence": "persistent",
+        "monitoring_approach": "passive",
+        "failure_tolerance": "high_precision",
+        "difficulty": "medium",
+        "distraction_level": "low"
+    }
+}

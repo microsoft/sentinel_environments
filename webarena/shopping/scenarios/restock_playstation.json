@@ -1,6 +1,7 @@
 {
+    "id": "restock_playstation",
     "start_page": "HOST_ADDRESS/sony-playstation-vita-sapphire-blue-3g-wi-fi-pch-1100-ab04.html",
-    "prompt": "I am hoping that the new Sony Playstation comes back in stock by Christmas! Let me know if the following page shows it is back in stock - http://gcr-sandbox-009.redmond.corp.microsoft.com:7770/sony-playstation-vita-sapphire-blue-3g-wi-fi-pch-1100-ab04.html.  Always refresh the page before every check. If it is back in stock, give me the number of reviews for the product.",
+    "prompt": "I am hoping that the new Sony Playstation comes back in stock by Christmas! Let me know if this page shows it is back in stock. Make sure to refresh the page after every check. If it is back in stock, give me the number of reviews for the product.",
     "events": [
         {
             "time": 0,
@@ -297,5 +298,14 @@
     ],
     "answer": "17",
     "answer_time": 120,
-    "annotator_notes": "N/A"
+    "annotator_notes": "N/A",
+    "taxonomy": {
+        "criteria": "objective",
+        "milestone_type": "absolute",
+        "event_persistence": "ephemeral",
+        "monitoring_approach": "passive",
+        "failure_tolerance": "high_recall",
+        "difficulty": "easy",
+        "distraction_level": "low"
+    }
 }

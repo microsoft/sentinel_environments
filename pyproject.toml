@@ -12,6 +12,17 @@ dependencies = [
     "poethepoet",
     "codespell",
     "requests>=2.32.4",
+    "beautifulsoup4>=4.14.3",
+    "openai>=2.9.0",
+    "mysql-connector-python>=9.5.0",
+]
+
+[tool.setuptools]
+packages = [
+  "webarena",
+  "webarena.shopping",
+  "webarena.shopping.events",
+  "webarena.shopping.utils",
 ]
 
 [tool.ruff]

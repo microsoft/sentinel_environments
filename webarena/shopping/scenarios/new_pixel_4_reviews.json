@@ -1,6 +1,7 @@
 {
-    "start_page": "HOST_ADDRESS/google-pixel-4-just-black-64gb-unlocked.html",
-    "prompt": "I am interested in reading reviews for the Google Pixel 4. Please check this page to see if there are new reviews - http://gcr-sandbox-009.redmond.corp.microsoft.com:7770/catalogsearch/result/?q=google+pixel+4 -  Once found, tell me who submitted the review.",
+    "id": "new_pixel_4_reviews",
+    "start_page": "HOST_ADDRESS/cell-phones-accessories/cell-phones.html",
+    "prompt": "I am interested in reading reviews for the Google Pixel 4. Please check this page to see if there are new reviews. Make sure to refresh the page after every check. Once found, tell me who submitted the review.",
     "events": [
         {
             "time": 0,
@@ -248,5 +249,14 @@
     ],
     "answer": "MrPhoneGuy",
     "answer_time": 80,
-    "annotator_notes": "N/A"
+    "annotator_notes": "N/A",
+    "taxonomy": {
+        "trigger_interpretability": "objective",
+        "event_persistence": "persistent",
+        "milestone_type": "relative",
+        "monitoring_approach": "passive",
+        "precision_vs_recall": "high_recall",
+        "difficulty": "medium",
+        "distraction_level": "medium"
+    }
 }

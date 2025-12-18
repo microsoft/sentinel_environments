@@ -3,19 +3,28 @@
 Used for generation of shopping scenarios.
 """
 
+import argparse
 import base64
 import json
 
-from auth import get_admin_token
-from generate_events import event_types
-from products import generate_product_from_product
-from store_requests import make_authenticated_request
+from webarena.shopping.events.generate_events import event_types
+from webarena.shopping.events.products import generate_product_from_product
+from webarena.shopping.utils.auth import get_admin_token
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 # Use the Adobe Commerce REST API to search for products for a given search query
 def search_products(query, token):
     """Search for products using the Adobe Commerce REST API."""
-    url = f"/rest/V1/products?searchCriteria[filter_groups][0][filters][0][field]=name&searchCriteria[filter_groups][0][filters][0][value]=%25{query}%25&searchCriteria[filter_groups][0][filters][0][condition_type]=like"
+    # Search by products matching the list of search terms
+    query_terms = query.split(" ")
+    query = ",".join([term.strip() for term in query_terms])
+
+    url_start = "/rest/V1/products?"
+    for term in query_terms:
+        url_start += f"searchCriteria[filter_groups][0][filters][0][field]=name&searchCriteria[filter_groups][0][filters][0][value]=%25{term}%25&searchCriteria[filter_groups][0][filters][0][condition_type]=like&"
+
+    url = url_start.rstrip("&")
 
     print(f"Searching products with query: {query}, URL: {url}")
     response = make_authenticated_request(token, url, method="GET")
@@ -26,8 +35,8 @@ def search_products(query, token):
     return []
 
 
-def generate_similar_product_add_events(query):
-    """Generate product add events for products matching the search query."""
+def generate_similar_product_add_events(query, num_products=10):
+    """Generate product add events for products matching the search query to serve as distractors."""
     admin_token = get_admin_token()
     products = search_products(query, admin_token)
     print(f"Found {len(products)} products matching query '{query}'")
@@ -35,7 +44,7 @@ def generate_similar_product_add_events(query):
     events = []
 
     # select a subset of results
-    products = products[:20]  # Limit to first 20 products for simplicity
+    products = products[:num_products]
     for i, product in enumerate(products):
         new_product = generate_product_from_product(product)
         sku = new_product["product"]["sku"]
@@ -58,9 +67,25 @@ def generate_similar_product_add_events(query):
 
 
 if __name__ == "__main__":
-    query = "Over-Ear Headphones"
-    events = generate_similar_product_add_events(query)
+    # use argparse to get the query
+    parser = argparse.ArgumentParser(
+        description="Generate product review events for a given search query."
+    )
+    parser.add_argument(
+        "--query", type=str, help="Search query for products", required=True
+    )
+    parser.add_argument(
+        "--num-products",
+        type=int,
+        help="Number of products to generate events for",
+        default=10,
+    )
+    args = parser.parse_args()
+
+    query = args.query
+    events = generate_similar_product_add_events(query, num_products=args.num_products)
 
     with open("product_add_events.json", "w") as f:
         json.dump(events, f, indent=4)
+
     print(f"Generated {len(events)} product add events for query '{query}'")

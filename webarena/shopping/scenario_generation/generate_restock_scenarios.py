@@ -7,11 +7,11 @@ Used in generation of events for shopping scenarios.
 import json
 from datetime import datetime
 
-from auth import get_admin_token
-from generate_events import event_types
-from products import generate_restock_event
-from reviews import get_product_review_from_description
-from store_requests import make_authenticated_request
+from webarena.shopping.events.generate_events import event_types
+from webarena.shopping.events.products import generate_restock_event
+from webarena.shopping.events.reviews import get_product_review_from_description
+from webarena.shopping.utils.auth import get_admin_token
+from webarena.shopping.utils.store_requests import make_authenticated_request
 
 
 # Use the Adobe Commerce REST API to search for products for a given search query

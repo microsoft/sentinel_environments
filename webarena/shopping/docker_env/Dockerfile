@@ -5,6 +5,9 @@ FROM shopping_final_0712
 ENV MAGENTO_PORT=80
 ENV MAGENTO_URL=localhost
 
+ARG SHOPPING_PATH="/webarena/shopping"
+ARG DOCKER_PATH="${SHOPPING_PATH}/docker_env"
+
 # Install system dependencies
 RUN apk update
 RUN apk update --no-cache \
@@ -21,19 +24,24 @@ RUN python3 -m ensurepip
 # Install required Python packages
 RUN pip3 install --no-cache --upgrade pip setuptools && pip3 install mysql-connector-python fastapi uvicorn requests openai beautifulsoup4
 
-# Copy scripts for event generation
-COPY generate_events.py /var/www/html/generate_events.py
-COPY product_sales.py /var/www/html/product_sales.py
-COPY products.py /var/www/html/products.py
-COPY auth.py /var/www/html/auth.py
-COPY store_requests.py /var/www/html/store_requests.py
-COPY completions.py /var/www/html/completions.py
-COPY reviews.py /var/www/html/reviews.py
-COPY .env /var/www/html/.env
-COPY events.jsonl.gz /var/www/html/events.jsonl.gz
-COPY product_images.tar.gz /var/www/html/product_images.tar.gz
+# Copy events and product images
+COPY ${DOCKER_PATH}/events.jsonl.gz /var/www/html/events.jsonl.gz
+COPY ${DOCKER_PATH}/product_images.tar.gz /var/www/html/product_images.tar.gz
 RUN tar -xzf /var/www/html/product_images.tar.gz -C /var/www/html/
 
+# Copy scripts for installing the webarena.shopping package and interacting w/ the magento store
+COPY ${DOCKER_PATH}/pyproject.toml /var/www/html/pyproject.toml
+RUN mkdir -p /var/www/html/webarena/shopping/events 
+RUN mkdir -p /var/www/html/webarena/shopping/utils
+
+COPY webarena/__init__.py /var/www/html/webarena/__init__.py
+COPY ${SHOPPING_PATH}/__init__.py /var/www/html/webarena/shopping/__init__.py
+COPY ${SHOPPING_PATH}/events/ /var/www/html/webarena/shopping/events/
+COPY ${SHOPPING_PATH}/utils/ /var/www/html/webarena/shopping/utils/
+
+WORKDIR /var/www/html
+RUN pip3 install . 
+
 # Copy the sentinel server
-COPY sentinel_api.py /var/www/html/sentinel_api.py
-COPY fastapi.ini /etc/supervisor.d/fastapi.ini
+COPY ${DOCKER_PATH}/sentinel_api.py /var/www/html/sentinel_api.py
+COPY ${DOCKER_PATH}/fastapi.ini /etc/supervisor.d/fastapi.ini

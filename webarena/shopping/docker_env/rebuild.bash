@@ -2,7 +2,7 @@ arg="${1:-}"   # optional argument; empty string if not provided
 
 docker stop shopping
 docker container rm shopping
-docker build --build-arg BUILD_DATE=$(date +%F) -t shopping-sentinel:latest .
+docker build -f ../../../webarena/shopping/docker_env/Dockerfile --build-arg BUILD_DATE=$(date +%F) -t shopping-sentinel:latest ../../../
 
 # Get the machine hostname, lowercase
 HOSTNAME="$(hostname -f).redmond.corp.microsoft.com"
