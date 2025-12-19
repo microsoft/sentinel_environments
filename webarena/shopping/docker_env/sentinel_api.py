@@ -18,6 +18,7 @@ from webarena.shopping.events.product_sales import add_product_sales_rule
 from webarena.shopping.events.products import (
     add_product,
     remove_product,
+    update_product,
     update_stock_for_product,
 )
 from webarena.shopping.events.reviews import add_product_review
@@ -259,8 +260,22 @@ async def _advance(t: int):
                     sku=next_event["payload"]["product"]["sku"],
                     product=next_event["payload"],
                 )
+            elif event_type == event_types.UPDATE_PRODUCT:
+                sku = next_event["payload"].get("sku")
+
+                # Remove sku from payload as it's not part of stock update API
+                payload_copy = next_event["payload"].copy()
+                del payload_copy["sku"]
+
+                update_product(
+                    token=admin_token,
+                    sku=sku,
+                    payload=payload_copy,
+                )
             elif event_type == event_types.REMOVE_PRODUCT:
                 sku = next_event["payload"].get("sku")
+
+                # Payload not actually used for removal, just SKU
                 remove_product(admin_token, sku)
             elif event_type == event_types.ADD_SALE:
                 product_id = (

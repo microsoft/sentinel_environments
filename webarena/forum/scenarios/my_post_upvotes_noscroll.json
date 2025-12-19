@@ -86,5 +86,14 @@
     ],
     "answer": "Official Poster for 'The Marvels'",
     "answer_time": 463,
-    "annotator_notes": "This post appears both on the user's 'Overview' and 'Submissions' pages, so either page could be used to monitor upvotes. No scrolling is required."
+    "annotator_notes": "This post appears both on the user's 'Overview' and 'Submissions' pages, so either page could be used to monitor upvotes. No scrolling is required.",
+    "taxonomy": {
+        "criteria": "objective",
+        "milestone_type": "absolute",
+        "event_persistence": "persistent",
+        "monitoring_approach": "passive",
+        "failure_tolerance": "high_precision",
+        "difficulty": "easy",
+        "distraction_level": "low"
+    }
 }

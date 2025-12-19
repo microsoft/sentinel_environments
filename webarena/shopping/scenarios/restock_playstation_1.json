@@ -1,0 +1,79 @@
+{
+    "id": "restock_playstation_1",
+    "start_page": "HOST_ADDRESS/sony-playstation-vita-sapphire-blue-3g-wi-fi-pch-1100-ab04.html",
+    "prompt": "I am hoping that the new Sony Playstation Vita comes back in stock by Christmas! Let me know if this page shows it is back in stock. If it is back in stock, give me the number of reviews for the product.  It is necessary to refresh the page after every check for reviews to make sure the information is up to date",
+    "events": [
+        {
+            "time": 0,
+            "type": "RESTOCK_PRODUCT",
+            "payload": {
+                "stockItem": {
+                    "qty": 0,
+                    "is_in_stock": true
+                },
+                "sku": "B009DD2RJ2"
+            }
+        },
+        {
+            "time": 60,
+            "type": "ADD_PRODUCT_REVIEW",
+            "payload": {
+                "review": {
+                    "entity_pk_value": 37971,
+                    "title": "A Sapphire Blue Gem for Portable Play",
+                    "detail": "Short: Gorgeous Sapphire Blue Vita with 3G/Wi\u2011Fi is portable, vibrant, and collectible. Snappy performance, great library, comfy controls. Battery is decent; storage requires a memory card. Worth it for fans and collectors alike.\n\nDetailed: The Sony PlayStation Vita Sapphire Blue 3G/Wi\u2011Fi (PCH\u20111100 AB04) is a stunning limited edition that feels premium the moment you unbox it. The vivid 5-inch display makes games and indie titles pop, and the ergonomic design is comfortable for long sessions. 3G/Wi\u2011Fi keeps you connected for multiplayer, downloads, and updates on the go, and the included lithium-ion battery offers solid playtime for a handheld of its era. Performance is smooth, with responsive controls and a strong catalog of classics, JRPGs, and remote play options. The Sapphire Blue finish is eye-catching and collectible. Downsides: proprietary memory cards can add cost, and it\u2019s a legacy system, so some online services may be limited. Still, for enthusiasts and collectors wanting a beautifully built portable with a rich game library, this edition is a gem.",
+                    "nickname": "RetroRaven",
+                    "ratings": [
+                        {
+                            "rating_id": 4,
+                            "rating_name": "Rating",
+                            "value": 5,
+                            "percent": 100.0
+                        }
+                    ],
+                    "review_entity": "product",
+                    "review_type": 2,
+                    "review_status": 1,
+                    "store_id": 1,
+                    "stores": [
+                        1
+                    ]
+                }
+            }
+        },
+        {
+            "time": 240,
+            "type": "RESTOCK_PRODUCT",
+            "payload": {
+                "stockItem": {
+                    "qty": 115,
+                    "is_in_stock": true
+                },
+                "sku": "B009DD2RJ2"
+            }
+        },
+        {
+            "time": 480,
+            "type": "UNSTOCK_PRODUCT",
+            "payload": {
+                "stockItem": {
+                    "qty": 0,
+                    "is_in_stock": false
+                },
+                "sku": "B009DD2RJ2"
+            }
+        }
+    ],
+    "answer": "8",
+    "answer_time": 120,
+    "annotator_notes": "N/A",
+    "taxonomy": {
+        "criteria": "objective",
+        "milestone_type": "absolute",
+        "event_persistence": "ephemeral",
+        "monitoring_approach": "passive",
+        "failure_tolerance": "high_recall",
+        "difficulty": "easy",
+        "distraction_level": "low"
+    }
+}

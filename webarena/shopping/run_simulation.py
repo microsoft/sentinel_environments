@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import requests
 
-from webarena.shopping.events import event_types
+from webarena.shopping.events.generate_events import event_types
 from webarena.shopping.utils.auth import get_admin_token
 from webarena.shopping.utils.store_requests import make_authenticated_request
 

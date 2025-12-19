@@ -82,6 +82,23 @@ def post_product_image(token, sku, img_data):
     return result
 
 
+def update_product(token, sku, payload):
+    """Update the price of a product in the catalog."""
+    result = make_authenticated_request(
+        token,
+        f"/rest/V1/products/{sku}",
+        method="PUT",
+        data=payload,
+    )
+
+    if result:
+        print(f"Updated product with SKU: {sku}")
+    else:
+        print(f"Failed to update product with SKU: {sku}")
+
+    return result
+
+
 def remove_product(token, sku):
     """Remove a product from the catalog using the REST API.
 
@@ -94,9 +111,9 @@ def remove_product(token, sku):
     endpoint = f"/rest/V1/products/{sku}"
     result = make_authenticated_request(token, endpoint, method="DELETE")
     if result is not None:
-        print(f"✓ Removed product with SKU: {sku}")
+        print(f"Removed product with SKU: {sku}")
     else:
-        print(f"✗ Failed to remove product with SKU: {sku}")
+        print(f"Failed to remove product with SKU: {sku}")
 
 
 def add_product(token, sku, product):
@@ -122,7 +139,7 @@ def add_product(token, sku, product):
     )
 
     if result:
-        print(f"✓ Created product: {result.get('name')}")
+        print(f"Created product: {result.get('name')}")
         print(f"  SKU: {result.get('sku')}")
         print(f"  ID: {result.get('id')}")
 
@@ -135,10 +152,9 @@ def add_product(token, sku, product):
                 image_data = image_file.read()
                 img_data = base64.b64encode(image_data).decode("utf-8")
 
-        print(f"Posting product image for SKU: {sku}...")
         post_product_image(token, sku, img_data)
     else:
-        print("✗ Failed to create product")
+        print("Failed to create product")
 
 
 def get_random_product_from_catalog(token, in_stock=True):
@@ -174,9 +190,6 @@ def get_random_product_from_catalog(token, in_stock=True):
             items = result.get("items", [])
 
             # filter out products that are not simple products
-            print("Filtering for simple products...")
-            all_types = {item.get("type_id") for item in items}
-            print(f"Found product types on this page: {all_types}")
             items = [item for item in items if item.get("type_id") == "simple"]
 
             # Select a random item
@@ -204,10 +217,10 @@ def get_product_by_sku(token, sku):
     result = make_authenticated_request(token, endpoint)
 
     if result:
-        print(f"✓ Found product: SKU={result.get('sku')}, Name={result.get('name')}")
+        print(f"Found product: SKU={result.get('sku')}, Name={result.get('name')}")
         return result
     else:
-        print(f"✗ Failed to find product with SKU: {sku}")
+        print(f"Failed to find product with SKU: {sku}")
         return None
 
 
@@ -264,7 +277,7 @@ def download_product_image(url_key, sku):
         return None
 
 
-def generate_product_from_product(product):
+def clone_product(product):
     """Create a cloned product of the given product with modified name, description, and SKU."""
     url_key = list(
         filter(
@@ -344,7 +357,7 @@ def generate_product_from_catalog(token):
     if not random_product:
         return None
 
-    new_product = generate_product_from_product(random_product)
+    new_product = clone_product(random_product)
     return new_product
 
 
@@ -370,7 +383,7 @@ def generate_restock_event(token, sku, qty=None):
         }
         return stock_payload
     else:
-        print(f"✗ Failed to fetch stock item for SKU: {sku}")
+        print(f"Failed to fetch stock item for SKU: {sku}")
         return None
 
 
@@ -398,9 +411,9 @@ def update_stock_for_product(token, sku, payload):
 
     if result:
         print(
-            f"✓ Restocked product with SKU: {sku}. New quantity: {payload['stockItem']['qty']}"
+            f"Restocked product with SKU: {sku}. New quantity: {payload['stockItem']['qty']}"
         )
     else:
-        print(f"✗ Failed to restock product with SKU: {sku}")
+        print(f"Failed to restock product with SKU: {sku}")
 
     return result

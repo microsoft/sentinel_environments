@@ -86,5 +86,14 @@
     ],
     "answer": "‘Squid Game’: Lee Jung Jae Says Season 2 Begins Filming This Summer",
     "answer_time": 601,
-    "annotator_notes": "This post appears both on the user's 'Overview' and 'Submissions' pages, so either page could be used to monitor upvotes. Scrolling IS required since this post is not in the immediate viewport."
+    "annotator_notes": "This post appears both on the user's 'Overview' and 'Submissions' pages, so either page could be used to monitor upvotes. Scrolling IS required since this post is not in the immediate viewport.",
+    "taxonomy": {
+        "criteria": "objective",
+        "milestone_type": "absolute",
+        "event_persistence": "persistent",
+        "monitoring_approach": "active",
+        "failure_tolerance": "high_precision",
+        "difficulty": "easy",
+        "distraction_level": "low"
+    }
 }
