@@ -1,7 +1,7 @@
 {
     "id": "new_kids_headphones_products_2",
     "start_page": "HOST_ADDRESS/electronics/headphones/over-ear-headphones.html?product_list_order=price",
-    "prompt": "I am shopping for a new pair of headphones for my son for Christmas and am on a budget. Tell me when you see any kids headphones that are less than $5 on this page. If found, let me know the price of the headphones. It is necessary to refresh the page after every check for reviews to make sure the information is up to date.",
+    "prompt": "I am shopping for a new pair of headphones for my son for Christmas and am on a budget. Tell me when you see any kids headphones that are less than $5 on this page. If found, let me know the price of the headphones. It is necessary to refresh the page after every check for kids headphones to make sure the information is up to date.",
     "events": [
         {
             "time": 240,
