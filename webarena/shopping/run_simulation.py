@@ -113,6 +113,21 @@ def _raise_for_status_with_body(resp: requests.Response) -> None:
         raise requests.HTTPError(msg, response=resp) from e
 
 
+def _startup():
+    """Start up the Docker Sentinel server."""
+    # Wait for things to start up
+    try:
+        _ = _poll_until(target_states=["preinit"], valid_states=["starting"])
+    except Exception as e:
+        print(f"Server did not reach preinit state: {e}")
+
+        # Issue a close command to reinitialize the server
+        response = requests.get(f"{DOCKER_SENTINEL_URL}/close")
+        response.raise_for_status()
+        print("Sent close signal to server. Waiting for restart...")
+        _startup()
+
+
 def _poll_until(target_states, valid_states=None):
     """Poll the server until it is in the desired state.
 
@@ -176,8 +191,7 @@ def main():
     with open(args.scenario) as f:
         scenario_data = json.load(f)
 
-    # Wait for things to start up
-    response_data = _poll_until(target_states=["preinit"], valid_states=["starting"])
+    _startup()
 
     # Initialize the server
     init_events = {
@@ -187,7 +201,8 @@ def main():
     _raise_for_status_with_body(response)
     response_data = response.json()
 
-    assert response_data["status"] == "ready"
+    if not response_data["status"] == "ready":
+        raise Exception(f"Failed to initialize server: {response_data}")
 
     print("Done init()")
 
