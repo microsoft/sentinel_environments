@@ -113,8 +113,6 @@ def _raise_for_status_with_body(resp: requests.Response) -> None:
         raise requests.HTTPError(msg, response=resp) from e
 
 
-<<<<<<< Updated upstream
-=======
 def _startup(tries: 0 = 0):
     """Start up the Docker Sentinel server."""
     if tries >= 1:
@@ -142,7 +140,6 @@ def _startup(tries: 0 = 0):
             print(f"Failed to send close signal: {e}")
 
 
->>>>>>> Stashed changes
 def _poll_until(target_states, valid_states=None):
     """Poll the server until it is in the desired state.
 
