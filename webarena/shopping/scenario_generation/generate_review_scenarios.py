@@ -245,8 +245,8 @@ if __name__ == "__main__":
         print(f"Generated {len(events)} product review events for query '{query}'")
 
     else:
-        print("Please provide either a --query or --product argument.")
+        print("Please provide either a --query or --products argument.")
         exit(1)
 
-    with open("output_events.json", "w") as f:
+    with open("review_events.json", "w") as f:
         json.dump(events, f, indent=4)
