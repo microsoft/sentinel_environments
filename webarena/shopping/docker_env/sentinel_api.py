@@ -32,7 +32,7 @@ STATE_RUNNING_MANUAL = "running_manual"
 STATE_STOPPING = "stopping"
 
 SERVER_URL = (
-    f"{os.environ.get('SERVER_URL', 'gcr-sandbox-009.redmond.corp.microsoft.com')}"
+    f"{os.environ.get('SERVER_URL', 'GCRAZGDL1137.northcentralus.cloudapp.azure.com')}"
 )
 SIMULATION_START_TIME = "2025-12-03T16:44:25+00:00"
 WEBARENA_SHOP_START_TIME = "2023-04-18T14:30:42+00:00"
