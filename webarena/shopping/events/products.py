@@ -303,8 +303,10 @@ def clone_product(product):
     # Clear out prior image content from custom_attributes. Otherwise this will cause issues when adding the product.
     custom_attributes = list(
         filter(
-            lambda x: x["attribute_code"]
-            not in ["image", "small_image", "thumbnail", "swatch_image"],
+            lambda x: (
+                x["attribute_code"]
+                not in ["image", "small_image", "thumbnail", "swatch_image"]
+            ),
             new_product["custom_attributes"],
         )
     )

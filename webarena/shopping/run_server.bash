@@ -2,7 +2,7 @@ while true; do
     if [ -z "$(docker ps --filter "name=shopping" --format '{{.Names}}')" ]; then
         sleep 5
         
-        HOSTNAME="$(hostname -f).redmond.corp.microsoft.com"
+        HOSTNAME="$(hostname -f).northcentralus.cloudapp.azure.com"
         HOSTNAME_LOWER="${HOSTNAME,,}"
 
         echo "Starting shopping container..."

@@ -5,7 +5,7 @@ docker container rm shopping
 docker build -f ../../../webarena/shopping/docker_env/Dockerfile --build-arg BUILD_DATE=$(date +%F) -t shopping-sentinel:latest ../../../
 
 # Get the machine hostname, lowercase
-HOSTNAME="$(hostname -f).redmond.corp.microsoft.com"
+HOSTNAME="$(hostname -f).northcentralus.cloudapp.azure.com"
 HOSTNAME_LOWER="${HOSTNAME,,}"
 
 if [[ "$arg" == "start" ]]; then

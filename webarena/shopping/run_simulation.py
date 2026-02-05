@@ -113,8 +113,11 @@ def _raise_for_status_with_body(resp: requests.Response) -> None:
         raise requests.HTTPError(msg, response=resp) from e
 
 
-def _startup():
+def _startup(tries: 0 = 0):
     """Start up the Docker Sentinel server."""
+    if tries >= 1:
+        raise Exception("Failed to start up the server after 1 attempts.")
+
     # Wait for things to start up
     try:
         _ = _poll_until(target_states=["preinit"], valid_states=["starting"])
@@ -122,10 +125,19 @@ def _startup():
         print(f"Server did not reach preinit state: {e}")
 
         # Issue a close command to reinitialize the server
-        response = requests.get(f"{DOCKER_SENTINEL_URL}/close")
-        response.raise_for_status()
-        print("Sent close signal to server. Waiting for restart...")
-        _startup()
+        try:
+            response = requests.get(f"{DOCKER_SENTINEL_URL}/close")
+            response.raise_for_status()
+            print("Sent close signal to server. Waiting for restart...")
+
+            print("Waiting 120 seconds for server to restart...")
+            time.sleep(120)  # Wait for server to restart
+
+            print("Attempting to startup again...")
+            _startup(tries + 1)
+
+        except Exception as e:
+            print(f"Failed to send close signal: {e}")
 
 
 def _poll_until(target_states, valid_states=None):
