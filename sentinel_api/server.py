@@ -18,7 +18,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 
 from sentinel_api.catalogs import (
     MICRODIN_COMPANY_CATALOG,
@@ -376,6 +376,25 @@ async def play() -> JSONResponse:
         "simulation_time": session.simulation_time,
         "next_event_time": _next_event_time(session),
     })
+
+
+@app.get("/redirect")
+async def redirect(base_url: str = "http://localhost:5173") -> RedirectResponse:
+    global _state
+    session = _require_session()
+
+    if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Wrong state: /redirect requires '{STATE_READY}' or '{STATE_RUNNING_MANUAL}'. Current: '{_state}'.",
+        )
+
+    _state = STATE_RUNNING_AUTO
+    session.start_wall_time = time.time()
+    asyncio.create_task(_run_auto(session))
+
+    url = f"{base_url.rstrip('/')}/{session.environment}"
+    return RedirectResponse(url=url, status_code=302)
 
 
 @app.get("/close")
