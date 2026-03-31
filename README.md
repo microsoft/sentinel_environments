@@ -5,10 +5,9 @@
 
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
-[![Paper (arXiv)](https://img.shields.io/badge/Paper-arXiv-b31b1b)](https://arxiv.org/abs/ARXIV_ID_TODO)
 [![Citation](https://img.shields.io/badge/Cite-BibTeX-blue)](#citation)
 [![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://sentinel-bench.vercel.app/)
-[![Blog](https://img.shields.io/badge/Blog-Post-6f42c1)](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/?msockid=00fd3664922e643528ea20339334658d)
+[![Blog](https://img.shields.io/badge/Blog-Post-6f42c1)](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/)
 
 </div>
 
@@ -54,7 +53,7 @@ SentinelBench consists of **10 high-fidelity web-app environment replicas** (Mic
 | MicroLendar | Calendar | Event scheduling and reminders | Text-only (JSONL) |
 | MicroScholar | Academic search | Citation counts and new papers | Text-only (JSONL) |
 
-> **Note on Data Types**: Environments marked "Text-only (JSONL)" use structured text data without AI-generated media. Environments with synthetic data use AI-generated images, videos, or audio created via the scripts in `data-generation/`. See [Synthetic Data Generation](#synthetic-data-generation) for details.
+> **Note on Data Types**: Environments marked "Text-only (JSONL)" use structured text data without AI-generated media. Environments with synthetic data use AI-generated images, videos, or audio created via the scripts in `data_generation/`. See [Synthetic Data Generation](#synthetic-data-generation) for details.
 
 ### Task Dimensions
 
@@ -132,31 +131,18 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:5174` to interact with tasks manually.
+Visit `http://localhost:5173` to interact with tasks manually.
 
-### Run Agent Evaluations
+### Run the Backend
 
 ```bash
-# Setup Python environment
 python3 -m venv .venv
 source .venv/bin/activate
-cd evals/browseruse_sentinelbench
-
-# Install dependencies
-pip install browser-use inspect-ai langchain-openai langchain-anthropic python-dotenv
-playwright install chromium
-
-# System dependencies (Linux/WSL2)
-sudo apt-get install -y libnspr4 libnss3 libasound2t64
-sudo service dbus start  # WSL2 only
-
-# Configure API keys
-echo "OPENAI_API_KEY=your_key" > .env
-echo "ANTHROPIC_API_KEY=your_key" >> .env
-
-# Run evaluation
-python browseruse_sentinelbench.py
+pip install -r sentinel_api/requirements.txt
+uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000
 ```
+
+The frontend proxies API requests to `localhost:8000`, so the backend must be running for full functionality.
 
 ## System Requirements
 
@@ -191,24 +177,29 @@ The approach is implemented in [Magentic-UI](https://github.com/microsoft/magent
 ## Repository Structure
 
 ```
-SentinelBench/
-├── sentinelbench/src/
-│   ├── environments/      # Micro* environment implementations
-│   ├── data/              # Synthetic data (users, emails, events, etc.)
-│   ├── config/            # Task variants
-│   └── utils/             # Task state management, timestamps
-├── data-generation/       # Synthetic data generation scripts and prompts
+sentinel_environments/
+├── sentinel_api/          # FastAPI backend (handlers, scenarios, SQLite databases)
+│   ├── handlers/          # Per-environment request handlers
+│   ├── scripts/           # build_db.py (JSONL → SQLite)
+│   ├── <env>/             # .db file + scenarios/*.json per environment
+│   ├── server.py          # Main FastAPI app
+│   └── run_simulation.py  # CLI evaluation harness
+├── sentinelbench/         # React/Vite frontend
+│   ├── src/
+│   │   ├── environments/  # Micro* UI components
+│   │   ├── hooks/         # API data hooks
+│   │   └── data/          # Type definitions and JSONL source data
+│   └── public/            # Static media (images, audio, video)
+├── data_generation/       # Synthetic data generation scripts and prompts
 │   ├── scripts/           # Generation scripts (batch_image_gen.py, SLURM jobs)
 │   ├── prompts/           # Prompt files organized by environment
 │   └── docs/              # REPRODUCTION.md, COMPLIANCE.md
-├── evals/                 # Evaluation harnesses
-├── docs/                  # Documentation
-└── paper/                 # Research paper draft
+└── tests/                 # Integration, E2E, and eval_sql tests
 ```
 
 ## Synthetic Data Generation
 
-The `data-generation/` folder contains all scripts and prompts used to generate synthetic media for SentinelBench environments.
+The `data_generation/` folder contains all scripts and prompts used to generate synthetic media for SentinelBench environments.
 
 ### Generated Asset Types
 
@@ -234,14 +225,14 @@ These environments rely solely on the JSONL files in `sentinelbench/src/data/con
 
 ### Running Data Generation
 
-See [`data-generation/docs/REPRODUCTION.md`](data-generation/docs/REPRODUCTION.md) for detailed instructions on regenerating synthetic assets. Requirements include:
+See [`data_generation/docs/REPRODUCTION.md`](data_generation/docs/REPRODUCTION.md) for detailed instructions on regenerating synthetic assets. Requirements include:
 
 - **GPU**: NVIDIA A100 (images) or B200 Blackwell (video/audio)
 - **VRAM**: 32GB+ for images, 80GB+ for video
 - **HuggingFace account**: Required for gated model access (FLUX.2-dev)
 
 ```bash
-cd data-generation/scripts
+cd data_generation/scripts
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 huggingface-cli login
@@ -252,15 +243,9 @@ python batch_image_gen.py --mode image --model flux2-dev \
     --output_dir ./generated_avatars
 ```
 
-## Documentation
-
-- **[Quick Start Guide](docs/01-getting-started/quick-start.md)** - Get running in 5 minutes
-- **[Task Development Guide](docs/03-task-development/task-guide.md)** - Create new environments/tasks
-- **[Architecture Overview](docs/03-task-development/architecture-overview.md)** - System design
-
 ## License
 
-[License information to be added]
+This project is licensed under the [MIT License](LICENSE).
 
 ## Citation
 
