@@ -1,0 +1,6 @@
+{"id":"mood-001","name":"Energetic","description":"High-energy tracks to get you moving","coverColor":"#ff5722","order":0}
+{"id":"mood-002","name":"Relaxing","description":"Calm and peaceful music for unwinding","coverColor":"#4caf50","order":1}
+{"id":"mood-003","name":"Focused","description":"Concentration-boosting instrumental tracks","coverColor":"#2196f3","order":2}
+{"id":"mood-004","name":"Melancholic","description":"Emotional songs for reflective moments","coverColor":"#607d8b","order":3}
+{"id":"mood-005","name":"Upbeat","description":"Feel-good vibes to brighten your day","coverColor":"#ffeb3b","order":4}
+{"id":"mood-006","name":"Romantic","description":"Love songs and heartfelt ballads","coverColor":"#e91e63","order":5}

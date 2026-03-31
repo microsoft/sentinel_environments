@@ -1,0 +1,14 @@
+{"id":"l1","name":"bug","color":"#d73a4a","description":"Something isn't working","order":0}
+{"id":"l2","name":"enhancement","color":"#a2eeef","description":"New feature or request","order":1}
+{"id":"l3","name":"documentation","color":"#0075ca","description":"Improvements or additions to documentation","order":2}
+{"id":"l4","name":"good first issue","color":"#7057ff","description":"Good for newcomers","order":3}
+{"id":"l5","name":"help wanted","color":"#008672","description":"Extra attention is needed","order":4}
+{"id":"l6","name":"question","color":"#d876e3","description":"Further information is requested","order":5}
+{"id":"l7","name":"wontfix","color":"#ffffff","description":"This will not be worked on","order":6}
+{"id":"l8","name":"priority: high","color":"#b60205","description":"High priority issue","order":7}
+{"id":"l9","name":"priority: low","color":"#c5def5","description":"Low priority issue","order":8}
+{"id":"l10","name":"in progress","color":"#fbca04","description":"Currently being worked on","order":9}
+{"id":"l11","name":"frontend","color":"#1d76db","description":"Frontend related","order":10}
+{"id":"l12","name":"backend","color":"#5319e7","description":"Backend related","order":11}
+{"id":"l13","name":"devops","color":"#0e8a16","description":"DevOps and infrastructure","order":12}
+{"id":"l14","name":"testing","color":"#fbca04","description":"Testing related","order":13}

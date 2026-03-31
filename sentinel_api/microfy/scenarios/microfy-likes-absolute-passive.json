@@ -1,0 +1,124 @@
+{
+  "id": "microfy-likes-absolute-passive",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "You are using MicroFy. Like at least 10 songs to build your personalized music library, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-013",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-020",
+          "track-021",
+          "track-022",
+          "track-023",
+          "track-024",
+          "track-025",
+          "track-026",
+          "track-027",
+          "track-028",
+          "track-029",
+          "track-030",
+          "track-031",
+          "track-032",
+          "track-033",
+          "track-034",
+          "track-035",
+          "track-036",
+          "track-037",
+          "track-038",
+          "track-039",
+          "track-040"
+        ],
+        "playlist_ids": [
+          "playlist-001",
+          "playlist-002",
+          "playlist-003"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004",
+          "mood-005",
+          "mood-006"
+        ],
+        "liked_track_ids": [],
+        "followed_artist_ids": []
+      }
+    },
+    {
+      "time": 20,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-041"
+      }
+    },
+    {
+      "time": 40,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-042"
+      }
+    },
+    {
+      "time": 55,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-043"
+      }
+    },
+    {
+      "time": 70,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-044"
+      }
+    },
+    {
+      "time": 85,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-045"
+      }
+    },
+    {
+      "time": 100,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-046"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states WHERE isLiked=1) >= 10"
+}

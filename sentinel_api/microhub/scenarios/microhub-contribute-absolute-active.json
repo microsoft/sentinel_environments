@@ -1,0 +1,26 @@
+{
+  "id": "microhub-contribute-absolute-active",
+  "environment": "microhub",
+  "start_page": "HOST_ADDRESS/microhub",
+  "prompt": "You are using MicroHub, a code repository platform. Add a comment to any open issue, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_repo",
+      "payload": {
+        "load_all": true
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM user_created_comments) >= 1"
+}

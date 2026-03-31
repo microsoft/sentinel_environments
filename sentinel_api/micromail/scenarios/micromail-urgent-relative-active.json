@@ -1,0 +1,100 @@
+{
+  "id": "micromail-urgent-relative-active",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When 10 new urgent emails have arrived since the session started, flag all urgent emails, then log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "urg-01",
+          "urg-02",
+          "urg-03"
+        ]
+      }
+    },
+    {
+      "time": 15,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-04"
+      }
+    },
+    {
+      "time": 26,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-05"
+      }
+    },
+    {
+      "time": 39,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-06"
+      }
+    },
+    {
+      "time": 45,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-07"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-08"
+      }
+    },
+    {
+      "time": 72,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-09"
+      }
+    },
+    {
+      "time": 84,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-10"
+      }
+    },
+    {
+      "time": 97,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-11"
+      }
+    },
+    {
+      "time": 108,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-12"
+      }
+    },
+    {
+      "time": 118,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.importance='high' AND s.folder='inbox') - CAST((SELECT value FROM session_meta WHERE key='baseline_urgent_count') AS REAL) >= 10"
+}

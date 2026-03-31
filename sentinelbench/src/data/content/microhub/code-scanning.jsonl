@@ -1,0 +1,5 @@
+{"id":"scan-1","rule":"js/xss","severity":"error","description":"Cross-site scripting vulnerability detected. User input is directly rendered without sanitization.","file":"src/components/CommentBox.tsx","line":42,"state":"open","order":1}
+{"id":"scan-2","rule":"js/sql-injection","severity":"error","description":"Potential SQL injection. User input is concatenated directly into SQL query.","file":"src/services/userService.ts","line":156,"state":"fixed","order":2}
+{"id":"scan-3","rule":"js/hardcoded-credentials","severity":"warning","description":"Hardcoded API key detected in source code.","file":"src/config/api.ts","line":12,"state":"open","order":3}
+{"id":"scan-4","rule":"js/insecure-randomness","severity":"warning","description":"Math.random() used for security-sensitive operation. Use crypto.randomBytes() instead.","file":"src/utils/token.ts","line":8,"state":"dismissed","order":4}
+{"id":"scan-5","rule":"js/missing-rate-limiting","severity":"note","description":"API endpoint lacks rate limiting which could lead to abuse.","file":"src/routes/api.ts","line":34,"state":"open","order":5}

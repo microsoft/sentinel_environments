@@ -1,0 +1,100 @@
+{
+  "id": "micromail-cc-relative-active",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When 10 new emails where you are CC'd have arrived since the session started, forward all CC emails, then log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "cc-01",
+          "cc-02",
+          "cc-03"
+        ]
+      }
+    },
+    {
+      "time": 9,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-04"
+      }
+    },
+    {
+      "time": 24,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-05"
+      }
+    },
+    {
+      "time": 33,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-06"
+      }
+    },
+    {
+      "time": 47,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-07"
+      }
+    },
+    {
+      "time": 61,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-08"
+      }
+    },
+    {
+      "time": 70,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-09"
+      }
+    },
+    {
+      "time": 81,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-10"
+      }
+    },
+    {
+      "time": 97,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-11"
+      }
+    },
+    {
+      "time": 105,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-12"
+      }
+    },
+    {
+      "time": 119,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.isCC=1 AND s.folder='inbox') - CAST((SELECT value FROM session_meta WHERE key='baseline_cc_count') AS REAL) >= 10"
+}

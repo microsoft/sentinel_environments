@@ -1,0 +1,15 @@
+{"id":"alert-1","type":"citation","title":"New citation","description":"Your paper 'Efficient Attention Mechanisms for Long-Context Language Models' was cited by a new paper.","isRead":false,"relatedPaperId":"paper-self-1","order":0}
+{"id":"alert-2","type":"new_paper","title":"New paper from coauthor","description":"Y Ahmed published a new paper: 'Multilingual Transformers at Scale'","isRead":true,"order":1}
+{"id":"alert-3","type":"keyword","title":"New paper matching your interests","description":"A new paper on 'reinforcement learning' was published on arXiv.","isRead":true,"order":2}
+{"id":"alert-4","type":"citation","title":"Citation milestone","description":"Your paper 'Reward Shaping for Language Model Alignment' reached 450 citations!","isRead":true,"relatedPaperId":"paper-self-2","order":3}
+{"id":"alert-5","type":"new_paper","title":"New paper from coauthor","description":"F Al-Fassi published a new paper: 'Robot Learning from Human Demonstrations'","isRead":false,"order":4}
+{"id":"alert-6","type":"keyword","title":"New paper matching your interests","description":"A new paper on 'large language models' was published in Nature.","isRead":false,"order":5}
+{"id":"alert-7","type":"citation","title":"New citation","description":"Your paper 'Human-AI Collaboration in Software Development' was cited by a new paper.","isRead":false,"relatedPaperId":"paper-collab-7","order":6}
+{"id":"alert-8","type":"new_paper","title":"New paper from coauthor","description":"M Brown published a new paper: 'Leadership in Tech: A Data-Driven Approach'","isRead":true,"order":7}
+{"id":"alert-9","type":"keyword","title":"New paper matching your interests","description":"A new paper on 'transformer architectures' was published on arXiv.","isRead":true,"order":8}
+{"id":"alert-10","type":"citation","title":"New citation","description":"Your paper 'Visual Reasoning for Robot Navigation' was cited in a survey paper.","isRead":false,"relatedPaperId":"paper-alfassi-2","order":9}
+{"id":"alert-11","type":"new_paper","title":"New paper from coauthor","description":"A Chen published a new paper: 'Distributed Systems for ML Training'","isRead":true,"order":10}
+{"id":"alert-12","type":"keyword","title":"Weekly digest","description":"12 new papers matching 'machine learning safety' were published this week.","isRead":true,"order":11}
+{"id":"alert-13","type":"citation","title":"Citation milestone","description":"Your paper 'Constitutional AI' reached 100 citations!","isRead":false,"relatedPaperId":"paper-self-3","order":12}
+{"id":"alert-14","type":"new_paper","title":"New paper from coauthor","description":"R Foster published a new paper: 'Emergent Capabilities in Large Models'","isRead":false,"order":13}
+{"id":"alert-15","type":"keyword","title":"New paper matching your interests","description":"A new paper on 'attention mechanisms' was published at ICLR.","isRead":true,"order":14}

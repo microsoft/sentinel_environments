@@ -1,0 +1,35 @@
+{"authorId1": "user000", "authorId2": "user007", "sharedPapers": ["paper-self-3"], "order": 0}
+{"authorId1": "user000", "authorId2": "user012", "sharedPapers": ["paper-collab-7"], "order": 1}
+{"authorId1": "user000", "authorId2": "user013", "sharedPapers": ["paper-self-3"], "order": 2}
+{"authorId1": "user000", "authorId2": "user025", "sharedPapers": ["paper-self-1"], "order": 3}
+{"authorId1": "user000", "authorId2": "user030", "sharedPapers": ["paper-self-2"], "order": 4}
+{"authorId1": "user000", "authorId2": "user032", "sharedPapers": ["paper-self-1", "paper-alfassi-2"], "order": 5}
+{"authorId1": "user000", "authorId2": "user042", "sharedPapers": ["paper-collab-7"], "order": 6}
+{"authorId1": "user000", "authorId2": "user050", "sharedPapers": ["paper-alfassi-2"], "order": 7}
+{"authorId1": "user001", "authorId2": "user009", "sharedPapers": ["paper-collab-5"], "order": 8}
+{"authorId1": "user001", "authorId2": "user021", "sharedPapers": ["paper-collab-4"], "order": 9}
+{"authorId1": "user001", "authorId2": "user030", "sharedPapers": ["paper-jackson-1"], "order": 10}
+{"authorId1": "user001", "authorId2": "user033", "sharedPapers": ["paper-collab-4"], "order": 11}
+{"authorId1": "user001", "authorId2": "user035", "sharedPapers": ["paper-collab-5"], "order": 12}
+{"authorId1": "user003", "authorId2": "user014", "sharedPapers": ["paper-collab-2"], "order": 13}
+{"authorId1": "user003", "authorId2": "user045", "sharedPapers": ["paper-collab-2"], "order": 14}
+{"authorId1": "user007", "authorId2": "user013", "sharedPapers": ["paper-self-3"], "order": 15}
+{"authorId1": "user007", "authorId2": "user014", "sharedPapers": ["paper-collab-6"], "order": 16}
+{"authorId1": "user007", "authorId2": "user023", "sharedPapers": ["paper-collab-6"], "order": 17}
+{"authorId1": "user009", "authorId2": "user035", "sharedPapers": ["paper-collab-5"], "order": 18}
+{"authorId1": "user012", "authorId2": "user042", "sharedPapers": ["paper-collab-7"], "order": 19}
+{"authorId1": "user013", "authorId2": "user021", "sharedPapers": ["paper-jackson-2"], "order": 20}
+{"authorId1": "user013", "authorId2": "user025", "sharedPapers": ["paper-collab-1"], "order": 21}
+{"authorId1": "user013", "authorId2": "user030", "sharedPapers": ["paper-jackson-2"], "order": 22}
+{"authorId1": "user013", "authorId2": "user043", "sharedPapers": ["paper-collab-1"], "order": 23}
+{"authorId1": "user014", "authorId2": "user023", "sharedPapers": ["paper-collab-6"], "order": 24}
+{"authorId1": "user014", "authorId2": "user045", "sharedPapers": ["paper-collab-2"], "order": 25}
+{"authorId1": "user021", "authorId2": "user030", "sharedPapers": ["paper-jackson-2"], "order": 26}
+{"authorId1": "user021", "authorId2": "user033", "sharedPapers": ["paper-collab-4"], "order": 27}
+{"authorId1": "user025", "authorId2": "user032", "sharedPapers": ["paper-self-1", "paper-collab-8"], "order": 28}
+{"authorId1": "user025", "authorId2": "user043", "sharedPapers": ["paper-collab-1", "paper-collab-8"], "order": 29}
+{"authorId1": "user032", "authorId2": "user043", "sharedPapers": ["paper-alfassi-1", "paper-collab-8"], "order": 30}
+{"authorId1": "user032", "authorId2": "user050", "sharedPapers": ["paper-alfassi-2"], "order": 31}
+{"authorId1": "user033", "authorId2": "user045", "sharedPapers": ["paper-collab-3"], "order": 32}
+{"authorId1": "user033", "authorId2": "user050", "sharedPapers": ["paper-collab-3"], "order": 33}
+{"authorId1": "user045", "authorId2": "user050", "sharedPapers": ["paper-collab-3"], "order": 34}

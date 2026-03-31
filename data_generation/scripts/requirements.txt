@@ -1,0 +1,36 @@
+# Core ML Framework
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Diffusion Models
+diffusers>=0.25.0
+transformers>=4.36.0
+accelerate>=0.25.0
+safetensors>=0.4.0
+
+# Tokenizers and Text Processing
+sentencepiece>=0.1.99
+protobuf>=3.20.0
+
+# Image Processing
+pillow>=10.0.0
+
+# Video Export
+imageio[ffmpeg]>=2.31.0
+
+# Audio Processing
+soundfile>=0.12.0
+librosa>=0.10.0
+
+# Utilities
+tqdm>=4.65.0
+numpy>=1.24.0
+
+# HuggingFace Hub
+huggingface-hub>=0.20.0
+
+# Optional: ACE-Step (install separately)
+# pip install git+https://github.com/ace-step/ACE-Step.git
+
+# Optional: For CUDA 12.8 (Blackwell/B200)
+# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu128

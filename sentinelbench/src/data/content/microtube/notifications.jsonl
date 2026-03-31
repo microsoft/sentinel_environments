@@ -1,0 +1,10 @@
+{"id": "notif-01", "task": "general", "order": 1, "type": "upload", "channel_id": "ch-tech", "video_id": "vid-tech-01", "message": "Tech Academy uploaded: How to Build Modern Web Applications", "isRead": false}
+{"id": "notif-02", "task": "general", "order": 2, "type": "live", "channel_id": "ch-news", "video_id": "vid-news-01", "message": "Tech News Daily is live: Breaking Tech Announcement", "isRead": false}
+{"id": "notif-03", "task": "general", "order": 3, "type": "comment", "video_id": "vid-gaming-01", "message": "Alex Chen replied to your comment on Best Strategy Games", "isRead": false}
+{"id": "notif-04", "task": "general", "order": 4, "type": "upload", "channel_id": "ch-gaming", "video_id": "vid-gaming-02", "message": "Gaming Central uploaded: Pro Tips for Competitive Gaming", "isRead": false}
+{"id": "notif-05", "task": "general", "order": 5, "type": "community", "channel_id": "ch-lifestyle", "message": "Lifestyle Pro posted: New poll - What topic should we cover next?", "isRead": false}
+{"id": "notif-06", "task": "general", "order": 6, "type": "mention", "video_id": "vid-music-01", "message": "Music Lessons mentioned you in a comment", "isRead": false}
+{"id": "notif-07", "task": "general", "order": 7, "type": "upload", "channel_id": "ch-science", "message": "Science Explained uploaded: The Physics of Black Holes", "isRead": false}
+{"id": "notif-08", "task": "general", "order": 8, "type": "live", "channel_id": "ch-gaming", "message": "Gaming Central is going live in 30 minutes", "isRead": false}
+{"id": "notif-09", "task": "general", "order": 9, "type": "comment", "video_id": "vid-lifestyle-02", "message": "Your comment received 100 likes!", "isRead": false}
+{"id": "notif-10", "task": "general", "order": 10, "type": "upload", "channel_id": "ch-cooking", "message": "Chef's Kitchen uploaded: Easy Weeknight Dinner Recipes", "isRead": false}

@@ -1,0 +1,100 @@
+{
+  "id": "micromail-external-relative-passive",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When 10 new external emails have arrived since the session started, log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "ext-01",
+          "ext-02",
+          "ext-03"
+        ]
+      }
+    },
+    {
+      "time": 9,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-04"
+      }
+    },
+    {
+      "time": 24,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-05"
+      }
+    },
+    {
+      "time": 35,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-06"
+      }
+    },
+    {
+      "time": 46,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-07"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-08"
+      }
+    },
+    {
+      "time": 73,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-09"
+      }
+    },
+    {
+      "time": 82,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-10"
+      }
+    },
+    {
+      "time": 96,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-11"
+      }
+    },
+    {
+      "time": 109,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-12"
+      }
+    },
+    {
+      "time": 117,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.isExternal=1 AND s.folder='inbox') - CAST((SELECT value FROM session_meta WHERE key='baseline_external_count') AS REAL) >= 10"
+}

@@ -1,0 +1,86 @@
+{
+  "id": "microlendar-work-relative-active",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "You are using MicroLendar, a scheduling app. Wait for the number of work events to double from the initial count, then delete all events and sign out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_events",
+      "payload": {
+        "event_ids": [
+          "work01",
+          "work02",
+          "work03",
+          "work04",
+          "work05"
+        ],
+        "task_ids": [
+          "task01",
+          "task02",
+          "task03"
+        ]
+      }
+    },
+    {
+      "time": 15,
+      "type": "new_event",
+      "payload": {
+        "event_id": "work06"
+      }
+    },
+    {
+      "time": 30,
+      "type": "new_event",
+      "payload": {
+        "event_id": "work07"
+      }
+    },
+    {
+      "time": 45,
+      "type": "new_event",
+      "payload": {
+        "event_id": "work08"
+      }
+    },
+    {
+      "time": 55,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise01"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_event",
+      "payload": {
+        "event_id": "work09"
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_event",
+      "payload": {
+        "event_id": "work10"
+      }
+    },
+    {
+      "time": 90,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise02"
+      }
+    }
+  ],
+  "annotator_notes": "Baseline: 5 work events. Threshold: 5 * 2 = 10 work events. Events arrive gradually. Agent must then delete all events.",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT CASE WHEN CAST((SELECT value FROM session_meta WHERE key='baseline_work_event_count') AS REAL) = 0 THEN (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work')) >= 10 ELSE (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_work_event_count') AS REAL) * 2.0 END"
+}

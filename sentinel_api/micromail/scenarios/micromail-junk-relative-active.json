@@ -1,0 +1,100 @@
+{
+  "id": "micromail-junk-relative-active",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the junk folder. When 10 new emails have arrived in junk since the session started, empty the junk folder, then log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "junk-01",
+          "junk-02",
+          "junk-03"
+        ]
+      }
+    },
+    {
+      "time": 15,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-04"
+      }
+    },
+    {
+      "time": 24,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-05"
+      }
+    },
+    {
+      "time": 37,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-06"
+      }
+    },
+    {
+      "time": 46,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-07"
+      }
+    },
+    {
+      "time": 61,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-08"
+      }
+    },
+    {
+      "time": 70,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-09"
+      }
+    },
+    {
+      "time": 81,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-10"
+      }
+    },
+    {
+      "time": 96,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-11"
+      }
+    },
+    {
+      "time": 105,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-12"
+      }
+    },
+    {
+      "time": 120,
+      "type": "new_email",
+      "payload": {
+        "email_id": "junk-13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') - CAST((SELECT value FROM session_meta WHERE key='baseline_junk_count') AS REAL) >= 10"
+}

@@ -1,0 +1,82 @@
+{
+  "id": "microlendar-tasks-absolute-passive",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "You are using MicroLendar, a scheduling app. Wait for the total number of tasks to reach 12, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_events",
+      "payload": {
+        "event_ids": [
+          "evt001",
+          "evt002",
+          "evt003",
+          "evt004",
+          "evt005",
+          "evt006",
+          "evt007",
+          "evt008",
+          "evt009",
+          "evt010"
+        ],
+        "task_ids": [
+          "task01",
+          "task02",
+          "task03",
+          "task04",
+          "task05",
+          "task06",
+          "task07",
+          "task08"
+        ]
+      }
+    },
+    {
+      "time": 30,
+      "type": "new_task",
+      "payload": {
+        "event_id": "task09"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise01"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_task",
+      "payload": {
+        "event_id": "task10"
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today01"
+      }
+    },
+    {
+      "time": 90,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today02"
+      }
+    }
+  ],
+  "annotator_notes": "Tasks preloaded: 8, added at t=30 and t=60 (2 more = 10 total from catalog). Agent must create 2 more tasks to reach 12.",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM tasks t JOIN task_states s ON t.id=s.task_id WHERE s.deleted=0) + (SELECT COUNT(*) FROM user_created_tasks WHERE deleted=0)) >= 12"
+}

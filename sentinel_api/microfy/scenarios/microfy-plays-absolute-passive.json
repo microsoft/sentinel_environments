@@ -1,0 +1,99 @@
+{
+  "id": "microfy-plays-absolute-passive",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "You are using MicroFy. Play at least 5 different songs to explore the music library, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-013",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-020",
+          "track-051",
+          "track-052",
+          "track-053",
+          "track-054",
+          "track-055",
+          "track-056",
+          "track-057",
+          "track-058",
+          "track-059",
+          "track-060"
+        ],
+        "playlist_ids": [
+          "playlist-007",
+          "playlist-008",
+          "playlist-009",
+          "playlist-010"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004",
+          "mood-005",
+          "mood-006"
+        ],
+        "liked_track_ids": [
+          "track-004",
+          "track-013"
+        ],
+        "followed_artist_ids": [
+          "artist-003"
+        ]
+      }
+    },
+    {
+      "time": 30,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-061"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-062"
+      }
+    },
+    {
+      "time": 90,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-063"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COALESCE(SUM(userPlayCount),0) FROM track_states) >= 5"
+}

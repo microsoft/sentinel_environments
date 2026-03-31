@@ -1,0 +1,4089 @@
+[
+  {
+    "id": "org-self-channel",
+    "type": "channel",
+    "name": "Your Channel",
+    "handle": "@yourchannel",
+    "description": "Welcome to my channel!",
+    "isVerified": false,
+    "isSelf": true,
+    "avatarUrl": null,
+    "bannerUrl": null,
+    "avatarColor": "#3ea6ff",
+    "initials": "YC",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-self",
+        "subscribers": 1247,
+        "videoCount": 4
+      }
+    }
+  },
+  {
+    "id": "org-tech-academy",
+    "type": "channel",
+    "name": "Tech Academy",
+    "handle": "@TechAcademy",
+    "description": "Learn programming and software development from industry experts.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-tech-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-tech-banner.webp",
+    "avatarColor": "#FF6B6B",
+    "initials": "TA",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-tech",
+        "subscribers": 1250000,
+        "videoCount": 342
+      }
+    }
+  },
+  {
+    "id": "org-lifestyle-pro",
+    "type": "channel",
+    "name": "Lifestyle Pro",
+    "handle": "@LifestylePro",
+    "description": "Tips and tricks for living your best life.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-lifestyle-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-lifestyle-banner.webp",
+    "avatarColor": "#4ECDC4",
+    "initials": "LP",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-lifestyle",
+        "subscribers": 2800000,
+        "videoCount": 518
+      }
+    }
+  },
+  {
+    "id": "org-music-lessons",
+    "type": "channel",
+    "name": "Music Lessons",
+    "handle": "@MusicLessons",
+    "description": "Learn any instrument with our comprehensive tutorials.",
+    "isVerified": false,
+    "avatarUrl": "images/microtube/channel-logos/ch-music-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-music-banner.webp",
+    "avatarColor": "#95E1D3",
+    "initials": "ML",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-music",
+        "subscribers": 980000,
+        "videoCount": 245
+      }
+    }
+  },
+  {
+    "id": "org-gaming-central",
+    "type": "channel",
+    "name": "Gaming Central",
+    "handle": "@GamingCentral",
+    "description": "Your destination for gaming news, reviews, and tutorials.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-gaming-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-gaming-banner.webp",
+    "avatarColor": "#F38181",
+    "initials": "GC",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-gaming",
+        "subscribers": 3500000,
+        "videoCount": 892
+      }
+    }
+  },
+  {
+    "id": "org-tech-news-daily",
+    "type": "channel",
+    "name": "Tech News Daily",
+    "handle": "@TechNewsDaily",
+    "description": "Breaking tech news and analysis.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-news-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-news-banner.webp",
+    "avatarColor": "#AA96DA",
+    "initials": "TN",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-news",
+        "subscribers": 4200000,
+        "videoCount": 1250
+      }
+    }
+  },
+  {
+    "id": "org-science-explained",
+    "type": "channel",
+    "name": "Science Explained",
+    "handle": "@ScienceExplained",
+    "description": "Making complex science accessible to everyone.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-science-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-science-banner.webp",
+    "avatarColor": "#FCBAD3",
+    "initials": "SE",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-science",
+        "subscribers": 1800000,
+        "videoCount": 420
+      }
+    }
+  },
+  {
+    "id": "org-chefs-kitchen",
+    "type": "channel",
+    "name": "Chef's Kitchen",
+    "handle": "@ChefsKitchen",
+    "description": "Recipes and cooking techniques from professional chefs.",
+    "isVerified": false,
+    "avatarUrl": "images/microtube/channel-logos/ch-cooking-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-cooking-banner.webp",
+    "avatarColor": "#FFFFD2",
+    "initials": "CK",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-cooking",
+        "subscribers": 2100000,
+        "videoCount": 380
+      }
+    }
+  },
+  {
+    "id": "org-fitness-hub",
+    "type": "channel",
+    "name": "Fitness Hub",
+    "handle": "@FitnessHub",
+    "description": "Workouts, nutrition, and fitness advice.",
+    "isVerified": false,
+    "avatarUrl": "images/microtube/channel-logos/ch-fitness-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-fitness-banner.webp",
+    "avatarColor": "#A8D8EA",
+    "initials": "FH",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-fitness",
+        "subscribers": 1500000,
+        "videoCount": 290
+      }
+    }
+  },
+  {
+    "id": "org-nexus-ai",
+    "type": "company",
+    "name": "NexusAI",
+    "handle": null,
+    "description": "Building the next generation of artificial general intelligence systems with a focus on safety and beneficial outcomes for humanity.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-nexus-ai-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-nexus-ai-banner.webp",
+    "avatarColor": "#8B5CF6",
+    "initials": "N",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-nexus",
+        "industry": "Artificial Intelligence",
+        "size": "51-200 employees",
+        "employees": 127,
+        "followers": 12453,
+        "location": "San Francisco, CA"
+      }
+    }
+  },
+  {
+    "id": "org-innovate-ltd",
+    "type": "company",
+    "name": "Innovate Ltd",
+    "handle": null,
+    "description": "Innovating at the intersection of technology and human needs.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-innovate-ltd-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-innovate-ltd-banner.webp",
+    "avatarColor": "#8B5CF6",
+    "initials": "I",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-innovate",
+        "industry": "Technology",
+        "size": "501-1000 employees",
+        "employees": 742,
+        "followers": 34521,
+        "location": "Seattle, WA"
+      }
+    }
+  },
+  {
+    "id": "org-dataworks",
+    "type": "company",
+    "name": "DataWorks",
+    "handle": null,
+    "description": "Transforming data into actionable insights using cutting-edge analytics and AI.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-dataworks-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-dataworks-banner.webp",
+    "avatarColor": "#6366F1",
+    "initials": "D",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-dataworks",
+        "industry": "Data Science",
+        "size": "201-500 employees",
+        "employees": 312,
+        "followers": 23456,
+        "location": "Boston, MA"
+      }
+    }
+  },
+  {
+    "id": "org-cloudnine",
+    "type": "company",
+    "name": "CloudNine",
+    "handle": null,
+    "description": "Enterprise cloud solutions powering businesses of all sizes with scalable infrastructure.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-cloudnine-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-cloudnine-banner.webp",
+    "avatarColor": "#06B6D4",
+    "initials": "C",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-cloudnine",
+        "industry": "Cloud Computing",
+        "size": "1001-5000 employees",
+        "employees": 2156,
+        "followers": 45678,
+        "location": "Austin, TX"
+      }
+    }
+  },
+  {
+    "id": "org-greentech",
+    "type": "company",
+    "name": "GreenTech Solutions",
+    "handle": null,
+    "description": "Pioneering sustainable technology solutions for a greener future.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-greentech-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-greentech-banner.webp",
+    "avatarColor": "#10B981",
+    "initials": "G",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-greentech",
+        "industry": "Clean Energy",
+        "size": "201-500 employees",
+        "employees": 287,
+        "followers": 18934,
+        "location": "Denver, CO"
+      }
+    }
+  },
+  {
+    "id": "org-finwise",
+    "type": "company",
+    "name": "FinWise",
+    "handle": null,
+    "description": "Revolutionizing personal and business finance through innovative fintech solutions.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-finwise-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-finwise-banner.webp",
+    "avatarColor": "#F59E0B",
+    "initials": "F",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-finwise",
+        "industry": "Financial Technology",
+        "size": "501-1000 employees",
+        "employees": 623,
+        "followers": 67890,
+        "location": "New York, NY"
+      }
+    }
+  },
+  {
+    "id": "org-the-wanderers",
+    "type": "band",
+    "name": "The Wanderers",
+    "handle": null,
+    "description": "Indie folk band known for acoustic melodies and nature-inspired lyrics",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-the-wanderers-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1db954",
+    "initials": "TW",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-001",
+        "genre": "Indie Folk",
+        "followers": 245000,
+        "monthlyListeners": 890000
+      }
+    }
+  },
+  {
+    "id": "org-coastal-band",
+    "type": "band",
+    "name": "Coastal Band",
+    "handle": null,
+    "description": "Surf rock group bringing beach vibes to your speakers",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-coastal-band-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#2196f3",
+    "initials": "CB",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-002",
+        "genre": "Surf Rock",
+        "followers": 180000,
+        "monthlyListeners": 650000
+      }
+    }
+  },
+  {
+    "id": "org-urban-collective",
+    "type": "band",
+    "name": "Urban Collective",
+    "handle": null,
+    "description": "Electronic music collective pushing the boundaries of sound",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-urban-collective-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#ff6b6b",
+    "initials": "UC",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-003",
+        "genre": "Electronic",
+        "followers": 520000,
+        "monthlyListeners": 2100000
+      }
+    }
+  },
+  {
+    "id": "org-jazz-quartet",
+    "type": "band",
+    "name": "Jazz Quartet",
+    "handle": null,
+    "description": "Classic jazz ensemble with a modern twist",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-jazz-quartet-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#8b4513",
+    "initials": "JQ",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-004",
+        "genre": "Jazz",
+        "followers": 95000,
+        "monthlyListeners": 380000
+      }
+    }
+  },
+  {
+    "id": "org-ambient-collective",
+    "type": "band",
+    "name": "Ambient Collective",
+    "handle": null,
+    "description": "Creating soundscapes for relaxation and focus",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-ambient-collective-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#ff8c00",
+    "initials": "AC",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-005",
+        "genre": "Ambient",
+        "followers": 78000,
+        "monthlyListeners": 290000
+      }
+    }
+  },
+  {
+    "id": "org-indie-folk-band",
+    "type": "band",
+    "name": "Indie Folk Band",
+    "handle": null,
+    "description": "Heartfelt songs about life, love, and everything in between",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-indie-folk-band-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#607d8b",
+    "initials": "IF",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-006",
+        "genre": "Indie Folk",
+        "followers": 156000,
+        "monthlyListeners": 520000
+      }
+    }
+  },
+  {
+    "id": "org-electronic-duo",
+    "type": "band",
+    "name": "Electronic Duo",
+    "handle": null,
+    "description": "Two producers creating cosmic electronic journeys",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-electronic-duo-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#9c27b0",
+    "initials": "ED",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-007",
+        "genre": "Electronic",
+        "followers": 340000,
+        "monthlyListeners": 1400000
+      }
+    }
+  },
+  {
+    "id": "org-piano-soloist",
+    "type": "band",
+    "name": "Piano Soloist",
+    "handle": null,
+    "description": "Classically trained pianist exploring modern compositions",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-piano-soloist-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#f5f5dc",
+    "initials": "PS",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-008",
+        "genre": "Classical",
+        "followers": 62000,
+        "monthlyListeners": 210000
+      }
+    }
+  },
+  {
+    "id": "org-world-beat-band",
+    "type": "band",
+    "name": "World Beat Band",
+    "handle": null,
+    "description": "Fusing global rhythms into infectious grooves",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-world-beat-band-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#e91e63",
+    "initials": "WB",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-009",
+        "genre": "World",
+        "followers": 89000,
+        "monthlyListeners": 320000
+      }
+    }
+  },
+  {
+    "id": "org-classical-ensemble",
+    "type": "band",
+    "name": "Classical Ensemble",
+    "handle": null,
+    "description": "Orchestra performing timeless classical pieces",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-classical-ensemble-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1a237e",
+    "initials": "CE",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-010",
+        "genre": "Classical",
+        "followers": 45000,
+        "monthlyListeners": 180000
+      }
+    }
+  },
+  {
+    "id": "org-hip-hop-crew",
+    "type": "band",
+    "name": "Hip Hop Crew",
+    "handle": null,
+    "description": "Street-smart lyrics over hard-hitting beats",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-hip-hop-crew-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#212121",
+    "initials": "HC",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-011",
+        "genre": "Hip Hop",
+        "followers": 680000,
+        "monthlyListeners": 3200000
+      }
+    }
+  },
+  {
+    "id": "org-featured-artist",
+    "type": "band",
+    "name": "Featured Artist",
+    "handle": null,
+    "description": "Rising star with fresh sounds",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-featured-artist-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#ff1493",
+    "initials": "FA",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-012",
+        "genre": "Pop",
+        "followers": 25000,
+        "monthlyListeners": 85000
+      }
+    }
+  },
+  {
+    "id": "org-rock-legends",
+    "type": "band",
+    "name": "Rock Legends",
+    "handle": null,
+    "description": "Classic rock sound for a new generation",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-rock-legends-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#b71c1c",
+    "initials": "RL",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-013",
+        "genre": "Rock",
+        "followers": 420000,
+        "monthlyListeners": 1800000
+      }
+    }
+  },
+  {
+    "id": "org-pop-icons",
+    "type": "band",
+    "name": "Pop Icons",
+    "handle": null,
+    "description": "Chart-topping hits and catchy melodies",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-pop-icons-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#e91e63",
+    "initials": "PI",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-014",
+        "genre": "Pop",
+        "followers": 890000,
+        "monthlyListeners": 4500000
+      }
+    }
+  },
+  {
+    "id": "org-soul-singers",
+    "type": "band",
+    "name": "Soul Singers",
+    "handle": null,
+    "description": "Soulful vocals that touch the heart",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-soul-singers-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#ff9800",
+    "initials": "SS",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-015",
+        "genre": "Soul",
+        "followers": 210000,
+        "monthlyListeners": 780000
+      }
+    }
+  },
+  {
+    "id": "org-country-stars",
+    "type": "band",
+    "name": "Country Stars",
+    "handle": null,
+    "description": "Authentic country music with modern appeal",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-country-stars-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#795548",
+    "initials": "CS",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-016",
+        "genre": "Country",
+        "followers": 310000,
+        "monthlyListeners": 1200000
+      }
+    }
+  },
+  {
+    "id": "org-metal-warriors",
+    "type": "band",
+    "name": "Metal Warriors",
+    "handle": null,
+    "description": "Heavy riffs and powerful vocals",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-metal-warriors-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#424242",
+    "initials": "MW",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-017",
+        "genre": "Metal",
+        "followers": 380000,
+        "monthlyListeners": 1500000
+      }
+    }
+  },
+  {
+    "id": "org-reggae-vibes",
+    "type": "band",
+    "name": "Reggae Vibes",
+    "handle": null,
+    "description": "Island rhythms and positive messages",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-reggae-vibes-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4caf50",
+    "initials": "RV",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-018",
+        "genre": "Reggae",
+        "followers": 145000,
+        "monthlyListeners": 480000
+      }
+    }
+  },
+  {
+    "id": "org-themicrocorporate",
+    "type": "microhub_org",
+    "name": "TheMicroCorporate",
+    "handle": "themicrocorporate",
+    "description": "Building the future of enterprise web platforms. We create innovative solutions for businesses, empowering teams to work smarter and achieve more through cutting-edge technology.",
+    "isVerified": true,
+    "avatarUrl": null,
+    "bannerUrl": null,
+    "avatarColor": "#24292e",
+    "initials": "MC",
+    "platforms": {
+      "microhub": {
+        "orgId": "themicrocorporate",
+        "repos": 12,
+        "members": 25
+      },
+      "microdin": {
+        "companyId": "company-themicrocorporate",
+        "industry": "Enterprise Software",
+        "size": "51-200 employees",
+        "employees": 87,
+        "followers": 4521,
+        "headquartersLocation": "San Francisco, CA"
+      }
+    }
+  },
+  {
+    "id": "org-marketwatch",
+    "type": "news_outlet",
+    "name": "MarketWatch",
+    "handle": null,
+    "description": "Financial news and market data",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-marketwatch-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#00A857",
+    "initials": "MW",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-financedaily",
+    "type": "news_outlet",
+    "name": "FinanceDaily",
+    "handle": null,
+    "description": "Daily financial news and analysis",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-financedaily-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1E3A5F",
+    "initials": "FD",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-tradingpost",
+    "type": "news_outlet",
+    "name": "TradingPost",
+    "handle": null,
+    "description": "Trading insights and market analysis",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-tradingpost-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FF6B35",
+    "initials": "TP",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-reuters",
+    "type": "news_outlet",
+    "name": "Reuters",
+    "handle": null,
+    "description": "International news organization",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-reuters-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FF8000",
+    "initials": "R",
+    "platforms": {
+      "news": {
+        "category": "general"
+      }
+    }
+  },
+  {
+    "id": "org-bloomberg",
+    "type": "news_outlet",
+    "name": "Bloomberg",
+    "handle": null,
+    "description": "Global business and financial news",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-bloomberg-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#000000",
+    "initials": "B",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-cnbc",
+    "type": "news_outlet",
+    "name": "CNBC",
+    "handle": null,
+    "description": "Business news and financial market coverage",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-cnbc-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#005594",
+    "initials": "CN",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-wsj",
+    "type": "news_outlet",
+    "name": "WSJ",
+    "handle": null,
+    "description": "The Wall Street Journal - Business and financial news",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-wsj-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#0274B6",
+    "initials": "WSJ",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-stanford",
+    "type": "institution",
+    "name": "Stanford University",
+    "handle": null,
+    "description": "Private research university in Stanford, California",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-stanford-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#8C1515",
+    "initials": "SU",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-uc-berkeley",
+    "type": "institution",
+    "name": "UC Berkeley",
+    "handle": null,
+    "description": "Public research university in Berkeley, California",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-uc-berkeley-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#003262",
+    "initials": "UCB",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "EECS"
+      }
+    }
+  },
+  {
+    "id": "org-ut-austin",
+    "type": "institution",
+    "name": "University of Texas at Austin",
+    "handle": null,
+    "description": "Public research university in Austin, Texas",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-ut-austin-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#BF5700",
+    "initials": "UT",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-mit",
+    "type": "institution",
+    "name": "Massachusetts Institute of Technology",
+    "handle": null,
+    "description": "Private research university in Cambridge, Massachusetts",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-mit-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#A31F34",
+    "initials": "MIT",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "CSAIL"
+      }
+    }
+  },
+  {
+    "id": "org-cmu",
+    "type": "institution",
+    "name": "Carnegie Mellon University",
+    "handle": null,
+    "description": "Private research university in Pittsburgh, Pennsylvania",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-cmu-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#C41230",
+    "initials": "CMU",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "School of Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-eth-zurich",
+    "type": "institution",
+    "name": "ETH Zurich",
+    "handle": null,
+    "description": "Public research university in Zurich, Switzerland",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-eth-zurich-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1F407A",
+    "initials": "ETH",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-nyu",
+    "type": "institution",
+    "name": "New York University",
+    "handle": null,
+    "description": "Private research university in New York City",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-nyu-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#57068C",
+    "initials": "NYU",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-u-toronto",
+    "type": "institution",
+    "name": "University of Toronto",
+    "handle": null,
+    "description": "Public research university in Toronto, Canada",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-u-toronto-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#002A5C",
+    "initials": "UoT",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-kaust",
+    "type": "institution",
+    "name": "King Abdullah University of Science and Technology",
+    "handle": null,
+    "description": "Research university in Saudi Arabia",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-kaust-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#5B2C82",
+    "initials": "KAUST",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-trinity-dublin",
+    "type": "institution",
+    "name": "Trinity College Dublin",
+    "handle": null,
+    "description": "Research university in Dublin, Ireland",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-trinity-dublin-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#00539B",
+    "initials": "TCD",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-deepmind",
+    "type": "institution",
+    "name": "Turing Research Labs",
+    "handle": null,
+    "description": "AI research laboratory",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-deepmind-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4285F4",
+    "initials": "DM",
+    "platforms": {
+      "scholar": {
+        "type": "lab"
+      }
+    }
+  },
+  {
+    "id": "org-iisc",
+    "type": "institution",
+    "name": "Indian Institute of Science",
+    "handle": null,
+    "description": "Public research university in Bangalore, India",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-iisc-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#00274C",
+    "initials": "IISc",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-kaist",
+    "type": "institution",
+    "name": "KAIST",
+    "handle": null,
+    "description": "Korea Advanced Institute of Science and Technology",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-kaist-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#004C97",
+    "initials": "K",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-travel-adventures",
+    "type": "channel",
+    "name": "Travel Adventures",
+    "handle": "@TravelAdventures",
+    "description": "Exploring the world one destination at a time with travel tips and guides.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-travel-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-travel-banner.webp",
+    "avatarColor": "#F97316",
+    "initials": "TA",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-travel",
+        "subscribers": 2400000,
+        "videoCount": 456
+      }
+    }
+  },
+  {
+    "id": "org-diy-masters",
+    "type": "channel",
+    "name": "DIY Masters",
+    "handle": "@DIYMasters",
+    "description": "Home improvement, crafts, and creative DIY projects for everyone.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-diy-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-diy-banner.webp",
+    "avatarColor": "#84CC16",
+    "initials": "DM",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-diy",
+        "subscribers": 1800000,
+        "videoCount": 312
+      }
+    }
+  },
+  {
+    "id": "org-auto-enthusiast",
+    "type": "channel",
+    "name": "Auto Enthusiast",
+    "handle": "@AutoEnthusiast",
+    "description": "Car reviews, racing content, and everything automotive.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-auto-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-auto-banner.webp",
+    "avatarColor": "#DC2626",
+    "initials": "AE",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-auto",
+        "subscribers": 3100000,
+        "videoCount": 528
+      }
+    }
+  },
+  {
+    "id": "org-history-hub",
+    "type": "channel",
+    "name": "History Hub",
+    "handle": "@HistoryHub",
+    "description": "Documentaries and deep dives into historical events and figures.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-history-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-history-banner.webp",
+    "avatarColor": "#92400E",
+    "initials": "HH",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-history",
+        "subscribers": 2200000,
+        "videoCount": 389
+      }
+    }
+  },
+  {
+    "id": "org-comedy-corner",
+    "type": "channel",
+    "name": "Comedy Corner",
+    "handle": "@ComedyCorner",
+    "description": "Sketches, stand-up clips, and comedy content to make you laugh.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-comedy-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-comedy-banner.webp",
+    "avatarColor": "#FBBF24",
+    "initials": "CC",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-comedy",
+        "subscribers": 4500000,
+        "videoCount": 678
+      }
+    }
+  },
+  {
+    "id": "org-beauty-studio",
+    "type": "channel",
+    "name": "Beauty Studio",
+    "handle": "@BeautyStudio",
+    "description": "Makeup tutorials, skincare routines, and beauty product reviews.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-beauty-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-beauty-banner.webp",
+    "avatarColor": "#EC4899",
+    "initials": "BS",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-beauty",
+        "subscribers": 3800000,
+        "videoCount": 542
+      }
+    }
+  },
+  {
+    "id": "org-pet-planet",
+    "type": "channel",
+    "name": "Pet Planet",
+    "handle": "@PetPlanet",
+    "description": "Pet care tips, cute animal videos, and veterinary advice.",
+    "isVerified": false,
+    "avatarUrl": "images/microtube/channel-logos/ch-pets-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-pets-banner.webp",
+    "avatarColor": "#F59E0B",
+    "initials": "PP",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-pets",
+        "subscribers": 2900000,
+        "videoCount": 423
+      }
+    }
+  },
+  {
+    "id": "org-money-matters",
+    "type": "channel",
+    "name": "Money Matters",
+    "handle": "@MoneyMatters",
+    "description": "Personal finance, investing tips, and wealth building strategies.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-finance-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-finance-banner.webp",
+    "avatarColor": "#059669",
+    "initials": "MM",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-finance",
+        "subscribers": 1600000,
+        "videoCount": 287
+      }
+    }
+  },
+  {
+    "id": "org-cinema-critics",
+    "type": "channel",
+    "name": "Cinema Critics",
+    "handle": "@CinemaCritics",
+    "description": "Movie reviews, film analysis, and entertainment news.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-movies-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-movies-banner.webp",
+    "avatarColor": "#7C3AED",
+    "initials": "CC",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-movies",
+        "subscribers": 2700000,
+        "videoCount": 512
+      }
+    }
+  },
+  {
+    "id": "org-sports-zone",
+    "type": "channel",
+    "name": "Sports Zone",
+    "handle": "@SportsZone",
+    "description": "Sports highlights, analysis, and athlete interviews.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-sports-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-sports-banner.webp",
+    "avatarColor": "#2563EB",
+    "initials": "SZ",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-sports",
+        "subscribers": 5200000,
+        "videoCount": 892
+      }
+    }
+  },
+  {
+    "id": "org-mindful-moments",
+    "type": "channel",
+    "name": "Mindful Moments",
+    "handle": "@MindfulMoments",
+    "description": "Meditation guides, mindfulness practices, and mental wellness.",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-mindful-moments-avatar.webp",
+    "bannerUrl": "images/orgs/org-mindful-moments-banner.webp",
+    "avatarColor": "#8B5CF6",
+    "initials": "MM",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-mindful",
+        "subscribers": 890000,
+        "videoCount": 234
+      }
+    }
+  },
+  {
+    "id": "org-language-lab",
+    "type": "channel",
+    "name": "Language Lab",
+    "handle": "@LanguageLab",
+    "description": "Learn new languages with fun and effective lessons.",
+    "isVerified": true,
+    "avatarUrl": "images/microtube/channel-logos/ch-language-avatar.webp",
+    "bannerUrl": "images/microtube/channel-banners/ch-language-banner.webp",
+    "avatarColor": "#0891B2",
+    "initials": "LL",
+    "platforms": {
+      "microtube": {
+        "channelId": "ch-language",
+        "subscribers": 1400000,
+        "videoCount": 356
+      }
+    }
+  },
+  {
+    "id": "org-quantum-labs",
+    "type": "company",
+    "name": "Quantum Labs",
+    "handle": null,
+    "description": "Pioneering quantum computing solutions for enterprise applications.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-quantum-labs-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-quantum-labs-banner.webp",
+    "avatarColor": "#6366F1",
+    "initials": "QL",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-quantum",
+        "industry": "Quantum Computing",
+        "size": "51-200 employees",
+        "employees": 156,
+        "followers": 28934,
+        "location": "Palo Alto, CA"
+      }
+    }
+  },
+  {
+    "id": "org-healthtech-io",
+    "type": "company",
+    "name": "HealthTech.io",
+    "handle": null,
+    "description": "Digital health solutions improving patient outcomes through technology.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-healthtech-io-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-healthtech-io-banner.webp",
+    "avatarColor": "#10B981",
+    "initials": "HT",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-healthtech",
+        "industry": "Healthcare Technology",
+        "size": "201-500 employees",
+        "employees": 342,
+        "followers": 45678,
+        "location": "Boston, MA"
+      }
+    }
+  },
+  {
+    "id": "org-cyberfort",
+    "type": "company",
+    "name": "CyberFort",
+    "handle": null,
+    "description": "Enterprise cybersecurity protecting businesses from digital threats.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-cyberfort-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-cyberfort-banner.webp",
+    "avatarColor": "#1E293B",
+    "initials": "CF",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-cyberfort",
+        "industry": "Cybersecurity",
+        "size": "501-1000 employees",
+        "employees": 678,
+        "followers": 89234,
+        "location": "Washington, D.C."
+      }
+    }
+  },
+  {
+    "id": "org-edulearn",
+    "type": "company",
+    "name": "EduLearn",
+    "handle": null,
+    "description": "Transforming education through interactive online learning platforms.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-edulearn-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-edulearn-banner.webp",
+    "avatarColor": "#F59E0B",
+    "initials": "EL",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-edulearn",
+        "industry": "EdTech",
+        "size": "201-500 employees",
+        "employees": 289,
+        "followers": 34521,
+        "location": "San Francisco, CA"
+      }
+    }
+  },
+  {
+    "id": "org-logisticspro",
+    "type": "company",
+    "name": "LogisticsPro",
+    "handle": null,
+    "description": "Smart logistics and supply chain solutions for global commerce.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-logisticspro-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-logisticspro-banner.webp",
+    "avatarColor": "#0EA5E9",
+    "initials": "LP",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-logistics",
+        "industry": "Logistics & Supply Chain",
+        "size": "1001-5000 employees",
+        "employees": 2456,
+        "followers": 67890,
+        "location": "Chicago, IL"
+      }
+    }
+  },
+  {
+    "id": "org-retailmax",
+    "type": "company",
+    "name": "RetailMax",
+    "handle": null,
+    "description": "Omnichannel retail technology powering the future of commerce.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-retailmax-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-retailmax-banner.webp",
+    "avatarColor": "#EF4444",
+    "initials": "RM",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-retailmax",
+        "industry": "Retail Technology",
+        "size": "501-1000 employees",
+        "employees": 734,
+        "followers": 52341,
+        "location": "Seattle, WA"
+      }
+    }
+  },
+  {
+    "id": "org-agritech-solutions",
+    "type": "company",
+    "name": "AgriTech Solutions",
+    "handle": null,
+    "description": "Sustainable agricultural technology for modern farming.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-agritech-solutions-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-agritech-solutions-banner.webp",
+    "avatarColor": "#22C55E",
+    "initials": "AT",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-agritech",
+        "industry": "Agricultural Technology",
+        "size": "201-500 employees",
+        "employees": 278,
+        "followers": 23456,
+        "location": "Des Moines, IA"
+      }
+    }
+  },
+  {
+    "id": "org-legalease",
+    "type": "company",
+    "name": "LegalEase",
+    "handle": null,
+    "description": "AI-powered legal technology streamlining law practice management.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-legalease-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-legalease-banner.webp",
+    "avatarColor": "#1E40AF",
+    "initials": "LE",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-legalease",
+        "industry": "Legal Technology",
+        "size": "51-200 employees",
+        "employees": 134,
+        "followers": 18923,
+        "location": "New York, NY"
+      }
+    }
+  },
+  {
+    "id": "org-proptech-hub",
+    "type": "company",
+    "name": "PropTech Hub",
+    "handle": null,
+    "description": "Real estate technology revolutionizing property management.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-proptech-hub-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-proptech-hub-banner.webp",
+    "avatarColor": "#7C3AED",
+    "initials": "PH",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-proptech",
+        "industry": "Real Estate Technology",
+        "size": "201-500 employees",
+        "employees": 312,
+        "followers": 29876,
+        "location": "Miami, FL"
+      }
+    }
+  },
+  {
+    "id": "org-mediaworks",
+    "type": "company",
+    "name": "MediaWorks",
+    "handle": null,
+    "description": "Digital media production and streaming technology solutions.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-mediaworks-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-mediaworks-banner.webp",
+    "avatarColor": "#DC2626",
+    "initials": "MW",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-mediaworks",
+        "industry": "Digital Media",
+        "size": "1001-5000 employees",
+        "employees": 1892,
+        "followers": 78934,
+        "location": "Los Angeles, CA"
+      }
+    }
+  },
+  {
+    "id": "org-biosynth",
+    "type": "company",
+    "name": "BioSynth",
+    "handle": null,
+    "description": "Biotechnology research advancing human health and medicine.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-biosynth-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-biosynth-banner.webp",
+    "avatarColor": "#059669",
+    "initials": "BS",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-biosynth",
+        "industry": "Biotechnology",
+        "size": "201-500 employees",
+        "employees": 423,
+        "followers": 56789,
+        "location": "San Diego, CA"
+      }
+    }
+  },
+  {
+    "id": "org-robotix",
+    "type": "company",
+    "name": "Robotix",
+    "handle": null,
+    "description": "Industrial and consumer robotics for the automated future.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-robotix-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-robotix-banner.webp",
+    "avatarColor": "#4F46E5",
+    "initials": "RX",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-robotix",
+        "industry": "Robotics",
+        "size": "201-500 employees",
+        "employees": 289,
+        "followers": 34567,
+        "location": "Pittsburgh, PA"
+      }
+    }
+  },
+  {
+    "id": "org-cleanwater-tech",
+    "type": "company",
+    "name": "CleanWater Tech",
+    "handle": null,
+    "description": "Water purification and sustainable water management technology.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-cleanwater-tech-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-cleanwater-tech-banner.webp",
+    "avatarColor": "#0EA5E9",
+    "initials": "CW",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-cleanwater",
+        "industry": "Environmental Technology",
+        "size": "51-200 employees",
+        "employees": 145,
+        "followers": 12345,
+        "location": "Denver, CO"
+      }
+    }
+  },
+  {
+    "id": "org-smartcity-io",
+    "type": "company",
+    "name": "SmartCity.io",
+    "handle": null,
+    "description": "IoT and smart infrastructure solutions for modern cities.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-smartcity-io-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-smartcity-io-banner.webp",
+    "avatarColor": "#6366F1",
+    "initials": "SC",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-smartcity",
+        "industry": "Smart Cities",
+        "size": "201-500 employees",
+        "employees": 267,
+        "followers": 23456,
+        "location": "Singapore"
+      }
+    }
+  },
+  {
+    "id": "org-foodtech-labs",
+    "type": "company",
+    "name": "FoodTech Labs",
+    "handle": null,
+    "description": "Alternative proteins and sustainable food technology.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-foodtech-labs-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-foodtech-labs-banner.webp",
+    "avatarColor": "#84CC16",
+    "initials": "FT",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-foodtech",
+        "industry": "Food Technology",
+        "size": "51-200 employees",
+        "employees": 123,
+        "followers": 15678,
+        "location": "San Francisco, CA"
+      }
+    }
+  },
+  {
+    "id": "org-fashionai",
+    "type": "company",
+    "name": "FashionAI",
+    "handle": null,
+    "description": "AI-powered fashion technology for personalized styling.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-fashionai-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-fashionai-banner.webp",
+    "avatarColor": "#EC4899",
+    "initials": "FA",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-fashionai",
+        "industry": "Fashion Technology",
+        "size": "51-200 employees",
+        "employees": 89,
+        "followers": 18234,
+        "location": "New York, NY"
+      }
+    }
+  },
+  {
+    "id": "org-insurtech-solutions",
+    "type": "company",
+    "name": "InsurTech Solutions",
+    "handle": null,
+    "description": "Digital insurance platforms reimagining risk management.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-insurtech-solutions-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-insurtech-solutions-banner.webp",
+    "avatarColor": "#0D9488",
+    "initials": "IS",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-insurtech",
+        "industry": "Insurance Technology",
+        "size": "201-500 employees",
+        "employees": 278,
+        "followers": 23456,
+        "location": "Hartford, CT"
+      }
+    }
+  },
+  {
+    "id": "org-constructech",
+    "type": "company",
+    "name": "ConstrucTech",
+    "handle": null,
+    "description": "Construction technology and project management solutions.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-constructech-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-constructech-banner.webp",
+    "avatarColor": "#F97316",
+    "initials": "CT",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-constructech",
+        "industry": "Construction Technology",
+        "size": "501-1000 employees",
+        "employees": 567,
+        "followers": 45678,
+        "location": "Dallas, TX"
+      }
+    }
+  },
+  {
+    "id": "org-minetech",
+    "type": "company",
+    "name": "MineTech",
+    "handle": null,
+    "description": "Mining automation and sustainable extraction technology.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-minetech-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-minetech-banner.webp",
+    "avatarColor": "#78716C",
+    "initials": "MT",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-minetech",
+        "industry": "Mining Technology",
+        "size": "201-500 employees",
+        "employees": 312,
+        "followers": 18934,
+        "location": "Perth, Australia"
+      }
+    }
+  },
+  {
+    "id": "org-synthwave-dreams",
+    "type": "band",
+    "name": "Synthwave Dreams",
+    "handle": null,
+    "description": "Retro-futuristic electronic music inspired by the 80s",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-synthwave-dreams-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#F472B6",
+    "initials": "SD",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-019",
+        "genre": "Synthwave",
+        "followers": 285000,
+        "monthlyListeners": 1100000
+      }
+    }
+  },
+  {
+    "id": "org-acoustic-sessions",
+    "type": "band",
+    "name": "Acoustic Sessions",
+    "handle": null,
+    "description": "Stripped-down acoustic covers and original songs",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-acoustic-sessions-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#A3A3A3",
+    "initials": "AS",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-020",
+        "genre": "Acoustic",
+        "followers": 125000,
+        "monthlyListeners": 450000
+      }
+    }
+  },
+  {
+    "id": "org-latin-fire",
+    "type": "band",
+    "name": "Latin Fire",
+    "handle": null,
+    "description": "Hot Latin rhythms from salsa to reggaeton",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-latin-fire-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#EF4444",
+    "initials": "LF",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-021",
+        "genre": "Latin",
+        "followers": 520000,
+        "monthlyListeners": 2400000
+      }
+    }
+  },
+  {
+    "id": "org-blues-junction",
+    "type": "band",
+    "name": "Blues Junction",
+    "handle": null,
+    "description": "Delta blues meets modern soul",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-blues-junction-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1E40AF",
+    "initials": "BJ",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-022",
+        "genre": "Blues",
+        "followers": 78000,
+        "monthlyListeners": 290000
+      }
+    }
+  },
+  {
+    "id": "org-punk-uprising",
+    "type": "band",
+    "name": "Punk Uprising",
+    "handle": null,
+    "description": "Raw punk energy with political edge",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-punk-uprising-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#000000",
+    "initials": "PU",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-023",
+        "genre": "Punk",
+        "followers": 190000,
+        "monthlyListeners": 720000
+      }
+    }
+  },
+  {
+    "id": "org-gospel-glory",
+    "type": "band",
+    "name": "Gospel Glory",
+    "handle": null,
+    "description": "Uplifting gospel choir bringing spiritual joy",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-gospel-glory-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FBBF24",
+    "initials": "GG",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-024",
+        "genre": "Gospel",
+        "followers": 145000,
+        "monthlyListeners": 520000
+      }
+    }
+  },
+  {
+    "id": "org-techno-underground",
+    "type": "band",
+    "name": "Techno Underground",
+    "handle": null,
+    "description": "Dark and driving techno from the underground scene",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-techno-underground-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#18181B",
+    "initials": "TU",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-025",
+        "genre": "Techno",
+        "followers": 380000,
+        "monthlyListeners": 1600000
+      }
+    }
+  },
+  {
+    "id": "org-rnb-smooth",
+    "type": "band",
+    "name": "R&B Smooth",
+    "handle": null,
+    "description": "Silky R&B vocals and smooth grooves",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-rnb-smooth-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#7C3AED",
+    "initials": "RS",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-026",
+        "genre": "R&B",
+        "followers": 290000,
+        "monthlyListeners": 1100000
+      }
+    }
+  },
+  {
+    "id": "org-folk-tales",
+    "type": "band",
+    "name": "Folk Tales",
+    "handle": null,
+    "description": "Traditional folk with contemporary storytelling",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-folk-tales-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#78716C",
+    "initials": "FT",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-027",
+        "genre": "Folk",
+        "followers": 92000,
+        "monthlyListeners": 340000
+      }
+    }
+  },
+  {
+    "id": "org-disco-revival",
+    "type": "band",
+    "name": "Disco Revival",
+    "handle": null,
+    "description": "Bringing back the disco era with modern production",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-disco-revival-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#F472B6",
+    "initials": "DR",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-028",
+        "genre": "Disco",
+        "followers": 210000,
+        "monthlyListeners": 890000
+      }
+    }
+  },
+  {
+    "id": "org-grunge-echo",
+    "type": "band",
+    "name": "Grunge Echo",
+    "handle": null,
+    "description": "90s grunge sound reimagined for today",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-grunge-echo-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#44403C",
+    "initials": "GE",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-029",
+        "genre": "Grunge",
+        "followers": 165000,
+        "monthlyListeners": 620000
+      }
+    }
+  },
+  {
+    "id": "org-opera-prima",
+    "type": "band",
+    "name": "Opera Prima",
+    "handle": null,
+    "description": "World-class operatic performances",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-opera-prima-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#991B1B",
+    "initials": "OP",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-030",
+        "genre": "Opera",
+        "followers": 58000,
+        "monthlyListeners": 180000
+      }
+    }
+  },
+  {
+    "id": "org-ska-rebels",
+    "type": "band",
+    "name": "Ska Rebels",
+    "handle": null,
+    "description": "High-energy ska punk with brass section",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-ska-rebels-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#16A34A",
+    "initials": "SR",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-031",
+        "genre": "Ska",
+        "followers": 135000,
+        "monthlyListeners": 480000
+      }
+    }
+  },
+  {
+    "id": "org-new-wave-revival",
+    "type": "band",
+    "name": "New Wave Revival",
+    "handle": null,
+    "description": "80s new wave aesthetics with modern edge",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-new-wave-revival-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#06B6D4",
+    "initials": "NW",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-032",
+        "genre": "New Wave",
+        "followers": 98000,
+        "monthlyListeners": 380000
+      }
+    }
+  },
+  {
+    "id": "org-lofi-study",
+    "type": "band",
+    "name": "Lo-Fi Study",
+    "handle": null,
+    "description": "Chill beats to study and relax to",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-lofi-study-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#A855F7",
+    "initials": "LS",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-033",
+        "genre": "Lo-Fi",
+        "followers": 890000,
+        "monthlyListeners": 4200000
+      }
+    }
+  },
+  {
+    "id": "org-trap-kings",
+    "type": "band",
+    "name": "Trap Kings",
+    "handle": null,
+    "description": "Hard-hitting trap beats and flows",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-trap-kings-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#DC2626",
+    "initials": "TK",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-034",
+        "genre": "Trap",
+        "followers": 520000,
+        "monthlyListeners": 2800000
+      }
+    }
+  },
+  {
+    "id": "org-house-nation",
+    "type": "band",
+    "name": "House Nation",
+    "handle": null,
+    "description": "Deep house and club anthems",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-house-nation-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#8B5CF6",
+    "initials": "HN",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-035",
+        "genre": "House",
+        "followers": 340000,
+        "monthlyListeners": 1400000
+      }
+    }
+  },
+  {
+    "id": "org-indie-rockers",
+    "type": "band",
+    "name": "Indie Rockers",
+    "handle": null,
+    "description": "Guitar-driven indie rock with catchy hooks",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-indie-rockers-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#F59E0B",
+    "initials": "IR",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-036",
+        "genre": "Indie Rock",
+        "followers": 245000,
+        "monthlyListeners": 920000
+      }
+    }
+  },
+  {
+    "id": "org-experimental-sounds",
+    "type": "band",
+    "name": "Experimental Sounds",
+    "handle": null,
+    "description": "Avant-garde sonic explorations",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-experimental-sounds-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#64748B",
+    "initials": "ES",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-037",
+        "genre": "Experimental",
+        "followers": 42000,
+        "monthlyListeners": 120000
+      }
+    }
+  },
+  {
+    "id": "org-acoustic-hearts",
+    "type": "band",
+    "name": "Acoustic Hearts",
+    "handle": null,
+    "description": "Acoustic pop duo with heartfelt harmonies",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-acoustic-hearts-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FB7185",
+    "initials": "AH",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-038",
+        "genre": "Acoustic Pop",
+        "followers": 156000,
+        "monthlyListeners": 580000
+      }
+    }
+  },
+  {
+    "id": "org-metalcore-fury",
+    "type": "band",
+    "name": "Metalcore Fury",
+    "handle": null,
+    "description": "Aggressive metalcore with melodic breakdowns",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-metalcore-fury-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1C1917",
+    "initials": "MF",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-039",
+        "genre": "Metalcore",
+        "followers": 280000,
+        "monthlyListeners": 1100000
+      }
+    }
+  },
+  {
+    "id": "org-chillhop-cafe",
+    "type": "band",
+    "name": "Chillhop Cafe",
+    "handle": null,
+    "description": "Jazzy hip-hop beats for relaxation",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-chillhop-cafe-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#D97706",
+    "initials": "CC",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-040",
+        "genre": "Chillhop",
+        "followers": 420000,
+        "monthlyListeners": 1800000
+      }
+    }
+  },
+  {
+    "id": "org-techcrunch",
+    "type": "news_outlet",
+    "name": "TechCrunch",
+    "handle": null,
+    "description": "Startup and technology news",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-techcrunch-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#00A562",
+    "initials": "TC",
+    "platforms": {
+      "news": {
+        "category": "tech"
+      }
+    }
+  },
+  {
+    "id": "org-fortune",
+    "type": "news_outlet",
+    "name": "Fortune",
+    "handle": null,
+    "description": "Business news and Fortune 500 coverage",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-fortune-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#E31837",
+    "initials": "F",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-barrons",
+    "type": "news_outlet",
+    "name": "Barron's",
+    "handle": null,
+    "description": "Investment and financial news weekly",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-barrons-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#000000",
+    "initials": "B",
+    "platforms": {
+      "news": {
+        "category": "finance"
+      }
+    }
+  },
+  {
+    "id": "org-opensource-collective",
+    "type": "microhub_org",
+    "name": "OpenSource Collective",
+    "handle": "opensource-collective",
+    "description": "Community-driven open source projects",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-opensource-collective-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#22C55E",
+    "initials": "OS",
+    "platforms": {
+      "microhub": {
+        "orgId": "opensource-collective",
+        "repos": 48,
+        "members": 156
+      }
+    }
+  },
+  {
+    "id": "org-devtools-inc",
+    "type": "microhub_org",
+    "name": "DevTools Inc",
+    "handle": "devtools-inc",
+    "description": "Building developer productivity tools",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-devtools-inc-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#3B82F6",
+    "initials": "DT",
+    "platforms": {
+      "microhub": {
+        "orgId": "devtools-inc",
+        "repos": 23,
+        "members": 45
+      }
+    }
+  },
+  {
+    "id": "org-cloudnative-labs",
+    "type": "microhub_org",
+    "name": "CloudNative Labs",
+    "handle": "cloudnative-labs",
+    "description": "Kubernetes and cloud-native ecosystem tools",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-cloudnative-labs-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#326CE5",
+    "initials": "CN",
+    "platforms": {
+      "microhub": {
+        "orgId": "cloudnative-labs",
+        "repos": 34,
+        "members": 78
+      }
+    }
+  },
+  {
+    "id": "org-mlops-team",
+    "type": "microhub_org",
+    "name": "MLOps Team",
+    "handle": "mlops-team",
+    "description": "Machine learning operations and infrastructure",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-mlops-team-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#F59E0B",
+    "initials": "ML",
+    "platforms": {
+      "microhub": {
+        "orgId": "mlops-team",
+        "repos": 18,
+        "members": 34
+      }
+    }
+  },
+  {
+    "id": "org-security-research",
+    "type": "microhub_org",
+    "name": "Security Research",
+    "handle": "security-research",
+    "description": "Open source security tools and research",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-security-research-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#DC2626",
+    "initials": "SR",
+    "platforms": {
+      "microhub": {
+        "orgId": "security-research",
+        "repos": 27,
+        "members": 52
+      }
+    }
+  },
+  {
+    "id": "org-frontend-guild",
+    "type": "microhub_org",
+    "name": "Frontend Guild",
+    "handle": "frontend-guild",
+    "description": "React, Vue, and frontend ecosystem libraries",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-frontend-guild-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#61DAFB",
+    "initials": "FG",
+    "platforms": {
+      "microhub": {
+        "orgId": "frontend-guild",
+        "repos": 42,
+        "members": 89
+      }
+    }
+  },
+  {
+    "id": "org-backend-masters",
+    "type": "microhub_org",
+    "name": "Backend Masters",
+    "handle": "backend-masters",
+    "description": "Server-side frameworks and API tools",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-backend-masters-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#10B981",
+    "initials": "BM",
+    "platforms": {
+      "microhub": {
+        "orgId": "backend-masters",
+        "repos": 31,
+        "members": 67
+      }
+    }
+  },
+  {
+    "id": "org-mobile-devs",
+    "type": "microhub_org",
+    "name": "Mobile Devs",
+    "handle": "mobile-devs",
+    "description": "Cross-platform mobile development tools",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-mobile-devs-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#8B5CF6",
+    "initials": "MD",
+    "platforms": {
+      "microhub": {
+        "orgId": "mobile-devs",
+        "repos": 19,
+        "members": 41
+      }
+    }
+  },
+  {
+    "id": "org-data-engineering",
+    "type": "microhub_org",
+    "name": "Data Engineering",
+    "handle": "data-engineering",
+    "description": "Data pipelines and ETL frameworks",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-data-engineering-avatar.webp",
+    "bannerUrl": null,
+    "avatarColor": "#0891B2",
+    "initials": "DE",
+    "platforms": {
+      "microhub": {
+        "orgId": "data-engineering",
+        "repos": 26,
+        "members": 58
+      }
+    }
+  },
+  {
+    "id": "org-oxford",
+    "type": "institution",
+    "name": "University of Oxford",
+    "handle": null,
+    "description": "Historic research university in Oxford, England",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-oxford-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#002147",
+    "initials": "OX",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-cambridge",
+    "type": "institution",
+    "name": "University of Cambridge",
+    "handle": null,
+    "description": "Historic research university in Cambridge, England",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-cambridge-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#A3C1AD",
+    "initials": "CAM",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-harvard",
+    "type": "institution",
+    "name": "Harvard University",
+    "handle": null,
+    "description": "Private Ivy League research university in Cambridge, MA",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-harvard-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#A51C30",
+    "initials": "H",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-princeton",
+    "type": "institution",
+    "name": "Princeton University",
+    "handle": null,
+    "description": "Private Ivy League research university in Princeton, NJ",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-princeton-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#E77500",
+    "initials": "P",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-caltech",
+    "type": "institution",
+    "name": "California Institute of Technology",
+    "handle": null,
+    "description": "Private research university in Pasadena, CA",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-caltech-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FF6C0C",
+    "initials": "CIT",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computing and Mathematical Sciences"
+      }
+    }
+  },
+  {
+    "id": "org-ucla",
+    "type": "institution",
+    "name": "UCLA",
+    "handle": null,
+    "description": "Public research university in Los Angeles, CA",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-ucla-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#2774AE",
+    "initials": "UCLA",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-uw",
+    "type": "institution",
+    "name": "University of Washington",
+    "handle": null,
+    "description": "Public research university in Seattle, WA",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-uw-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4B2E83",
+    "initials": "UW",
+    "platforms": {
+      "scholar": {
+        "type": "university",
+        "department": "Paul G. Allen School of Computer Science"
+      }
+    }
+  },
+  {
+    "id": "org-trap-lords",
+    "type": "band",
+    "name": "Trap Lords",
+    "handle": null,
+    "description": "Hard-hitting trap production",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-trap-lords-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#311b92",
+    "initials": "TL",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-041",
+        "genre": "Trap",
+        "followers": 678000,
+        "monthlyListeners": 2800000
+      }
+    }
+  },
+  {
+    "id": "org-flamenco-fire",
+    "type": "band",
+    "name": "Flamenco Fire",
+    "handle": null,
+    "description": "Passionate Spanish guitar",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-flamenco-fire-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#bf360c",
+    "initials": "FF",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-042",
+        "genre": "Flamenco",
+        "followers": 123000,
+        "monthlyListeners": 420000
+      }
+    }
+  },
+  {
+    "id": "org-progressive-rock-band",
+    "type": "band",
+    "name": "Progressive Rock Band",
+    "handle": null,
+    "description": "Epic compositions and complex arrangements",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-progressive-rock-band-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4527a0",
+    "initials": "PR",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-043",
+        "genre": "Progressive Rock",
+        "followers": 267000,
+        "monthlyListeners": 980000
+      }
+    }
+  },
+  {
+    "id": "org-dubstep-producer",
+    "type": "band",
+    "name": "Dubstep Producer",
+    "handle": null,
+    "description": "Heavy bass and aggressive drops",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-dubstep-producer-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#1a237e",
+    "initials": "DP",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-044",
+        "genre": "Dubstep",
+        "followers": 445000,
+        "monthlyListeners": 1700000
+      }
+    }
+  },
+  {
+    "id": "org-new-age-sounds",
+    "type": "band",
+    "name": "New Age Sounds",
+    "handle": null,
+    "description": "Peaceful music for meditation",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-new-age-sounds-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#b2dfdb",
+    "initials": "NA",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-045",
+        "genre": "New Age",
+        "followers": 89000,
+        "monthlyListeners": 340000
+      }
+    }
+  },
+  {
+    "id": "org-shoegaze-collective",
+    "type": "band",
+    "name": "Shoegaze Collective",
+    "handle": null,
+    "description": "Dreamy walls of sound",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-shoegaze-collective-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#e1bee7",
+    "initials": "SC",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-046",
+        "genre": "Shoegaze",
+        "followers": 156000,
+        "monthlyListeners": 520000
+      }
+    }
+  },
+  {
+    "id": "org-hardstyle-heroes",
+    "type": "band",
+    "name": "Hardstyle Heroes",
+    "handle": null,
+    "description": "High BPM festival anthems",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-hardstyle-heroes-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#f50057",
+    "initials": "HH",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-047",
+        "genre": "Hardstyle",
+        "followers": 334000,
+        "monthlyListeners": 1400000
+      }
+    }
+  },
+  {
+    "id": "org-garage-band",
+    "type": "band",
+    "name": "Garage Band",
+    "handle": null,
+    "description": "UK garage and 2-step beats",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-garage-band-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#3f51b5",
+    "initials": "GB",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-048",
+        "genre": "UK Garage",
+        "followers": 212000,
+        "monthlyListeners": 780000
+      }
+    }
+  },
+  {
+    "id": "org-acoustic-indie",
+    "type": "band",
+    "name": "Acoustic Indie",
+    "handle": null,
+    "description": "Singer-songwriter confessionals",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-acoustic-indie-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#795548",
+    "initials": "AI",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-049",
+        "genre": "Indie Acoustic",
+        "followers": 167000,
+        "monthlyListeners": 590000
+      }
+    }
+  },
+  {
+    "id": "org-experimental-noise",
+    "type": "band",
+    "name": "Experimental Noise",
+    "handle": null,
+    "description": "Avant-garde sound exploration",
+    "isVerified": false,
+    "avatarUrl": "images/orgs/org-experimental-noise-cover.webp",
+    "bannerUrl": null,
+    "avatarColor": "#37474f",
+    "initials": "EN",
+    "platforms": {
+      "microfy": {
+        "artistId": "artist-050",
+        "genre": "Experimental",
+        "followers": 45000,
+        "monthlyListeners": 120000
+      }
+    }
+  },
+  {
+    "id": "org-medicore",
+    "type": "company",
+    "name": "MediCore Health",
+    "handle": null,
+    "description": "Digital health solutions connecting patients with personalized care.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-medicore-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-medicore-banner.webp",
+    "avatarColor": "#red-400",
+    "initials": "M",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-medicore",
+        "industry": "Healthcare Technology",
+        "size": "201-500 employees",
+        "employees": 345,
+        "followers": 28456,
+        "location": "Boston, MA"
+      }
+    }
+  },
+  {
+    "id": "org-quantumleap",
+    "type": "company",
+    "name": "QuantumLeap Labs",
+    "handle": null,
+    "description": "Pioneering quantum computing solutions for enterprise applications.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-quantumleap-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-quantumleap-banner.webp",
+    "avatarColor": "#cyan-400",
+    "initials": "Q",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-quantumleap",
+        "industry": "Quantum Computing",
+        "size": "51-200 employees",
+        "employees": 156,
+        "followers": 34521,
+        "location": "Palo Alto, CA"
+      }
+    }
+  },
+  {
+    "id": "org-ecoventure",
+    "type": "company",
+    "name": "EcoVenture",
+    "handle": null,
+    "description": "Sustainable technology solutions for a greener tomorrow.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-ecoventure-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-ecoventure-banner.webp",
+    "avatarColor": "#green-400",
+    "initials": "E",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-ecoventure",
+        "industry": "Sustainability",
+        "size": "201-500 employees",
+        "employees": 287,
+        "followers": 19823,
+        "location": "Portland, OR"
+      }
+    }
+  },
+  {
+    "id": "org-cybervault",
+    "type": "company",
+    "name": "CyberVault Security",
+    "handle": null,
+    "description": "Enterprise-grade cybersecurity protecting critical infrastructure.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-cybervault-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-cybervault-banner.webp",
+    "avatarColor": "#gray-600",
+    "initials": "C",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-cybervault",
+        "industry": "Cybersecurity",
+        "size": "501-1000 employees",
+        "employees": 678,
+        "followers": 45678,
+        "location": "Washington, DC"
+      }
+    }
+  },
+  {
+    "id": "org-aerolink",
+    "type": "company",
+    "name": "AeroLink Aviation",
+    "handle": null,
+    "description": "Next-generation aviation technology and sustainable flight solutions.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-aerolink-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-aerolink-banner.webp",
+    "avatarColor": "#sky-400",
+    "initials": "A",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-aerolink",
+        "industry": "Aerospace",
+        "size": "1001-5000 employees",
+        "employees": 2340,
+        "followers": 78234,
+        "location": "Seattle, WA"
+      }
+    }
+  },
+  {
+    "id": "org-neuralpath",
+    "type": "company",
+    "name": "NeuralPath AI",
+    "handle": null,
+    "description": "Advanced neural network solutions for enterprise automation.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-neuralpath-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-neuralpath-banner.webp",
+    "avatarColor": "#violet-400",
+    "initials": "N",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-neuralpath",
+        "industry": "Artificial Intelligence",
+        "size": "51-200 employees",
+        "employees": 142,
+        "followers": 23456,
+        "location": "San Francisco, CA"
+      }
+    }
+  },
+  {
+    "id": "org-bytecraft",
+    "type": "company",
+    "name": "ByteCraft Studios",
+    "handle": null,
+    "description": "Creating immersive gaming experiences for the next generation.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-bytecraft-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-bytecraft-banner.webp",
+    "avatarColor": "#orange-400",
+    "initials": "B",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-bytecraft",
+        "industry": "Gaming",
+        "size": "201-500 employees",
+        "employees": 312,
+        "followers": 56789,
+        "location": "Los Angeles, CA"
+      }
+    }
+  },
+  {
+    "id": "org-logisync",
+    "type": "company",
+    "name": "LogiSync",
+    "handle": null,
+    "description": "AI-powered supply chain optimization and logistics management.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-logisync-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-logisync-banner.webp",
+    "avatarColor": "#blue-400",
+    "initials": "L",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-logisync",
+        "industry": "Supply Chain",
+        "size": "201-500 employees",
+        "employees": 267,
+        "followers": 21345,
+        "location": "Chicago, IL"
+      }
+    }
+  },
+  {
+    "id": "org-genomix",
+    "type": "company",
+    "name": "GenoMix Biotech",
+    "handle": null,
+    "description": "Pioneering genomic research for personalized medicine.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-genomix-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-genomix-banner.webp",
+    "avatarColor": "#emerald-400",
+    "initials": "G",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-genomix",
+        "industry": "Biotechnology",
+        "size": "51-200 employees",
+        "employees": 98,
+        "followers": 18765,
+        "location": "San Diego, CA"
+      }
+    }
+  },
+  {
+    "id": "org-eduvance",
+    "type": "company",
+    "name": "EduVance Learning",
+    "handle": null,
+    "description": "Transforming education through adaptive learning platforms.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-eduvance-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-eduvance-banner.webp",
+    "avatarColor": "#blue-400",
+    "initials": "E",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-eduvance",
+        "industry": "Education Technology",
+        "size": "201-500 employees",
+        "employees": 289,
+        "followers": 43210,
+        "location": "Cambridge, MA"
+      }
+    }
+  },
+  {
+    "id": "org-crystalvision",
+    "type": "company",
+    "name": "CrystalVision AR",
+    "handle": null,
+    "description": "Enterprise augmented reality solutions for training and collaboration.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-crystalvision-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-crystalvision-banner.webp",
+    "avatarColor": "#fuchsia-400",
+    "initials": "C",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-crystalvision",
+        "industry": "Augmented Reality",
+        "size": "51-200 employees",
+        "employees": 112,
+        "followers": 19234,
+        "location": "Santa Clara, CA"
+      }
+    }
+  },
+  {
+    "id": "org-oceantech",
+    "type": "company",
+    "name": "OceanTech Marine",
+    "handle": null,
+    "description": "Sustainable ocean technology and marine conservation solutions.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-oceantech-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-oceantech-banner.webp",
+    "avatarColor": "#blue-400",
+    "initials": "O",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-oceantech",
+        "industry": "Marine Technology",
+        "size": "201-500 employees",
+        "employees": 267,
+        "followers": 15678,
+        "location": "Miami, FL"
+      }
+    }
+  },
+  {
+    "id": "org-foodchain",
+    "type": "company",
+    "name": "FoodChain Analytics",
+    "handle": null,
+    "description": "Farm-to-table transparency through blockchain food tracking.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-foodchain-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-foodchain-banner.webp",
+    "avatarColor": "#lime-400",
+    "initials": "F",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-foodchain",
+        "industry": "Food Technology",
+        "size": "51-200 employees",
+        "employees": 89,
+        "followers": 12345,
+        "location": "Minneapolis, MN"
+      }
+    }
+  },
+  {
+    "id": "org-mindwell",
+    "type": "company",
+    "name": "MindWell Health",
+    "handle": null,
+    "description": "Digital mental health solutions for workplace wellness.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-mindwell-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-mindwell-banner.webp",
+    "avatarColor": "#purple-400",
+    "initials": "M",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-mindwell",
+        "industry": "Mental Health Tech",
+        "size": "51-200 employees",
+        "employees": 78,
+        "followers": 23456,
+        "location": "Boulder, CO"
+      }
+    }
+  },
+  {
+    "id": "org-gridwise",
+    "type": "company",
+    "name": "GridWise Energy",
+    "handle": null,
+    "description": "Intelligent energy grid management and optimization.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-gridwise-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-gridwise-banner.webp",
+    "avatarColor": "#yellow-400",
+    "initials": "G",
+    "platforms": {
+      "microdin": {
+        "companyId": "company-gridwise",
+        "industry": "Smart Grid",
+        "size": "501-1000 employees",
+        "employees": 445,
+        "followers": 34567,
+        "location": "Denver, CO"
+      }
+    }
+  },
+  {
+    "id": "org-mcro",
+    "type": "company",
+    "name": "MicroSystems Corp",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-mcro-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-mcro-banner.webp",
+    "avatarColor": "#00A4EF",
+    "initials": "MC",
+    "platforms": {
+      "stock": {
+        "symbol": "MCRO",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 128700000000
+      },
+      "microdin": {
+        "companyId": "company-mcro",
+        "industry": "Technology",
+        "size": "10000+ employees",
+        "employees": 100000,
+        "followers": 125241,
+        "location": "Redmond, WA"
+      }
+    }
+  },
+  {
+    "id": "org-pear",
+    "type": "company",
+    "name": "Pear Technologies",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-pear-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-pear-banner.webp",
+    "avatarColor": "#555555",
+    "initials": "PE",
+    "platforms": {
+      "stock": {
+        "symbol": "PEAR",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 165165000000
+      },
+      "microdin": {
+        "companyId": "company-pear",
+        "industry": "Consumer Electronics",
+        "size": "5001-10000 employees",
+        "employees": 50010,
+        "followers": 86007,
+        "location": "Cupertino, CA"
+      }
+    }
+  },
+  {
+    "id": "org-alph",
+    "type": "company",
+    "name": "Alphavine Inc",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-alph-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-alph-banner.webp",
+    "avatarColor": "#4285F4",
+    "initials": "AL",
+    "platforms": {
+      "stock": {
+        "symbol": "ALPH",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 45962900000
+      },
+      "microdin": {
+        "companyId": "company-alph",
+        "industry": "Internet",
+        "size": "10000+ employees",
+        "employees": 100000,
+        "followers": 139751,
+        "location": "Mountain View, CA"
+      }
+    }
+  },
+  {
+    "id": "org-volt",
+    "type": "company",
+    "name": "Voltaic Motors",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-volt-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-volt-banner.webp",
+    "avatarColor": "#CC0000",
+    "initials": "VO",
+    "platforms": {
+      "stock": {
+        "symbol": "VOLT",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 107814280000
+      },
+      "microdin": {
+        "companyId": "company-volt",
+        "industry": "Automotive",
+        "size": "5001-10000 employees",
+        "employees": 50010,
+        "followers": 82085,
+        "location": "Austin, TX"
+      }
+    }
+  },
+  {
+    "id": "org-chip",
+    "type": "company",
+    "name": "ChipForge Industries",
+    "handle": null,
+    "description": "Publicly traded company in the Semiconductors & Robotics sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-chip-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-chip-banner.webp",
+    "avatarColor": "#76B900",
+    "initials": "CH",
+    "platforms": {
+      "stock": {
+        "symbol": "CHIP",
+        "exchange": "NASDAQ",
+        "industry": "Semiconductors & Robotics",
+        "marketCap": 80222400000
+      },
+      "microdin": {
+        "companyId": "company-chip",
+        "industry": "Semiconductors",
+        "size": "1001-5000 employees",
+        "employees": 10010,
+        "followers": 239389,
+        "location": "Santa Clara, CA"
+      }
+    }
+  },
+  {
+    "id": "org-neos",
+    "type": "company",
+    "name": "Neos Pharmaceuticals",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-neos-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#E91E63",
+    "initials": "NE",
+    "platforms": {
+      "stock": {
+        "symbol": "NEOS",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 29074500000
+      }
+    }
+  },
+  {
+    "id": "org-aura",
+    "type": "company",
+    "name": "Aura Cloud Services",
+    "handle": null,
+    "description": "Publicly traded company in the Cloud & Communications sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-aura-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-aura-banner.webp",
+    "avatarColor": "#9C27B0",
+    "initials": "AU",
+    "platforms": {
+      "stock": {
+        "symbol": "AURA",
+        "exchange": "NASDAQ",
+        "industry": "Cloud & Communications",
+        "marketCap": 113390550000
+      },
+      "microdin": {
+        "companyId": "company-aura",
+        "industry": "Cloud Computing",
+        "size": "1001-5000 employees",
+        "employees": 10010,
+        "followers": 117712,
+        "location": "Seattle, WA"
+      }
+    }
+  },
+  {
+    "id": "org-strm",
+    "type": "company",
+    "name": "StreamVault Media",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-strm-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FF5722",
+    "initials": "ST",
+    "platforms": {
+      "stock": {
+        "symbol": "STRM",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 33211200000
+      }
+    }
+  },
+  {
+    "id": "org-glxy",
+    "type": "company",
+    "name": "Galaxy Space Tech",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-glxy-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-glxy-banner.webp",
+    "avatarColor": "#3F51B5",
+    "initials": "GL",
+    "platforms": {
+      "stock": {
+        "symbol": "GLXY",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 343180800000
+      },
+      "microdin": {
+        "companyId": "company-glxy",
+        "industry": "Aerospace",
+        "size": "501-1000 employees",
+        "employees": 5010,
+        "followers": 196265,
+        "location": "Hawthorne, CA"
+      }
+    }
+  },
+  {
+    "id": "org-fntc",
+    "type": "company",
+    "name": "FinTech Solutions",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-fntc-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-fntc-banner.webp",
+    "avatarColor": "#4CAF50",
+    "initials": "FN",
+    "platforms": {
+      "stock": {
+        "symbol": "FNTC",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 68269500000
+      },
+      "microdin": {
+        "companyId": "company-fntc",
+        "industry": "Financial Technology",
+        "size": "501-1000 employees",
+        "employees": 5010,
+        "followers": 178727,
+        "location": "San Francisco, CA"
+      }
+    }
+  },
+  {
+    "id": "org-qntm",
+    "type": "company",
+    "name": "Quantum Computing Inc",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-qntm-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#00BCD4",
+    "initials": "QN",
+    "platforms": {
+      "stock": {
+        "symbol": "QNTM",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 66084599999
+      }
+    }
+  },
+  {
+    "id": "org-solr",
+    "type": "company",
+    "name": "Solar Dynamics",
+    "handle": null,
+    "description": "Publicly traded company in the Energy sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-solr-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FFC107",
+    "initials": "SO",
+    "platforms": {
+      "stock": {
+        "symbol": "SOLR",
+        "exchange": "NASDAQ",
+        "industry": "Energy",
+        "marketCap": 21072800000
+      }
+    }
+  },
+  {
+    "id": "org-robo",
+    "type": "company",
+    "name": "RoboTech Industries",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-robo-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-robo-banner.webp",
+    "avatarColor": "#607D8B",
+    "initials": "RO",
+    "platforms": {
+      "stock": {
+        "symbol": "ROBO",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 56890200000
+      },
+      "microdin": {
+        "companyId": "company-robo",
+        "industry": "Robotics",
+        "size": "201-500 employees",
+        "employees": 2010,
+        "followers": 70504,
+        "location": "Boston, MA"
+      }
+    }
+  },
+  {
+    "id": "org-cybr",
+    "type": "company",
+    "name": "CyberShield Security",
+    "handle": null,
+    "description": "Publicly traded company in the Cybersecurity & Defense sector.",
+    "isVerified": true,
+    "avatarUrl": "images/microdin/company-logos/org-cybr-logo.webp",
+    "bannerUrl": "images/microdin/company-banners/org-cybr-banner.webp",
+    "avatarColor": "#795548",
+    "initials": "CY",
+    "platforms": {
+      "stock": {
+        "symbol": "CYBR",
+        "exchange": "NASDAQ",
+        "industry": "Cybersecurity & Defense",
+        "marketCap": 30256250000
+      },
+      "microdin": {
+        "companyId": "company-cybr",
+        "industry": "Cybersecurity",
+        "size": "501-1000 employees",
+        "employees": 5010,
+        "followers": 204667,
+        "location": "Washington, DC"
+      }
+    }
+  },
+  {
+    "id": "org-gene",
+    "type": "company",
+    "name": "GeneEdit Biotech",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-gene-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#009688",
+    "initials": "GE",
+    "platforms": {
+      "stock": {
+        "symbol": "GENE",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 89716100000
+      }
+    }
+  },
+  {
+    "id": "org-drne",
+    "type": "company",
+    "name": "DroneLogistics Corp",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-drne-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FF9800",
+    "initials": "DR",
+    "platforms": {
+      "stock": {
+        "symbol": "DRNE",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 35554600000
+      }
+    }
+  },
+  {
+    "id": "org-metv",
+    "type": "company",
+    "name": "MetaVerse Platforms",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-metv-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#673AB7",
+    "initials": "ME",
+    "platforms": {
+      "stock": {
+        "symbol": "METV",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 140118000000
+      }
+    }
+  },
+  {
+    "id": "org-lith",
+    "type": "company",
+    "name": "Lithium Energy",
+    "handle": null,
+    "description": "Publicly traded company in the Energy sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-lith-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#8BC34A",
+    "initials": "LI",
+    "platforms": {
+      "stock": {
+        "symbol": "LITH",
+        "exchange": "NASDAQ",
+        "industry": "Energy",
+        "marketCap": 29257500000
+      }
+    }
+  },
+  {
+    "id": "org-agri",
+    "type": "company",
+    "name": "AgriTech Innovations",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-agri-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#66BB6A",
+    "initials": "AG",
+    "platforms": {
+      "stock": {
+        "symbol": "AGRI",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 23763600000
+      }
+    }
+  },
+  {
+    "id": "org-nano",
+    "type": "company",
+    "name": "NanoMed Solutions",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-nano-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#26A69A",
+    "initials": "NA",
+    "platforms": {
+      "stock": {
+        "symbol": "NANO",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 40858800000
+      }
+    }
+  },
+  {
+    "id": "org-edge",
+    "type": "company",
+    "name": "Edge Networks",
+    "handle": null,
+    "description": "Publicly traded company in the Cloud & Communications sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-edge-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#5C6BC0",
+    "initials": "ED",
+    "platforms": {
+      "stock": {
+        "symbol": "EDGE",
+        "exchange": "NASDAQ",
+        "industry": "Cloud & Communications",
+        "marketCap": 82728800000
+      }
+    }
+  },
+  {
+    "id": "org-hydr",
+    "type": "company",
+    "name": "HydroGen Power",
+    "handle": null,
+    "description": "Publicly traded company in the Energy sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-hydr-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#29B6F6",
+    "initials": "HY",
+    "platforms": {
+      "stock": {
+        "symbol": "HYDR",
+        "exchange": "NASDAQ",
+        "industry": "Energy",
+        "marketCap": 11223600000
+      }
+    }
+  },
+  {
+    "id": "org-arma",
+    "type": "company",
+    "name": "ArmaDefense Corp",
+    "handle": null,
+    "description": "Publicly traded company in the Cybersecurity & Defense sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-arma-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#78909C",
+    "initials": "AR",
+    "platforms": {
+      "stock": {
+        "symbol": "ARMA",
+        "exchange": "NASDAQ",
+        "industry": "Cybersecurity & Defense",
+        "marketCap": 31477600000
+      }
+    }
+  },
+  {
+    "id": "org-cryo",
+    "type": "company",
+    "name": "CryoGenetics Lab",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-cryo-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#80DEEA",
+    "initials": "CR",
+    "platforms": {
+      "stock": {
+        "symbol": "CRYO",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 40907200000
+      }
+    }
+  },
+  {
+    "id": "org-wave",
+    "type": "company",
+    "name": "WaveComm Tech",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-wave-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#7E57C2",
+    "initials": "WA",
+    "platforms": {
+      "stock": {
+        "symbol": "WAVE",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 21795900000
+      }
+    }
+  },
+  {
+    "id": "org-blkc",
+    "type": "company",
+    "name": "BlockChain Ledger",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-blkc-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FFA726",
+    "initials": "BL",
+    "platforms": {
+      "stock": {
+        "symbol": "BLKC",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 88082400000
+      }
+    }
+  },
+  {
+    "id": "org-aria",
+    "type": "company",
+    "name": "Aria Aerospace",
+    "handle": null,
+    "description": "Publicly traded company in the Aerospace sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-aria-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#42A5F5",
+    "initials": "AR",
+    "platforms": {
+      "stock": {
+        "symbol": "ARIA",
+        "exchange": "NASDAQ",
+        "industry": "Aerospace",
+        "marketCap": 386965700000
+      }
+    }
+  },
+  {
+    "id": "org-pulse",
+    "type": "company",
+    "name": "PulseHealth",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-pulse-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#EF5350",
+    "initials": "PU",
+    "platforms": {
+      "stock": {
+        "symbol": "PULSE",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 6988800000
+      }
+    }
+  },
+  {
+    "id": "org-terra",
+    "type": "company",
+    "name": "TerraMining Inc",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-terra-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#8D6E63",
+    "initials": "TE",
+    "platforms": {
+      "stock": {
+        "symbol": "TERRA",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 64452500000
+      }
+    }
+  },
+  {
+    "id": "org-nexo",
+    "type": "company",
+    "name": "Nexo Payments",
+    "handle": null,
+    "description": "Publicly traded company in the Financial Services sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-nexo-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#26C6DA",
+    "initials": "NE",
+    "platforms": {
+      "stock": {
+        "symbol": "NEXO",
+        "exchange": "NASDAQ",
+        "industry": "Financial Services",
+        "marketCap": 31914399999
+      }
+    }
+  },
+  {
+    "id": "org-synth",
+    "type": "company",
+    "name": "SynthBio Corp",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-synth-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#AB47BC",
+    "initials": "SY",
+    "platforms": {
+      "stock": {
+        "symbol": "SYNTH",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 115805000000
+      }
+    }
+  },
+  {
+    "id": "org-orbt",
+    "type": "company",
+    "name": "Orbital Dynamics",
+    "handle": null,
+    "description": "Publicly traded company in the Aerospace sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-orbt-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#5E35B1",
+    "initials": "OR",
+    "platforms": {
+      "stock": {
+        "symbol": "ORBT",
+        "exchange": "NASDAQ",
+        "industry": "Aerospace",
+        "marketCap": 238328100000
+      }
+    }
+  },
+  {
+    "id": "org-elec",
+    "type": "company",
+    "name": "ElectraGrid",
+    "handle": null,
+    "description": "Publicly traded company in the Agriculture & Food sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-elec-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FFCA28",
+    "initials": "EL",
+    "platforms": {
+      "stock": {
+        "symbol": "ELEC",
+        "exchange": "NASDAQ",
+        "industry": "Agriculture & Food",
+        "marketCap": 29081600000
+      }
+    }
+  },
+  {
+    "id": "org-vivid",
+    "type": "company",
+    "name": "Vivid Entertainment",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-vivid-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#EC407A",
+    "initials": "VI",
+    "platforms": {
+      "stock": {
+        "symbol": "VIVID",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 26398000000
+      }
+    }
+  },
+  {
+    "id": "org-zenith",
+    "type": "company",
+    "name": "Zenith Software",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-zenith-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#7CB342",
+    "initials": "ZE",
+    "platforms": {
+      "stock": {
+        "symbol": "ZENITH",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 104387400000
+      }
+    }
+  },
+  {
+    "id": "org-frst",
+    "type": "company",
+    "name": "Frost Logistics",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-frst-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4FC3F7",
+    "initials": "FR",
+    "platforms": {
+      "stock": {
+        "symbol": "FRST",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 53404000000
+      }
+    }
+  },
+  {
+    "id": "org-prism",
+    "type": "company",
+    "name": "Prism Optics",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-prism-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#BA68C8",
+    "initials": "PR",
+    "platforms": {
+      "stock": {
+        "symbol": "PRISM",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 59690400000
+      }
+    }
+  },
+  {
+    "id": "org-titan",
+    "type": "company",
+    "name": "Titan Manufacturing",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-titan-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#90A4AE",
+    "initials": "TI",
+    "platforms": {
+      "stock": {
+        "symbol": "TITAN",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 178743600000
+      }
+    }
+  },
+  {
+    "id": "org-nova",
+    "type": "company",
+    "name": "Nova Semiconductors",
+    "handle": null,
+    "description": "Publicly traded company in the Semiconductors & Robotics sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-nova-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FF7043",
+    "initials": "NO",
+    "platforms": {
+      "stock": {
+        "symbol": "NOVA",
+        "exchange": "NASDAQ",
+        "industry": "Semiconductors & Robotics",
+        "marketCap": 418790400000
+      }
+    }
+  },
+  {
+    "id": "org-hydra",
+    "type": "company",
+    "name": "Hydra Systems",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-hydra-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#66BB6A",
+    "initials": "HY",
+    "platforms": {
+      "stock": {
+        "symbol": "HYDRA",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 48598200000
+      }
+    }
+  },
+  {
+    "id": "org-apex",
+    "type": "company",
+    "name": "Apex Ventures",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-apex-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#42A5F5",
+    "initials": "AP",
+    "platforms": {
+      "stock": {
+        "symbol": "APEX",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 184126800000
+      }
+    }
+  },
+  {
+    "id": "org-flux",
+    "type": "company",
+    "name": "Flux Energy",
+    "handle": null,
+    "description": "Publicly traded company in the Energy sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-flux-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FFEE58",
+    "initials": "FL",
+    "platforms": {
+      "stock": {
+        "symbol": "FLUX",
+        "exchange": "NASDAQ",
+        "industry": "Energy",
+        "marketCap": 16596800000
+      }
+    }
+  },
+  {
+    "id": "org-cosm",
+    "type": "company",
+    "name": "Cosmic Industries",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-cosm-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#7986CB",
+    "initials": "CO",
+    "platforms": {
+      "stock": {
+        "symbol": "COSM",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 224755000000
+      }
+    }
+  },
+  {
+    "id": "org-vrtx",
+    "type": "company",
+    "name": "Vertex AI",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-vrtx-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4DD0E1",
+    "initials": "VR",
+    "platforms": {
+      "stock": {
+        "symbol": "VRTX",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 97216700000
+      }
+    }
+  },
+  {
+    "id": "org-reed",
+    "type": "company",
+    "name": "Reed Pharmaceuticals",
+    "handle": null,
+    "description": "Publicly traded company in the Healthcare & Biotechnology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-reed-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#81C784",
+    "initials": "RE",
+    "platforms": {
+      "stock": {
+        "symbol": "REED",
+        "exchange": "NASDAQ",
+        "industry": "Healthcare & Biotechnology",
+        "marketCap": 23715000000
+      }
+    }
+  },
+  {
+    "id": "org-bolt",
+    "type": "company",
+    "name": "Bolt Mobility",
+    "handle": null,
+    "description": "Publicly traded company in the Automotive sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-bolt-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#FFB74D",
+    "initials": "BO",
+    "platforms": {
+      "stock": {
+        "symbol": "BOLT",
+        "exchange": "NASDAQ",
+        "industry": "Automotive",
+        "marketCap": 20202700000
+      }
+    }
+  },
+  {
+    "id": "org-echo",
+    "type": "company",
+    "name": "Echo Communications",
+    "handle": null,
+    "description": "Publicly traded company in the Cloud & Communications sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-echo-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#9575CD",
+    "initials": "EC",
+    "platforms": {
+      "stock": {
+        "symbol": "ECHO",
+        "exchange": "NASDAQ",
+        "industry": "Cloud & Communications",
+        "marketCap": 82839000000
+      }
+    }
+  },
+  {
+    "id": "org-forge",
+    "type": "company",
+    "name": "Forge Materials",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-forge-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#A1887F",
+    "initials": "FO",
+    "platforms": {
+      "stock": {
+        "symbol": "FORGE",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 185492400000
+      }
+    }
+  },
+  {
+    "id": "org-helx",
+    "type": "company",
+    "name": "Helix Genomics",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-helx-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#4DB6AC",
+    "initials": "HE",
+    "platforms": {
+      "stock": {
+        "symbol": "HELX",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 202636200000
+      }
+    }
+  },
+  {
+    "id": "org-omni",
+    "type": "company",
+    "name": "Omniplex Holdings",
+    "handle": null,
+    "description": "Publicly traded company in the Technology sector.",
+    "isVerified": true,
+    "avatarUrl": "images/orgs/org-omni-logo.webp",
+    "bannerUrl": null,
+    "avatarColor": "#5C6BC0",
+    "initials": "OM",
+    "platforms": {
+      "stock": {
+        "symbol": "OMNI",
+        "exchange": "NASDAQ",
+        "industry": "Technology",
+        "marketCap": 47320400000
+      }
+    }
+  }
+]

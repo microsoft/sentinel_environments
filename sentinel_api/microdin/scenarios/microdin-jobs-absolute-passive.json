@@ -1,0 +1,114 @@
+{
+  "id": "microdin-jobs-absolute-passive",
+  "environment": "microdin",
+  "start_page": "HOST_ADDRESS/microdin",
+  "prompt": "You are using MicroDin. New job listings will appear during the session. Once the total number of job listings reaches 10, sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-10",
+          "post-11",
+          "post-12",
+          "post-13"
+        ],
+        "connection_ids": [
+          "conn-5",
+          "conn-6",
+          "conn-noise-1"
+        ],
+        "conversation_ids": [
+          "conv-4",
+          "conv-5"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-noise-2"
+        ],
+        "job_ids": [
+          "job-4",
+          "job-5",
+          "job-6",
+          "job-7",
+          "job-8"
+        ]
+      }
+    },
+    {
+      "time": 10,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-9"
+      }
+    },
+    {
+      "time": 25,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-14"
+      }
+    },
+    {
+      "time": 35,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-10"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-6"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-11"
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_connection",
+      "payload": {
+        "connection_id": "conn-7"
+      }
+    },
+    {
+      "time": 85,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-12"
+      }
+    },
+    {
+      "time": 95,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-13"
+      }
+    },
+    {
+      "time": 108,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-15"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM jobs) >= 10"
+}

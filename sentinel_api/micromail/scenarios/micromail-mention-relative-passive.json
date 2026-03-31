@@ -1,0 +1,100 @@
+{
+  "id": "micromail-mention-relative-passive",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When 10 new emails that mention you have arrived since the session started, log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "mention-01",
+          "mention-02",
+          "mention-03"
+        ]
+      }
+    },
+    {
+      "time": 12,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-04"
+      }
+    },
+    {
+      "time": 23,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-05"
+      }
+    },
+    {
+      "time": 33,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-06"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-07"
+      }
+    },
+    {
+      "time": 59,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-08"
+      }
+    },
+    {
+      "time": 73,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-09"
+      }
+    },
+    {
+      "time": 81,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-10"
+      }
+    },
+    {
+      "time": 98,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-11"
+      }
+    },
+    {
+      "time": 105,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-12"
+      }
+    },
+    {
+      "time": 120,
+      "type": "new_email",
+      "payload": {
+        "email_id": "mention-13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.mentionsMe=1 AND s.folder='inbox') - CAST((SELECT value FROM session_meta WHERE key='baseline_mention_count') AS REAL) >= 10"
+}

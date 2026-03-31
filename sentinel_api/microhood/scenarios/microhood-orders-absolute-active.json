@@ -1,0 +1,65 @@
+{
+  "id": "microhood-orders-absolute-active",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "You are using MicroHood. Place at least 3 stock orders (buy or sell), then sell all your positions and sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10"
+        ],
+        "buying_power": 10000.0
+      }
+    },
+    {
+      "time": 20,
+      "type": "new_news",
+      "payload": {
+        "news_id": "14"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_news",
+      "payload": {
+        "news_id": "15"
+      }
+    },
+    {
+      "time": 80,
+      "type": "new_news",
+      "payload": {
+        "news_id": "16"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM orders) >= 3"
+}

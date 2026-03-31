@@ -1,0 +1,103 @@
+{
+  "id": "microlendar-events-absolute-passive",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "You are using MicroLendar, a scheduling app. Wait for the total number of calendar events to reach 25, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_events",
+      "payload": {
+        "event_ids": [
+          "evt001",
+          "evt002",
+          "evt003",
+          "evt004",
+          "evt005",
+          "evt006",
+          "evt007",
+          "evt008",
+          "evt009",
+          "evt010",
+          "evt011",
+          "evt012",
+          "evt013",
+          "evt014",
+          "evt015",
+          "evt016",
+          "evt017",
+          "evt018",
+          "evt019",
+          "evt020"
+        ],
+        "task_ids": [
+          "task01",
+          "task02",
+          "task03",
+          "task04",
+          "task05"
+        ]
+      }
+    },
+    {
+      "time": 20,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today01"
+      }
+    },
+    {
+      "time": 35,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today02"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today03"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today04"
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today05"
+      }
+    },
+    {
+      "time": 85,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise01"
+      }
+    },
+    {
+      "time": 95,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise02"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0) + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0)) >= 25"
+}

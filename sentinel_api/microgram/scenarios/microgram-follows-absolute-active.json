@@ -1,0 +1,103 @@
+{
+  "id": "microgram-follows-absolute-active",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "You are using MicroGram. Follow at least 5 users, then unfollow all of them, and sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-datascience-workshop",
+          "post-sunrise-canyon",
+          "post-barcelona-market",
+          "post-minimal-desk",
+          "post-character-sketch",
+          "post-jazz-festival",
+          "post-coffee-writing",
+          "post-pottery-studio",
+          "post-surf-morning",
+          "post-robotics-lab",
+          "post-community-event",
+          "post-dubai-skyline",
+          "post-sailing-sunset",
+          "post-gaming-setup",
+          "post-rock-climbing",
+          "post-team-standup",
+          "post-golden-gate-run",
+          "post-coffee-code",
+          "post-sunset-hike",
+          "post-marathon-finish"
+        ],
+        "story_ids": [
+          "story-rock-climbing-gym",
+          "story-travel-photography",
+          "story-figma-design-session",
+          "story-cozy-writing-cafe",
+          "story-pottery-studio-session",
+          "story-jazz-festival-night",
+          "story-character-sketch-timelapse",
+          "story-grand-canyon-sunrise"
+        ],
+        "message_ids": [
+          "dm-1",
+          "dm-2"
+        ],
+        "activity_ids": [
+          "act-1",
+          "act-2",
+          "act-3",
+          "act-4",
+          "act-5",
+          "act-6",
+          "act-7",
+          "act-8"
+        ],
+        "liked_post_ids": [],
+        "saved_post_ids": [],
+        "followed_user_ids": [],
+        "viewed_story_ids": []
+      }
+    },
+    {
+      "time": 30,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-studio-session"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-social-media-analytics"
+      }
+    },
+    {
+      "time": 70,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-9"
+      }
+    },
+    {
+      "time": 90,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-mountain-bike"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM followed_users) >= 5"
+}

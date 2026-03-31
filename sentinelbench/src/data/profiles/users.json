@@ -1,0 +1,4435 @@
+[
+  {
+    "id": "user000",
+    "isSelf": true,
+    "name": "Chris Taylor",
+    "username": "ctaylor",
+    "email": "ctaylor@mymicromail.com",
+    "age": 29,
+    "race": "White",
+    "location": "San Francisco, CA",
+    "personality_tags": [
+      "adaptable",
+      "inquisitive",
+      "team-player"
+    ],
+    "avatarUrl": "images/avatars/user000.webp",
+    "bio": "A product-focused employee trying to build useful things. Juggling features, bugs, and way too many browser tabs.",
+    "gender": "male",
+    "jobTitle": "Product Associate",
+    "interests": [
+      "tech",
+      "product development",
+      "agile methodologies",
+      "rock climbing"
+    ],
+    "social": {
+      "followers": 847,
+      "following": 312,
+      "postsCount": 24,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-self"
+    },
+    "scholar": {
+      "email": "ctaylor@stanford.edu",
+      "affiliation": "Stanford University",
+      "department": "Computer Science",
+      "title": "PhD Candidate",
+      "interests": [
+        "machine learning",
+        "natural language processing",
+        "AI agents",
+        "reinforcement learning"
+      ],
+      "citations": 1569,
+      "hIndex": 5,
+      "i10Index": 5,
+      "citationsSince2020": 941,
+      "hIndexSince2020": 4,
+      "isVerified": true,
+      "homepage": "https://cs.stanford.edu/~ctaylor",
+      "orcid": "0000-0001-2345-6789"
+    },
+    "microfy": {
+      "followers": 156,
+      "following": 89,
+      "playlistCount": 12,
+      "likedTracksCount": 247,
+      "monthlyListeners": 0,
+      "isPremium": false,
+      "joinedDate": "January 2023",
+      "topGenres": [
+        "Indie Folk",
+        "Electronic",
+        "Jazz"
+      ],
+      "recentlyPlayedArtists": [
+        "The Wanderers",
+        "Electronic Duo",
+        "Jazz Quartet"
+      ],
+      "publicPlaylists": [
+        {
+          "id": "pl-001",
+          "name": "Chill Vibes",
+          "trackCount": 34
+        },
+        {
+          "id": "pl-002",
+          "name": "Work Focus",
+          "trackCount": 28
+        },
+        {
+          "id": "pl-003",
+          "name": "Weekend Mix",
+          "trackCount": 45
+        }
+      ]
+    },
+    "bannerUrl": "images/banners/user000.webp",
+    "microhub": {
+      "followers": 24,
+      "following": 31,
+      "joinedDate": "March 2022",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Pull Shark",
+          "icon": "\ud83e\udd88",
+          "description": "Opened pull requests that have been merged",
+          "earnedDate": "2024"
+        },
+        {
+          "id": "a2",
+          "name": "YOLO",
+          "icon": "\ud83c\udfaf",
+          "description": "Merged a PR without code review",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        2,
+        5,
+        3,
+        0,
+        1,
+        4,
+        6,
+        2,
+        3,
+        5,
+        7,
+        4,
+        2,
+        1,
+        0,
+        3,
+        5,
+        6,
+        4,
+        2,
+        1,
+        3,
+        5,
+        4,
+        2,
+        6,
+        7,
+        3,
+        2,
+        1,
+        4,
+        5,
+        3,
+        2,
+        6,
+        4,
+        1,
+        0,
+        3,
+        5,
+        7,
+        4,
+        2,
+        3,
+        1,
+        5,
+        6,
+        4,
+        2,
+        3,
+        5,
+        4
+      ]
+    },
+    "microdin": {
+      "company": "TheMicroCorporate",
+      "companyId": "company-themicrocorporate",
+      "industry": "Enterprise Software",
+      "connections": 897,
+      "profileViews": 138
+    }
+  },
+  {
+    "id": "user001",
+    "name": "Alex Chen",
+    "username": "achen",
+    "email": "achen@mymicromail.com",
+    "age": 32,
+    "race": "Asian",
+    "location": "San Francisco, CA",
+    "personality_tags": [
+      "direct",
+      "technical",
+      "concise"
+    ],
+    "avatarUrl": "images/avatars/user001.webp",
+    "bio": "Senior Software Engineer with a passion for open-source and building scalable systems.",
+    "gender": "male",
+    "jobTitle": "Software Engineer",
+    "interests": [
+      "coding",
+      "AI",
+      "robotics",
+      "hiking"
+    ],
+    "scholar": {
+      "email": "achen@berkeley.edu",
+      "affiliation": "UC Berkeley",
+      "department": "EECS",
+      "title": "Associate Professor",
+      "interests": [
+        "systems",
+        "databases",
+        "cloud computing",
+        "distributed systems"
+      ],
+      "citations": 9677,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 5806,
+      "hIndexSince2020": 2,
+      "isVerified": true,
+      "homepage": "https://eecs.berkeley.edu/~achen"
+    },
+    "bannerUrl": "images/banners/user001.webp",
+    "microhub": {
+      "followers": 156,
+      "following": 42,
+      "joinedDate": "January 2020",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Arctic Code Vault",
+          "icon": "\ud83c\udfd4\ufe0f",
+          "description": "Contributed code to the Arctic Code Vault",
+          "earnedDate": "2024"
+        },
+        {
+          "id": "a2",
+          "name": "Pull Shark x3",
+          "icon": "\ud83e\udd88",
+          "description": "Opened many pull requests",
+          "earnedDate": "2024"
+        },
+        {
+          "id": "a3",
+          "name": "Starstruck",
+          "icon": "\u2b50",
+          "description": "Created a repo with 100+ stars",
+          "earnedDate": "2023"
+        }
+      ],
+      "contributionData": [
+        8,
+        12,
+        6,
+        4,
+        9,
+        11,
+        7,
+        5,
+        10,
+        13,
+        8,
+        6,
+        4,
+        9,
+        12,
+        7,
+        5,
+        11,
+        8,
+        6,
+        10,
+        14,
+        9,
+        5,
+        7,
+        12,
+        8,
+        6,
+        11,
+        9,
+        5,
+        8,
+        13,
+        7,
+        4,
+        10,
+        12,
+        6,
+        5,
+        9,
+        11,
+        8,
+        6,
+        7,
+        10,
+        13,
+        5,
+        4,
+        9,
+        11,
+        7,
+        6
+      ]
+    },
+    "microdin": {
+      "company": "MicroSystems Corp",
+      "companyId": "company-mcro",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 219
+    }
+  },
+  {
+    "id": "user002",
+    "name": "Brenda Rodriguez",
+    "username": "brodriguez",
+    "email": "brodriguez@mymicromail.com",
+    "age": 28,
+    "race": "Hispanic",
+    "location": "New York, NY",
+    "personality_tags": [
+      "collaborative",
+      "organized",
+      "personable"
+    ],
+    "avatarUrl": "images/avatars/user002.webp",
+    "bio": "Product Manager focused on user experience and creating delightful products. Also a foodie and a world traveler.",
+    "gender": "female",
+    "jobTitle": "Product Manager",
+    "interests": [
+      "design",
+      "travel",
+      "photography",
+      "cooking"
+    ],
+    "social": {
+      "followers": 2341,
+      "following": 456,
+      "postsCount": 87,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-brenda",
+      "website": "brendatravels.com"
+    },
+    "bannerUrl": "images/banners/user002.webp",
+    "scholar": {
+      "email": "brodriguez@gatech.edu",
+      "affiliation": "Georgia Institute of Technology",
+      "department": "Interactive Computing",
+      "title": "Assistant Professor",
+      "interests": [
+        "human-robot interaction",
+        "social robotics",
+        "accessibility",
+        "assistive technology"
+      ],
+      "citations": 1234,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 740,
+      "hIndexSince2020": 2,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 2391,
+      "profileViews": 114
+    }
+  },
+  {
+    "id": "user003",
+    "name": "Charles Davis",
+    "username": "cdavis",
+    "email": "cdavis@mymicromail.com",
+    "age": 29,
+    "race": "Black",
+    "location": "Austin, TX",
+    "personality_tags": [
+      "analytical",
+      "inquisitive",
+      "methodical"
+    ],
+    "avatarUrl": "images/avatars/user003.webp",
+    "bio": "Data Scientist who loves finding stories in data. Big fan of Python, R, and a good cup of coffee.",
+    "gender": "male",
+    "jobTitle": "Data Scientist",
+    "interests": [
+      "statistics",
+      "machine learning",
+      "data visualization",
+      "coffee"
+    ],
+    "social": {
+      "followers": 1234,
+      "following": 456,
+      "postsCount": 34,
+      "isVerified": false,
+      "hasStory": false
+    },
+    "scholar": {
+      "email": "cdavis@utexas.edu",
+      "affiliation": "University of Texas at Austin",
+      "department": "Statistics and Data Science",
+      "title": "Assistant Professor",
+      "interests": [
+        "statistical learning",
+        "causal inference",
+        "data visualization",
+        "applied ML"
+      ],
+      "citations": 876,
+      "hIndex": 1,
+      "i10Index": 1,
+      "citationsSince2020": 525,
+      "hIndexSince2020": 1,
+      "isVerified": true,
+      "homepage": "https://stat.utexas.edu/cdavis"
+    },
+    "bannerUrl": "images/banners/user003.webp",
+    "microhub": {
+      "followers": 89,
+      "following": 67,
+      "joinedDate": "June 2021",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Quickdraw",
+          "icon": "\ud83e\udd20",
+          "description": "First to review a PR",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        3,
+        5,
+        2,
+        1,
+        4,
+        6,
+        3,
+        2,
+        5,
+        4,
+        1,
+        3,
+        6,
+        2,
+        4,
+        5,
+        3,
+        1,
+        4,
+        6,
+        2,
+        3,
+        5,
+        4,
+        1,
+        2,
+        6,
+        3,
+        5,
+        4,
+        2,
+        1,
+        3,
+        5,
+        6,
+        4,
+        2,
+        1,
+        3,
+        5,
+        4,
+        2,
+        6,
+        3,
+        1,
+        5,
+        4,
+        2,
+        3,
+        6,
+        4,
+        1
+      ]
+    },
+    "microdin": {
+      "company": "DataWorks",
+      "companyId": "company-dataworks",
+      "industry": "Data Science",
+      "connections": 1284,
+      "profileViews": 229
+    }
+  },
+  {
+    "id": "user004",
+    "name": "Diana Miller",
+    "username": "dmiller",
+    "email": "dmiller@mymicromail.com",
+    "age": 35,
+    "race": "White",
+    "location": "Chicago, IL",
+    "personality_tags": [
+      "creative",
+      "energetic",
+      "persuasive"
+    ],
+    "avatarUrl": "images/avatars/user004.webp",
+    "bio": "Marketing Lead specializing in digital campaigns and brand strategy. Always looking for the next big trend.",
+    "gender": "female",
+    "jobTitle": "Marketing Lead",
+    "interests": [
+      "social media",
+      "branding",
+      "SEO",
+      "analytics"
+    ],
+    "bannerUrl": "images/banners/user004.webp",
+    "microdin": {
+      "company": "RetailMax",
+      "companyId": "company-retailmax",
+      "industry": "Retail Technology",
+      "connections": 50,
+      "profileViews": 165
+    }
+  },
+  {
+    "id": "user005",
+    "name": "Edward Wilson",
+    "username": "ewilson",
+    "email": "ewilson@mymicromail.com",
+    "age": 26,
+    "race": "White",
+    "location": "Portland, OR",
+    "personality_tags": [
+      "empathetic",
+      "visual",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user005.webp",
+    "bio": "UX/UI Designer dedicated to creating intuitive and beautiful interfaces. Believes that good design is invisible.",
+    "gender": "male",
+    "jobTitle": "UX/UI Designer",
+    "interests": [
+      "figma",
+      "prototyping",
+      "accessibility",
+      "minimalism"
+    ],
+    "social": {
+      "followers": 5678,
+      "following": 234,
+      "postsCount": 156,
+      "isVerified": true,
+      "hasStory": true,
+      "storyId": "story-edward",
+      "website": "wilsondesign.co"
+    },
+    "bannerUrl": "images/banners/user005.webp",
+    "scholar": {
+      "email": "ewilson@ox.ac.uk",
+      "affiliation": "University of Oxford",
+      "department": "Computer Science",
+      "title": "Professor",
+      "interests": [
+        "theoretical computer science",
+        "computational complexity",
+        "algorithms",
+        "graph theory"
+      ],
+      "citations": 4567,
+      "hIndex": 5,
+      "i10Index": 5,
+      "citationsSince2020": 2740,
+      "hIndexSince2020": 4,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 5728,
+      "profileViews": 121
+    }
+  },
+  {
+    "id": "user006",
+    "name": "Fiona Garcia",
+    "username": "fgarcia",
+    "email": "fgarcia@mymicromail.com",
+    "age": 38,
+    "race": "Hispanic",
+    "location": "Boston, MA",
+    "personality_tags": [
+      "approachable",
+      "diplomatic",
+      "supportive"
+    ],
+    "avatarUrl": "images/avatars/user006.webp",
+    "bio": "Human Resources partner focused on building a positive and inclusive workplace culture.",
+    "gender": "female",
+    "jobTitle": "HR Business Partner",
+    "interests": [
+      "recruiting",
+      "employee relations",
+      "diversity & inclusion",
+      "yoga"
+    ],
+    "bannerUrl": "images/banners/user006.webp",
+    "microdin": {
+      "company": "MicroSystems Corp",
+      "companyId": "company-mcro",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 124
+    }
+  },
+  {
+    "id": "user007",
+    "name": "George Thompson",
+    "username": "gthompson",
+    "email": "gthompson@mymicromail.com",
+    "age": 31,
+    "race": "Black",
+    "location": "Washington, D.C.",
+    "personality_tags": [
+      "vigilant",
+      "precise",
+      "formal"
+    ],
+    "avatarUrl": "images/avatars/user007.webp",
+    "bio": "Cybersecurity Analyst. Protecting the digital world, one threat at a time. In my free time, I build custom keyboards.",
+    "gender": "male",
+    "jobTitle": "Cybersecurity Analyst",
+    "interests": [
+      "network security",
+      "threat intelligence",
+      "cryptography",
+      "mechanical keyboards"
+    ],
+    "bannerUrl": "images/banners/user007.webp",
+    "scholar": {
+      "email": "gthompson@princeton.edu",
+      "affiliation": "Princeton University",
+      "department": "Computer Science",
+      "title": "Associate Professor",
+      "interests": [
+        "cryptography",
+        "security",
+        "privacy-preserving computation",
+        "blockchain"
+      ],
+      "citations": 2890,
+      "hIndex": 4,
+      "i10Index": 4,
+      "citationsSince2020": 1734,
+      "hIndexSince2020": 3,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "CyberFort",
+      "companyId": "company-cyberfort",
+      "industry": "Cybersecurity",
+      "connections": 50,
+      "profileViews": 124
+    }
+  },
+  {
+    "id": "user008",
+    "name": "Helen Kim",
+    "username": "hkim",
+    "email": "hkim@mymicromail.com",
+    "age": 27,
+    "race": "Asian",
+    "location": "Los Angeles, CA",
+    "personality_tags": [
+      "storyteller",
+      "eloquent",
+      "casual"
+    ],
+    "avatarUrl": "images/avatars/user008.webp",
+    "bio": "Content Strategist and writer. I help brands tell their story. I also write short fiction on the weekends.",
+    "gender": "female",
+    "jobTitle": "Content Strategist",
+    "interests": [
+      "copywriting",
+      "storytelling",
+      "SEO",
+      "creative writing"
+    ],
+    "social": {
+      "followers": 3421,
+      "following": 567,
+      "postsCount": 92,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-helen"
+    },
+    "bannerUrl": "images/banners/user008.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 3471,
+      "profileViews": 87
+    }
+  },
+  {
+    "id": "user009",
+    "name": "Ian Martinez",
+    "username": "imartinez",
+    "email": "imartinez@mymicromail.com",
+    "age": 34,
+    "race": "Hispanic",
+    "location": "Seattle, WA",
+    "personality_tags": [
+      "pragmatic",
+      "efficient",
+      "automated"
+    ],
+    "avatarUrl": "images/avatars/user009.webp",
+    "bio": "DevOps Engineer who believes in automating everything. If you have to do it twice, write a script for it.",
+    "gender": "male",
+    "jobTitle": "DevOps Engineer",
+    "interests": [
+      "kubernetes",
+      "terraform",
+      "CI/CD",
+      "cloud infrastructure"
+    ],
+    "bannerUrl": "images/banners/user009.webp",
+    "microhub": {
+      "followers": 203,
+      "following": 54,
+      "joinedDate": "September 2019",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Galaxy Brain",
+          "icon": "\ud83e\udde0",
+          "description": "Answered a discussion that was marked as answer",
+          "earnedDate": "2024"
+        },
+        {
+          "id": "a2",
+          "name": "Pull Shark x2",
+          "icon": "\ud83e\udd88",
+          "description": "Opened many pull requests",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        6,
+        8,
+        4,
+        3,
+        7,
+        9,
+        5,
+        4,
+        8,
+        10,
+        6,
+        4,
+        3,
+        7,
+        9,
+        5,
+        4,
+        8,
+        6,
+        3,
+        7,
+        10,
+        5,
+        4,
+        6,
+        9,
+        8,
+        3,
+        5,
+        7,
+        4,
+        6,
+        9,
+        5,
+        3,
+        8,
+        10,
+        4,
+        3,
+        7,
+        9,
+        6,
+        4,
+        5,
+        8,
+        10,
+        3,
+        4,
+        7,
+        9,
+        5,
+        6
+      ]
+    },
+    "scholar": {
+      "email": "imartinez@ucla.edu",
+      "affiliation": "UCLA",
+      "department": "Computer Science",
+      "title": "Research Scientist",
+      "interests": [
+        "computer graphics",
+        "rendering",
+        "visualization",
+        "VR/AR"
+      ],
+      "citations": 1567,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 940,
+      "hIndexSince2020": 2,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "CloudNine",
+      "companyId": "company-cloudnine",
+      "industry": "Cloud Computing",
+      "connections": 50,
+      "profileViews": 77
+    }
+  },
+  {
+    "id": "user010",
+    "name": "Julia Nguyen",
+    "username": "jnguyen",
+    "email": "jnguyen@mymicromail.com",
+    "age": 29,
+    "race": "Asian",
+    "location": "Denver, CO",
+    "personality_tags": [
+      "helpful",
+      "patient",
+      "positive"
+    ],
+    "avatarUrl": "images/avatars/user010.webp",
+    "bio": "Customer Success Manager dedicated to helping clients get the most value out of our products.",
+    "gender": "female",
+    "jobTitle": "Customer Success Manager",
+    "interests": [
+      "client relations",
+      "onboarding",
+      "support",
+      "sailing"
+    ],
+    "social": {
+      "followers": 1567,
+      "following": 678,
+      "postsCount": 89,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-julia"
+    },
+    "bannerUrl": "images/banners/user010.webp",
+    "scholar": {
+      "email": "jnguyen@uiuc.edu",
+      "affiliation": "University of Illinois Urbana-Champaign",
+      "department": "Computer Science",
+      "title": "Assistant Professor",
+      "interests": [
+        "computer networks",
+        "network security",
+        "internet measurement",
+        "network protocols"
+      ],
+      "citations": 1890,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 1134,
+      "hIndexSince2020": 2,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "CloudNine",
+      "companyId": "company-cloudnine",
+      "industry": "Cloud Computing",
+      "connections": 1617,
+      "profileViews": 89
+    }
+  },
+  {
+    "id": "user011",
+    "name": "Kevin Lee",
+    "username": "klee",
+    "email": "klee@mymicromail.com",
+    "age": 42,
+    "race": "Asian",
+    "location": "Atlanta, GA",
+    "personality_tags": [
+      "meticulous",
+      "quantitative",
+      "reserved"
+    ],
+    "avatarUrl": "images/avatars/user011.webp",
+    "bio": "Finance Analyst with a knack for forecasting and budget management. I make spreadsheets tell a story.",
+    "gender": "male",
+    "jobTitle": "Finance Analyst",
+    "interests": [
+      "excel",
+      "financial modeling",
+      "market analysis",
+      "bouldering"
+    ],
+    "bannerUrl": "images/banners/user011.webp",
+    "microdin": {
+      "company": "FinTech Solutions",
+      "companyId": "company-fntc",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 174
+    }
+  },
+  {
+    "id": "user012",
+    "name": "Laura Scott",
+    "username": "lscott",
+    "email": "lscott@mymicromail.com",
+    "age": 30,
+    "race": "White",
+    "location": "Raleigh, NC",
+    "personality_tags": [
+      "systematic",
+      "thorough",
+      "skeptical"
+    ],
+    "avatarUrl": "images/avatars/user012.webp",
+    "bio": "QA Engineer. I find bugs before they find you. My passion is ensuring software quality and reliability.",
+    "gender": "female",
+    "jobTitle": "QA Engineer",
+    "interests": [
+      "test automation",
+      "selenium",
+      "bug tracking",
+      "gardening"
+    ],
+    "bannerUrl": "images/banners/user012.webp",
+    "microhub": {
+      "followers": 45,
+      "following": 38,
+      "joinedDate": "April 2021",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Pair Extraordinaire",
+          "icon": "\ud83d\udc6f",
+          "description": "Co-authored commits",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        2,
+        4,
+        1,
+        2,
+        3,
+        5,
+        2,
+        1,
+        4,
+        3,
+        2,
+        1,
+        3,
+        5,
+        2,
+        4,
+        1,
+        3,
+        2,
+        5,
+        4,
+        1,
+        3,
+        2,
+        4,
+        5,
+        1,
+        2,
+        3,
+        4,
+        2,
+        1,
+        3,
+        5,
+        4,
+        2,
+        1,
+        3,
+        2,
+        4,
+        5,
+        1,
+        2,
+        3,
+        4,
+        5,
+        2,
+        1,
+        3,
+        4,
+        2,
+        3
+      ]
+    },
+    "scholar": {
+      "email": "lscott@washington.edu",
+      "affiliation": "University of Washington",
+      "department": "Computer Science & Engineering",
+      "title": "Senior Lecturer",
+      "interests": [
+        "computing education",
+        "programming pedagogy",
+        "CS curricula",
+        "learning analytics"
+      ],
+      "citations": 987,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 592,
+      "hIndexSince2020": 1,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "MicroSystems Corp",
+      "companyId": "company-mcro",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 118
+    }
+  },
+  {
+    "id": "user013",
+    "name": "Michael Brown",
+    "username": "mbrown",
+    "email": "mbrown@mymicromail.com",
+    "age": 39,
+    "race": "White",
+    "location": "Dallas, TX",
+    "personality_tags": [
+      "leader",
+      "strategic",
+      "decisive"
+    ],
+    "avatarUrl": "images/avatars/user013.webp",
+    "bio": "Engineering Manager leading high-performing teams to deliver impactful software.",
+    "gender": "male",
+    "jobTitle": "Engineering Manager",
+    "interests": [
+      "leadership",
+      "system design",
+      "mentorship",
+      "golf"
+    ],
+    "scholar": {
+      "email": "mbrown@mit.edu",
+      "affiliation": "Massachusetts Institute of Technology",
+      "department": "EECS",
+      "title": "Professor",
+      "interests": [
+        "software engineering",
+        "programming languages",
+        "formal verification",
+        "systems"
+      ],
+      "citations": 5924,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 3554,
+      "hIndexSince2020": 2,
+      "isVerified": true,
+      "homepage": "https://people.csail.mit.edu/mbrown"
+    },
+    "bannerUrl": "images/banners/user013.webp",
+    "microhub": {
+      "followers": 312,
+      "following": 89,
+      "joinedDate": "February 2018",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Starstruck",
+          "icon": "\u2b50",
+          "description": "Created a repo with 100+ stars",
+          "earnedDate": "2023"
+        },
+        {
+          "id": "a2",
+          "name": "Sponsor",
+          "icon": "\ud83d\udc96",
+          "description": "Sponsored open source",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        4,
+        6,
+        3,
+        2,
+        5,
+        7,
+        4,
+        3,
+        6,
+        5,
+        2,
+        4,
+        7,
+        3,
+        5,
+        6,
+        4,
+        2,
+        5,
+        7,
+        3,
+        4,
+        6,
+        5,
+        2,
+        3,
+        7,
+        4,
+        6,
+        5,
+        3,
+        2,
+        4,
+        6,
+        7,
+        5,
+        3,
+        2,
+        4,
+        6,
+        5,
+        3,
+        7,
+        4,
+        2,
+        6,
+        5,
+        3,
+        4,
+        7,
+        5,
+        2
+      ]
+    },
+    "microdin": {
+      "company": "DataWorks",
+      "companyId": "company-dataworks",
+      "industry": "Data Science",
+      "connections": 50,
+      "profileViews": 87
+    }
+  },
+  {
+    "id": "user014",
+    "name": "Nancy Adams",
+    "username": "nadams",
+    "email": "nadams@mymicromail.com",
+    "age": 25,
+    "race": "Black",
+    "location": "Philadelphia, PA",
+    "personality_tags": [
+      "curious",
+      "analytical",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user014.webp",
+    "bio": "Junior Data Analyst passionate about uncovering insights and learning new technologies.",
+    "gender": "female",
+    "jobTitle": "Data Analyst",
+    "interests": [
+      "sql",
+      "tableau",
+      "python",
+      "podcasts"
+    ],
+    "scholar": {
+      "email": "nadams@cmu.edu",
+      "affiliation": "Carnegie Mellon University",
+      "department": "Machine Learning Department",
+      "title": "Postdoctoral Researcher",
+      "interests": [
+        "data analysis",
+        "fairness in ML",
+        "algorithmic bias",
+        "interpretability"
+      ],
+      "citations": 1554,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 932,
+      "hIndexSince2020": 1,
+      "isVerified": true
+    },
+    "bannerUrl": "images/banners/user014.webp",
+    "microdin": {
+      "company": "DataWorks",
+      "companyId": "company-dataworks",
+      "industry": "Data Science",
+      "connections": 50,
+      "profileViews": 162
+    }
+  },
+  {
+    "id": "user015",
+    "name": "Oscar Perez",
+    "username": "operez",
+    "email": "operez@mymicromail.com",
+    "age": 45,
+    "race": "Hispanic",
+    "location": "Miami, FL",
+    "personality_tags": [
+      "visionary",
+      "charismatic",
+      "bold"
+    ],
+    "avatarUrl": "images/avatars/user015.webp",
+    "bio": "Founder and CEO. Building the future of something great.",
+    "gender": "male",
+    "jobTitle": "CEO",
+    "interests": [
+      "startups",
+      "innovation",
+      "venture capital",
+      "sailing"
+    ],
+    "bannerUrl": "images/banners/user015.webp",
+    "microdin": {
+      "company": "NexusAI",
+      "companyId": "company-nexus",
+      "industry": "Artificial Intelligence",
+      "connections": 50,
+      "profileViews": 64
+    }
+  },
+  {
+    "id": "user016",
+    "name": "Patricia Green",
+    "username": "pgreen",
+    "email": "pgreen@mymicromail.com",
+    "age": 28,
+    "race": "White",
+    "location": "Phoenix, AZ",
+    "personality_tags": [
+      "creative",
+      "organized",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user016.webp",
+    "bio": "Graphic Designer with a love for clean layouts, typography, and illustration.",
+    "gender": "female",
+    "jobTitle": "Graphic Designer",
+    "interests": [
+      "illustration",
+      "typography",
+      "branding",
+      "pottery"
+    ],
+    "social": {
+      "followers": 4532,
+      "following": 321,
+      "postsCount": 201,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-patricia",
+      "website": "patriciagreen.art"
+    },
+    "bannerUrl": "images/banners/user016.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 4582,
+      "profileViews": 119
+    }
+  },
+  {
+    "id": "user017",
+    "name": "Quentin Harris",
+    "username": "qharris",
+    "email": "qharris@mymicromail.com",
+    "age": 33,
+    "race": "Black",
+    "location": "Detroit, MI",
+    "personality_tags": [
+      "methodical",
+      "patient",
+      "problem-solver"
+    ],
+    "avatarUrl": "images/avatars/user017.webp",
+    "bio": "Technical Support Engineer who enjoys helping people solve complex technical problems.",
+    "gender": "male",
+    "jobTitle": "Technical Support Engineer",
+    "interests": [
+      "troubleshooting",
+      "customer support",
+      "documentation",
+      "gaming"
+    ],
+    "bannerUrl": "images/banners/user017.webp",
+    "scholar": {
+      "email": "qharris@cornell.edu",
+      "affiliation": "Cornell University",
+      "department": "Computer Science",
+      "title": "Research Associate",
+      "interests": [
+        "natural language generation",
+        "dialogue systems",
+        "conversational AI",
+        "text summarization"
+      ],
+      "citations": 1234,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 740,
+      "hIndexSince2020": 1,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "Pear Technologies",
+      "companyId": "company-pear",
+      "industry": "Consumer Electronics",
+      "connections": 50,
+      "profileViews": 81
+    }
+  },
+  {
+    "id": "user018",
+    "name": "Rachel White",
+    "username": "rwhite",
+    "email": "rwhite@mymicromail.com",
+    "age": 52,
+    "race": "White",
+    "location": "Minneapolis, MN",
+    "personality_tags": [
+      "experienced",
+      "strategic",
+      "formal"
+    ],
+    "avatarUrl": "images/avatars/user018.webp",
+    "bio": "Chief Financial Officer with two decades of experience in financial planning and corporate strategy.",
+    "gender": "female",
+    "jobTitle": "CFO",
+    "interests": [
+      "finance",
+      "economics",
+      "corporate governance",
+      "skiing"
+    ],
+    "bannerUrl": "images/banners/user018.webp",
+    "microdin": {
+      "company": "FinWise",
+      "companyId": "company-finwise",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 61
+    }
+  },
+  {
+    "id": "user019",
+    "name": "Steven Young",
+    "username": "syoung",
+    "email": "syoung@mymicromail.com",
+    "age": 24,
+    "race": "Asian",
+    "location": "San Diego, CA",
+    "personality_tags": [
+      "energetic",
+      "eager",
+      "fast-learner"
+    ],
+    "avatarUrl": "images/avatars/user019.webp",
+    "bio": "Software Development intern, excited to learn and contribute to the team.",
+    "gender": "male",
+    "jobTitle": "Intern",
+    "interests": [
+      "react",
+      "javascript",
+      "web development",
+      "surfing"
+    ],
+    "social": {
+      "followers": 456,
+      "following": 234,
+      "postsCount": 23,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-steven"
+    },
+    "bannerUrl": "images/banners/user019.webp",
+    "microhub": {
+      "followers": 12,
+      "following": 45,
+      "joinedDate": "August 2024",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "YOLO",
+          "icon": "\ud83c\udfaf",
+          "description": "Merged a PR without code review",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        1,
+        2,
+        0,
+        1,
+        2,
+        3,
+        1,
+        0,
+        2,
+        3,
+        1,
+        0,
+        1,
+        2,
+        3,
+        1,
+        0,
+        2,
+        1,
+        3,
+        2,
+        0,
+        1,
+        2,
+        3,
+        1,
+        0,
+        1,
+        2,
+        3,
+        1,
+        0,
+        2,
+        3,
+        1,
+        0,
+        1,
+        2,
+        3,
+        1,
+        0,
+        2,
+        3,
+        1,
+        0,
+        2,
+        3,
+        1,
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "scholar": {
+      "email": "syoung@cam.ac.uk",
+      "affiliation": "University of Cambridge",
+      "department": "Computer Science and Technology",
+      "title": "University Lecturer",
+      "interests": [
+        "operating systems",
+        "virtualization",
+        "systems security",
+        "kernel development"
+      ],
+      "citations": 2123,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 1274,
+      "hIndexSince2020": 2,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "TheMicroCorporate",
+      "companyId": "company-themicrocorporate",
+      "industry": "Enterprise Software",
+      "connections": 506,
+      "profileViews": 67
+    }
+  },
+  {
+    "id": "user020",
+    "name": "Tina Clark",
+    "username": "tclark",
+    "email": "tclark@mymicromail.com",
+    "age": 41,
+    "race": "White",
+    "location": "Nashville, TN",
+    "personality_tags": [
+      "personable",
+      "strategic",
+      "networker"
+    ],
+    "avatarUrl": "images/avatars/user020.webp",
+    "bio": "Sales Director focused on building strong customer relationships and driving revenue growth.",
+    "gender": "female",
+    "jobTitle": "Sales Director",
+    "interests": [
+      "sales",
+      "negotiation",
+      "crm",
+      "live music"
+    ],
+    "bannerUrl": "images/banners/user020.webp",
+    "microdin": {
+      "company": "RetailMax",
+      "companyId": "company-retailmax",
+      "industry": "Retail Technology",
+      "connections": 50,
+      "profileViews": 184
+    }
+  },
+  {
+    "id": "user021",
+    "name": "Umar Khan",
+    "username": "ukhan",
+    "email": "ukhan@mymicromail.com",
+    "age": 36,
+    "race": "Middle Eastern",
+    "location": "Houston, TX",
+    "personality_tags": [
+      "analytical",
+      "technical",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user021.webp",
+    "bio": "Database Administrator ensuring data integrity and performance across all systems.",
+    "gender": "male",
+    "jobTitle": "Database Administrator",
+    "interests": [
+      "sql",
+      "database management",
+      "performance tuning",
+      "cricket"
+    ],
+    "scholar": {
+      "email": "ukhan@eth.ch",
+      "affiliation": "ETH Zurich",
+      "department": "Computer Science",
+      "title": "Senior Researcher",
+      "interests": [
+        "databases",
+        "data management",
+        "query optimization",
+        "data systems"
+      ],
+      "citations": 1801,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 1080,
+      "hIndexSince2020": 1,
+      "isVerified": true,
+      "orcid": "0000-0005-6789-0123"
+    },
+    "bannerUrl": "images/banners/user021.webp",
+    "microdin": {
+      "company": "CloudNine",
+      "companyId": "company-cloudnine",
+      "industry": "Cloud Computing",
+      "connections": 50,
+      "profileViews": 158
+    }
+  },
+  {
+    "id": "user022",
+    "name": "Victoria Allen",
+    "username": "vallen",
+    "email": "vallen@mymicromail.com",
+    "age": 29,
+    "race": "Black",
+    "location": "New Orleans, LA",
+    "personality_tags": [
+      "creative",
+      "storyteller",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user022.webp",
+    "bio": "Video Producer and editor. I make compelling visual stories.",
+    "gender": "female",
+    "jobTitle": "Video Producer",
+    "interests": [
+      "video editing",
+      "motion graphics",
+      "documentaries",
+      "jazz music"
+    ],
+    "social": {
+      "followers": 7823,
+      "following": 445,
+      "postsCount": 178,
+      "isVerified": true,
+      "hasStory": true,
+      "storyId": "story-victoria"
+    },
+    "bannerUrl": "images/banners/user022.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 7873,
+      "profileViews": 137
+    }
+  },
+  {
+    "id": "user023",
+    "name": "Walter King",
+    "username": "wking",
+    "email": "wking@mymicromail.com",
+    "age": 48,
+    "race": "White",
+    "location": "Kansas City, MO",
+    "personality_tags": [
+      "pragmatic",
+      "experienced",
+      "calm"
+    ],
+    "avatarUrl": "images/avatars/user023.webp",
+    "bio": "IT Manager with a focus on stable infrastructure and reliable user support.",
+    "gender": "male",
+    "jobTitle": "IT Manager",
+    "interests": [
+      "it support",
+      "network administration",
+      "helpdesk",
+      "bbq"
+    ],
+    "bannerUrl": "images/banners/user023.webp",
+    "scholar": {
+      "email": "jpark@snu.ac.kr",
+      "affiliation": "Seoul National University",
+      "department": "Computer Science and Engineering",
+      "title": "Associate Professor",
+      "interests": [
+        "information retrieval",
+        "search engines",
+        "recommendation systems",
+        "web mining"
+      ],
+      "citations": 2345,
+      "hIndex": 4,
+      "i10Index": 4,
+      "citationsSince2020": 1407,
+      "hIndexSince2020": 3,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "MicroSystems Corp",
+      "companyId": "company-mcro",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 152
+    }
+  },
+  {
+    "id": "user024",
+    "name": "Ximena Morales",
+    "username": "xmorales",
+    "email": "xmorales@mymicromail.com",
+    "age": 31,
+    "race": "Hispanic",
+    "location": "Mexico City, MX",
+    "personality_tags": [
+      "visual",
+      "artistic",
+      "empathetic"
+    ],
+    "avatarUrl": "images/avatars/user024.webp",
+    "bio": "Illustrator and concept artist for games and film.",
+    "gender": "female",
+    "jobTitle": "Illustrator",
+    "interests": [
+      "drawing",
+      "character design",
+      "digital painting",
+      "museums"
+    ],
+    "social": {
+      "followers": 12456,
+      "following": 234,
+      "postsCount": 312,
+      "isVerified": true,
+      "hasStory": true,
+      "storyId": "story-ximena",
+      "website": "xmorales.art"
+    },
+    "bannerUrl": "images/banners/user024.webp",
+    "scholar": {
+      "email": "xmorales@unam.mx",
+      "affiliation": "UNAM",
+      "department": "Computer Science",
+      "title": "Associate Professor",
+      "interests": [
+        "bioinformatics",
+        "computational biology",
+        "genomics",
+        "machine learning for biology"
+      ],
+      "citations": 1678,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 1007,
+      "hIndexSince2020": 2,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "CrystalVision AR",
+      "companyId": "company-crystalvision",
+      "industry": "Augmented Reality",
+      "connections": 12506,
+      "profileViews": 221
+    }
+  },
+  {
+    "id": "user025",
+    "name": "Yusuf Ahmed",
+    "username": "yahmed",
+    "email": "yahmed@mymicromail.com",
+    "age": 28,
+    "race": "Middle Eastern",
+    "location": "Dubai, UAE",
+    "personality_tags": [
+      "analytical",
+      "curious",
+      "technical"
+    ],
+    "avatarUrl": "images/avatars/user025.webp",
+    "bio": "Machine Learning Engineer specializing in natural language processing.",
+    "gender": "male",
+    "jobTitle": "Machine Learning Engineer",
+    "interests": [
+      "nlp",
+      "deep learning",
+      "python",
+      "travel"
+    ],
+    "social": {
+      "followers": 2345,
+      "following": 234,
+      "postsCount": 45,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-yusuf"
+    },
+    "scholar": {
+      "email": "yahmed@nyu.edu",
+      "affiliation": "New York University",
+      "department": "Center for Data Science",
+      "title": "Research Scientist",
+      "interests": [
+        "natural language processing",
+        "deep learning",
+        "transformers",
+        "multilingual NLP"
+      ],
+      "citations": 5257,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 3154,
+      "hIndexSince2020": 2,
+      "isVerified": true,
+      "orcid": "0000-0004-5678-9012"
+    },
+    "bannerUrl": "images/banners/user025.webp",
+    "microdin": {
+      "company": "NeuralPath AI",
+      "companyId": "company-neuralpath",
+      "industry": "Artificial Intelligence",
+      "connections": 2395,
+      "profileViews": 56
+    }
+  },
+  {
+    "id": "user026",
+    "name": "Zoe Turner",
+    "username": "zturner",
+    "email": "zturner@mymicromail.com",
+    "age": 33,
+    "race": "White",
+    "location": "London, UK",
+    "personality_tags": [
+      "organized",
+      "efficient",
+      "personable"
+    ],
+    "avatarUrl": "images/avatars/user026.webp",
+    "bio": "Executive Assistant supporting C-level executives. I make sure everything runs smoothly.",
+    "gender": "female",
+    "jobTitle": "Executive Assistant",
+    "interests": [
+      "event planning",
+      "scheduling",
+      "productivity",
+      "theater"
+    ],
+    "bannerUrl": "images/banners/user026.webp",
+    "microdin": {
+      "company": "Pear Technologies",
+      "companyId": "company-pear",
+      "industry": "Consumer Electronics",
+      "connections": 50,
+      "profileViews": 129
+    }
+  },
+  {
+    "id": "user027",
+    "name": "Aaron Hall",
+    "username": "ahall",
+    "email": "ahall@mymicromail.com",
+    "age": 29,
+    "race": "White",
+    "location": "Sydney, AU",
+    "personality_tags": [
+      "adventurous",
+      "visual",
+      "casual"
+    ],
+    "avatarUrl": "images/avatars/user027.webp",
+    "bio": "Photographer and videographer capturing moments around the world.",
+    "gender": "male",
+    "jobTitle": "Photographer",
+    "interests": [
+      "photography",
+      "drones",
+      "travel blogging",
+      "surfing"
+    ],
+    "social": {
+      "followers": 23456,
+      "following": 567,
+      "postsCount": 456,
+      "isVerified": true,
+      "hasStory": true,
+      "storyId": "story-aaron",
+      "website": "aaronhall.photo"
+    },
+    "bannerUrl": "images/banners/user027.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 23506,
+      "profileViews": 96
+    }
+  },
+  {
+    "id": "user028",
+    "name": "Bethany Lewis",
+    "username": "blewis",
+    "email": "blewis@mymicromail.com",
+    "age": 40,
+    "race": "Black",
+    "location": "Johannesburg, ZA",
+    "personality_tags": [
+      "strategic",
+      "eloquent",
+      "leader"
+    ],
+    "avatarUrl": "images/avatars/user028.webp",
+    "bio": "Non-profit Director working on sustainable development goals.",
+    "gender": "female",
+    "jobTitle": "Non-profit Director",
+    "interests": [
+      "sustainability",
+      "social impact",
+      "fundraising",
+      "marathons"
+    ],
+    "bannerUrl": "images/banners/user028.webp",
+    "microdin": {
+      "company": "EcoVenture",
+      "companyId": "company-ecoventure",
+      "industry": "Sustainability",
+      "connections": 50,
+      "profileViews": 66
+    }
+  },
+  {
+    "id": "user029",
+    "name": "Carlos Gomez",
+    "username": "cgomez",
+    "email": "cgomez@mymicromail.com",
+    "age": 37,
+    "race": "Hispanic",
+    "location": "Madrid, ES",
+    "personality_tags": [
+      "analytical",
+      "pragmatic",
+      "direct"
+    ],
+    "avatarUrl": "images/avatars/user029.webp",
+    "bio": "Business Analyst bridging the gap between business needs and technical solutions.",
+    "gender": "male",
+    "jobTitle": "Business Analyst",
+    "interests": [
+      "process improvement",
+      "requirements gathering",
+      "agile",
+      "soccer"
+    ],
+    "bannerUrl": "images/banners/user029.webp",
+    "microdin": {
+      "company": "FinTech Solutions",
+      "companyId": "company-fntc",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 89
+    }
+  },
+  {
+    "id": "user030",
+    "name": "Deborah Jackson",
+    "username": "djackson",
+    "email": "djackson@mymicromail.com",
+    "age": 55,
+    "race": "Black",
+    "location": "Toronto, CA",
+    "personality_tags": [
+      "wise",
+      "mentor",
+      "patient"
+    ],
+    "avatarUrl": "images/avatars/user030.webp",
+    "bio": "University Professor of Computer Science. Shaping the next generation of engineers.",
+    "gender": "female",
+    "jobTitle": "Professor",
+    "interests": [
+      "computer science theory",
+      "academia",
+      "mentorship",
+      "classical music"
+    ],
+    "scholar": {
+      "email": "djackson@utoronto.ca",
+      "affiliation": "University of Toronto",
+      "department": "Computer Science",
+      "title": "Distinguished Professor",
+      "interests": [
+        "distributed systems",
+        "algorithms",
+        "computer science theory",
+        "computational complexity"
+      ],
+      "citations": 10455,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 6273,
+      "hIndexSince2020": 2,
+      "isVerified": true,
+      "homepage": "https://cs.toronto.edu/~djackson",
+      "orcid": "0000-0002-3456-7890"
+    },
+    "bannerUrl": "images/banners/user030.webp",
+    "microdin": {
+      "company": "EduVance Learning",
+      "companyId": "company-eduvance",
+      "industry": "Education Technology",
+      "connections": 50,
+      "profileViews": 236
+    }
+  },
+  {
+    "id": "user031",
+    "name": "Ethan Wright",
+    "username": "ewright",
+    "email": "ewright@mymicromail.com",
+    "age": 22,
+    "race": "White",
+    "location": "Manchester, UK",
+    "personality_tags": [
+      "energetic",
+      "creative",
+      "humorous"
+    ],
+    "avatarUrl": "images/avatars/user031.webp",
+    "bio": "Social Media Coordinator managing brand presence across all platforms.",
+    "gender": "male",
+    "jobTitle": "Social Media Coordinator",
+    "interests": [
+      "memes",
+      "community management",
+      "content creation",
+      "video games"
+    ],
+    "social": {
+      "followers": 8765,
+      "following": 432,
+      "postsCount": 234,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-ethan"
+    },
+    "bannerUrl": "images/banners/user031.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 8815,
+      "profileViews": 136
+    }
+  },
+  {
+    "id": "user032",
+    "name": "Fatima Al-Fassi",
+    "username": "falfassi",
+    "email": "falfassi@mymicromail.com",
+    "age": 30,
+    "race": "Middle Eastern",
+    "location": "Riyadh, SA",
+    "personality_tags": [
+      "visionary",
+      "technical",
+      "ambitious"
+    ],
+    "avatarUrl": "images/avatars/user032.webp",
+    "bio": "AI Researcher focused on reinforcement learning and robotics.",
+    "gender": "female",
+    "jobTitle": "AI Researcher",
+    "interests": [
+      "reinforcement learning",
+      "robotics",
+      "computer vision",
+      "equestrianism"
+    ],
+    "social": {
+      "followers": 3456,
+      "following": 123,
+      "postsCount": 67,
+      "isVerified": true,
+      "hasStory": true,
+      "storyId": "story-fatima"
+    },
+    "scholar": {
+      "email": "falfassi@kaust.edu.sa",
+      "affiliation": "King Abdullah University of Science and Technology",
+      "department": "Electrical and Computer Engineering",
+      "title": "Associate Professor",
+      "interests": [
+        "reinforcement learning",
+        "robotics",
+        "computer vision",
+        "autonomous systems"
+      ],
+      "citations": 3602,
+      "hIndex": 4,
+      "i10Index": 4,
+      "citationsSince2020": 2161,
+      "hIndexSince2020": 3,
+      "isVerified": true,
+      "homepage": "https://cemse.kaust.edu.sa/falfassi",
+      "orcid": "0000-0003-4567-8901"
+    },
+    "bannerUrl": "images/banners/user032.webp",
+    "microdin": {
+      "company": "NexusAI",
+      "companyId": "company-nexus",
+      "industry": "Artificial Intelligence",
+      "connections": 3506,
+      "profileViews": 206
+    }
+  },
+  {
+    "id": "user033",
+    "name": "Gordon Robinson",
+    "username": "grobinson",
+    "email": "grobinson@mymicromail.com",
+    "age": 43,
+    "race": "White",
+    "location": "Dublin, IE",
+    "personality_tags": [
+      "methodical",
+      "direct",
+      "experienced"
+    ],
+    "avatarUrl": "images/avatars/user033.webp",
+    "bio": "Backend Developer specializing in high-performance APIs and microservices.",
+    "gender": "male",
+    "jobTitle": "Backend Developer",
+    "interests": [
+      "golang",
+      "apis",
+      "microservices",
+      "brewing beer"
+    ],
+    "scholar": {
+      "email": "grobinson@tcd.ie",
+      "affiliation": "Trinity College Dublin",
+      "department": "Computer Science and Statistics",
+      "title": "Lecturer",
+      "interests": [
+        "backend systems",
+        "APIs",
+        "microservices",
+        "software architecture"
+      ],
+      "citations": 801,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 480,
+      "hIndexSince2020": 1,
+      "isVerified": false
+    },
+    "bannerUrl": "images/banners/user033.webp",
+    "microdin": {
+      "company": "Alphavine Inc",
+      "companyId": "company-alph",
+      "industry": "Internet",
+      "connections": 50,
+      "profileViews": 132
+    }
+  },
+  {
+    "id": "user034",
+    "name": "Hannah Walker",
+    "username": "hwalker",
+    "email": "hwalker@mymicromail.com",
+    "age": 28,
+    "race": "White",
+    "location": "Berlin, DE",
+    "personality_tags": [
+      "empathetic",
+      "patient",
+      "organized"
+    ],
+    "avatarUrl": "images/avatars/user034.webp",
+    "bio": "Therapist and mental health advocate.",
+    "gender": "female",
+    "jobTitle": "Therapist",
+    "interests": [
+      "mental health",
+      "counseling",
+      "mindfulness",
+      "painting"
+    ],
+    "bannerUrl": "images/banners/user034.webp",
+    "microdin": {
+      "company": "MindWell Health",
+      "companyId": "company-mindwell",
+      "industry": "Mental Health Tech",
+      "connections": 50,
+      "profileViews": 225
+    }
+  },
+  {
+    "id": "user035",
+    "name": "Ivan Kuznetsov",
+    "username": "ikuznetsov",
+    "email": "ikuznetsov@mymicromail.com",
+    "age": 31,
+    "race": "White",
+    "location": "Moscow, RU",
+    "personality_tags": [
+      "analytical",
+      "reserved",
+      "thorough"
+    ],
+    "avatarUrl": "images/avatars/user035.webp",
+    "bio": "Mobile Developer for Android. Passionate about clean code and smooth animations.",
+    "gender": "male",
+    "jobTitle": "Android Developer",
+    "interests": [
+      "kotlin",
+      "android studio",
+      "mobile UI/UX",
+      "chess"
+    ],
+    "bannerUrl": "images/banners/user035.webp",
+    "scholar": {
+      "email": "kjohnson@stanford.edu",
+      "affiliation": "Stanford University",
+      "department": "Computer Science",
+      "title": "Postdoctoral Fellow",
+      "interests": [
+        "compiler optimization",
+        "programming languages",
+        "performance engineering",
+        "LLVM"
+      ],
+      "citations": 678,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 407,
+      "hIndexSince2020": 1,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "Pear Technologies",
+      "companyId": "company-pear",
+      "industry": "Consumer Electronics",
+      "connections": 50,
+      "profileViews": 101
+    }
+  },
+  {
+    "id": "user036",
+    "name": "Jasmine Singh",
+    "username": "jsingh",
+    "email": "jsingh@mymicromail.com",
+    "age": 29,
+    "race": "South Asian",
+    "location": "Mumbai, IN",
+    "personality_tags": [
+      "persuasive",
+      "data-driven",
+      "energetic"
+    ],
+    "avatarUrl": "images/avatars/user036.webp",
+    "bio": "Growth Marketer focused on user acquisition and retention.",
+    "gender": "female",
+    "jobTitle": "Growth Marketer",
+    "interests": [
+      "a/b testing",
+      "user funnels",
+      "data analysis",
+      "bollywood dance"
+    ],
+    "bannerUrl": "images/banners/user036.webp",
+    "microdin": {
+      "company": "ByteCraft Studios",
+      "companyId": "company-bytecraft",
+      "industry": "Gaming",
+      "connections": 50,
+      "profileViews": 230
+    }
+  },
+  {
+    "id": "user037",
+    "name": "Kenji Tanaka",
+    "username": "ktanaka",
+    "email": "ktanaka@mymicromail.com",
+    "age": 45,
+    "race": "Asian",
+    "location": "Tokyo, JP",
+    "personality_tags": [
+      "precise",
+      "respectful",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user037.webp",
+    "bio": "Hardware Engineer designing the next generation of consumer electronics.",
+    "gender": "male",
+    "jobTitle": "Hardware Engineer",
+    "interests": [
+      "pcb design",
+      "prototyping",
+      "robotics",
+      "calligraphy"
+    ],
+    "bannerUrl": "images/banners/user037.webp",
+    "microdin": {
+      "company": "ChipForge Industries",
+      "companyId": "company-chip",
+      "industry": "Semiconductors",
+      "connections": 50,
+      "profileViews": 198
+    }
+  },
+  {
+    "id": "user038",
+    "name": "Linda Evans",
+    "username": "levans",
+    "email": "levans@mymicromail.com",
+    "age": 34,
+    "race": "White",
+    "location": "Vancouver, CA",
+    "personality_tags": [
+      "organized",
+      "helpful",
+      "personable"
+    ],
+    "avatarUrl": "images/avatars/user038.webp",
+    "bio": "Office Manager making sure the workplace is a happy and productive environment.",
+    "gender": "female",
+    "jobTitle": "Office Manager",
+    "interests": [
+      "organization",
+      "event planning",
+      "team culture",
+      "hiking"
+    ],
+    "bannerUrl": "images/banners/user038.webp",
+    "microdin": {
+      "company": "TheMicroCorporate",
+      "companyId": "company-themicrocorporate",
+      "industry": "Enterprise Software",
+      "connections": 50,
+      "profileViews": 238
+    }
+  },
+  {
+    "id": "user039",
+    "name": "Mohammed Ali",
+    "username": "mali",
+    "email": "mali@mymicromail.com",
+    "age": 39,
+    "race": "Middle Eastern",
+    "location": "Cairo, EG",
+    "personality_tags": [
+      "strategic",
+      "negotiator",
+      "personable"
+    ],
+    "avatarUrl": "images/avatars/user039.webp",
+    "bio": "Business Development Manager forging new partnerships and opportunities.",
+    "gender": "male",
+    "jobTitle": "Business Development Manager",
+    "interests": [
+      "partnerships",
+      "negotiation",
+      "market expansion",
+      "history"
+    ],
+    "bannerUrl": "images/banners/user039.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 221
+    }
+  },
+  {
+    "id": "user040",
+    "name": "Nia Williams",
+    "username": "nwilliams",
+    "email": "nwilliams@mymicromail.com",
+    "age": 27,
+    "race": "Black",
+    "location": "Lagos, NG",
+    "personality_tags": [
+      "creative",
+      "passionate",
+      "storyteller"
+    ],
+    "avatarUrl": "images/avatars/user040.webp",
+    "bio": "Journalist covering tech in emerging markets.",
+    "gender": "female",
+    "jobTitle": "Journalist",
+    "interests": [
+      "writing",
+      "investigative journalism",
+      "tech policy",
+      "afrobeats"
+    ],
+    "bannerUrl": "images/banners/user040.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 50,
+      "profileViews": 70
+    }
+  },
+  {
+    "id": "user041",
+    "name": "Olivia Taylor",
+    "username": "otaylor",
+    "email": "otaylor@mymicromail.com",
+    "age": 31,
+    "race": "White",
+    "location": "Melbourne, AU",
+    "personality_tags": [
+      "analytical",
+      "empathetic",
+      "problem-solver"
+    ],
+    "avatarUrl": "images/avatars/user041.webp",
+    "bio": "User Researcher focused on understanding user needs and behaviors.",
+    "gender": "female",
+    "jobTitle": "User Researcher",
+    "interests": [
+      "user interviews",
+      "surveys",
+      "ethnography",
+      "baking"
+    ],
+    "bannerUrl": "images/banners/user041.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 225
+    }
+  },
+  {
+    "id": "user042",
+    "name": "Pedro Alves",
+    "username": "palves",
+    "email": "palves@mymicromail.com",
+    "age": 35,
+    "race": "Hispanic",
+    "location": "Lisbon, PT",
+    "personality_tags": [
+      "creative",
+      "technical",
+      "visual"
+    ],
+    "avatarUrl": "images/avatars/user042.webp",
+    "bio": "Frontend Developer who loves bringing designs to life with clean code and animations.",
+    "gender": "male",
+    "jobTitle": "Frontend Developer",
+    "interests": [
+      "react",
+      "css",
+      "animations",
+      "fado music"
+    ],
+    "bannerUrl": "images/banners/user042.webp",
+    "microhub": {
+      "followers": 78,
+      "following": 52,
+      "joinedDate": "November 2020",
+      "pinnedRepos": [
+        "themicrocorporate/web-platform"
+      ],
+      "achievements": [
+        {
+          "id": "a1",
+          "name": "Pull Shark",
+          "icon": "\ud83e\udd88",
+          "description": "Opened pull requests that have been merged",
+          "earnedDate": "2024"
+        },
+        {
+          "id": "a2",
+          "name": "Quickdraw",
+          "icon": "\ud83e\udd20",
+          "description": "First to review a PR",
+          "earnedDate": "2024"
+        }
+      ],
+      "contributionData": [
+        5,
+        7,
+        3,
+        2,
+        6,
+        8,
+        4,
+        3,
+        7,
+        6,
+        2,
+        4,
+        8,
+        3,
+        5,
+        7,
+        4,
+        2,
+        6,
+        8,
+        3,
+        4,
+        7,
+        5,
+        2,
+        3,
+        8,
+        4,
+        6,
+        5,
+        3,
+        2,
+        4,
+        7,
+        8,
+        5,
+        3,
+        2,
+        4,
+        7,
+        6,
+        3,
+        8,
+        4,
+        2,
+        6,
+        7,
+        3,
+        4,
+        8,
+        5,
+        2
+      ]
+    },
+    "scholar": {
+      "email": "palves@tecnico.pt",
+      "affiliation": "Instituto Superior T\u00e9cnico",
+      "department": "Computer Science",
+      "title": "Assistant Professor",
+      "interests": [
+        "mobile computing",
+        "edge computing",
+        "IoT systems",
+        "embedded systems"
+      ],
+      "citations": 1456,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 874,
+      "hIndexSince2020": 2,
+      "isVerified": true
+    },
+    "microdin": {
+      "company": "Pear Technologies",
+      "companyId": "company-pear",
+      "industry": "Consumer Electronics",
+      "connections": 50,
+      "profileViews": 131
+    }
+  },
+  {
+    "id": "user043",
+    "name": "Rebecca Foster",
+    "username": "rfoster",
+    "email": "rfoster@mymicromail.com",
+    "age": 46,
+    "race": "White",
+    "location": "Edinburgh, UK",
+    "personality_tags": [
+      "direct",
+      "experienced",
+      "mentor"
+    ],
+    "avatarUrl": "images/avatars/user043.webp",
+    "bio": "Principal Software Architect designing large-scale distributed systems.",
+    "gender": "female",
+    "jobTitle": "Principal Architect",
+    "interests": [
+      "distributed systems",
+      "system design",
+      "mentorship",
+      "whisky tasting"
+    ],
+    "scholar": {
+      "email": "rfoster@deepmind.com",
+      "affiliation": "Turing Research Labs",
+      "department": "Research",
+      "title": "Principal Research Scientist",
+      "interests": [
+        "distributed systems",
+        "large-scale ML",
+        "system design",
+        "ML infrastructure"
+      ],
+      "citations": 7368,
+      "hIndex": 3,
+      "i10Index": 3,
+      "citationsSince2020": 4420,
+      "hIndexSince2020": 2,
+      "isVerified": true,
+      "homepage": "https://deepmind.com/team/rfoster"
+    },
+    "bannerUrl": "images/banners/user043.webp",
+    "microdin": {
+      "company": "Galaxy Space Tech",
+      "companyId": "company-glxy",
+      "industry": "Aerospace",
+      "connections": 50,
+      "profileViews": 137
+    }
+  },
+  {
+    "id": "user044",
+    "name": "Samuel Jones",
+    "username": "sjones",
+    "email": "sjones@mymicromail.com",
+    "age": 28,
+    "race": "Black",
+    "location": "Accra, GH",
+    "personality_tags": [
+      "charismatic",
+      "networker",
+      "optimistic"
+    ],
+    "avatarUrl": "images/avatars/user044.webp",
+    "bio": "Community Manager building and nurturing online communities.",
+    "gender": "male",
+    "jobTitle": "Community Manager",
+    "interests": [
+      "community building",
+      "social media",
+      "events",
+      "highlife music"
+    ],
+    "social": {
+      "followers": 5432,
+      "following": 345,
+      "postsCount": 156,
+      "isVerified": false,
+      "hasStory": true,
+      "storyId": "story-samuel"
+    },
+    "bannerUrl": "images/banners/user044.webp",
+    "microdin": {
+      "company": "ByteCraft Studios",
+      "companyId": "company-bytecraft",
+      "industry": "Gaming",
+      "connections": 5482,
+      "profileViews": 190
+    }
+  },
+  {
+    "id": "user045",
+    "name": "Tanya Sharma",
+    "username": "tsharma",
+    "email": "tsharma@mymicromail.com",
+    "age": 30,
+    "race": "South Asian",
+    "location": "Bangalore, IN",
+    "personality_tags": [
+      "thorough",
+      "systematic",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user045.webp",
+    "bio": "Automation Engineer specializing in creating robust testing frameworks.",
+    "gender": "female",
+    "jobTitle": "Automation Engineer",
+    "interests": [
+      "python",
+      "selenium",
+      "ci/cd",
+      "classical dance"
+    ],
+    "scholar": {
+      "email": "tsharma@iisc.ac.in",
+      "affiliation": "Indian Institute of Science",
+      "department": "Computational and Data Sciences",
+      "title": "Assistant Professor",
+      "interests": [
+        "software testing",
+        "automation",
+        "program analysis",
+        "software reliability"
+      ],
+      "citations": 1110,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 666,
+      "hIndexSince2020": 1,
+      "isVerified": true
+    },
+    "bannerUrl": "images/banners/user045.webp",
+    "microdin": {
+      "company": "Robotix",
+      "companyId": "company-robotix",
+      "industry": "Robotics",
+      "connections": 50,
+      "profileViews": 182
+    }
+  },
+  {
+    "id": "user046",
+    "name": "Victor Popov",
+    "username": "vpopov",
+    "email": "vpopov@mymicromail.com",
+    "age": 40,
+    "race": "White",
+    "location": "Sofia, BG",
+    "personality_tags": [
+      "analytical",
+      "pragmatic",
+      "reserved"
+    ],
+    "avatarUrl": "images/avatars/user046.webp",
+    "bio": "Data Engineer building and maintaining data pipelines.",
+    "gender": "male",
+    "jobTitle": "Data Engineer",
+    "interests": [
+      "apache spark",
+      "kafka",
+      "data warehousing",
+      "hiking"
+    ],
+    "bannerUrl": "images/banners/user046.webp",
+    "microdin": {
+      "company": "DataWorks",
+      "companyId": "company-dataworks",
+      "industry": "Data Science",
+      "connections": 50,
+      "profileViews": 241
+    }
+  },
+  {
+    "id": "user047",
+    "name": "Wendy Chen",
+    "username": "wchen",
+    "email": "wchen@mymicromail.com",
+    "age": 33,
+    "race": "Asian",
+    "location": "Singapore, SG",
+    "personality_tags": [
+      "organized",
+      "strategic",
+      "personable"
+    ],
+    "avatarUrl": "images/avatars/user047.webp",
+    "bio": "Project Manager ensuring projects are delivered on time and within budget.",
+    "gender": "female",
+    "jobTitle": "Project Manager",
+    "interests": [
+      "agile",
+      "scrum",
+      "project planning",
+      "scuba diving"
+    ],
+    "bannerUrl": "images/banners/user047.webp",
+    "microdin": {
+      "company": "ConstrucTech",
+      "companyId": "company-constructech",
+      "industry": "Construction Technology",
+      "connections": 50,
+      "profileViews": 156
+    }
+  },
+  {
+    "id": "user048",
+    "name": "Yara Said",
+    "username": "ysaid",
+    "email": "ysaid@mymicromail.com",
+    "age": 29,
+    "race": "Middle Eastern",
+    "location": "Beirut, LB",
+    "personality_tags": [
+      "creative",
+      "empathetic",
+      "storyteller"
+    ],
+    "avatarUrl": "images/avatars/user048.webp",
+    "bio": "Brand Strategist helping companies find their voice and identity.",
+    "gender": "female",
+    "jobTitle": "Brand Strategist",
+    "interests": [
+      "branding",
+      "market research",
+      "storytelling",
+      "poetry"
+    ],
+    "bannerUrl": "images/banners/user048.webp",
+    "microdin": {
+      "company": "RetailMax",
+      "companyId": "company-retailmax",
+      "industry": "Retail Technology",
+      "connections": 50,
+      "profileViews": 131
+    }
+  },
+  {
+    "id": "user049",
+    "name": "Zachary Baker",
+    "username": "zbaker",
+    "email": "zbaker@mymicromail.com",
+    "age": 58,
+    "race": "White",
+    "location": "Auckland, NZ",
+    "personality_tags": [
+      "experienced",
+      "calm",
+      "mentor"
+    ],
+    "avatarUrl": "images/avatars/user049.webp",
+    "bio": "Chief Technology Officer guiding the company's technology strategy.",
+    "gender": "male",
+    "jobTitle": "CTO",
+    "interests": [
+      "technology strategy",
+      "leadership",
+      "innovation",
+      "sailing"
+    ],
+    "bannerUrl": "images/banners/user049.webp",
+    "microdin": {
+      "company": "CloudNine",
+      "companyId": "company-cloudnine",
+      "industry": "Cloud Computing",
+      "connections": 50,
+      "profileViews": 184
+    }
+  },
+  {
+    "id": "user050",
+    "name": "Amelia Kim",
+    "username": "akim",
+    "email": "akim@mymicromail.com",
+    "age": 23,
+    "race": "Asian",
+    "location": "Seoul, KR",
+    "personality_tags": [
+      "curious",
+      "energetic",
+      "fast-learner"
+    ],
+    "avatarUrl": "images/avatars/user050.webp",
+    "bio": "Recent computer science graduate and new junior developer on the team.",
+    "gender": "female",
+    "jobTitle": "Junior Developer",
+    "interests": [
+      "web development",
+      "learning new things",
+      "k-pop",
+      "esports"
+    ],
+    "scholar": {
+      "email": "akim@kaist.ac.kr",
+      "affiliation": "KAIST",
+      "department": "School of Computing",
+      "title": "PhD Student",
+      "interests": [
+        "web development",
+        "human-computer interaction",
+        "AI safety",
+        "explainable AI"
+      ],
+      "citations": 801,
+      "hIndex": 2,
+      "i10Index": 2,
+      "citationsSince2020": 480,
+      "hIndexSince2020": 1,
+      "isVerified": false
+    },
+    "bannerUrl": "images/banners/user050.webp",
+    "microdin": {
+      "company": "MicroSystems Corp",
+      "companyId": "company-mcro",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 213
+    }
+  },
+  {
+    "id": "user051",
+    "name": "Benjamin Okafor",
+    "username": "bokafor",
+    "email": "bokafor@mymicromail.com",
+    "age": 34,
+    "race": "Black",
+    "location": "Chicago, IL",
+    "personality_tags": [
+      "ambitious",
+      "strategic",
+      "charismatic"
+    ],
+    "avatarUrl": "images/avatars/user051.webp",
+    "bio": "Venture Capital Associate identifying the next big thing in tech startups.",
+    "gender": "male",
+    "jobTitle": "VC Associate",
+    "interests": [
+      "startups",
+      "fintech",
+      "networking",
+      "basketball"
+    ],
+    "bannerUrl": "images/banners/user051.webp",
+    "microdin": {
+      "company": "FinTech Solutions",
+      "companyId": "company-fntc",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 143
+    }
+  },
+  {
+    "id": "user052",
+    "name": "Sophia Andersson",
+    "username": "sandersson",
+    "email": "sandersson@mymicromail.com",
+    "age": 29,
+    "race": "White",
+    "location": "Stockholm, SE",
+    "personality_tags": [
+      "innovative",
+      "eco-conscious",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user052.webp",
+    "bio": "Sustainability Consultant helping companies reduce their environmental footprint.",
+    "gender": "female",
+    "jobTitle": "Sustainability Consultant",
+    "interests": [
+      "renewable energy",
+      "circular economy",
+      "hiking",
+      "nordic cuisine"
+    ],
+    "bannerUrl": "images/banners/user052.webp",
+    "microdin": {
+      "company": "GreenTech Solutions",
+      "companyId": "company-greentech",
+      "industry": "Clean Energy",
+      "connections": 50,
+      "profileViews": 169
+    }
+  },
+  {
+    "id": "user053",
+    "name": "Marcus Johnson",
+    "username": "mjohnson",
+    "email": "mjohnson@mymicromail.com",
+    "age": 41,
+    "race": "Black",
+    "location": "Atlanta, GA",
+    "personality_tags": [
+      "motivational",
+      "disciplined",
+      "personable"
+    ],
+    "avatarUrl": "images/avatars/user053.webp",
+    "bio": "Corporate Trainer specializing in leadership development and team building.",
+    "gender": "male",
+    "jobTitle": "Corporate Trainer",
+    "interests": [
+      "public speaking",
+      "coaching",
+      "fitness",
+      "golf"
+    ],
+    "bannerUrl": "images/banners/user053.webp",
+    "microdin": {
+      "company": "EduVance Learning",
+      "companyId": "company-eduvance",
+      "industry": "Education Technology",
+      "connections": 50,
+      "profileViews": 126
+    }
+  },
+  {
+    "id": "user054",
+    "name": "Priya Patel",
+    "username": "ppatel",
+    "email": "ppatel@mymicromail.com",
+    "age": 27,
+    "race": "South Asian",
+    "location": "San Jose, CA",
+    "personality_tags": [
+      "detail-oriented",
+      "analytical",
+      "patient"
+    ],
+    "avatarUrl": "images/avatars/user054.webp",
+    "bio": "Test Automation Lead ensuring software quality through comprehensive testing strategies.",
+    "gender": "female",
+    "jobTitle": "Test Automation Lead",
+    "interests": [
+      "quality assurance",
+      "python",
+      "board games",
+      "cooking"
+    ],
+    "bannerUrl": "images/banners/user054.webp",
+    "microdin": {
+      "company": "Alphavine Inc",
+      "companyId": "company-alph",
+      "industry": "Internet",
+      "connections": 50,
+      "profileViews": 114
+    }
+  },
+  {
+    "id": "user055",
+    "name": "Lucas M\u00fcller",
+    "username": "lmuller",
+    "email": "lmuller@mymicromail.com",
+    "age": 36,
+    "race": "White",
+    "location": "Munich, DE",
+    "personality_tags": [
+      "precise",
+      "innovative",
+      "reserved"
+    ],
+    "avatarUrl": "images/avatars/user055.webp",
+    "bio": "Automotive Engineer working on next-generation electric vehicle technology.",
+    "gender": "male",
+    "jobTitle": "Automotive Engineer",
+    "interests": [
+      "electric vehicles",
+      "motorsports",
+      "engineering",
+      "beer brewing"
+    ],
+    "bannerUrl": "images/banners/user055.webp",
+    "microdin": {
+      "company": "Voltaic Motors",
+      "companyId": "company-volt",
+      "industry": "Automotive",
+      "connections": 50,
+      "profileViews": 131
+    }
+  },
+  {
+    "id": "user056",
+    "name": "Aisha Mohammed",
+    "username": "amohammed",
+    "email": "amohammed@mymicromail.com",
+    "age": 31,
+    "race": "Middle Eastern",
+    "location": "Toronto, CA",
+    "personality_tags": [
+      "empathetic",
+      "articulate",
+      "dedicated"
+    ],
+    "avatarUrl": "images/avatars/user056.webp",
+    "bio": "Immigration Lawyer helping families navigate complex legal processes.",
+    "gender": "female",
+    "jobTitle": "Immigration Lawyer",
+    "interests": [
+      "human rights",
+      "policy",
+      "reading",
+      "volunteering"
+    ],
+    "bannerUrl": "images/banners/user056.webp",
+    "microdin": {
+      "company": "LegalEase",
+      "companyId": "company-legalease",
+      "industry": "Legal Technology",
+      "connections": 50,
+      "profileViews": 72
+    }
+  },
+  {
+    "id": "user057",
+    "name": "Ryan O'Brien",
+    "username": "robrien",
+    "email": "robrien@mymicromail.com",
+    "age": 28,
+    "race": "White",
+    "location": "Dublin, IE",
+    "personality_tags": [
+      "witty",
+      "creative",
+      "sociable"
+    ],
+    "avatarUrl": "images/avatars/user057.webp",
+    "bio": "Podcast Producer creating engaging audio content for tech audiences.",
+    "gender": "male",
+    "jobTitle": "Podcast Producer",
+    "interests": [
+      "audio production",
+      "storytelling",
+      "music",
+      "pub culture"
+    ],
+    "bannerUrl": "images/banners/user057.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 50,
+      "profileViews": 154
+    }
+  },
+  {
+    "id": "user058",
+    "name": "Elena Volkov",
+    "username": "evolkov",
+    "email": "evolkov@mymicromail.com",
+    "age": 33,
+    "race": "White",
+    "location": "Prague, CZ",
+    "personality_tags": [
+      "analytical",
+      "thorough",
+      "independent"
+    ],
+    "avatarUrl": "images/avatars/user058.webp",
+    "bio": "Penetration Tester finding security vulnerabilities before the bad guys do.",
+    "gender": "female",
+    "jobTitle": "Penetration Tester",
+    "interests": [
+      "cybersecurity",
+      "CTF competitions",
+      "chess",
+      "classical music"
+    ],
+    "bannerUrl": "images/banners/user058.webp",
+    "microdin": {
+      "company": "CyberVault Security",
+      "companyId": "company-cybervault",
+      "industry": "Cybersecurity",
+      "connections": 50,
+      "profileViews": 94
+    }
+  },
+  {
+    "id": "user059",
+    "name": "David Park",
+    "username": "dpark",
+    "email": "dpark@mymicromail.com",
+    "age": 38,
+    "race": "Asian",
+    "location": "Los Angeles, CA",
+    "personality_tags": [
+      "creative",
+      "perfectionist",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user059.webp",
+    "bio": "VFX Supervisor bringing imagination to life in film and television.",
+    "gender": "male",
+    "jobTitle": "VFX Supervisor",
+    "interests": [
+      "visual effects",
+      "cinema",
+      "3D modeling",
+      "photography"
+    ],
+    "bannerUrl": "images/banners/user059.webp",
+    "microdin": {
+      "company": "ByteCraft Studios",
+      "companyId": "company-bytecraft",
+      "industry": "Gaming",
+      "connections": 50,
+      "profileViews": 115
+    }
+  },
+  {
+    "id": "user060",
+    "name": "Isabella Santos",
+    "username": "isantos",
+    "email": "isantos@mymicromail.com",
+    "age": 26,
+    "race": "Hispanic",
+    "location": "S\u00e3o Paulo, BR",
+    "personality_tags": [
+      "energetic",
+      "creative",
+      "trendsetter"
+    ],
+    "avatarUrl": "images/avatars/user060.webp",
+    "bio": "Fashion Influencer and stylist with a passion for sustainable fashion.",
+    "gender": "female",
+    "jobTitle": "Fashion Influencer",
+    "interests": [
+      "fashion",
+      "sustainability",
+      "photography",
+      "travel"
+    ],
+    "bannerUrl": "images/banners/user060.webp",
+    "microdin": {
+      "company": "FashionAI",
+      "companyId": "company-fashionai",
+      "industry": "Fashion Technology",
+      "connections": 50,
+      "profileViews": 53
+    }
+  },
+  {
+    "id": "user061",
+    "name": "James Wright",
+    "username": "jwright",
+    "email": "jwright@mymicromail.com",
+    "age": 45,
+    "race": "White",
+    "location": "Denver, CO",
+    "personality_tags": [
+      "reliable",
+      "practical",
+      "calm"
+    ],
+    "avatarUrl": "images/avatars/user061.webp",
+    "bio": "Operations Director ensuring smooth day-to-day business operations.",
+    "gender": "male",
+    "jobTitle": "Operations Director",
+    "interests": [
+      "process optimization",
+      "skiing",
+      "craft beer",
+      "woodworking"
+    ],
+    "bannerUrl": "images/banners/user061.webp",
+    "microdin": {
+      "company": "GridWise Energy",
+      "companyId": "company-gridwise",
+      "industry": "Smart Grid",
+      "connections": 50,
+      "profileViews": 199
+    }
+  },
+  {
+    "id": "user062",
+    "name": "Grace Liu",
+    "username": "gliu",
+    "email": "gliu@mymicromail.com",
+    "age": 30,
+    "race": "Asian",
+    "location": "Shanghai, CN",
+    "personality_tags": [
+      "ambitious",
+      "strategic",
+      "networker"
+    ],
+    "avatarUrl": "images/avatars/user062.webp",
+    "bio": "Investment Banking Analyst working on cross-border M&A deals.",
+    "gender": "female",
+    "jobTitle": "Investment Banking Analyst",
+    "interests": [
+      "finance",
+      "markets",
+      "tennis",
+      "fine dining"
+    ],
+    "bannerUrl": "images/banners/user062.webp",
+    "microdin": {
+      "company": "FinTech Solutions",
+      "companyId": "company-fntc",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 249
+    }
+  },
+  {
+    "id": "user063",
+    "name": "Omar Hassan",
+    "username": "ohassan",
+    "email": "ohassan@mymicromail.com",
+    "age": 35,
+    "race": "Middle Eastern",
+    "location": "Amman, JO",
+    "personality_tags": [
+      "entrepreneurial",
+      "visionary",
+      "persistent"
+    ],
+    "avatarUrl": "images/avatars/user063.webp",
+    "bio": "Tech Entrepreneur building solutions for emerging markets.",
+    "gender": "male",
+    "jobTitle": "Startup Founder",
+    "interests": [
+      "entrepreneurship",
+      "mobile apps",
+      "mentoring",
+      "football"
+    ],
+    "bannerUrl": "images/banners/user063.webp",
+    "microdin": {
+      "company": "NeuralPath AI",
+      "companyId": "company-neuralpath",
+      "industry": "Artificial Intelligence",
+      "connections": 50,
+      "profileViews": 85
+    }
+  },
+  {
+    "id": "user064",
+    "name": "Emma Thompson",
+    "username": "ethompson",
+    "email": "ethompson@mymicromail.com",
+    "age": 42,
+    "race": "White",
+    "location": "Boston, MA",
+    "personality_tags": [
+      "analytical",
+      "precise",
+      "mentor"
+    ],
+    "avatarUrl": "images/avatars/user064.webp",
+    "bio": "Clinical Research Director overseeing pharmaceutical trials.",
+    "gender": "female",
+    "jobTitle": "Clinical Research Director",
+    "interests": [
+      "medical research",
+      "biotech",
+      "sailing",
+      "reading"
+    ],
+    "bannerUrl": "images/banners/user064.webp",
+    "microdin": {
+      "company": "MediCore Health",
+      "companyId": "company-medicore",
+      "industry": "Healthcare Technology",
+      "connections": 50,
+      "profileViews": 175
+    }
+  },
+  {
+    "id": "user065",
+    "name": "Andre Williams",
+    "username": "awilliams",
+    "email": "awilliams@mymicromail.com",
+    "age": 29,
+    "race": "Black",
+    "location": "New York, NY",
+    "personality_tags": [
+      "creative",
+      "bold",
+      "expressive"
+    ],
+    "avatarUrl": "images/avatars/user065.webp",
+    "bio": "Art Director crafting visual identities for global brands.",
+    "gender": "male",
+    "jobTitle": "Art Director",
+    "interests": [
+      "graphic design",
+      "typography",
+      "street art",
+      "hip hop"
+    ],
+    "bannerUrl": "images/banners/user065.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 212
+    }
+  },
+  {
+    "id": "user066",
+    "name": "Mei Chen",
+    "username": "mchen",
+    "email": "mchen@mymicromail.com",
+    "age": 32,
+    "race": "Asian",
+    "location": "Taipei, TW",
+    "personality_tags": [
+      "innovative",
+      "detail-oriented",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user066.webp",
+    "bio": "Semiconductor Engineer pushing the boundaries of chip design.",
+    "gender": "female",
+    "jobTitle": "Semiconductor Engineer",
+    "interests": [
+      "chip design",
+      "electronics",
+      "hiking",
+      "bubble tea"
+    ],
+    "bannerUrl": "images/banners/user066.webp",
+    "microdin": {
+      "company": "ChipForge Industries",
+      "companyId": "company-chip",
+      "industry": "Semiconductors",
+      "connections": 50,
+      "profileViews": 57
+    }
+  },
+  {
+    "id": "user067",
+    "name": "Daniel Costa",
+    "username": "dcosta",
+    "email": "dcosta@mymicromail.com",
+    "age": 37,
+    "race": "Hispanic",
+    "location": "Buenos Aires, AR",
+    "personality_tags": [
+      "passionate",
+      "analytical",
+      "team-player"
+    ],
+    "avatarUrl": "images/avatars/user067.webp",
+    "bio": "Sports Data Analyst using statistics to improve team performance.",
+    "gender": "male",
+    "jobTitle": "Sports Analyst",
+    "interests": [
+      "sports analytics",
+      "football",
+      "data visualization",
+      "tango"
+    ],
+    "bannerUrl": "images/banners/user067.webp",
+    "microdin": {
+      "company": "ByteCraft Studios",
+      "companyId": "company-bytecraft",
+      "industry": "Gaming",
+      "connections": 50,
+      "profileViews": 130
+    }
+  },
+  {
+    "id": "user068",
+    "name": "Sarah Mitchell",
+    "username": "smitchell",
+    "email": "smitchell@mymicromail.com",
+    "age": 39,
+    "race": "White",
+    "location": "Seattle, WA",
+    "personality_tags": [
+      "strategic",
+      "diplomatic",
+      "results-driven"
+    ],
+    "avatarUrl": "images/avatars/user068.webp",
+    "bio": "VP of Partnerships building strategic alliances for growth.",
+    "gender": "female",
+    "jobTitle": "VP of Partnerships",
+    "interests": [
+      "business development",
+      "negotiation",
+      "wine tasting",
+      "kayaking"
+    ],
+    "bannerUrl": "images/banners/user068.webp",
+    "microdin": {
+      "company": "Alphavine Inc",
+      "companyId": "company-alph",
+      "industry": "Internet",
+      "connections": 50,
+      "profileViews": 244
+    }
+  },
+  {
+    "id": "user069",
+    "name": "Kwame Asante",
+    "username": "kasante",
+    "email": "kasante@mymicromail.com",
+    "age": 28,
+    "race": "Black",
+    "location": "Nairobi, KE",
+    "personality_tags": [
+      "innovative",
+      "resourceful",
+      "community-focused"
+    ],
+    "avatarUrl": "images/avatars/user069.webp",
+    "bio": "Fintech Developer building mobile payment solutions for Africa.",
+    "gender": "male",
+    "jobTitle": "Fintech Developer",
+    "interests": [
+      "mobile payments",
+      "blockchain",
+      "social impact",
+      "running"
+    ],
+    "bannerUrl": "images/banners/user069.webp",
+    "microdin": {
+      "company": "FinWise",
+      "companyId": "company-finwise",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 195
+    }
+  },
+  {
+    "id": "user070",
+    "name": "Anna Kowalski",
+    "username": "akowalski",
+    "email": "akowalski@mymicromail.com",
+    "age": 34,
+    "race": "White",
+    "location": "Warsaw, PL",
+    "personality_tags": [
+      "organized",
+      "analytical",
+      "perfectionist"
+    ],
+    "avatarUrl": "images/avatars/user070.webp",
+    "bio": "Supply Chain Manager optimizing global logistics operations.",
+    "gender": "female",
+    "jobTitle": "Supply Chain Manager",
+    "interests": [
+      "logistics",
+      "optimization",
+      "travel",
+      "cooking"
+    ],
+    "bannerUrl": "images/banners/user070.webp",
+    "microdin": {
+      "company": "LogisticsPro",
+      "companyId": "company-logistics",
+      "industry": "Logistics & Supply Chain",
+      "connections": 50,
+      "profileViews": 124
+    }
+  },
+  {
+    "id": "user071",
+    "name": "Christopher Lee",
+    "username": "clee",
+    "email": "clee@mymicromail.com",
+    "age": 44,
+    "race": "Asian",
+    "location": "Hong Kong, HK",
+    "personality_tags": [
+      "experienced",
+      "strategic",
+      "calm"
+    ],
+    "avatarUrl": "images/avatars/user071.webp",
+    "bio": "Chief Risk Officer managing enterprise risk for a global bank.",
+    "gender": "male",
+    "jobTitle": "Chief Risk Officer",
+    "interests": [
+      "risk management",
+      "finance",
+      "golf",
+      "wine collecting"
+    ],
+    "bannerUrl": "images/banners/user071.webp",
+    "microdin": {
+      "company": "CyberShield Security",
+      "companyId": "company-cybr",
+      "industry": "Cybersecurity",
+      "connections": 50,
+      "profileViews": 73
+    }
+  },
+  {
+    "id": "user072",
+    "name": "Maria Gonzalez",
+    "username": "mgonzalez",
+    "email": "mgonzalez@mymicromail.com",
+    "age": 31,
+    "race": "Hispanic",
+    "location": "Barcelona, ES",
+    "personality_tags": [
+      "creative",
+      "empathetic",
+      "intuitive"
+    ],
+    "avatarUrl": "images/avatars/user072.webp",
+    "bio": "UX Researcher uncovering user insights to drive product decisions.",
+    "gender": "female",
+    "jobTitle": "UX Researcher",
+    "interests": [
+      "user research",
+      "psychology",
+      "architecture",
+      "flamenco"
+    ],
+    "bannerUrl": "images/banners/user072.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 174
+    }
+  },
+  {
+    "id": "user073",
+    "name": "Nathan Brooks",
+    "username": "nbrooks",
+    "email": "nbrooks@mymicromail.com",
+    "age": 26,
+    "race": "White",
+    "location": "Austin, TX",
+    "personality_tags": [
+      "enthusiastic",
+      "technical",
+      "helpful"
+    ],
+    "avatarUrl": "images/avatars/user073.webp",
+    "bio": "Developer Advocate helping developers build better with our APIs.",
+    "gender": "male",
+    "jobTitle": "Developer Advocate",
+    "interests": [
+      "developer relations",
+      "open source",
+      "live music",
+      "BBQ"
+    ],
+    "bannerUrl": "images/banners/user073.webp",
+    "microdin": {
+      "company": "Alphavine Inc",
+      "companyId": "company-alph",
+      "industry": "Internet",
+      "connections": 50,
+      "profileViews": 160
+    }
+  },
+  {
+    "id": "user074",
+    "name": "Yuki Tanaka",
+    "username": "ytanaka",
+    "email": "ytanaka@mymicromail.com",
+    "age": 29,
+    "race": "Asian",
+    "location": "Osaka, JP",
+    "personality_tags": [
+      "creative",
+      "meticulous",
+      "trend-aware"
+    ],
+    "avatarUrl": "images/avatars/user074.webp",
+    "bio": "Game Designer creating immersive gaming experiences.",
+    "gender": "female",
+    "jobTitle": "Game Designer",
+    "interests": [
+      "game design",
+      "anime",
+      "cosplay",
+      "arcade games"
+    ],
+    "bannerUrl": "images/banners/user074.webp",
+    "microdin": {
+      "company": "ByteCraft Studios",
+      "companyId": "company-bytecraft",
+      "industry": "Gaming",
+      "connections": 50,
+      "profileViews": 216
+    }
+  },
+  {
+    "id": "user075",
+    "name": "Robert Taylor",
+    "username": "rtaylor",
+    "email": "rtaylor@mymicromail.com",
+    "age": 52,
+    "race": "White",
+    "location": "Charlotte, NC",
+    "personality_tags": [
+      "experienced",
+      "trustworthy",
+      "methodical"
+    ],
+    "avatarUrl": "images/avatars/user075.webp",
+    "bio": "Compliance Officer ensuring regulatory adherence in financial services.",
+    "gender": "male",
+    "jobTitle": "Compliance Officer",
+    "interests": [
+      "regulation",
+      "risk management",
+      "fishing",
+      "history"
+    ],
+    "bannerUrl": "images/banners/user075.webp",
+    "microdin": {
+      "company": "LegalEase",
+      "companyId": "company-legalease",
+      "industry": "Legal Technology",
+      "connections": 50,
+      "profileViews": 235
+    }
+  },
+  {
+    "id": "user076",
+    "name": "Aminata Diallo",
+    "username": "adiallo",
+    "email": "adiallo@mymicromail.com",
+    "age": 33,
+    "race": "Black",
+    "location": "Paris, FR",
+    "personality_tags": [
+      "eloquent",
+      "passionate",
+      "culturally-aware"
+    ],
+    "avatarUrl": "images/avatars/user076.webp",
+    "bio": "Cultural Curator organizing exhibitions celebrating African art.",
+    "gender": "female",
+    "jobTitle": "Cultural Curator",
+    "interests": [
+      "art history",
+      "exhibitions",
+      "fashion",
+      "african literature"
+    ],
+    "bannerUrl": "images/banners/user076.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 50,
+      "profileViews": 198
+    }
+  },
+  {
+    "id": "user077",
+    "name": "Michael Schmidt",
+    "username": "mschmidt",
+    "email": "mschmidt@mymicromail.com",
+    "age": 40,
+    "race": "White",
+    "location": "Zurich, CH",
+    "personality_tags": [
+      "precise",
+      "analytical",
+      "reserved"
+    ],
+    "avatarUrl": "images/avatars/user077.webp",
+    "bio": "Quantitative Analyst developing trading algorithms for hedge funds.",
+    "gender": "male",
+    "jobTitle": "Quantitative Analyst",
+    "interests": [
+      "algorithmic trading",
+      "mathematics",
+      "skiing",
+      "classical music"
+    ],
+    "bannerUrl": "images/banners/user077.webp",
+    "microdin": {
+      "company": "FinWise",
+      "companyId": "company-finwise",
+      "industry": "Financial Technology",
+      "connections": 50,
+      "profileViews": 126
+    }
+  },
+  {
+    "id": "user078",
+    "name": "Jennifer Adams",
+    "username": "jadams",
+    "email": "jadams@mymicromail.com",
+    "age": 36,
+    "race": "White",
+    "location": "Portland, OR",
+    "personality_tags": [
+      "creative",
+      "eco-conscious",
+      "community-minded"
+    ],
+    "avatarUrl": "images/avatars/user078.webp",
+    "bio": "Social Enterprise Founder building businesses that do good.",
+    "gender": "female",
+    "jobTitle": "Social Entrepreneur",
+    "interests": [
+      "social impact",
+      "sustainability",
+      "farmers markets",
+      "yoga"
+    ],
+    "bannerUrl": "images/banners/user078.webp",
+    "microdin": {
+      "company": "EcoVenture",
+      "companyId": "company-ecoventure",
+      "industry": "Sustainability",
+      "connections": 50,
+      "profileViews": 136
+    }
+  },
+  {
+    "id": "user079",
+    "name": "Raj Sharma",
+    "username": "rsharma",
+    "email": "rsharma@mymicromail.com",
+    "age": 35,
+    "race": "South Asian",
+    "location": "Delhi, IN",
+    "personality_tags": [
+      "analytical",
+      "strategic",
+      "ambitious"
+    ],
+    "avatarUrl": "images/avatars/user079.webp",
+    "bio": "Management Consultant advising Fortune 500 companies on digital transformation.",
+    "gender": "male",
+    "jobTitle": "Management Consultant",
+    "interests": [
+      "strategy",
+      "digital transformation",
+      "cricket",
+      "meditation"
+    ],
+    "bannerUrl": "images/banners/user079.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 90
+    }
+  },
+  {
+    "id": "user080",
+    "name": "Lisa Wang",
+    "username": "lwang",
+    "email": "lwang@mymicromail.com",
+    "age": 28,
+    "race": "Asian",
+    "location": "San Francisco, CA",
+    "personality_tags": [
+      "driven",
+      "analytical",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user080.webp",
+    "bio": "Product Data Scientist using ML to drive product decisions.",
+    "gender": "female",
+    "jobTitle": "Product Data Scientist",
+    "interests": [
+      "machine learning",
+      "product analytics",
+      "running",
+      "photography"
+    ],
+    "bannerUrl": "images/banners/user080.webp",
+    "microdin": {
+      "company": "DataWorks",
+      "companyId": "company-dataworks",
+      "industry": "Data Science",
+      "connections": 50,
+      "profileViews": 218
+    }
+  },
+  {
+    "id": "user081",
+    "name": "Thomas Nielsen",
+    "username": "tnielsen",
+    "email": "tnielsen@mymicromail.com",
+    "age": 38,
+    "race": "White",
+    "location": "Copenhagen, DK",
+    "personality_tags": [
+      "innovative",
+      "user-focused",
+      "minimalist"
+    ],
+    "avatarUrl": "images/avatars/user081.webp",
+    "bio": "Design Director leading product design for a digital agency.",
+    "gender": "male",
+    "jobTitle": "Design Director",
+    "interests": [
+      "design systems",
+      "architecture",
+      "cycling",
+      "hygge"
+    ],
+    "bannerUrl": "images/banners/user081.webp",
+    "microdin": {
+      "company": "Innovate Ltd",
+      "companyId": "company-innovate",
+      "industry": "Technology",
+      "connections": 50,
+      "profileViews": 235
+    }
+  },
+  {
+    "id": "user082",
+    "name": "Olivia Brown",
+    "username": "obrown",
+    "email": "obrown@mymicromail.com",
+    "age": 25,
+    "race": "Black",
+    "location": "London, UK",
+    "personality_tags": [
+      "ambitious",
+      "creative",
+      "trend-savvy"
+    ],
+    "avatarUrl": "images/avatars/user082.webp",
+    "bio": "Social Media Manager building brand presence across platforms.",
+    "gender": "female",
+    "jobTitle": "Social Media Manager",
+    "interests": [
+      "social media",
+      "content creation",
+      "fashion",
+      "brunch"
+    ],
+    "bannerUrl": "images/banners/user082.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 50,
+      "profileViews": 66
+    }
+  },
+  {
+    "id": "user083",
+    "name": "Ahmed El-Sayed",
+    "username": "aelsayed",
+    "email": "aelsayed@mymicromail.com",
+    "age": 42,
+    "race": "Middle Eastern",
+    "location": "Abu Dhabi, AE",
+    "personality_tags": [
+      "diplomatic",
+      "strategic",
+      "culturally-aware"
+    ],
+    "avatarUrl": "images/avatars/user083.webp",
+    "bio": "International Trade Specialist facilitating cross-border commerce.",
+    "gender": "male",
+    "jobTitle": "Trade Specialist",
+    "interests": [
+      "international trade",
+      "languages",
+      "falconry",
+      "arabic poetry"
+    ],
+    "bannerUrl": "images/banners/user083.webp",
+    "microdin": {
+      "company": "LogiSync",
+      "companyId": "company-logisync",
+      "industry": "Supply Chain",
+      "connections": 50,
+      "profileViews": 152
+    }
+  },
+  {
+    "id": "user084",
+    "name": "Jessica Martinez",
+    "username": "jmartinez",
+    "email": "jmartinez@mymicromail.com",
+    "age": 30,
+    "race": "Hispanic",
+    "location": "Miami, FL",
+    "personality_tags": [
+      "energetic",
+      "persuasive",
+      "relationship-builder"
+    ],
+    "avatarUrl": "images/avatars/user084.webp",
+    "bio": "Real Estate Agent specializing in luxury waterfront properties.",
+    "gender": "female",
+    "jobTitle": "Real Estate Agent",
+    "interests": [
+      "real estate",
+      "interior design",
+      "boating",
+      "salsa dancing"
+    ],
+    "bannerUrl": "images/banners/user084.webp",
+    "microdin": {
+      "company": "PropTech Hub",
+      "companyId": "company-proptech",
+      "industry": "Real Estate Technology",
+      "connections": 50,
+      "profileViews": 93
+    }
+  },
+  {
+    "id": "user085",
+    "name": "William Chen",
+    "username": "wchen2",
+    "email": "wchen2@mymicromail.com",
+    "age": 31,
+    "race": "Asian",
+    "location": "Vancouver, CA",
+    "personality_tags": [
+      "analytical",
+      "calm",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user085.webp",
+    "bio": "Actuary calculating risk for insurance products.",
+    "gender": "male",
+    "jobTitle": "Actuary",
+    "interests": [
+      "statistics",
+      "risk modeling",
+      "board games",
+      "hiking"
+    ],
+    "bannerUrl": "images/banners/user085.webp",
+    "microdin": {
+      "company": "InsurTech Solutions",
+      "companyId": "company-insurtech",
+      "industry": "Insurance Technology",
+      "connections": 50,
+      "profileViews": 214
+    }
+  },
+  {
+    "id": "user086",
+    "name": "Chioma Eze",
+    "username": "ceze",
+    "email": "ceze@mymicromail.com",
+    "age": 27,
+    "race": "Black",
+    "location": "Lagos, NG",
+    "personality_tags": [
+      "creative",
+      "bold",
+      "entrepreneurial"
+    ],
+    "avatarUrl": "images/avatars/user086.webp",
+    "bio": "Fashion Designer blending African heritage with contemporary style.",
+    "gender": "female",
+    "jobTitle": "Fashion Designer",
+    "interests": [
+      "fashion design",
+      "textiles",
+      "african prints",
+      "photography"
+    ],
+    "bannerUrl": "images/banners/user086.webp",
+    "microdin": {
+      "company": "FashionAI",
+      "companyId": "company-fashionai",
+      "industry": "Fashion Technology",
+      "connections": 50,
+      "profileViews": 175
+    }
+  },
+  {
+    "id": "user087",
+    "name": "Erik Johansson",
+    "username": "ejohansson",
+    "email": "ejohansson@mymicromail.com",
+    "age": 35,
+    "race": "White",
+    "location": "Gothenburg, SE",
+    "personality_tags": [
+      "methodical",
+      "safety-focused",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user087.webp",
+    "bio": "Safety Engineer ensuring product safety in automotive industry.",
+    "gender": "male",
+    "jobTitle": "Safety Engineer",
+    "interests": [
+      "automotive safety",
+      "standards",
+      "hockey",
+      "woodworking"
+    ],
+    "bannerUrl": "images/banners/user087.webp",
+    "microdin": {
+      "company": "CleanWater Tech",
+      "companyId": "company-cleanwater",
+      "industry": "Environmental Technology",
+      "connections": 50,
+      "profileViews": 155
+    }
+  },
+  {
+    "id": "user088",
+    "name": "Amanda Foster",
+    "username": "afoster",
+    "email": "afoster@mymicromail.com",
+    "age": 43,
+    "race": "White",
+    "location": "Sydney, AU",
+    "personality_tags": [
+      "experienced",
+      "strategic",
+      "mentor"
+    ],
+    "avatarUrl": "images/avatars/user088.webp",
+    "bio": "Chief Marketing Officer driving brand strategy for tech companies.",
+    "gender": "female",
+    "jobTitle": "CMO",
+    "interests": [
+      "marketing strategy",
+      "brand building",
+      "surfing",
+      "wine"
+    ],
+    "bannerUrl": "images/banners/user088.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 50,
+      "profileViews": 244
+    }
+  },
+  {
+    "id": "user089",
+    "name": "Hiroshi Nakamura",
+    "username": "hnakamura",
+    "email": "hnakamura@mymicromail.com",
+    "age": 48,
+    "race": "Asian",
+    "location": "Tokyo, JP",
+    "personality_tags": [
+      "wise",
+      "patient",
+      "detail-oriented"
+    ],
+    "avatarUrl": "images/avatars/user089.webp",
+    "bio": "Master Craftsman preserving traditional Japanese woodworking techniques.",
+    "gender": "male",
+    "jobTitle": "Master Craftsman",
+    "interests": [
+      "woodworking",
+      "traditional crafts",
+      "zen gardens",
+      "tea ceremony"
+    ],
+    "bannerUrl": "images/banners/user089.webp",
+    "microdin": {
+      "company": "ConstrucTech",
+      "companyId": "company-constructech",
+      "industry": "Construction Technology",
+      "connections": 50,
+      "profileViews": 237
+    }
+  },
+  {
+    "id": "user090",
+    "name": "Rachel Kim",
+    "username": "rkim",
+    "email": "rkim@mymicromail.com",
+    "age": 29,
+    "race": "Asian",
+    "location": "New York, NY",
+    "personality_tags": [
+      "creative",
+      "driven",
+      "perfectionist"
+    ],
+    "avatarUrl": "images/avatars/user090.webp",
+    "bio": "Food Photographer capturing culinary art for top restaurants.",
+    "gender": "female",
+    "jobTitle": "Food Photographer",
+    "interests": [
+      "photography",
+      "food styling",
+      "restaurants",
+      "travel"
+    ],
+    "bannerUrl": "images/banners/user090.webp",
+    "microdin": {
+      "company": "FoodChain Analytics",
+      "companyId": "company-foodchain",
+      "industry": "Food Technology",
+      "connections": 50,
+      "profileViews": 66
+    }
+  },
+  {
+    "id": "user091",
+    "name": "Patrick Murphy",
+    "username": "pmurphy",
+    "email": "pmurphy@mymicromail.com",
+    "age": 37,
+    "race": "White",
+    "location": "Dublin, IE",
+    "personality_tags": [
+      "analytical",
+      "curious",
+      "methodical"
+    ],
+    "avatarUrl": "images/avatars/user091.webp",
+    "bio": "Bioinformatics Scientist analyzing genomic data for drug discovery.",
+    "gender": "male",
+    "jobTitle": "Bioinformatics Scientist",
+    "interests": [
+      "genomics",
+      "data science",
+      "rugby",
+      "traditional music"
+    ],
+    "bannerUrl": "images/banners/user091.webp",
+    "microdin": {
+      "company": "BioSynth",
+      "companyId": "company-biosynth",
+      "industry": "Biotechnology",
+      "connections": 50,
+      "profileViews": 56
+    }
+  },
+  {
+    "id": "user092",
+    "name": "Fatou Diop",
+    "username": "fdiop",
+    "email": "fdiop@mymicromail.com",
+    "age": 32,
+    "race": "Black",
+    "location": "Dakar, SN",
+    "personality_tags": [
+      "passionate",
+      "community-focused",
+      "innovative"
+    ],
+    "avatarUrl": "images/avatars/user092.webp",
+    "bio": "EdTech Founder building digital learning platforms for Africa.",
+    "gender": "female",
+    "jobTitle": "EdTech Founder",
+    "interests": [
+      "education",
+      "technology",
+      "social impact",
+      "african music"
+    ],
+    "bannerUrl": "images/banners/user092.webp",
+    "microdin": {
+      "company": "EduLearn",
+      "companyId": "company-edulearn",
+      "industry": "EdTech",
+      "connections": 50,
+      "profileViews": 160
+    }
+  },
+  {
+    "id": "user093",
+    "name": "Jason Park",
+    "username": "jpark",
+    "email": "jpark@mymicromail.com",
+    "age": 33,
+    "race": "Asian",
+    "location": "Seoul, KR",
+    "personality_tags": [
+      "creative",
+      "trendy",
+      "perfectionist"
+    ],
+    "avatarUrl": "images/avatars/user093.webp",
+    "bio": "K-Beauty Brand Manager launching skincare products globally.",
+    "gender": "male",
+    "jobTitle": "Brand Manager",
+    "interests": [
+      "beauty industry",
+      "marketing",
+      "k-pop",
+      "skincare"
+    ],
+    "bannerUrl": "images/banners/user093.webp",
+    "microdin": {
+      "company": "RetailMax",
+      "companyId": "company-retailmax",
+      "industry": "Retail Technology",
+      "connections": 50,
+      "profileViews": 96
+    }
+  },
+  {
+    "id": "user094",
+    "name": "Catherine Moore",
+    "username": "cmoore",
+    "email": "cmoore@mymicromail.com",
+    "age": 46,
+    "race": "White",
+    "location": "Washington, D.C.",
+    "personality_tags": [
+      "analytical",
+      "diplomatic",
+      "experienced"
+    ],
+    "avatarUrl": "images/avatars/user094.webp",
+    "bio": "Policy Analyst researching technology policy for a think tank.",
+    "gender": "female",
+    "jobTitle": "Policy Analyst",
+    "interests": [
+      "tech policy",
+      "research",
+      "running",
+      "political history"
+    ],
+    "bannerUrl": "images/banners/user094.webp",
+    "microdin": {
+      "company": "SmartCity.io",
+      "companyId": "company-smartcity",
+      "industry": "Smart Cities",
+      "connections": 50,
+      "profileViews": 224
+    }
+  },
+  {
+    "id": "user095",
+    "name": "Diego Fernandez",
+    "username": "dfernandez",
+    "email": "dfernandez@mymicromail.com",
+    "age": 28,
+    "race": "Hispanic",
+    "location": "Mexico City, MX",
+    "personality_tags": [
+      "creative",
+      "technical",
+      "collaborative"
+    ],
+    "avatarUrl": "images/avatars/user095.webp",
+    "bio": "Motion Graphics Designer creating animations for advertising.",
+    "gender": "male",
+    "jobTitle": "Motion Designer",
+    "interests": [
+      "animation",
+      "after effects",
+      "cinema",
+      "street food"
+    ],
+    "bannerUrl": "images/banners/user095.webp",
+    "microdin": {
+      "company": "MediaWorks",
+      "companyId": "company-mediaworks",
+      "industry": "Digital Media",
+      "connections": 50,
+      "profileViews": 59
+    }
+  },
+  {
+    "id": "user096",
+    "name": "Nina Petrov",
+    "username": "npetrov",
+    "email": "npetrov@mymicromail.com",
+    "age": 30,
+    "race": "White",
+    "location": "Belgrade, RS",
+    "personality_tags": [
+      "analytical",
+      "precise",
+      "dedicated"
+    ],
+    "avatarUrl": "images/avatars/user096.webp",
+    "bio": "Localization Manager adapting products for global markets.",
+    "gender": "female",
+    "jobTitle": "Localization Manager",
+    "interests": [
+      "languages",
+      "translation",
+      "travel",
+      "literature"
+    ],
+    "bannerUrl": "images/banners/user096.webp",
+    "microdin": {
+      "company": "Alphavine Inc",
+      "companyId": "company-alph",
+      "industry": "Internet",
+      "connections": 50,
+      "profileViews": 192
+    }
+  },
+  {
+    "id": "user097",
+    "name": "Brian Thompson",
+    "username": "bthompson",
+    "email": "bthompson@mymicromail.com",
+    "age": 41,
+    "race": "White",
+    "location": "Phoenix, AZ",
+    "personality_tags": [
+      "technical",
+      "patient",
+      "problem-solver"
+    ],
+    "avatarUrl": "images/avatars/user097.webp",
+    "bio": "Network Architect designing enterprise network infrastructure.",
+    "gender": "male",
+    "jobTitle": "Network Architect",
+    "interests": [
+      "networking",
+      "cloud infrastructure",
+      "golf",
+      "astronomy"
+    ],
+    "bannerUrl": "images/banners/user097.webp",
+    "microdin": {
+      "company": "Aura Cloud Services",
+      "companyId": "company-aura",
+      "industry": "Cloud Computing",
+      "connections": 50,
+      "profileViews": 133
+    }
+  },
+  {
+    "id": "user098",
+    "name": "Sana Ali",
+    "username": "sali",
+    "email": "sali@mymicromail.com",
+    "age": 27,
+    "race": "South Asian",
+    "location": "Karachi, PK",
+    "personality_tags": [
+      "compassionate",
+      "dedicated",
+      "resilient"
+    ],
+    "avatarUrl": "images/avatars/user098.webp",
+    "bio": "Healthcare Administrator improving hospital operations and patient care.",
+    "gender": "female",
+    "jobTitle": "Healthcare Administrator",
+    "interests": [
+      "healthcare",
+      "public health",
+      "reading",
+      "calligraphy"
+    ],
+    "bannerUrl": "images/banners/user098.webp",
+    "microdin": {
+      "company": "HealthTech.io",
+      "companyId": "company-healthtech",
+      "industry": "Healthcare Technology",
+      "connections": 50,
+      "profileViews": 222
+    }
+  },
+  {
+    "id": "user099",
+    "name": "Alexander Novak",
+    "username": "anovak",
+    "email": "anovak@mymicromail.com",
+    "age": 36,
+    "race": "White",
+    "location": "Vienna, AT",
+    "personality_tags": [
+      "analytical",
+      "creative",
+      "perfectionist"
+    ],
+    "avatarUrl": "images/avatars/user099.webp",
+    "bio": "Sound Designer creating immersive audio experiences for games and film.",
+    "gender": "male",
+    "jobTitle": "Sound Designer",
+    "interests": [
+      "audio engineering",
+      "music production",
+      "classical concerts",
+      "coffee"
+    ],
+    "bannerUrl": "images/banners/user099.webp",
+    "microdin": {
+      "company": "ByteCraft Studios",
+      "companyId": "company-bytecraft",
+      "industry": "Gaming",
+      "connections": 50,
+      "profileViews": 155
+    }
+  }
+]

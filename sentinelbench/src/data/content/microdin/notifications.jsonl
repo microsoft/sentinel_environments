@@ -1,0 +1,12 @@
+{"id":"notif-1","type":"like","actorId":"user002","targetPostId":"post-self-1","isRead":false,"taskType":"notifications","order":1}
+{"id":"notif-2","type":"comment","actorId":"user005","targetPostId":"post-self-1","text":"commented on your post","isRead":false,"taskType":"notifications","order":2}
+{"id":"notif-3","type":"connection","actorId":"user008","text":"accepted your connection request","isRead":false,"taskType":"notifications","order":3}
+{"id":"notif-4","type":"like","actorId":"user016","targetPostId":"post-self-2","isRead":false,"taskType":"notifications","order":4}
+{"id":"notif-5","type":"mention","actorId":"user019","text":"mentioned you in a post","isRead":false,"taskType":"notifications","order":5}
+{"id":"notif-6","type":"profile_view","actorId":"user022","text":"viewed your profile","isRead":false,"taskType":"notifications","order":6}
+{"id":"notif-7","type":"connection","actorId":"user025","text":"wants to connect","isRead":false,"taskType":"notifications","order":7}
+{"id":"notif-8","type":"like","actorId":"user027","targetPostId":"post-self-3","isRead":false,"taskType":"notifications","order":8}
+{"id":"notif-9","type":"comment","actorId":"user031","targetPostId":"post-self-2","text":"commented on your post","isRead":false,"taskType":"notifications","order":9}
+{"id":"notif-10","type":"job","actorId":"user032","text":"Your profile matches a new job","isRead":false,"taskType":"notifications","order":10}
+{"id":"notif-noise-1","type":"like","actorId":"user044","targetPostId":"post-self-1","isRead":true,"taskType":"noise","order":11}
+{"id":"notif-noise-2","type":"profile_view","actorId":"user010","text":"viewed your profile","isRead":true,"taskType":"noise","order":12}

@@ -1,0 +1,100 @@
+{
+  "id": "micromail-attachment-relative-passive",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When 10 new emails with attachments have arrived since the session started, log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "att-01",
+          "att-02",
+          "att-03"
+        ]
+      }
+    },
+    {
+      "time": 9,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-04"
+      }
+    },
+    {
+      "time": 25,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-05"
+      }
+    },
+    {
+      "time": 38,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-06"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-07"
+      }
+    },
+    {
+      "time": 63,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-08"
+      }
+    },
+    {
+      "time": 69,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-09"
+      }
+    },
+    {
+      "time": 87,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-10"
+      }
+    },
+    {
+      "time": 98,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-11"
+      }
+    },
+    {
+      "time": 105,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-12"
+      }
+    },
+    {
+      "time": 116,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.hasAttachment=1 AND s.folder!='deleted') - CAST((SELECT value FROM session_meta WHERE key='baseline_attachment_count') AS REAL) >= 10"
+}

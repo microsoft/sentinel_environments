@@ -1,0 +1,126 @@
+{
+  "id": "microgram-likes-absolute-passive",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "You are using MicroGram. Like at least 10 posts in your feed, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-datascience-workshop",
+          "post-sunrise-canyon",
+          "post-barcelona-market",
+          "post-minimal-desk",
+          "post-character-sketch",
+          "post-jazz-festival",
+          "post-coffee-writing",
+          "post-pottery-studio",
+          "post-surf-morning",
+          "post-robotics-lab",
+          "post-community-event",
+          "post-dubai-skyline",
+          "post-sailing-sunset",
+          "post-gaming-setup",
+          "post-rock-climbing",
+          "post-team-standup",
+          "post-golden-gate-run",
+          "post-coffee-code",
+          "post-sunset-hike",
+          "post-marathon-finish",
+          "post-studio-session",
+          "post-mountain-bike",
+          "post-code-conference",
+          "post-street-food",
+          "post-basketball-court",
+          "post-art-gallery",
+          "post-fishing-trip",
+          "post-yoga-retreat",
+          "post-fashion-show",
+          "post-film-set"
+        ],
+        "story_ids": [
+          "story-rock-climbing-gym",
+          "story-travel-photography",
+          "story-figma-design-session",
+          "story-cozy-writing-cafe",
+          "story-pottery-studio-session",
+          "story-jazz-festival-night",
+          "story-character-sketch-timelapse",
+          "story-grand-canyon-sunrise",
+          "story-dubai-skyline-sunset",
+          "story-robotics-lab-prototype"
+        ],
+        "message_ids": [
+          "dm-1",
+          "dm-2",
+          "dm-3",
+          "dm-4"
+        ],
+        "activity_ids": [
+          "act-1",
+          "act-2",
+          "act-3",
+          "act-4",
+          "act-5",
+          "act-6",
+          "act-7",
+          "act-8",
+          "act-9",
+          "act-10"
+        ],
+        "liked_post_ids": [],
+        "saved_post_ids": [],
+        "followed_user_ids": [],
+        "viewed_story_ids": []
+      }
+    },
+    {
+      "time": 25,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-phoenix-camelback-mountain-sunrise"
+      }
+    },
+    {
+      "time": 45,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-coding-night-setup"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-urdu-calligraphy-practice"
+      }
+    },
+    {
+      "time": 80,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-11"
+      }
+    },
+    {
+      "time": 95,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-karachi-clifton-beach-sunset"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM post_states WHERE isLiked=1) >= 10"
+}

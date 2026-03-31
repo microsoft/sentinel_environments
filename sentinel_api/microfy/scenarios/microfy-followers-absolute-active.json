@@ -1,0 +1,104 @@
+{
+  "id": "microfy-followers-absolute-active",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "You are using MicroFy. Follow at least 5 artists you enjoy. Once you have followed 5 or more artists, unfollow all of them, then sign out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-013",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-020",
+          "track-021",
+          "track-022",
+          "track-023",
+          "track-024",
+          "track-025",
+          "track-026",
+          "track-027",
+          "track-028",
+          "track-029",
+          "track-030"
+        ],
+        "playlist_ids": [
+          "playlist-004",
+          "playlist-005",
+          "playlist-006"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004",
+          "mood-005",
+          "mood-006"
+        ],
+        "liked_track_ids": [
+          "track-001",
+          "track-009",
+          "track-015"
+        ],
+        "followed_artist_ids": []
+      }
+    },
+    {
+      "time": 25,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-050"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-060"
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-070"
+      }
+    },
+    {
+      "time": 95,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-080"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM followed_artists) >= 5"
+}

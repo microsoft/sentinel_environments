@@ -1,0 +1,89 @@
+{
+  "id": "micromail-urgent-absolute-passive",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When at least 10 urgent emails have arrived, log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 13,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-01"
+      }
+    },
+    {
+      "time": 21,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-02"
+      }
+    },
+    {
+      "time": 34,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-03"
+      }
+    },
+    {
+      "time": 46,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-04"
+      }
+    },
+    {
+      "time": 61,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-05"
+      }
+    },
+    {
+      "time": 74,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-06"
+      }
+    },
+    {
+      "time": 82,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-07"
+      }
+    },
+    {
+      "time": 94,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-08"
+      }
+    },
+    {
+      "time": 111,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-09"
+      }
+    },
+    {
+      "time": 120,
+      "type": "new_email",
+      "payload": {
+        "email_id": "urg-10"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.importance='high' AND s.folder='inbox') >= 10"
+}

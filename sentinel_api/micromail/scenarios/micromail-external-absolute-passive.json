@@ -1,0 +1,89 @@
+{
+  "id": "micromail-external-absolute-passive",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When at least 10 external emails have arrived, log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 12,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-01"
+      }
+    },
+    {
+      "time": 24,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-02"
+      }
+    },
+    {
+      "time": 34,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-03"
+      }
+    },
+    {
+      "time": 52,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-04"
+      }
+    },
+    {
+      "time": 59,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-05"
+      }
+    },
+    {
+      "time": 71,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-06"
+      }
+    },
+    {
+      "time": 85,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-07"
+      }
+    },
+    {
+      "time": 94,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-08"
+      }
+    },
+    {
+      "time": 105,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-09"
+      }
+    },
+    {
+      "time": 116,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-10"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE e.isExternal=1 AND s.folder='inbox') >= 10"
+}

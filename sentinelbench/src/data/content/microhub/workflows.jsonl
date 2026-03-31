@@ -1,0 +1,4 @@
+{"id":"wf-1","name":"CI/CD Pipeline","path":".microhub/workflows/ci.yml","state":"active"}
+{"id":"wf-2","name":"Deploy to Production","path":".microhub/workflows/deploy.yml","state":"active"}
+{"id":"wf-3","name":"Security Scan","path":".microhub/workflows/security.yml","state":"active"}
+{"id":"wf-4","name":"Code Quality","path":".microhub/workflows/quality.yml","state":"active"}

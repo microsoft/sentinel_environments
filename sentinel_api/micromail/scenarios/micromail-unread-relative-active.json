@@ -1,0 +1,135 @@
+{
+  "id": "micromail-unread-relative-active",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Monitor the inbox. When 15 new unread emails have arrived since the session started, mark all as read, then log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "base-01",
+          "base-02",
+          "base-03"
+        ]
+      }
+    },
+    {
+      "time": 9,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 18,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 24,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    },
+    {
+      "time": 33,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-07"
+      }
+    },
+    {
+      "time": 42,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-08"
+      }
+    },
+    {
+      "time": 47,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-09"
+      }
+    },
+    {
+      "time": 54,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-10"
+      }
+    },
+    {
+      "time": 65,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-11"
+      }
+    },
+    {
+      "time": 71,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-12"
+      }
+    },
+    {
+      "time": 81,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-13"
+      }
+    },
+    {
+      "time": 87,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-14"
+      }
+    },
+    {
+      "time": 95,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-15"
+      }
+    },
+    {
+      "time": 104,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-16"
+      }
+    },
+    {
+      "time": 111,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-17"
+      }
+    },
+    {
+      "time": 118,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-18"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states s ON e.id=s.email_id WHERE s.isRead=0 AND s.folder='inbox') - CAST((SELECT value FROM session_meta WHERE key='baseline_unread_count') AS REAL) >= 15"
+}

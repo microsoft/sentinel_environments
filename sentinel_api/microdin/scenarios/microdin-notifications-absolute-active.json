@@ -1,0 +1,108 @@
+{
+  "id": "microdin-notifications-absolute-active",
+  "environment": "microdin",
+  "start_page": "HOST_ADDRESS/microdin",
+  "prompt": "You are using MicroDin. New notifications will arrive during the session. Once the unread notification count reaches 10, mark all notifications as read, then sign out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-1",
+          "post-2",
+          "post-3"
+        ],
+        "connection_ids": [
+          "conn-1",
+          "conn-2",
+          "conn-3"
+        ],
+        "conversation_ids": [
+          "conv-1",
+          "conv-2"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-2",
+          "notif-3",
+          "notif-4",
+          "notif-5",
+          "notif-6",
+          "notif-7"
+        ],
+        "job_ids": [
+          "job-1",
+          "job-2"
+        ]
+      }
+    },
+    {
+      "time": 12,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-8"
+      }
+    },
+    {
+      "time": 25,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-8"
+      }
+    },
+    {
+      "time": 38,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-9"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_connection",
+      "payload": {
+        "connection_id": "conn-4"
+      }
+    },
+    {
+      "time": 65,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-10"
+      }
+    },
+    {
+      "time": 80,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-9"
+      }
+    },
+    {
+      "time": 95,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-3"
+      }
+    },
+    {
+      "time": 110,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-noise-1"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM notification_states WHERE isRead=0) >= 10"
+}

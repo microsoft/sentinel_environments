@@ -1,0 +1,30 @@
+{"id":"group-platform-team","type":"group","name":"Platform Team","participantIds":["user000","user001","user009","user013"],"avatarColor":"#5B5FC7","isPinned":true,"isMuted":false,"order":0}
+{"id":"group-frontend-crew","type":"group","name":"Frontend Crew","participantIds":["user000","user042","user005","user019"],"avatarColor":"#E74856","isPinned":false,"isMuted":false,"order":1}
+{"id":"group-q4-planning","type":"group","name":"Q4 Planning","participantIds":["user000","user002","user004","user013","user015"],"avatarColor":"#FF8C00","isPinned":false,"isMuted":false,"order":2}
+{"id":"group-external-partners","type":"group","name":"External Partners","participantIds":["user000","user020","user039"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":3}
+{"id":"group-hackathon-team","type":"group","name":"Hackathon Team","participantIds":["user000","user019","user050","user003"],"avatarColor":"#00B294","isPinned":false,"isMuted":true,"order":4}
+{"id":"group-backend-guild","type":"group","name":"Backend Guild","participantIds":["user000","user001","user003","user009","user033"],"avatarColor":"#0078D4","isPinned":false,"isMuted":false,"order":5}
+{"id":"group-ux-research","type":"group","name":"UX Research","participantIds":["user000","user002","user005","user016","user024"],"avatarColor":"#E74856","isPinned":false,"isMuted":false,"order":6}
+{"id":"group-devops","type":"group","name":"DevOps Team","participantIds":["user000","user007","user009","user023","user035"],"avatarColor":"#107C10","isPinned":false,"isMuted":false,"order":7}
+{"id":"group-mobile-team","type":"group","name":"Mobile Team","participantIds":["user000","user019","user042","user043"],"avatarColor":"#00B294","isPinned":false,"isMuted":false,"order":8}
+{"id":"group-data-science","type":"group","name":"Data Science","participantIds":["user000","user003","user014","user021","user046"],"avatarColor":"#008272","isPinned":false,"isMuted":false,"order":9}
+{"id":"group-product-launch","type":"group","name":"Product Launch","participantIds":["user000","user002","user004","user008","user013"],"avatarColor":"#FF8C00","isPinned":true,"isMuted":false,"order":10}
+{"id":"group-security-team","type":"group","name":"Security Team","participantIds":["user000","user007","user023"],"avatarColor":"#5C2D91","isPinned":false,"isMuted":false,"order":11}
+{"id":"group-office-social","type":"group","name":"Office Social","participantIds":["user000","user006","user010","user026","user038"],"avatarColor":"#6264A7","isPinned":false,"isMuted":true,"order":12}
+{"id":"meeting-weekly-standup","type":"meeting","name":"Weekly Engineering Standup","participantIds":["user000","user001","user013","user009","user012"],"avatarColor":"#5B5FC7","isPinned":false,"isMuted":false,"order":13}
+{"id":"meeting-design-review","type":"meeting","name":"Design Review Session","participantIds":["user000","user002","user005","user016"],"avatarColor":"#E74856","isPinned":false,"isMuted":false,"order":14}
+{"id":"meeting-all-hands","type":"meeting","name":"All Hands Meeting","participantIds":["user000","user015","user018","user049"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":15}
+{"id":"meeting-sprint-retro","type":"meeting","name":"Sprint Retrospective","participantIds":["user000","user001","user002","user013"],"avatarColor":"#0078D4","isPinned":false,"isMuted":false,"order":16}
+{"id":"meeting-onboarding-sync","type":"meeting","name":"New Hire Onboarding","participantIds":["user000","user006","user050","user019"],"avatarColor":"#5C2D91","isPinned":false,"isMuted":false,"order":17}
+{"id":"meeting-quarterly-review","type":"meeting","name":"Quarterly Business Review","participantIds":["user000","user015","user013","user002"],"avatarColor":"#FF8C00","isPinned":false,"isMuted":false,"order":18}
+{"id":"meeting-customer-feedback","type":"meeting","name":"Customer Feedback Sync","participantIds":["user000","user010","user017","user002"],"avatarColor":"#00B294","isPinned":false,"isMuted":false,"order":19}
+{"id":"meeting-architecture-review","type":"meeting","name":"Architecture Review","participantIds":["user000","user001","user009","user033","user013"],"avatarColor":"#0078D4","isPinned":false,"isMuted":false,"order":20}
+{"id":"meeting-incident-response","type":"meeting","name":"Incident Response","participantIds":["user000","user007","user009","user023"],"avatarColor":"#E74856","isPinned":false,"isMuted":false,"order":21}
+{"id":"meeting-budget-planning","type":"meeting","name":"Budget Planning","participantIds":["user000","user015","user018","user004"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":22}
+{"id":"direct-brenda","type":"direct","name":"Brenda Carter","participantIds":["user000","user002"],"avatarColor":"#E74856","isPinned":true,"isMuted":false,"order":23}
+{"id":"direct-aaron","type":"direct","name":"Aaron Chen","participantIds":["user000","user001"],"avatarColor":"#5B5FC7","isPinned":false,"isMuted":false,"order":24}
+{"id":"direct-michael","type":"direct","name":"Michael Brown","participantIds":["user000","user013"],"avatarColor":"#0078D4","isPinned":false,"isMuted":false,"order":25}
+{"id":"direct-edward","type":"direct","name":"Edward Kim","participantIds":["user000","user005"],"avatarColor":"#00B294","isPinned":false,"isMuted":false,"order":26}
+{"id":"direct-olivia","type":"direct","name":"Olivia Hayes","participantIds":["user000","user015"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":27}
+{"id":"direct-carlos","type":"direct","name":"Carlos Davis","participantIds":["user000","user003"],"avatarColor":"#FF8C00","isPinned":false,"isMuted":false,"order":28}
+{"id":"direct-ivan","type":"direct","name":"Ivan Martinez","participantIds":["user000","user009"],"avatarColor":"#5C2D91","isPinned":false,"isMuted":false,"order":29}

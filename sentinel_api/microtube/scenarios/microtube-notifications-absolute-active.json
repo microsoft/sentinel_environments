@@ -1,0 +1,136 @@
+{
+  "id": "microtube-notifications-absolute-active",
+  "environment": "microtube",
+  "start_page": "HOST_ADDRESS/microtube",
+  "prompt": "You are monitoring MicroTube. Wait until you have at least 8 notifications, then clear all notifications and log out.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "vid-auto-01",
+          "vid-auto-02",
+          "vid-beauty-01",
+          "vid-beauty-02",
+          "vid-comedy-01",
+          "vid-comedy-02",
+          "vid-comedy-03",
+          "vid-cooking-01",
+          "vid-cooking-02",
+          "vid-cooking-03",
+          "vid-diy-01",
+          "vid-diy-02",
+          "vid-finance-01",
+          "vid-finance-02",
+          "vid-fitness-01",
+          "vid-fitness-02",
+          "vid-fitness-03",
+          "vid-gaming-01",
+          "vid-gaming-02",
+          "vid-gaming-03",
+          "vid-history-01",
+          "vid-history-02",
+          "vid-language-01",
+          "vid-language-02",
+          "vid-lifestyle-01",
+          "vid-lifestyle-06",
+          "vid-lifestyle-02",
+          "vid-movies-01",
+          "vid-movies-02",
+          "vid-music-01",
+          "vid-music-02",
+          "vid-news-01",
+          "vid-news-02",
+          "vid-news-03",
+          "vid-pets-01",
+          "vid-pets-02",
+          "vid-science-01",
+          "vid-science-02",
+          "vid-science-03",
+          "vid-self-01",
+          "vid-self-02",
+          "vid-self-03",
+          "vid-sports-01",
+          "vid-sports-02",
+          "vid-tech-01",
+          "vid-tech-02",
+          "vid-tech-03",
+          "vid-travel-01",
+          "vid-travel-02",
+          "vid-travel-03"
+        ],
+        "channel_ids": [
+          "ch-self",
+          "ch-tech",
+          "ch-lifestyle",
+          "ch-music",
+          "ch-gaming",
+          "ch-news",
+          "ch-science",
+          "ch-cooking",
+          "ch-fitness",
+          "ch-travel",
+          "ch-diy",
+          "ch-auto",
+          "ch-history",
+          "ch-comedy",
+          "ch-beauty",
+          "ch-pets",
+          "ch-finance",
+          "ch-movies",
+          "ch-sports",
+          "ch-language"
+        ],
+        "comment_ids": [
+          "cmt-01",
+          "cmt-02",
+          "cmt-03",
+          "cmt-04",
+          "cmt-05",
+          "cmt-06",
+          "cmt-07"
+        ],
+        "notification_ids": [
+          "notif-01",
+          "notif-02",
+          "notif-03",
+          "notif-04",
+          "notif-05"
+        ]
+      }
+    },
+    {
+      "time": 30,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-06"
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-07"
+      }
+    },
+    {
+      "time": 70,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-08"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM notifications n JOIN notification_states s ON n.id=s.notification_id WHERE s.isDismissed=0) >= 8"
+}

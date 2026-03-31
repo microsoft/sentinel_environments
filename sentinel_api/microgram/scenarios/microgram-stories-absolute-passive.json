@@ -1,0 +1,113 @@
+{
+  "id": "microgram-stories-absolute-passive",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "You are using MicroGram. View at least 10 stories, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-datascience-workshop",
+          "post-sunrise-canyon",
+          "post-barcelona-market",
+          "post-minimal-desk",
+          "post-character-sketch",
+          "post-jazz-festival",
+          "post-coffee-writing",
+          "post-pottery-studio",
+          "post-surf-morning",
+          "post-robotics-lab",
+          "post-community-event",
+          "post-dubai-skyline"
+        ],
+        "story_ids": [
+          "story-rock-climbing-gym",
+          "story-travel-photography",
+          "story-figma-design-session",
+          "story-cozy-writing-cafe",
+          "story-pottery-studio-session",
+          "story-jazz-festival-night",
+          "story-character-sketch-timelapse",
+          "story-grand-canyon-sunrise",
+          "story-dubai-skyline-sunset",
+          "story-robotics-lab-prototype",
+          "story-coding-night-setup",
+          "story-social-media-analytics",
+          "story-team-wellness-event",
+          "story-security-ops-center",
+          "story-kubernetes-dashboard"
+        ],
+        "message_ids": [
+          "dm-1",
+          "dm-3"
+        ],
+        "activity_ids": [
+          "act-1",
+          "act-2",
+          "act-3",
+          "act-4",
+          "act-5"
+        ],
+        "liked_post_ids": [],
+        "saved_post_ids": [],
+        "followed_user_ids": [],
+        "viewed_story_ids": []
+      }
+    },
+    {
+      "time": 20,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-client-success-meeting"
+      }
+    },
+    {
+      "time": 40,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-market-analysis-charts"
+      }
+    },
+    {
+      "time": 55,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-sailing-sunset"
+      }
+    },
+    {
+      "time": 70,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-qa-testing-automation"
+      }
+    },
+    {
+      "time": 85,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-6"
+      }
+    },
+    {
+      "time": 100,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-team-standup-meeting"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM story_states WHERE isViewed=1) >= 10"
+}

@@ -1,0 +1,25 @@
+Corporate financial report with bar charts showing revenue trends, pie chart for expense breakdown, data tables with quarterly metrics. Blue and gray color scheme, clean typography, no text. 400x300px.
+Employee handbook cover page with corporate styling, table of contents layout, section dividers. Navy blue and white color scheme, professional HR document style, no text. 400x300px.
+Technical system architecture diagram showing cloud infrastructure boxes connected by arrows, microservices icons, database symbols, API gateway nodes. Blue, orange and gray colors, whiteboard style, no text. 400x300px.
+Project management Kanban board with colorful task cards in columns, burndown chart in corner, story point badges. Jira-style interface with purple and blue accents, no text. 400x300px.
+Business requirements document with numbered sections, bullet points, checkboxes, hierarchical structure. Clean formatting with headers and subheaders, blue accents, no text. 400x300px.
+Test automation dashboard with donut chart showing pass/fail percentages in green and red, results table, status indicators. Jenkins-style QA interface, no text. 400x300px.
+UI design kit showing color palette swatches, button variants, form input fields, icon grid, card components. Figma-style artboard layout with purple and blue colors, no text. 400x300px.
+Business partnership proposal with executive summary section, objectives bullet points, timeline graphic. Dark blue header banner, clean white content area, no text. 400x300px.
+Budget spreadsheet with department rows, quarterly columns, bar chart, currency formatting. Excel-style with alternating row colors, green and red variances, no text. 400x300px.
+API performance dashboard with line charts for latency, bar charts for throughput, metrics table. Grafana-style dark theme with green, yellow, blue accents, no text. 400x300px.
+Corporate strategy presentation slide with gradient background dark blue to purple, geometric pattern decorations, logo placeholder. Modern corporate deck style, no text. 400x300px.
+Product roadmap timeline with horizontal lanes, milestone markers, version release points. Teal and coral accent colors, modern tech presentation style, no text. 400x300px.
+Sales pipeline spreadsheet with deal stages, status colors green yellow gray, summary totals row. Salesforce export style, data table format, no text. 400x300px.
+Mobile app design mockup showing four phone screens side by side with login, dashboard, settings, profile views. iOS style with rounded corners and gradient buttons, no text. 400x300px.
+Customer analytics dashboard with engagement charts, retention heatmap, segment pie chart, KPI metric cards. Mixpanel-style interface with purple and teal colors, no text. 400x300px.
+Brand guidelines document with color palette hex swatches, logo usage examples, typography hierarchy samples, spacing rules. Clean brand book layout, no text. 400x300px.
+Inventory management spreadsheet with product rows, quantity columns, stock status color indicators green yellow red, category bar chart. Warehouse system style, no text. 400x300px.
+Legal agreement document with formal numbered sections, signature blocks at bottom, justified paragraphs. Traditional legal document formatting with serif font style, no text. 400x300px.
+Marketing analytics dashboard with impressions metrics cards, funnel visualization, channel breakdown bar chart, ROI trend line. Google Analytics style with orange and blue accents, no text. 400x300px.
+Website redesign concepts showing three homepage variations side by side with different hero section approaches. Agency presentation style with dark gray background, no text. 400x300px.
+NDA legal document with confidentiality sections, signature blocks, date fields. Clean legal template with minimal formatting, formal document style, no text. 400x300px.
+Startup pitch deck slide with impressive growth chart trending upward, key metric cards, partner logos grid. Gradient purple to blue background, bold modern typography, no text. 400x300px.
+Service level agreement document with uptime metrics table, response time specifications, service credits section. Professional contract style with blue header accents, no text. 400x300px.
+Design asset icon library grid showing 36 consistent line icons in organized rows and columns, multiple size variants. Figma component library style with light gray background, no text. 400x300px.
+Financial forecast spreadsheet with revenue stream rows, monthly columns, comparison percentages, line chart with confidence band. Excel financial model style with green red highli

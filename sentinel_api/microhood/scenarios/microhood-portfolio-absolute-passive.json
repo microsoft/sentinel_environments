@@ -1,0 +1,65 @@
+{
+  "id": "microhood-portfolio-absolute-passive",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "You are using MicroHood. Wait for your total portfolio value to reach $15,000, then sign out of the application.",
+  "duration": 120,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10"
+        ],
+        "buying_power": 10000.0
+      }
+    },
+    {
+      "time": 30,
+      "type": "new_news",
+      "payload": {
+        "news_id": "11"
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_news",
+      "payload": {
+        "news_id": "12"
+      }
+    },
+    {
+      "time": 90,
+      "type": "new_news",
+      "payload": {
+        "news_id": "13"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT CAST((SELECT value FROM session_meta WHERE key='buying_power') AS REAL) + COALESCE(SUM(ss.shares * cp.price), 0) FROM stock_states ss JOIN current_prices cp ON ss.symbol=cp.symbol) >= 15000"
+}
