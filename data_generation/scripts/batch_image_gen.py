@@ -31,9 +31,9 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 import random
 
-# Configure Hugging Face cache to use Blue storage (HPC)
-# This prevents filling up the home directory quota
-HF_CACHE_DIR = "/blue/uf-dsi/mkunzlermaldaner/huggingface/.cache/huggingface"
+# Configure Hugging Face cache directory.
+# Set HF_CACHE_DIR to a path with sufficient storage (e.g. on HPC scratch space).
+HF_CACHE_DIR = os.environ.get("HF_CACHE_DIR", os.path.expanduser("~/.cache/huggingface"))
 os.environ.setdefault("HF_HOME", HF_CACHE_DIR)
 os.environ.setdefault("HF_DATASETS_CACHE", f"{HF_CACHE_DIR}/datasets")
 os.environ.setdefault("TRANSFORMERS_CACHE", f"{HF_CACHE_DIR}/transformers")

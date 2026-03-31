@@ -57,12 +57,11 @@ export default function NotFound() {
                     If you believe this page should exist, please contact our development team.
                   </p>
                   <div className="bg-white border border-purple-200 rounded-lg p-3">
-                    <p className="text-sm text-purple-600 mb-1">Contact Email:</p>
-                    <a 
-                      href="mailto:mkunzlermaldaner@ufl.edu"
+                    <a
+                      href="https://github.com/microsoft/sentinel_environments/issues"
                       className="text-purple-800 font-medium hover:text-purple-900 transition-colors"
                     >
-                      mkunzlermaldaner@ufl.edu
+                      Report an issue on GitHub
                     </a>
                   </div>
                 </div>

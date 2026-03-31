@@ -46,7 +46,7 @@ export NUMEXPR_NUM_THREADS="$SLURM_CPUS_PER_TASK"
 export KMP_AFFINITY=disabled
 
 # navigate to project directory
-cd /blue/uf-dsi/mkunzlermaldaner/huggingface
+cd "${PROJECT_DIR:-.}"
 
 # activate virtual environment (inside ImageGenerator/)
 source ImageGenerator/.venv/bin/activate
