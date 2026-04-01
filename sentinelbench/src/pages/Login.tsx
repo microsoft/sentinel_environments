@@ -5,7 +5,7 @@ import { getSelfUser } from "../data";
 const SITE_PASSWORD = "microsoftaifrontiers-blogpost";
 
 // Assets to preload during boot
-const assetBase = `${import.meta.env.BASE_URL}windowsxp-home/`;
+const assetBase = `${import.meta.env.BASE_URL}desktop/`;
 const baseUrl = import.meta.env.BASE_URL;
 
 // Static assets to preload

@@ -908,7 +908,7 @@ const MicroDin = () => {
                 }}
               >
                 <img
-                  src="windowsxp-home/microdin-icon.png"
+                  src="desktop/microdin-icon.png"
                   alt="MicroDin"
                   className="w-full h-full object-contain"
                 />

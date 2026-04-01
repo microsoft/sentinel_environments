@@ -39,12 +39,12 @@ const authorsData: Author[] = [
     photo: new URL("../../../data/catalogs/author-photos/adam.png", import.meta.url).href,
     profileUrl: "https://www.adamfourney.com",
   },
-  // {
-  //   name: "Amanda Swearngin",
-  //   affiliation: "Microsoft Research",
-  //   photo: new URL("../../../data/catalogs/author-photos/amanda.png", import.meta.url).href,
-  //   profileUrl: "https://amaswea.github.io",
-  // },
+  {
+    name: "Amanda Swearngin",
+    affiliation: "Microsoft Research",
+    photo: new URL("../../../data/catalogs/author-photos/amanda.png", import.meta.url).href,
+    profileUrl: "https://amaswea.github.io",
+  },
   {
     name: "Gagan Bansal",
     affiliation: "Microsoft Research",
@@ -57,12 +57,6 @@ const authorsData: Author[] = [
     photo: new URL("../../../data/catalogs/author-photos/maya.png", import.meta.url).href,
     profileUrl: "https://www.mayamurad.com",
   },
-  // {
-  //   name: "Damon Woodard",
-  //   affiliation: "University of Florida",
-  //   photo: new URL("../../../data/catalogs/author-photos/woodard.png", import.meta.url).href,
-  //   profileUrl: "https://www.cise.ufl.edu/~dwoodard/",
-  // },
 ];
 
 interface IconVariant {
@@ -232,41 +226,25 @@ type IconPositions = Record<string, { x: number; y: number }>;
 
 const getBaseTaskTitle = (title: string) => title;
 
-const assetBase = `${import.meta.env.BASE_URL}windowsxp-home/`;
+const assetBase = `${import.meta.env.BASE_URL}desktop/`;
 const wallpaperUrl = `${assetBase}xp-wallpaper.jpg`;
 
 const iconAssetMap: Record<string, string> = {
-  "animal-mover": `${assetBase}sheep-icon.png`,
-  "button-presser": `${assetBase}button-icon.png`,
-  lincondin: `${assetBase}lincondin-icon.png`,
-  "linkedin-monitor": `${assetBase}lincondin-icon.png`,
-  calendar: `${assetBase}calendar-icon.png`,
-  microlendar: `${assetBase}microlendar-icon.png`,
-  flickerchat: `${assetBase}flickerchat-icon.png`,
-  "flight-monitor": `${assetBase}flightbooker-icon.png`,
-  "github-watcher": `${assetBase}github-icon.png`,
-  microhub: `${assetBase}github-icon.png`,
   micromail: `${assetBase}micromail-icon.png`,
-  microhouses: `${assetBase}microhouses-icon.png`,
-  "google-scholar": `${assetBase}microscholar-icon.png`,
-  microscholar: `${assetBase}microscholar-icon.png`,
-  "news-checker": `${assetBase}newschecker-icon.png`,
-  photoshare: `${assetBase}photoshare-icon.png`,
-  microgram: `${assetBase}microgram-icon.png`,
-  reactor: `${assetBase}reactor-icon.png`,
-  spoofinfy: `${assetBase}spoonfify-icon.png`,
-  "teams-monitor": `${assetBase}teams-icon.png`,
-  trading: `${assetBase}trading-icon.png`,
   microchat: `${assetBase}teams-icon.png`,
-  authors: `${assetBase}authors-icon.png`,
-  microtube: `${assetBase}microtube-icon.png`,
-  microhood: `${assetBase}microhood-icon.png`,
-  microfy: `${assetBase}microfy-icon.png`,
   microdin: `${assetBase}microdin-icon.png`,
+  microfy: `${assetBase}microfy-icon.png`,
+  microgram: `${assetBase}microgram-icon.png`,
+  microhood: `${assetBase}microhood-icon.png`,
+  microhub: `${assetBase}github-icon.png`,
+  microlendar: `${assetBase}microlendar-icon.png`,
+  microscholar: `${assetBase}microscholar-icon.png`,
+  microtube: `${assetBase}microtube-icon.png`,
+  authors: `${assetBase}authors-icon.png`,
   citation: `${assetBase}citations-icon.png`,
   paper: `${assetBase}pdf-icon.png`,
   "download-benchmark": `${assetBase}download-icon.png`,
-  "leaderboard": `${assetBase}leaderboard-icon.png`,
+  leaderboard: `${assetBase}leaderboard-icon.png`,
 };
 
 const Home2 = () => {
