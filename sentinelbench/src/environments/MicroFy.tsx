@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useMicrofyData } from "../hooks/useMicrofyData";
-import type { ApiTrack, ApiPlaylist, ApiUser } from "../hooks/useMicrofyData";
+import type { ApiTrack, ApiPlaylist } from "../hooks/useMicrofyData";
 import {
   Monitor,
   Laptop,
@@ -114,7 +114,6 @@ const MicroFy = () => {
     playlists: apiPlaylists,
     moods: apiMoods,
     followedArtistIds,
-    users: apiUsers,
     artists: apiArtists,
     likeTrack: apiLikeTrack,
     playTrack: apiPlayTrack,
@@ -174,11 +173,8 @@ const MicroFy = () => {
     [apiPlaylists]
   );
 
-  // Derive selfUser from the API users list
-  const selfUser = useMemo<ApiUser | undefined>(
-    () => apiUsers.find((u) => u.isSelf),
-    [apiUsers]
-  );
+  // Derive selfUser from config
+  const selfUser = config?.selfUser as any;
 
   // State management
   const [selectedSongId, setSelectedSongId] = useState<string | null>(null);

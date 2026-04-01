@@ -16,6 +16,7 @@ from sentinel_api.catalogs import (
     MICROGRAM_MESSAGE_CATALOG,
     MICROGRAM_POST_CATALOG,
     MICROGRAM_STORY_CATALOG,
+    USER_CATALOG,
 )
 
 if TYPE_CHECKING:
@@ -26,19 +27,41 @@ if TYPE_CHECKING:
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _resolve_user(user_id: str) -> dict:
+    """Return resolved user fields for a given user ID."""
+    u = USER_CATALOG.get(user_id, {})
+    return {"name": u.get("name", "Unknown"), "avatarUrl": u.get("avatarUrl", "")}
+
+
 def _build_post_row(post_id: str) -> dict:
     raw = MICROGRAM_POST_CATALOG.get(post_id)
     if raw is None:
         raise KeyError(f"Unknown post_id: {post_id!r}")
 
+    author_id = raw["author_id"]
+    resolved = _resolve_user(author_id)
+
+    # Resolve comment authors
+    raw_comments = raw["comments"]
+    resolved_comments = []
+    for c in raw_comments:
+        rc = dict(c)
+        cid = rc.get("authorId", rc.get("author_id", ""))
+        cr = _resolve_user(cid)
+        rc["authorName"] = cr["name"]
+        rc["authorAvatarUrl"] = cr["avatarUrl"]
+        resolved_comments.append(rc)
+
     return {
         "id": post_id,
-        "authorId": raw["author_id"],
+        "authorId": author_id,
+        "authorName": resolved["name"],
+        "authorAvatarUrl": resolved["avatarUrl"],
         "imageUrl": raw["image_url"],
         "caption": raw["caption"],
         "location": raw["location"],
         "likes": raw["likes"],
-        "comments": raw["comments"],
+        "comments": resolved_comments,
         "isTargetPost": raw["is_target_post"],
         "taskType": raw.get("task_type"),
         "order": raw["order"],
@@ -54,9 +77,14 @@ def _build_story_row(story_id: str) -> dict:
     if raw is None:
         raise KeyError(f"Unknown story_id: {story_id!r}")
 
+    author_id = raw["author_id"]
+    resolved = _resolve_user(author_id)
+
     return {
         "id": story_id,
-        "authorId": raw["author_id"],
+        "authorId": author_id,
+        "authorName": resolved["name"],
+        "authorAvatarUrl": resolved["avatarUrl"],
         "mediaUrl": raw["media_url"],
         "mediaType": raw["media_type"],
         "order": raw["order"],
@@ -72,10 +100,15 @@ def _build_activity_row(activity_id: str) -> dict:
     if raw is None:
         raise KeyError(f"Unknown activity_id: {activity_id!r}")
 
+    actor_id = raw["actor_id"]
+    resolved = _resolve_user(actor_id)
+
     return {
         "id": activity_id,
         "type": raw["type"],
-        "actorId": raw["actor_id"],
+        "actorId": actor_id,
+        "actorName": resolved["name"],
+        "actorAvatarUrl": resolved["avatarUrl"],
         "targetPostId": raw.get("target_post_id"),
         "text": raw.get("text"),
         "order": raw["order"],
@@ -86,7 +119,20 @@ def _build_message_row(message_id: str) -> dict:
     raw = MICROGRAM_MESSAGE_CATALOG.get(message_id)
     if raw is None:
         raise KeyError(f"Unknown message_id: {message_id!r}")
-    return dict(raw)
+    row = dict(raw)
+    # Resolve participantIds to participants with name/avatar
+    if "participantIds" in row:
+        row["participants"] = [
+            {"id": uid, **_resolve_user(uid)} for uid in row["participantIds"]
+        ]
+    # Resolve senders in individual messages
+    if "messages" in row:
+        for msg in row["messages"]:
+            sid = msg.get("senderId", "")
+            if sid:
+                resolved = _resolve_user(sid)
+                msg["senderName"] = resolved["name"]
+    return row
 
 
 # ---------------------------------------------------------------------------

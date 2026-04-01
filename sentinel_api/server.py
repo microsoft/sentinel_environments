@@ -60,6 +60,7 @@ from sentinel_api.schemas import (
     MicrodinJobsResponse,
     MicrodinNotificationsResponse,
     MicrodinPostsResponse,
+    MicrodinNetworkResponse,
     MicrofyAddToPlaylistRequest,
     MicrofyArtistsResponse,
     MicrofyCreatePlaylistRequest,
@@ -73,6 +74,7 @@ from sentinel_api.schemas import (
     MicrogramMessagesResponse,
     MicrogramPostsResponse,
     MicrogramStoriesResponse,
+    MicrogramUsersResponse,
     MicrohoodNewsResponse,
     MicrohoodOrderRequest,
     MicrohoodPortfolioResponse,
@@ -97,6 +99,7 @@ from sentinel_api.schemas import (
     MicrohubRunsResponse,
     MicrohubSecurityResponse,
     MicrohubSettingsResponse,
+    MicrohubUsersResponse,
     MicrohubWikiResponse,
     MicrohubWorkflowsResponse,
     MicrolendarCreateEventRequest,
@@ -110,6 +113,7 @@ from sentinel_api.schemas import (
     MicroscholarCoauthorsResponse,
     MicroscholarPaperDetailResponse,
     MicroscholarPapersResponse,
+    MicroscholarUsersResponse,
     MicrotubeAddToPlaylistRequest,
     MicrotubeChannelDetailResponse,
     MicrotubeChannelsResponse,
@@ -121,6 +125,7 @@ from sentinel_api.schemas import (
     MicrotubeVideoDetailResponse,
     MicrotubeVideosResponse,
     OrderResponse,
+    SelfUserResponse,
     StarResponse,
     StateChangeResponse,
     SuccessResponse,
@@ -413,9 +418,11 @@ async def close() -> JSONResponse:
 @app.get("/data/config", response_model=ConfigResponse)
 async def data_config() -> ConfigResponse:
     session = _require_session()
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), None)
     return ConfigResponse(
         environment=session.environment,
         duration=session.duration,
+        selfUser=self_user,
     )
 
 
@@ -495,6 +502,12 @@ async def evaluate() -> EvaluateResponse:
 async def data_users() -> UsersResponse:
     users = list(USER_CATALOG.values())
     return UsersResponse(users=users)
+
+
+@app.get("/data/self-user", response_model=SelfUserResponse)
+async def data_self_user() -> SelfUserResponse:
+    user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    return SelfUserResponse(user=user)
 
 
 # ---------------------------------------------------------------------------
@@ -809,6 +822,12 @@ async def data_din_companies() -> MicrodinCompaniesResponse:
     return MicrodinCompaniesResponse(companies=list(MICRODIN_COMPANY_CATALOG.values()))
 
 
+@app.get("/data/microdin-network", response_model=MicrodinNetworkResponse)
+async def data_din_network() -> MicrodinNetworkResponse:
+    users = [u for u in USER_CATALOG.values() if u.get("microdin")]
+    return MicrodinNetworkResponse(users=users)
+
+
 # ---------------------------------------------------------------------------
 # MicroFy data endpoints
 # ---------------------------------------------------------------------------
@@ -950,6 +969,12 @@ async def data_gram_followed_users() -> MicrogramFollowedUsersResponse:
     return MicrogramFollowedUsersResponse(followed_users=list(session.microgram_followed_users))
 
 
+@app.get("/data/microgram-users", response_model=MicrogramUsersResponse)
+async def data_gram_users() -> MicrogramUsersResponse:
+    users = [u for u in USER_CATALOG.values() if u.get("social")]
+    return MicrogramUsersResponse(users=users)
+
+
 @app.post("/data/microgram-posts/{post_id}/like", response_model=ToggleLikeResponse)
 async def data_gram_like_post(post_id: str) -> dict:
     session = _require_session()
@@ -1044,12 +1069,24 @@ async def data_hood_stocks() -> MicrohoodStocksResponse:
 @app.get("/data/microhood-watchlist", response_model=MicrohoodWatchlistResponse)
 async def data_hood_watchlist() -> MicrohoodWatchlistResponse:
     session = _require_session()
+    prices = microhood_handler.get_current_prices(session)
     result = []
     for item in session.microhood_watchlist:
         symbol = item["symbol"]
         st = session.microhood_watchlist_states.get(symbol, {})
         if st.get("inWatchlist", True):
-            result.append({**item, "inWatchlist": True})
+            current_price = prices.get(symbol, item.get("price", 0))
+            trace = MICROHOOD_TRACE_CATALOG.get(symbol, [])
+            starting_price = trace[0] if trace else current_price
+            change = current_price - starting_price
+            change_percent = (change / starting_price * 100) if starting_price else 0
+            result.append({
+                **item,
+                "price": round(current_price, 2),
+                "change": round(change, 2),
+                "changePercent": round(change_percent, 2),
+                "inWatchlist": True,
+            })
     return MicrohoodWatchlistResponse(watchlist=result)
 
 
@@ -1404,6 +1441,12 @@ async def data_hub_following() -> MicrohubFollowingResponse:
     return MicrohubFollowingResponse(following=list(session.microhub_following_users))
 
 
+@app.get("/data/microhub-users", response_model=MicrohubUsersResponse)
+async def data_hub_users() -> MicrohubUsersResponse:
+    users = [u for u in USER_CATALOG.values() if u.get("microhub")]
+    return MicrohubUsersResponse(users=users)
+
+
 # ---------------------------------------------------------------------------
 # MicroLendar data endpoints
 # ---------------------------------------------------------------------------
@@ -1719,6 +1762,12 @@ async def data_scholar_mark_alert_read(alert_id: str) -> dict:
 async def data_scholar_coauthors() -> MicroscholarCoauthorsResponse:
     session = _require_session()
     return MicroscholarCoauthorsResponse(coauthors=session.microscholar_coauthors)
+
+
+@app.get("/data/microscholar-users", response_model=MicroscholarUsersResponse)
+async def data_scholar_users() -> MicroscholarUsersResponse:
+    users = [u for u in USER_CATALOG.values() if u.get("scholar")]
+    return MicroscholarUsersResponse(users=users)
 
 
 # ---------------------------------------------------------------------------

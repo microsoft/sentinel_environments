@@ -6,7 +6,7 @@ import {
   useCallback,
   type FormEvent,
 } from "react";
-import { useMicrochatData, type ApiUser } from "../hooks/useMicrochatData";
+import { useMicrochatData } from "../hooks/useMicrochatData";
 import {
   Search,
   MoreHorizontal,
@@ -567,7 +567,6 @@ const MicroChat = () => {
     conversations: apiConversations,
     teams: apiTeams,
     calls: apiCalls,
-    users: apiUsers,
     config: apiConfig,
     isLoading: apiLoading,
     error: apiError,
@@ -577,11 +576,27 @@ const MicroChat = () => {
     pinConversation: apiPinConversation,
   } = useMicrochatData();
 
-  // Derive selfUser from the users list
+  // Build a user map from resolved participants and members
+  const allKnownUsers = useMemo(() => {
+    const map = new Map<string, { id: string; name: string; avatarUrl: string }>();
+    for (const conv of apiConversations) {
+      for (const p of conv.participants ?? []) {
+        if (!map.has(p.id)) map.set(p.id, p);
+      }
+    }
+    for (const team of apiTeams) {
+      for (const m of team.members ?? []) {
+        if (!map.has(m.id)) map.set(m.id, m);
+      }
+    }
+    return map;
+  }, [apiConversations, apiTeams]);
+
+  // Derive selfUser from config
   const selfUser = useMemo(() => {
-    const self = apiUsers.find((u: ApiUser) => u.isSelf);
-    return self || { id: "user000", name: "You", username: "you", email: "you@example.com", jobTitle: "User" };
-  }, [apiUsers]);
+    const s = apiConfig?.selfUser;
+    return s || { id: "user000", name: "You", username: "you", email: "you@example.com", jobTitle: "User" };
+  }, [apiConfig]);
 
   // Transform API messages: flat list -> Record<conversationId, ChatMessage[]>
   const apiMessagesGrouped = useMemo(() => {
@@ -866,14 +881,14 @@ const MicroChat = () => {
   const selectedConversation = conversations.find((c) => c.id === selectedConversationId);
   const selectedMessages = selectedConversationId ? messages[selectedConversationId] || [] : [];
 
-  // Get user info
+  // Get user info from resolved participant/member data
   const getUserById = useCallback(
     (userId: string): UserProfile | undefined => {
-      const u = apiUsers.find((u: ApiUser) => u.id === userId);
+      const u = allKnownUsers.get(userId);
       if (!u) return undefined;
-      return { id: u.id, name: u.name, username: u.username || "", email: u.email || "", avatarUrl: u.avatarUrl, jobTitle: u.jobTitle || "", location: u.location, bio: u.bio };
+      return { id: u.id, name: u.name, username: "", email: "", avatarUrl: u.avatarUrl, jobTitle: "" };
     },
-    [apiUsers]
+    [allKnownUsers]
   );
 
   // Handlers
@@ -1169,15 +1184,15 @@ const MicroChat = () => {
 
   // Filter users for mention suggestions
   const mentionSuggestions = useMemo(() => {
-    const userProfiles = apiUsers.map((u: ApiUser) => ({
-      id: u.id, name: u.name, username: u.username || "", email: u.email || "",
-      avatarUrl: u.avatarUrl, jobTitle: u.jobTitle || "", location: u.location, bio: u.bio,
+    const userProfiles = Array.from(allKnownUsers.values()).map((u) => ({
+      id: u.id, name: u.name, username: "", email: "",
+      avatarUrl: u.avatarUrl, jobTitle: "",
     }));
     if (!mentionQuery) return userProfiles.slice(0, 5);
     return userProfiles
       .filter((u) => u.name.toLowerCase().includes(mentionQuery.toLowerCase()))
       .slice(0, 5);
-  }, [mentionQuery, apiUsers]);
+  }, [mentionQuery, allKnownUsers]);
 
 
   const handleResetTask = () => {
@@ -3234,7 +3249,7 @@ const MicroChat = () => {
               <div>
                 <h3 className={classNames("text-sm font-medium mb-3", darkMode ? "text-gray-300" : "text-gray-700")}>{t("speedDial")}</h3>
                 <div className="grid grid-cols-4 gap-3">
-                  {apiUsers.slice(0, 8).map((user) => (
+                  {Array.from(allKnownUsers.values()).slice(0, 8).map((user) => (
                     <button
                       key={user.id}
                       onClick={() => startCall(user.name, "audio", user.avatarUrl, pickColor(user.name))}

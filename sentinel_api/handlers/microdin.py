@@ -30,6 +30,12 @@ if TYPE_CHECKING:
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _resolve_user(user_id: str) -> dict:
+    """Return resolved user fields for a given user ID."""
+    u = USER_CATALOG.get(user_id, {})
+    return {"name": u.get("name", "Unknown"), "avatarUrl": u.get("avatarUrl", "")}
+
+
 def _build_post_row(post_id: str, backdated: bool = False) -> dict:
     raw = MICRODIN_POST_CATALOG.get(post_id)
     if raw is None:
@@ -43,6 +49,17 @@ def _build_post_row(post_id: str, backdated: bool = False) -> dict:
     else:
         ts = datetime.datetime.utcnow().isoformat() + "Z"
 
+    # Resolve comment authors
+    raw_comments = raw.get("comments", [])
+    resolved_comments = []
+    for c in raw_comments:
+        rc = dict(c)
+        cid = rc.get("authorId", rc.get("author_id", ""))
+        resolved = _resolve_user(cid)
+        rc["authorName"] = resolved["name"]
+        rc["authorAvatarUrl"] = resolved["avatarUrl"]
+        resolved_comments.append(rc)
+
     return {
         "id": post_id,
         "authorId": author_id,
@@ -52,7 +69,7 @@ def _build_post_row(post_id: str, backdated: bool = False) -> dict:
         "content": raw.get("content", ""),
         "imageUrl": raw.get("image_url"),
         "likes": raw.get("likes", 0),
-        "comments": raw.get("comments", []),
+        "comments": resolved_comments,
         "shares": raw.get("shares", 0),
         "timestamp": ts,
         "order": raw.get("order", 0),
@@ -268,7 +285,12 @@ def process_event(session: Session, event: dict) -> None:
         for conv_id in payload.get("conversation_ids", []):
             conv_data = MICRODIN_CONVERSATION_CATALOG.get(conv_id)
             if conv_data:
-                session.microdin_conversations.append(dict(conv_data))
+                row = dict(conv_data)
+                if "participantIds" in row:
+                    row["participants"] = [
+                        {"id": uid, **_resolve_user(uid)} for uid in row["participantIds"]
+                    ]
+                session.microdin_conversations.append(row)
         # Load messages for all loaded conversations
         loaded_conv_ids = {c["id"] for c in session.microdin_conversations}
         for msg_id, msg_raw in MICRODIN_MESSAGE_CATALOG.items():
@@ -316,7 +338,12 @@ def process_event(session: Session, event: dict) -> None:
                 if not any(c["id"] == conv_id for c in session.microdin_conversations):
                     conv_data = MICRODIN_CONVERSATION_CATALOG.get(conv_id)
                     if conv_data:
-                        session.microdin_conversations.append(dict(conv_data))
+                        row = dict(conv_data)
+                        if "participantIds" in row:
+                            row["participants"] = [
+                                {"id": uid, **_resolve_user(uid)} for uid in row["participantIds"]
+                            ]
+                        session.microdin_conversations.append(row)
                 row = _build_message_row(msg_id, backdated=False)
                 session.microdin_messages.append(row)
                 session.microdin_message_states[msg_id] = {"isRead": False}

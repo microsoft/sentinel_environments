@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from sentinel_api.catalogs import (
     MICROLENDAR_EVENT_CATALOG,
+    USER_CATALOG,
 )
 
 if TYPE_CHECKING:
@@ -21,6 +22,23 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _resolve_attendees(attendee_ids: list) -> list[dict]:
+    """Resolve a list of user ID strings into [{id, name, avatarUrl}]."""
+    result = []
+    for uid in attendee_ids:
+        u = USER_CATALOG.get(uid, {})
+        result.append({"id": uid, "name": u.get("name", "Unknown"), "avatarUrl": u.get("avatarUrl", "")})
+    return result
+
+
+def _build_event_row(raw: dict) -> dict:
+    """Build an event row, resolving attendee IDs to user objects."""
+    row = dict(raw)
+    if "attendees" in row and isinstance(row["attendees"], list):
+        row["attendees"] = _resolve_attendees(row["attendees"])
+    return row
+
 
 def _time_to_minutes(time_str: str) -> int:
     """Convert 'HH:MM' or ISO time portion to minutes since midnight."""
@@ -148,7 +166,7 @@ def process_event(session: Session, event: dict) -> None:
             raw = MICROLENDAR_EVENT_CATALOG.get(eid)
             if raw is None:
                 continue
-            session.microlendar_events.append(dict(raw))
+            session.microlendar_events.append(_build_event_row(raw))
             session.microlendar_event_states[eid] = {}
 
         # Load tasks — "*" means all task items
@@ -173,7 +191,7 @@ def process_event(session: Session, event: dict) -> None:
         event_id = event.get("payload", {}).get("event_id")
         raw = MICROLENDAR_EVENT_CATALOG.get(event_id)
         if raw:
-            session.microlendar_events.append(dict(raw))
+            session.microlendar_events.append(_build_event_row(raw))
             session.microlendar_event_states[event_id] = {}
 
     elif etype == "new_task":

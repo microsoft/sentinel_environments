@@ -53,30 +53,10 @@ export interface ApiArtist {
   name: string;
 }
 
-export interface ApiUser {
-  id: string;
-  name: string;
-  username?: string;
-  email?: string;
-  avatarUrl?: string;
-  isSelf?: boolean;
-  microfy?: {
-    followers: number;
-    following: number;
-    playlistCount: number;
-    likedTracksCount: number;
-    monthlyListeners: number;
-    isPremium: boolean;
-    joinedDate: string;
-    topGenres?: string[];
-    recentlyPlayedArtists?: string[];
-    publicPlaylists?: { id: string; name: string; trackCount: number }[];
-  };
-}
-
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 export function useMicrofyData() {
@@ -84,7 +64,6 @@ export function useMicrofyData() {
   const [playlists, setPlaylists] = useState<ApiPlaylist[]>([]);
   const [moods, setMoods] = useState<ApiMood[]>([]);
   const [followedArtistIds, setFollowedArtistIds] = useState<string[]>([]);
-  const [users, setUsers] = useState<ApiUser[]>([]);
   const [artists, setArtists] = useState<ApiArtist[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -95,7 +74,6 @@ export function useMicrofyData() {
 
   const configLoaded = useRef(false);
   const moodsLoaded = useRef(false);
-  const usersLoaded = useRef(false);
   const artistsLoaded = useRef(false);
   const mismatch = useRef(false);
 
@@ -134,20 +112,6 @@ export function useMicrofyData() {
         .then((data) => {
           moodsLoaded.current = true;
           setMoods(data.moods ?? []);
-        })
-        .catch(() => {});
-    }
-
-    // Fetch users once
-    if (!usersLoaded.current) {
-      fetch("/api/data/users")
-        .then((r) => {
-          if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
-          return r.json();
-        })
-        .then((data) => {
-          usersLoaded.current = true;
-          setUsers(data.users ?? []);
         })
         .catch(() => {});
     }
@@ -280,7 +244,6 @@ export function useMicrofyData() {
     playlists,
     moods,
     followedArtistIds,
-    users,
     artists,
     config,
     isLoading,

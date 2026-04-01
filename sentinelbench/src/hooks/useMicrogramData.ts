@@ -49,6 +49,7 @@ export interface ApiGramActivity {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 export function useMicrogramData() {
@@ -95,9 +96,9 @@ export function useMicrogramData() {
         .catch(() => {});
     }
 
-    // Fetch users once
+    // Fetch social users once
     if (!usersLoaded.current) {
-      fetch("/api/data/users")
+      fetch("/api/data/microgram-users")
         .then((r) => {
           if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
           return r.json();

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 export interface ApiRepository {
@@ -326,7 +327,7 @@ export function useMicrohubData() {
         fetch("/api/data/microhub-settings").then((r) => r.ok ? r.json() : null),
         fetch("/api/data/microhub-deployments").then((r) => r.ok ? r.json() : null),
         fetch("/api/data/microhub-packages").then((r) => r.ok ? r.json() : null),
-        fetch("/api/data/users").then((r) => r.ok ? r.json() : null),
+        fetch("/api/data/microhub-users").then((r) => r.ok ? r.json() : null),
       ])
         .then(([
           filesData, commitsData, workflowsData, wikiData, insightsData,

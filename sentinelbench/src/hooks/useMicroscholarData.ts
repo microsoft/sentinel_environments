@@ -39,6 +39,7 @@ export interface ApiCoauthor {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 export interface AdvancedSearchParams {
@@ -97,9 +98,9 @@ export function useMicroscholarData() {
         .catch(() => {});
     }
 
-    // Fetch users once
+    // Fetch scholar users once
     if (!usersLoaded.current) {
-      fetch("/api/data/users")
+      fetch("/api/data/microscholar-users")
         .then((r) => {
           if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
           return r.json();

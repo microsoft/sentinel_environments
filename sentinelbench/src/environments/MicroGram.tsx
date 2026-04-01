@@ -167,9 +167,9 @@ const MicroGram = () => {
   }, [users, toMicroGramUser]);
 
   const selfUser = useMemo(() => {
-    const raw = Object.values(users).find((u: any) => u.isSelf);
+    const raw = config?.selfUser;
     return raw ? toMicroGramUser(raw as Record<string, any>) : undefined;
-  }, [users, toMicroGramUser]);
+  }, [config, toMicroGramUser]);
 
   const MICROGRAM_USERS = useMemo(() =>
     Object.values(users)

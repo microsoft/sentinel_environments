@@ -45,6 +45,7 @@ export interface ApiDinMessage {
 export interface ApiDinConversation {
   id: string;
   participantIds: string[];
+  participants?: { id: string; name: string; avatarUrl: string }[];
   unreadCount: number;
   lastMessage: string;
   messages: ApiDinMessage[];
@@ -77,33 +78,6 @@ export interface ApiJob {
   order: number;
 }
 
-export interface ApiDinUser {
-  id: string;
-  name: string;
-  username?: string;
-  email?: string;
-  avatarUrl?: string;
-  bannerUrl?: string;
-  bio?: string;
-  isSelf?: boolean;
-  jobTitle?: string;
-  location?: string;
-  interests?: string[];
-  microdin?: {
-    company: string;
-    companyId: string;
-    industry?: string;
-    connections?: number;
-    profileViews?: number;
-  };
-  scholar?: {
-    title?: string;
-    affiliation?: string;
-    field?: string;
-  };
-  [key: string]: unknown;
-}
-
 export interface ApiDinCompany {
   id: string;
   entityId: string;
@@ -122,6 +96,7 @@ export interface ApiDinCompany {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 export function useMicrodinData() {
@@ -130,7 +105,7 @@ export function useMicrodinData() {
   const [conversations, setConversations] = useState<ApiDinConversation[]>([]);
   const [notifications, setNotifications] = useState<ApiNotification[]>([]);
   const [jobs, setJobs] = useState<ApiJob[]>([]);
-  const [users, setUsers] = useState<ApiDinUser[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [companies, setCompanies] = useState<ApiDinCompany[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -170,11 +145,11 @@ export function useMicrodinData() {
         .catch(() => {}); // Will retry on next poll
     }
 
-    // Fetch users once
+    // Fetch network users once
     if (!usersLoaded.current) {
-      fetch("/api/data/users")
+      fetch("/api/data/microdin-network")
         .then((r) => {
-          if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
+          if (!r.ok) throw new Error(`Network fetch failed: ${r.status}`);
           return r.json();
         })
         .then((data) => {

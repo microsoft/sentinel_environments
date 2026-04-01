@@ -30,6 +30,7 @@ from sentinel_api.catalogs import (
     MICROHUB_SETTINGS_CATALOG,
     MICROHUB_DEPLOYMENT_CATALOG,
     MICROHUB_PACKAGE_CATALOG,
+    USER_CATALOG,
 )
 
 if TYPE_CHECKING:
@@ -40,7 +41,21 @@ if TYPE_CHECKING:
 # Row builders — convert catalog rows (snake_case) to API format (camelCase)
 # ---------------------------------------------------------------------------
 
+def _resolve_user(user_id: str) -> dict:
+    """Return resolved user fields for a given user ID."""
+    u = USER_CATALOG.get(user_id, {})
+    return {"name": u.get("name", "Unknown"), "avatarUrl": u.get("avatarUrl", "")}
+
+
 def _build_issue_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["author_id"])
+    comments = raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"])
+    # Resolve comment authors
+    for c in comments:
+        if "authorId" in c or "author_id" in c:
+            cid = c.get("authorId", c.get("author_id", ""))
+            cr = _resolve_user(cid)
+            c["authorAvatarUrl"] = cr["avatarUrl"]
     return {
         "id": raw["id"],
         "number": raw["number"],
@@ -49,15 +64,23 @@ def _build_issue_row(raw: dict) -> dict:
         "state": raw["state"],
         "author": raw["author"],
         "authorId": raw["author_id"],
+        "authorAvatarUrl": resolved["avatarUrl"],
         "assignees": raw["assignees"] if isinstance(raw["assignees"], list) else json.loads(raw["assignees"]),
         "labelIds": raw["label_ids"] if isinstance(raw["label_ids"], list) else json.loads(raw["label_ids"]),
-        "comments": raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"]),
+        "comments": comments,
         "milestone": raw.get("milestone"),
         "order": raw["order"],
     }
 
 
 def _build_pr_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["author_id"])
+    comments = raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"])
+    for c in comments:
+        if "authorId" in c or "author_id" in c:
+            cid = c.get("authorId", c.get("author_id", ""))
+            cr = _resolve_user(cid)
+            c["authorAvatarUrl"] = cr["avatarUrl"]
     return {
         "id": raw["id"],
         "number": raw["number"],
@@ -66,6 +89,7 @@ def _build_pr_row(raw: dict) -> dict:
         "state": raw["state"],
         "author": raw["author"],
         "authorId": raw["author_id"],
+        "authorAvatarUrl": resolved["avatarUrl"],
         "assignees": raw["assignees"] if isinstance(raw["assignees"], list) else json.loads(raw["assignees"]),
         "reviewers": raw["reviewers"] if isinstance(raw["reviewers"], list) else json.loads(raw["reviewers"]),
         "labelIds": raw["label_ids"] if isinstance(raw["label_ids"], list) else json.loads(raw["label_ids"]),
@@ -77,12 +101,13 @@ def _build_pr_row(raw: dict) -> dict:
         "filesChanged": raw["files_changed"],
         "reviewStatus": raw["review_status"],
         "checks": raw["checks"] if isinstance(raw["checks"], list) else json.loads(raw["checks"]),
-        "comments": raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"]),
+        "comments": comments,
         "order": raw["order"],
     }
 
 
 def _build_commit_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["author_id"])
     return {
         "id": raw["id"],
         "sha": raw["sha"],
@@ -90,6 +115,7 @@ def _build_commit_row(raw: dict) -> dict:
         "description": raw.get("description"),
         "author": raw["author"],
         "authorId": raw["author_id"],
+        "authorAvatarUrl": resolved["avatarUrl"],
         "branch": raw["branch"],
         "additions": raw["additions"],
         "deletions": raw["deletions"],
@@ -115,6 +141,7 @@ def _build_file_row(raw: dict) -> dict:
 
 
 def _build_run_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["actor_id"])
     return {
         "id": raw["id"],
         "workflowId": raw["workflow_id"],
@@ -126,6 +153,7 @@ def _build_run_row(raw: dict) -> dict:
         "commit": {"sha": raw["commit_sha"], "message": raw["commit_message"]},
         "actor": raw["actor"],
         "actorId": raw["actor_id"],
+        "actorAvatarUrl": resolved["avatarUrl"],
         "event": raw["event"],
         "duration": raw.get("duration"),
         "jobs": raw["jobs"] if isinstance(raw["jobs"], list) else json.loads(raw["jobs"]),
@@ -134,6 +162,7 @@ def _build_run_row(raw: dict) -> dict:
 
 
 def _build_wiki_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["last_edited_by_id"])
     return {
         "id": raw["id"],
         "title": raw["title"],
@@ -141,6 +170,7 @@ def _build_wiki_row(raw: dict) -> dict:
         "content": raw["content"],
         "lastEditedBy": raw["last_edited_by"],
         "lastEditedById": raw["last_edited_by_id"],
+        "lastEditedByAvatarUrl": resolved["avatarUrl"],
         "order": raw["order"],
     }
 
@@ -159,11 +189,13 @@ def _build_project_row(raw: dict) -> dict:
 
 
 def _build_activity_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["actor_id"])
     return {
         "id": raw["id"],
         "type": raw["type"],
         "actor": raw["actor"],
         "actorId": raw["actor_id"],
+        "actorAvatarUrl": resolved["avatarUrl"],
         "repo": raw["repo"],
         "payload": raw["payload"] if isinstance(raw["payload"], dict) else json.loads(raw["payload"]),
         "order": raw["order"],
@@ -171,6 +203,7 @@ def _build_activity_row(raw: dict) -> dict:
 
 
 def _build_release_row(raw: dict) -> dict:
+    resolved = _resolve_user(raw["author_id"])
     return {
         "id": raw["id"],
         "tagName": raw["tag_name"],
@@ -178,6 +211,7 @@ def _build_release_row(raw: dict) -> dict:
         "body": raw["body"],
         "author": raw["author"],
         "authorId": raw["author_id"],
+        "authorAvatarUrl": resolved["avatarUrl"],
         "isLatest": bool(raw["is_latest"]),
         "isPrerelease": bool(raw["is_prerelease"]),
         "assets": raw["assets"] if isinstance(raw["assets"], list) else json.loads(raw["assets"]),

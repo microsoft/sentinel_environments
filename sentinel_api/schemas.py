@@ -33,10 +33,15 @@ class InitPayload(BaseModel):
 class ConfigResponse(BaseModel):
     environment: str
     duration: int
+    selfUser: Optional[dict] = None
 
 
 class UsersResponse(BaseModel):
     users: list[dict]
+
+
+class SelfUserResponse(BaseModel):
+    user: dict
 
 
 class EvaluateResponse(BaseModel):
@@ -222,6 +227,34 @@ class MicrodinJobsResponse(BaseModel):
 
 class MicrodinCompaniesResponse(BaseModel):
     companies: list[dict]
+
+
+class MicrodinNetworkResponse(BaseModel):
+    users: list[dict]
+
+
+# ---------------------------------------------------------------------------
+# Microgram
+# ---------------------------------------------------------------------------
+
+class MicrogramUsersResponse(BaseModel):
+    users: list[dict]
+
+
+# ---------------------------------------------------------------------------
+# Microhub
+# ---------------------------------------------------------------------------
+
+class MicrohubUsersResponse(BaseModel):
+    users: list[dict]
+
+
+# ---------------------------------------------------------------------------
+# Microscholar
+# ---------------------------------------------------------------------------
+
+class MicroscholarUsersResponse(BaseModel):
+    users: list[dict]
 
 
 # ---------------------------------------------------------------------------

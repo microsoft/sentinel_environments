@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 import { useMicrodinData } from "../hooks/useMicrodinData";
-import type { ApiDinUser, ApiDinCompany } from "../hooks/useMicrodinData";
+import type { ApiDinCompany } from "../hooks/useMicrodinData";
 
 export const TASK_ID_MICRODIN = "microdin";
 
@@ -265,7 +265,7 @@ interface ConnectionInvitation {
 // ============================================================================
 
 // Convert user to Person format
-const convertUserToPerson = (user: ApiDinUser, index: number): Person => {
+const convertUserToPerson = (user: any, index: number): Person => {
   // Generate pseudo-random but consistent connections count based on user ID
   const connectionCount = ((user.id.charCodeAt(4) || 0) * 17 + index * 23) % 400 + 50;
 
@@ -465,15 +465,15 @@ const MicroDin = () => {
 
   // Derive shared data from API
   const userMap = useMemo(() => {
-    const m = new Map<string, ApiDinUser>();
+    const m = new Map<string, any>();
     for (const u of apiUsers) m.set(u.id, u);
     return m;
   }, [apiUsers]);
 
-  const selfUser = useMemo(() => apiUsers.find(u => u.isSelf), [apiUsers]);
+  const selfUser = config?.selfUser as any;
 
   const allPeople = useMemo<Person[]>(
-    () => apiUsers.filter(u => !u.isSelf).map((u, i) => convertUserToPerson(u, i)),
+    () => apiUsers.filter((u: any) => !u.isSelf).map((u: any, i: number) => convertUserToPerson(u, i)),
     [apiUsers]
   );
 
@@ -507,18 +507,15 @@ const MicroDin = () => {
         content: p.content,
         timestamp: p.timestamp,
         likes: p.likes,
-        comments: p.comments.map(c => {
-          const cu = userMap.get(c.authorId);
-          return {
+        comments: p.comments.map(c => ({
             id: c.id,
-            author: cu?.name || 'Unknown',
+            author: c.authorName || 'Unknown',
             avatar: '👤',
-            avatarUrl: cu?.avatarUrl || '',
+            avatarUrl: c.authorAvatarUrl || '',
             content: c.text,
             timestamp: '',
             likes: c.likes,
-          };
-        }),
+        })),
         imageUrl: p.imageUrl,
         avatar: '👤',
         avatarUrl: p.authorAvatarUrl,
@@ -545,13 +542,12 @@ const MicroDin = () => {
 
   const contacts = useMemo<Contact[]>(() => {
     return apiConversations.map(conv => {
-      const otherUserId = conv.participantIds.find(id => id !== selfUser?.id) || conv.participantIds[0];
-      const user = userMap.get(otherUserId);
+      const otherParticipant = (conv.participants ?? []).find((p: any) => p.id !== selfUser?.id) || (conv.participants ?? [])[0];
       return {
         id: conv.id,
-        name: user?.name || 'Unknown',
+        name: otherParticipant?.name || 'Unknown',
         avatar: '👤',
-        avatarUrl: user?.avatarUrl || '',
+        avatarUrl: otherParticipant?.avatarUrl || '',
         status: 'online' as const,
         lastMessage: conv.lastMessage,
         unread: conv.unreadCount,

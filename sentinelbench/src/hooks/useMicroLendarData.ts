@@ -10,7 +10,7 @@ export interface ApiCalendarEvent {
   calendar: string;
   description?: string;
   location?: string;
-  attendees?: string[];
+  attendees?: { id: string; name: string; avatarUrl: string }[];
   isTask?: boolean;
   isCompleted?: boolean;
   isConflict?: boolean;
@@ -29,18 +29,17 @@ export interface ApiTask {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 export function useMicroLendarData() {
   const [events, setEvents] = useState<ApiCalendarEvent[]>([]);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const configLoaded = useRef(false);
-  const usersLoaded = useRef(false);
   const mismatch = useRef(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -64,20 +63,6 @@ export function useMicroLendarData() {
           }
           configLoaded.current = true;
           setConfig(data);
-        })
-        .catch(() => {});
-    }
-
-    // Fetch users once
-    if (!usersLoaded.current) {
-      fetch("/api/data/users")
-        .then((r) => {
-          if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
-          return r.json();
-        })
-        .then((data) => {
-          usersLoaded.current = true;
-          setUsers(data.users ?? []);
         })
         .catch(() => {});
     }
@@ -213,7 +198,6 @@ export function useMicroLendarData() {
   return {
     events,
     tasks,
-    users,
     config,
     isLoading,
     error,

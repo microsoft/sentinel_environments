@@ -26,17 +26,38 @@ if TYPE_CHECKING:
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _resolve_user(user_id: str) -> dict:
+    """Return resolved user fields for a given user ID."""
+    u = USER_CATALOG.get(user_id, {})
+    return {"name": u.get("name", "Unknown"), "avatarUrl": u.get("avatarUrl", "")}
+
+
 def _build_paper_row(paper_id: str) -> dict:
     """Build a paper dict from catalog data."""
     raw = MICROSCHOLAR_PAPER_CATALOG.get(paper_id)
     if raw is None:
         raise KeyError(f"Unknown paper_id: {paper_id!r}")
 
+    author_ids = json.loads(raw["author_ids"]) if isinstance(raw["author_ids"], str) else raw["author_ids"]
+
+    # Resolve author details
+    author_details = []
+    for aid in author_ids:
+        u = USER_CATALOG.get(aid, {})
+        scholar = u.get("scholar", {})
+        author_details.append({
+            "id": aid,
+            "name": u.get("name", "Unknown"),
+            "avatarUrl": u.get("avatarUrl", ""),
+            "affiliation": scholar.get("affiliation", ""),
+        })
+
     return {
         "id": raw["id"],
         "title": raw["title"],
         "titleHtml": raw["title_html"],
-        "authorIds": json.loads(raw["author_ids"]) if isinstance(raw["author_ids"], str) else raw["author_ids"],
+        "authorIds": author_ids,
+        "authorDetails": author_details,
         "authors": raw["authors"],
         "source": raw["source"],
         "year": raw["year"],
@@ -70,9 +91,15 @@ def _build_alert_row(alert_id: str) -> dict:
 
 def _build_coauthor_row(coauthor: dict) -> dict:
     """Build a coauthor relationship dict from catalog data."""
+    r1 = _resolve_user(coauthor["author_id_1"])
+    r2 = _resolve_user(coauthor["author_id_2"])
     return {
         "authorId1": coauthor["author_id_1"],
+        "author1Name": r1["name"],
+        "author1AvatarUrl": r1["avatarUrl"],
         "authorId2": coauthor["author_id_2"],
+        "author2Name": r2["name"],
+        "author2AvatarUrl": r2["avatarUrl"],
         "sharedPapers": json.loads(coauthor["shared_papers"]) if isinstance(coauthor["shared_papers"], str) else coauthor["shared_papers"],
         "order": coauthor["order"],
     }

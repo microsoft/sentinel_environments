@@ -24,6 +24,7 @@ export interface ApiConversation {
   type: "direct" | "group" | "meeting" | "channel";
   name: string;
   participantIds: string[];
+  participants?: { id: string; name: string; avatarUrl: string }[];
   avatarColor?: string;
   teamId?: string;
   isPinned: boolean;
@@ -46,6 +47,7 @@ export interface ApiTeam {
   avatarInitials: string;
   memberCount: number;
   memberIds: string[];
+  members?: { id: string; name: string; avatarUrl: string }[];
   ownerId: string;
   channels: {
     id: string;
@@ -68,21 +70,10 @@ export interface ApiCall {
   order: number;
 }
 
-export interface ApiUser {
-  id: string;
-  name: string;
-  username?: string;
-  email?: string;
-  avatarUrl?: string;
-  jobTitle?: string;
-  location?: string;
-  bio?: string;
-  isSelf?: boolean;
-}
-
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: any;
 }
 
 type ReadOverrides = Map<string, boolean>;
@@ -92,7 +83,6 @@ export function useMicrochatData() {
   const [conversations, setConversations] = useState<ApiConversation[]>([]);
   const [teams, setTeams] = useState<ApiTeam[]>([]);
   const [calls, setCalls] = useState<ApiCall[]>([]);
-  const [users, setUsers] = useState<ApiUser[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -141,16 +131,11 @@ export function useMicrochatData() {
           if (!r.ok) throw new Error(`Calls fetch failed: ${r.status}`);
           return r.json();
         }),
-        fetch("/api/data/users").then((r) => {
-          if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
-          return r.json();
-        }),
       ])
-        .then(([teamsData, callsData, usersData]) => {
+        .then(([teamsData, callsData]) => {
           staticLoaded.current = true;
           setTeams(teamsData.teams ?? []);
           setCalls(callsData.calls ?? []);
-          setUsers(usersData.users ?? []);
         })
         .catch(() => {}); // Will retry on next poll
     }
@@ -247,7 +232,6 @@ export function useMicrochatData() {
     conversations,
     teams,
     calls,
-    users,
     config,
     isLoading,
     error,

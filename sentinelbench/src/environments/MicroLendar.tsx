@@ -118,7 +118,6 @@ const MicroLendar = () => {
   const {
     events: apiEvents,
     tasks: apiTasks,
-    users,
     config,
     isLoading: apiIsLoading,
     error,
@@ -130,32 +129,29 @@ const MicroLendar = () => {
     deleteTask: apiDeleteTask,
   } = useMicroLendarData();
 
-  // User helpers (derived from API data)
-  const currentUser = useMemo(() => {
-    return users.find((u: any) => u.isSelf) || users[0] || null;
-  }, [users]);
+  // User helpers (derived from config)
+  const currentUser = config?.selfUser || null;
 
-  const getAttendeeInfo = useCallback((userId: string): { name: string; initials: string; avatarUrl?: string; color: string } => {
-    const user = users.find((u: any) => u.id === userId);
-    if (!user) {
+  const getAttendeeInfo = useCallback((attendee: any): { name: string; initials: string; avatarUrl?: string; color: string } => {
+    if (!attendee || !attendee.name) {
       return { name: 'Unknown', initials: '?', color: '#9CA3AF' };
     }
 
-    const nameParts = user.name.split(' ');
+    const nameParts = attendee.name.split(' ');
     const initials = nameParts.length >= 2
       ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
-      : user.name[0];
+      : attendee.name[0];
 
     const colors = ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#14B8A6', '#3B82F6', '#8B5CF6', '#EC4899'];
-    const colorIndex = parseInt(userId.replace('user', ''), 10) % colors.length;
+    const colorIndex = parseInt((attendee.id || '').replace('user', ''), 10) % colors.length;
 
     return {
-      name: user.name,
+      name: attendee.name,
       initials: initials.toUpperCase(),
-      avatarUrl: user.avatarUrl,
+      avatarUrl: attendee.avatarUrl,
       color: colors[colorIndex],
     };
-  }, [users]);
+  }, []);
 
   // Map API data to local CalendarEvent/Task types (add client-only fields like rsvpStatus)
   const events: CalendarEvent[] = useMemo(() =>
@@ -1373,24 +1369,24 @@ const MicroLendar = () => {
                               </div>
                               {event.attendees && event.attendees.length > 0 && (
                                 <div className="flex -space-x-2">
-                                  {event.attendees.slice(0, 3).map(userId => {
-                                    const attendee = getAttendeeInfo(userId);
-                                    return attendee.avatarUrl ? (
+                                  {event.attendees.slice(0, 3).map((att: any) => {
+                                    const info = getAttendeeInfo(att);
+                                    return info.avatarUrl ? (
                                       <img
-                                        key={userId}
-                                        src={attendee.avatarUrl}
-                                        alt={attendee.name}
+                                        key={att.id}
+                                        src={info.avatarUrl}
+                                        alt={info.name}
                                         className="w-6 h-6 rounded-full object-cover border-2 border-white"
-                                        title={attendee.name}
+                                        title={info.name}
                                       />
                                     ) : (
                                       <div
-                                        key={userId}
+                                        key={att.id}
                                         className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
-                                        style={{ backgroundColor: attendee.color }}
-                                        title={attendee.name}
+                                        style={{ backgroundColor: info.color }}
+                                        title={info.name}
                                       >
-                                        {attendee.initials}
+                                        {info.initials}
                                       </div>
                                     );
                                   })}
@@ -2122,25 +2118,25 @@ const MicroLendar = () => {
                           </div>
                         </div>
                         {/* Other attendees */}
-                        {selectedEvent.attendees.map(userId => {
-                          const attendee = getAttendeeInfo(userId);
+                        {selectedEvent.attendees.map((att: any) => {
+                          const info = getAttendeeInfo(att);
                           return (
-                            <div key={userId} className="flex items-center gap-2">
-                              {attendee.avatarUrl ? (
+                            <div key={att.id} className="flex items-center gap-2">
+                              {info.avatarUrl ? (
                                 <img
-                                  src={attendee.avatarUrl}
-                                  alt={attendee.name}
+                                  src={info.avatarUrl}
+                                  alt={info.name}
                                   className="w-8 h-8 rounded-full object-cover"
                                 />
                               ) : (
                                 <div
                                   className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold"
-                                  style={{ backgroundColor: attendee.color }}
+                                  style={{ backgroundColor: info.color }}
                                 >
-                                  {attendee.initials}
+                                  {info.initials}
                                 </div>
                               )}
-                              <p className="text-sm">{attendee.name}</p>
+                              <p className="text-sm">{info.name}</p>
                             </div>
                           );
                         })}

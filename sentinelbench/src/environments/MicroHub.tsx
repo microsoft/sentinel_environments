@@ -276,7 +276,29 @@ const MicroHub = () => {
       }));
   }, [users]);
 
-  const selfUser = useMemo(() => microhubUsers.find(u => u.isSelf), [microhubUsers]);
+  const selfUser = useMemo(() => {
+    const raw = config?.selfUser;
+    if (!raw) return undefined;
+    return {
+      id: raw.id,
+      isSelf: true,
+      name: raw.name,
+      username: raw.username,
+      email: raw.email,
+      avatarUrl: raw.avatarUrl,
+      bio: raw.bio,
+      jobTitle: raw.jobTitle,
+      location: raw.location,
+      company: raw.microhub?.company,
+      website: raw.microhub?.website,
+      followers: raw.microhub?.followers ?? 0,
+      following: raw.microhub?.following ?? 0,
+      joinedDate: raw.microhub?.joinedDate ?? "",
+      pinnedRepos: raw.microhub?.pinnedRepos,
+      achievements: raw.microhub?.achievements,
+      contributionData: raw.microhub?.contributionData,
+    } as MicroHubUser;
+  }, [config]);
   const getUserByUsername = useCallback((username: string) => microhubUsers.find(u => u.username === username), [microhubUsers]);
 
   // Build file tree from flat files

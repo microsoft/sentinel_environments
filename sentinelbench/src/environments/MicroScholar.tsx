@@ -134,7 +134,10 @@ const MicroScholar = () => {
     [users, toScholarUser]
   );
 
-  const selfUser = useMemo(() => scholarUsers.find(u => u.isSelf), [scholarUsers]);
+  const selfUser = useMemo(() => {
+    const raw = config?.selfUser;
+    return raw?.scholar ? toScholarUser(raw) : scholarUsers.find(u => u.isSelf);
+  }, [config, toScholarUser, scholarUsers]);
   const user = selfUser;
 
   const getUserById = useCallback((id: string): ScholarUser | undefined => {
