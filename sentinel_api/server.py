@@ -16,7 +16,7 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 
@@ -379,7 +379,10 @@ async def play() -> JSONResponse:
 
 
 @app.get("/redirect")
-async def redirect(base_url: str = "http://localhost:5173") -> RedirectResponse:
+async def redirect(
+    request: Request,
+    frontend_url: Optional[str] = Query(None),
+) -> RedirectResponse:
     global _state
     session = _require_session()
 
@@ -393,7 +396,8 @@ async def redirect(base_url: str = "http://localhost:5173") -> RedirectResponse:
     session.start_wall_time = time.time()
     asyncio.create_task(_run_auto(session))
 
-    url = f"{base_url.rstrip('/')}/{session.environment}"
+    redirect_origin = frontend_url or f"{request.url.scheme}://{request.url.hostname}:5173"
+    url = f"{redirect_origin}/{session.environment}"
     return RedirectResponse(url=url, status_code=302)
 
 

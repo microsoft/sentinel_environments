@@ -11,11 +11,12 @@ import threading
 import time
 import traceback
 from pathlib import Path
+from urllib.parse import urlencode, urlparse, urlunparse
 
 import requests
 import yaml
 
-DEFAULT_HOST = "http://localhost:8000"
+DEFAULT_API_URL = "http://localhost:8000"
 
 
 def _raise_for_status_with_body(resp):
@@ -26,9 +27,9 @@ def _raise_for_status_with_body(resp):
         raise requests.HTTPError(f"{e}\n\nResponse body:\n{body}", response=resp) from e
 
 
-def _poll_until(host, target_states, valid_states=None):
+def _poll_until(api_url, target_states, valid_states=None):
     while True:
-        resp = requests.get(f"{host}/status")
+        resp = requests.get(f"{api_url}/status")
         _raise_for_status_with_body(resp)
         data = resp.json()
         if data["status"] in target_states:
@@ -38,15 +39,15 @@ def _poll_until(host, target_states, valid_states=None):
         time.sleep(1)
 
 
-def _startup(host):
+def _startup(api_url):
     # Always close any existing session first so we start clean,
     # regardless of what state the server is in (completed, ready, running, etc.)
-    resp = requests.get(f"{host}/status")
+    resp = requests.get(f"{api_url}/status")
     _raise_for_status_with_body(resp)
     if resp.json()["status"] != "preinit":
-        requests.get(f"{host}/close")
+        requests.get(f"{api_url}/close")
         time.sleep(1)
-    return _poll_until(host, target_states=["preinit"], valid_states=["stopping"])
+    return _poll_until(api_url, target_states=["preinit"], valid_states=["stopping"])
 
 
 def load_config(config_path):
@@ -63,14 +64,35 @@ def discover_tasks():
         yield scenario["environment"], scenario["id"], path
 
 
+def _build_task_url(api_url, frontend_url=None):
+    task_url = f"{api_url}/redirect"
+    if frontend_url:
+        api_parts = urlparse(api_url)
+        frontend_parts = urlparse(frontend_url)
+        # The agent must connect to the same hostname it uses for the frontend,
+        # but hit the API server's /redirect endpoint on the API port.
+        task_url = urlunparse(
+            (
+                frontend_parts.scheme or api_parts.scheme,
+                f"{frontend_parts.hostname}:{api_parts.port}" if api_parts.port else frontend_parts.hostname or api_parts.netloc,
+                "/redirect",
+                "",
+                urlencode({"frontend_url": frontend_url}),
+                "",
+            )
+        )
+    return task_url
+
+
 def run_task(config, task_json_file, task_result_folder):
-    host = config.get("host", DEFAULT_HOST)
+    api_url = config.get("api_url", DEFAULT_API_URL)
+    frontend_url = config.get("frontend_url")
 
     with open(task_json_file) as f:
         scenario = json.load(f)
 
     # 1. Close any existing session and wait for preinit
-    _startup(host)
+    _startup(api_url)
 
     # 2. Init the scenario
     init_payload = {
@@ -79,13 +101,13 @@ def run_task(config, task_json_file, task_result_folder):
         "eval_sql": scenario.get("eval_sql", ""),
         "events": scenario["events"],
     }
-    resp = requests.post(f"{host}/init", json=init_payload)
+    resp = requests.post(f"{api_url}/init", json=init_payload)
     _raise_for_status_with_body(resp)
     data = resp.json()
     assert data["status"] == "ready", f"Expected ready, got {data}"
 
     # 3. Build agent subprocess command, substituting __TASK_URL__ and __TASK_PROMPT__.
-    task_url = f"{host}/redirect"
+    task_url = _build_task_url(api_url, frontend_url)
     task_prompt = scenario.get("prompt", "")
     agent_cmd = config["agent_subprocess"]
 
@@ -126,7 +148,7 @@ def run_task(config, task_json_file, task_result_folder):
                 t.join()
 
     # 4. Evaluate and write results as JSON
-    resp = requests.post(f"{host}/evaluate")
+    resp = requests.post(f"{api_url}/evaluate")
     _raise_for_status_with_body(resp)
     result = resp.json()
 
@@ -137,12 +159,15 @@ def main():
     parser = argparse.ArgumentParser(description="SentinelBench eval harness.")
     parser.add_argument("run_name", help="Name of this evaluation run")
     parser.add_argument("--config", default="eval_config.yaml", help="Path to eval config YAML")
-    parser.add_argument("--host", default=DEFAULT_HOST, help="Sentinel API host")
+    parser.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
+    parser.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
     args = parser.parse_args()
 
     config = load_config(args.config)
-    if args.host != DEFAULT_HOST:
-        config["host"] = args.host
+    if args.api_url != DEFAULT_API_URL:
+        config["api_url"] = args.api_url
+    if args.frontend_url:
+        config["frontend_url"] = args.frontend_url
     results_root = Path("results") / args.run_name
 
     tasks = list(discover_tasks())
