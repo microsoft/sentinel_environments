@@ -24,7 +24,7 @@ export interface ApiConversation {
   type: "direct" | "group" | "meeting" | "channel";
   name: string;
   participantIds: string[];
-  participants?: { id: string; name: string; avatarUrl: string }[];
+  participants?: { id: string; name: string; avatarUrl: string; username?: string; jobTitle?: string }[];
   avatarColor?: string;
   teamId?: string;
   isPinned: boolean;
@@ -47,7 +47,7 @@ export interface ApiTeam {
   avatarInitials: string;
   memberCount: number;
   memberIds: string[];
-  members?: { id: string; name: string; avatarUrl: string }[];
+  members?: { id: string; name: string; avatarUrl: string; username?: string; jobTitle?: string }[];
   ownerId: string;
   channels: {
     id: string;

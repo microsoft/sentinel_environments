@@ -49,13 +49,16 @@ def _resolve_user(user_id: str) -> dict:
 
 def _build_issue_row(raw: dict) -> dict:
     resolved = _resolve_user(raw["author_id"])
-    comments = raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"])
-    # Resolve comment authors
-    for c in comments:
-        if "authorId" in c or "author_id" in c:
-            cid = c.get("authorId", c.get("author_id", ""))
+    raw_comments = raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"])
+    # Resolve comment authors (copy to avoid mutating catalog data)
+    comments = []
+    for c in raw_comments:
+        rc = dict(c)
+        if "authorId" in rc or "author_id" in rc:
+            cid = rc.get("authorId", rc.get("author_id", ""))
             cr = _resolve_user(cid)
-            c["authorAvatarUrl"] = cr["avatarUrl"]
+            rc["authorAvatarUrl"] = cr["avatarUrl"]
+        comments.append(rc)
     return {
         "id": raw["id"],
         "number": raw["number"],
@@ -75,12 +78,15 @@ def _build_issue_row(raw: dict) -> dict:
 
 def _build_pr_row(raw: dict) -> dict:
     resolved = _resolve_user(raw["author_id"])
-    comments = raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"])
-    for c in comments:
-        if "authorId" in c or "author_id" in c:
-            cid = c.get("authorId", c.get("author_id", ""))
+    raw_comments = raw["comments"] if isinstance(raw["comments"], list) else json.loads(raw["comments"])
+    comments = []
+    for c in raw_comments:
+        rc = dict(c)
+        if "authorId" in rc or "author_id" in rc:
+            cid = rc.get("authorId", rc.get("author_id", ""))
             cr = _resolve_user(cid)
-            c["authorAvatarUrl"] = cr["avatarUrl"]
+            rc["authorAvatarUrl"] = cr["avatarUrl"]
+        comments.append(rc)
     return {
         "id": raw["id"],
         "number": raw["number"],

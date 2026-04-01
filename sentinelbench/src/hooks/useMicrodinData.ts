@@ -13,7 +13,7 @@ export interface ApiPost {
   content: string;
   imageUrl?: string;
   likes: number;
-  comments: { id: string; authorId: string; text: string; likes: number }[];
+  comments: { id: string; authorId: string; authorName?: string; authorAvatarUrl?: string; text: string; likes: number }[];
   shares: number;
   isLiked: boolean;
   timestamp: string;

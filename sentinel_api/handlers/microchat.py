@@ -69,11 +69,28 @@ def _init_message_state(message_id: str, raw: dict) -> dict:
     }
 
 
+def _resolve_user(user_id: str) -> dict:
+    """Return resolved user fields for a given user ID."""
+    u = USER_CATALOG.get(user_id, {})
+    return {
+        "name": u.get("name", "Unknown"),
+        "avatarUrl": u.get("avatarUrl", ""),
+        "username": u.get("username", ""),
+        "jobTitle": u.get("jobTitle", ""),
+    }
+
+
 def _build_call_row(call_id: str) -> dict:
     raw = MICROCHAT_CALL_CATALOG.get(call_id)
     if raw is None:
         raise KeyError(f"Unknown call_id: {call_id!r}")
-    return dict(raw)
+    row = dict(raw)
+    uid = row.get("userId") or row.get("callerId") or ""
+    if uid:
+        resolved = _resolve_user(uid)
+        row["userName"] = resolved["name"]
+        row["userAvatarUrl"] = resolved["avatarUrl"]
+    return row
 
 
 # ---------------------------------------------------------------------------
@@ -136,14 +153,26 @@ def process_event(session: Session, event: dict) -> None:
         # Load all conversations and teams from catalogs
         if not session.microchat_conversations:
             for conv_data in MICROCHAT_CONVERSATION_CATALOG.values():
-                session.microchat_conversations.append(dict(conv_data))
+                row = dict(conv_data)
+                # Resolve participantIds to participants with name/avatar
+                if "participantIds" in row:
+                    row["participants"] = [
+                        {"id": uid, **_resolve_user(uid)} for uid in row["participantIds"]
+                    ]
+                session.microchat_conversations.append(row)
                 session.microchat_conversation_states[conv_data["id"]] = {
                     "isPinned": conv_data.get("isPinned", False),
                     "isMuted": conv_data.get("isMuted", False),
                 }
         if not session.microchat_teams:
             for team_data in MICROCHAT_TEAM_CATALOG.values():
-                session.microchat_teams.append(dict(team_data))
+                row = dict(team_data)
+                # Resolve memberIds to members with name/avatar
+                if "memberIds" in row:
+                    row["members"] = [
+                        {"id": uid, **_resolve_user(uid)} for uid in row["memberIds"]
+                    ]
+                session.microchat_teams.append(row)
         # Capture baseline after preload
         session.baseline_metrics = compute_current_metrics(session)
 

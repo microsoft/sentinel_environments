@@ -578,7 +578,7 @@ const MicroChat = () => {
 
   // Build a user map from resolved participants and members
   const allKnownUsers = useMemo(() => {
-    const map = new Map<string, { id: string; name: string; avatarUrl: string }>();
+    const map = new Map<string, { id: string; name: string; avatarUrl: string; username?: string; jobTitle?: string }>();
     for (const conv of apiConversations) {
       for (const p of conv.participants ?? []) {
         if (!map.has(p.id)) map.set(p.id, p);
@@ -886,7 +886,7 @@ const MicroChat = () => {
     (userId: string): UserProfile | undefined => {
       const u = allKnownUsers.get(userId);
       if (!u) return undefined;
-      return { id: u.id, name: u.name, username: "", email: "", avatarUrl: u.avatarUrl, jobTitle: "" };
+      return { id: u.id, name: u.name, username: u.username || "", email: "", avatarUrl: u.avatarUrl, jobTitle: u.jobTitle || "" };
     },
     [allKnownUsers]
   );

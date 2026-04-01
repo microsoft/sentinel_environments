@@ -7,11 +7,13 @@ import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 export interface ApiGramPost {
   id: string;
   authorId: string;
+  authorName?: string;
+  authorAvatarUrl?: string;
   imageUrl: string;
   caption: string;
   location: string;
   likes: number;
-  comments: { id: string; authorId: string; text: string; likes?: number }[];
+  comments: { id: string; authorId: string; authorName?: string; authorAvatarUrl?: string; text: string; likes?: number }[];
   isTargetPost: boolean;
   taskType: string | null;
   order: number;
@@ -22,6 +24,8 @@ export interface ApiGramPost {
 export interface ApiGramStory {
   id: string;
   authorId: string;
+  authorName?: string;
+  authorAvatarUrl?: string;
   mediaUrl: string;
   mediaType: string;
   order: number;
@@ -31,9 +35,10 @@ export interface ApiGramStory {
 export interface ApiGramMessage {
   id: string;
   participantIds: string[];
+  participants?: { id: string; name: string; avatarUrl: string }[];
   lastMessage: string;
   unreadCount: number;
-  messages: { id: string; senderId: string; text: string; isRead?: boolean; order: number }[];
+  messages: { id: string; senderId: string; senderName?: string; text: string; isRead?: boolean; order: number }[];
   order: number;
 }
 
@@ -41,6 +46,8 @@ export interface ApiGramActivity {
   id: string;
   type: string;
   actorId: string;
+  actorName?: string;
+  actorAvatarUrl?: string;
   targetPostId: string | null;
   text: string | null;
   order: number;

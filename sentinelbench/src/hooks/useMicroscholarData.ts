@@ -5,6 +5,7 @@ export interface ApiPaper {
   title: string;
   titleHtml: string;
   authorIds: string[];
+  authorDetails: { id: string; name: string; avatarUrl: string; affiliation: string }[];
   authors: string;
   source: string;
   year: number;
@@ -31,7 +32,11 @@ export interface ApiAlert {
 
 export interface ApiCoauthor {
   authorId1: string;
+  author1Name?: string;
+  author1AvatarUrl?: string;
   authorId2: string;
+  author2Name?: string;
+  author2AvatarUrl?: string;
   sharedPapers: string[];
   order: number;
 }
