@@ -1,0 +1,9 @@
+#
+# Shell command to run the agent subprocess.
+# The command should include the placeholders __TASK_URL__ and __TASK_PROMPT__,
+# which will be replaced with the actual task URL and prompt when the subprocess
+# is executed (and they will be automatically shell-escaped as needed).
+#
+
+host: http://localhost:8000
+agent_subprocess: "echo __TASK_URL__ __TASK_PROMPT__"

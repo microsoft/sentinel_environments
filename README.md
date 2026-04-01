@@ -150,6 +150,53 @@ uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000
 
 The frontend proxies API requests to `localhost:8000`, so the backend must be running for full functionality.
 
+## Running the Eval Harness
+
+The eval harness runs all benchmark tasks against an agent and collects results.
+
+### Setup
+
+1. Ensure the frontend and backend are running (navigate to `sentinelbench` and run 'npm run dev:full' to start both).
+2. Create an `eval_config.yaml` in your working directory:
+
+```yaml
+host: http://localhost:8000
+
+# Command to launch your agent. Placeholders:
+#   __TASK_URL__    - replaced with the task start URL (GET triggers simulation start + redirect)
+#   __TASK_PROMPT__ - replaced with the task's natural language prompt
+#
+# Use a list for direct execution, or a string for shell execution (placeholders are shell-escaped).
+agent_subprocess: ["your-agent-command", "--url", "__TASK_URL__", "--prompt", "__TASK_PROMPT__"]
+```
+
+### Running
+
+```bash
+python -m sentinel_api.eval_harness <run_name> [--config eval_config.yaml] [--host http://localhost:8000]
+```
+
+Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
+
+| File | Description |
+|------|-------------|
+| `results.json` | Evaluation result (`success`, `detail`) |
+| `output.txt` | Agent subprocess stdout/stderr |
+| `error.txt` | Harness error traceback (if the task failed to run) |
+
+Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be resumed after interruption.
+
+### Example
+
+```bash
+python -m sentinel_api.eval_harness my_first_run
+# Found 62 tasks. Results -> results/my_first_run
+#   Running micromail-inbox-absolute-active ...
+#   Running micromail-cc-absolute-active ...
+#   ...
+# Done.
+```
+
 ## System Requirements
 
 - **OS**: Linux (Ubuntu 20.04+), macOS, or Windows WSL2
