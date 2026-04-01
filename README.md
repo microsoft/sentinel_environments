@@ -156,8 +156,8 @@ The eval harness runs all benchmark tasks against an agent and collects results.
 
 ### Setup
 
-1. Ensure the frontend and backend are running (navigate to `sentinelbench` and run 'npm run dev:full' to start both).
-2. Create an `eval_config.yaml` in your working directory:
+1. In one terminal, ensure the frontend and backend are running (navigate to `sentinelbench` and run 'npm run dev:full' to start both).
+2. In another terminal, create an `eval_config.yaml` in your working directory (e.g, repo root) with the following content:
 
 ```yaml
 host: http://localhost:8000
