@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const API = "http://localhost:8000";
-const SCENARIO_PATH = "./sentinel_api/micromail/scenarios/micromail-attachment-absolute-active.json";
+const SCENARIO_PATH = "../sentinel_api/micromail/scenarios/micromail-attachment-absolute-active.json";
 
 async function apiGet(path: string) {
   const res = await fetch(`${API}${path}`);
@@ -80,7 +80,7 @@ test.describe("MicroMail E2E", () => {
     await page.waitForTimeout(3000);
 
     // All emails start unread - verify
-    let emails = (await apiGet("/data/emails")).emails;
+    let emails = (await apiGet("/data/micromail-emails")).emails;
     const allUnread = emails.every((e: { isRead: boolean }) => !e.isRead);
     expect(allUnread).toBe(true);
 
@@ -91,7 +91,7 @@ test.describe("MicroMail E2E", () => {
       await page.waitForTimeout(2000); // Wait for API call + poll
 
       // Check server state
-      emails = (await apiGet("/data/emails")).emails;
+      emails = (await apiGet("/data/micromail-emails")).emails;
       const anyRead = emails.some((e: { isRead: boolean }) => e.isRead);
       expect(anyRead).toBe(true);
     }

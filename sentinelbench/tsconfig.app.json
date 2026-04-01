@@ -8,7 +8,7 @@
     "skipLibCheck": true,
 
     /* Module resolution and interop */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -29,8 +29,14 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@data/*": ["../data/*"]
+    }
   },
-  "include": ["src"],
+  "include": ["src", "../data"],
   "exclude": ["node_modules"]
 }

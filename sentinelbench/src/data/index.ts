@@ -13,8 +13,8 @@
 // PROFILES (shared across all environments)
 // ============================================================================
 
-import users from './profiles/users.json';
-import entities from './profiles/entities.json';
+import users from '@data/catalogs/users.json';
+import entities from '@data/catalogs/entities.json';
 import type { UserProfile, Organization, OrganizationType } from './profiles/types';
 export * from './profiles/types';
 
@@ -57,73 +57,73 @@ export * from './content/microfy/types';
 // ============================================================================
 
 // MicroMail
-import micromailEmailsRaw from './content/micromail/emails.jsonl?raw';
-import micromailAttachmentsRaw from './content/micromail/attachments.jsonl?raw';
+import micromailEmailsRaw from '@data/catalogs/micromail/emails.jsonl?raw';
+import micromailAttachmentsRaw from '@data/catalogs/micromail/attachments.jsonl?raw';
 
 // MicroLendar
-import microlendarEventsRaw from './content/microlendar/events.jsonl?raw';
+import microlendarEventsRaw from '@data/catalogs/microlendar/events.jsonl?raw';
 
 // MicroGram
-import microgramPostsRaw from './content/microgram/posts.jsonl?raw';
-import microgramStoriesRaw from './content/microgram/stories.jsonl?raw';
-import microgramActivityRaw from './content/microgram/activity.jsonl?raw';
-import microgramMessagesRaw from './content/microgram/messages.jsonl?raw';
-import microgramSuggestionsRaw from './content/microgram/suggestions.jsonl?raw';
+import microgramPostsRaw from '@data/catalogs/microgram/posts.jsonl?raw';
+import microgramStoriesRaw from '@data/catalogs/microgram/stories.jsonl?raw';
+import microgramActivityRaw from '@data/catalogs/microgram/activity.jsonl?raw';
+import microgramMessagesRaw from '@data/catalogs/microgram/messages.jsonl?raw';
+import microgramSuggestionsRaw from '@data/catalogs/microgram/suggestions.jsonl?raw';
 
 // MicroHub
-import microhubRepositoryRaw from './content/microhub/repository.jsonl?raw';
-import microhubLabelsRaw from './content/microhub/labels.jsonl?raw';
-import microhubCommitsRaw from './content/microhub/commits.jsonl?raw';
-import microhubReleasesRaw from './content/microhub/releases.jsonl?raw';
-import microhubIssuesRaw from './content/microhub/issues.jsonl?raw';
-import microhubPrsRaw from './content/microhub/prs.jsonl?raw';
-import microhubDeploymentsRaw from './content/microhub/deployments.jsonl?raw';
-import microhubPackagesRaw from './content/microhub/packages.jsonl?raw';
-import microhubActivityRaw from './content/microhub/activity.jsonl?raw';
-import microhubFilesRaw from './content/microhub/files.jsonl?raw';
-import microhubWorkflowsRaw from './content/microhub/workflows.jsonl?raw';
-import microhubWorkflowRunsRaw from './content/microhub/workflow-runs.jsonl?raw';
-import microhubProjectsRaw from './content/microhub/projects.jsonl?raw';
-import microhubWikiRaw from './content/microhub/wiki.jsonl?raw';
-import microhubSecurityRaw from './content/microhub/security.jsonl?raw';
-import microhubCodeScanningRaw from './content/microhub/code-scanning.jsonl?raw';
-import microhubInsightsRaw from './content/microhub/insights.jsonl?raw';
-import microhubSettingsRaw from './content/microhub/settings.jsonl?raw';
+import microhubRepositoryRaw from '@data/catalogs/microhub/repository.jsonl?raw';
+import microhubLabelsRaw from '@data/catalogs/microhub/labels.jsonl?raw';
+import microhubCommitsRaw from '@data/catalogs/microhub/commits.jsonl?raw';
+import microhubReleasesRaw from '@data/catalogs/microhub/releases.jsonl?raw';
+import microhubIssuesRaw from '@data/catalogs/microhub/issues.jsonl?raw';
+import microhubPrsRaw from '@data/catalogs/microhub/prs.jsonl?raw';
+import microhubDeploymentsRaw from '@data/catalogs/microhub/deployments.jsonl?raw';
+import microhubPackagesRaw from '@data/catalogs/microhub/packages.jsonl?raw';
+import microhubActivityRaw from '@data/catalogs/microhub/activity.jsonl?raw';
+import microhubFilesRaw from '@data/catalogs/microhub/files.jsonl?raw';
+import microhubWorkflowsRaw from '@data/catalogs/microhub/workflows.jsonl?raw';
+import microhubWorkflowRunsRaw from '@data/catalogs/microhub/workflow-runs.jsonl?raw';
+import microhubProjectsRaw from '@data/catalogs/microhub/projects.jsonl?raw';
+import microhubWikiRaw from '@data/catalogs/microhub/wiki.jsonl?raw';
+import microhubSecurityRaw from '@data/catalogs/microhub/security.jsonl?raw';
+import microhubCodeScanningRaw from '@data/catalogs/microhub/code-scanning.jsonl?raw';
+import microhubInsightsRaw from '@data/catalogs/microhub/insights.jsonl?raw';
+import microhubSettingsRaw from '@data/catalogs/microhub/settings.jsonl?raw';
 
 // MicroScholar
-import microscholarPapersRaw from './content/microscholar/papers.jsonl?raw';
-import microscholarAlertsRaw from './content/microscholar/alerts.jsonl?raw';
-import microscholarCoauthorsRaw from './content/microscholar/coauthors.jsonl?raw';
+import microscholarPapersRaw from '@data/catalogs/microscholar/papers.jsonl?raw';
+import microscholarAlertsRaw from '@data/catalogs/microscholar/alerts.jsonl?raw';
+import microscholarCoauthorsRaw from '@data/catalogs/microscholar/coauthors.jsonl?raw';
 
 // MicroChat
-import microchatTeamsRaw from './content/microchat/teams.jsonl?raw';
-import microchatMessagesRaw from './content/microchat/messages.jsonl?raw';
-import microchatConversationsRaw from './content/microchat/conversations.jsonl?raw';
-import microchatCallsRaw from './content/microchat/calls.jsonl?raw';
+import microchatTeamsRaw from '@data/catalogs/microchat/teams.jsonl?raw';
+import microchatMessagesRaw from '@data/catalogs/microchat/messages.jsonl?raw';
+import microchatConversationsRaw from '@data/catalogs/microchat/conversations.jsonl?raw';
+import microchatCallsRaw from '@data/catalogs/microchat/calls.jsonl?raw';
 
 // MicroDin
-import microdinPostsRaw from './content/microdin/posts.jsonl?raw';
-import microdinConnectionsRaw from './content/microdin/connections.jsonl?raw';
-import microdinMessagesRaw from './content/microdin/messages.jsonl?raw';
-import microdinNotificationsRaw from './content/microdin/notifications.jsonl?raw';
-import microdinJobsRaw from './content/microdin/jobs.jsonl?raw';
+import microdinPostsRaw from '@data/catalogs/microdin/posts.jsonl?raw';
+import microdinConnectionsRaw from '@data/catalogs/microdin/connections.jsonl?raw';
+import microdinMessagesRaw from '@data/catalogs/microdin/messages.jsonl?raw';
+import microdinNotificationsRaw from '@data/catalogs/microdin/notifications.jsonl?raw';
+import microdinJobsRaw from '@data/catalogs/microdin/jobs.jsonl?raw';
 
 // MicroTube
-import microtubeVideosRaw from './content/microtube/videos.jsonl?raw';
-import microtubeChannelsRaw from './content/microtube/channels.jsonl?raw';
-import microtubeCommentsRaw from './content/microtube/comments.jsonl?raw';
-import microtubeNotificationsRaw from './content/microtube/notifications.jsonl?raw';
+import microtubeVideosRaw from '@data/catalogs/microtube/videos.jsonl?raw';
+import microtubeChannelsRaw from '@data/catalogs/microtube/channels.jsonl?raw';
+import microtubeCommentsRaw from '@data/catalogs/microtube/comments.jsonl?raw';
+import microtubeNotificationsRaw from '@data/catalogs/microtube/notifications.jsonl?raw';
 
 // MicroHood
-import microhoodStocksRaw from './content/microhood/stocks.jsonl?raw';
-import microhoodWatchlistRaw from './content/microhood/watchlist.jsonl?raw';
-import microhoodNewsRaw from './content/microhood/news.jsonl?raw';
-import microhoodPriceTraces from './content/microhood/stock_price_traces.json';
+import microhoodStocksRaw from '@data/catalogs/microhood/stocks.jsonl?raw';
+import microhoodWatchlistRaw from '@data/catalogs/microhood/watchlist.jsonl?raw';
+import microhoodNewsRaw from '@data/catalogs/microhood/news.jsonl?raw';
+import microhoodPriceTraces from '@data/catalogs/microhood/stock_price_traces.json';
 
 // MicroFy
-import microfyTracksRaw from './content/microfy/tracks.jsonl?raw';
-import microfyMoodsRaw from './content/microfy/moods.jsonl?raw';
-import microfyPlaylistsRaw from './content/microfy/playlists.jsonl?raw';
+import microfyTracksRaw from '@data/catalogs/microfy/tracks.jsonl?raw';
+import microfyMoodsRaw from '@data/catalogs/microfy/moods.jsonl?raw';
+import microfyPlaylistsRaw from '@data/catalogs/microfy/playlists.jsonl?raw';
 
 // ============================================================================
 // JSONL PARSER

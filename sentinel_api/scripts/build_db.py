@@ -2,9 +2,9 @@
 # run this once before starting the server. each environment gets its own .db file,
 # plus a shared.db for users and images.
 #
-# flow: sentinelbench/src/data/*.jsonl -> build_db.py -> sentinel_api/<env>/<env>.db
-# example: src/data/micromail/emails.jsonl -> build_db.py -> sentinel_api/micromail/micromail.db
-# example: src/data/users.jsonl -> build_db.py -> sentinel_api/shared.db
+# flow: data/catalogs/*.jsonl -> build_db.py -> sentinel_api/<env>/<env>.db
+# example: data/catalogs/micromail/emails.jsonl -> build_db.py -> sentinel_api/micromail/micromail.db
+# example: data/catalogs/users.json -> build_db.py -> sentinel_api/shared.db
 #
 # catalogs.py then loads these .db files into memory at server startup.
 from __future__ import annotations
@@ -14,8 +14,8 @@ import mimetypes
 import sqlite3
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent.parent          # SentinelBench/
-DATA_DIR = ROOT / "sentinelbench" / "src" / "data"
+ROOT = Path(__file__).resolve().parent.parent.parent          # repo root
+DATA_DIR = ROOT / "data"
 API_DIR = ROOT / "sentinel_api"
 
 MICROMAIL_DB = API_DIR / "micromail" / "micromail.db"
@@ -85,7 +85,7 @@ def build_micromail_db() -> None:
     conn.execute(MICROMAIL_ATTACHMENTS_DDL)
 
     # --- Emails ---
-    emails = _load_jsonl(DATA_DIR / "content" / "micromail" / "emails.jsonl")
+    emails = _load_jsonl(DATA_DIR / "catalogs" / "micromail" / "emails.jsonl")
     for e in emails:
         conn.execute(
             """INSERT INTO emails
@@ -113,7 +113,7 @@ def build_micromail_db() -> None:
     print(f"  emails: {len(emails)} rows")
 
     # --- Attachments ---
-    attachments = _load_jsonl(DATA_DIR / "content" / "micromail" / "attachments.jsonl")
+    attachments = _load_jsonl(DATA_DIR / "catalogs" / "micromail" / "attachments.jsonl")
     for a in attachments:
         conn.execute(
             "INSERT INTO attachments (id, email_id, name, size) VALUES (?,?,?,?)",
@@ -181,7 +181,7 @@ def build_microchat_db() -> None:
     conn.execute(MICROCHAT_MESSAGES_DDL)
     conn.execute(MICROCHAT_CALLS_DDL)
 
-    chat_dir = DATA_DIR / "content" / "microchat"
+    chat_dir = DATA_DIR / "catalogs" / "microchat"
 
     # --- Teams ---
     teams = _load_jsonl(chat_dir / "teams.jsonl")
@@ -328,7 +328,7 @@ def build_microdin_db() -> None:
     conn.execute(MICRODIN_JOBS_DDL)
     conn.execute(MICRODIN_COMPANIES_DDL)
 
-    din_dir = DATA_DIR / "content" / "microdin"
+    din_dir = DATA_DIR / "catalogs" / "microdin"
 
     # --- Posts ---
     posts = _load_jsonl(din_dir / "posts.jsonl")
@@ -451,7 +451,7 @@ def build_microdin_db() -> None:
     print(f"  jobs: {len(jobs)} rows")
 
     # --- Companies (from entities.json) ---
-    entities_path = DATA_DIR / "profiles" / "entities.json"
+    entities_path = DATA_DIR / "catalogs" / "entities.json"
     with open(entities_path, encoding="utf-8") as fh:
         entities = json.load(fh)
     company_count = 0
@@ -544,7 +544,7 @@ def build_microfy_db() -> None:
     conn.execute(MICROFY_MOODS_DDL)
     conn.execute(MICROFY_ARTISTS_DDL)
 
-    fy_dir = DATA_DIR / "content" / "microfy"
+    fy_dir = DATA_DIR / "catalogs" / "microfy"
 
     # --- Tracks ---
     tracks = _load_jsonl(fy_dir / "tracks.jsonl")
@@ -595,7 +595,7 @@ def build_microfy_db() -> None:
     print(f"  moods: {len(moods)} rows")
 
     # --- Artists (from entities.json) ---
-    entities_path = DATA_DIR / "profiles" / "entities.json"
+    entities_path = DATA_DIR / "catalogs" / "entities.json"
     with open(entities_path, encoding="utf-8") as fh:
         entities = json.load(fh)
     artist_count = 0
@@ -682,7 +682,7 @@ def build_microgram_db() -> None:
     conn.execute(MICROGRAM_ACTIVITY_DDL)
     conn.execute(MICROGRAM_SUGGESTIONS_DDL)
 
-    gram_dir = DATA_DIR / "content" / "microgram"
+    gram_dir = DATA_DIR / "catalogs" / "microgram"
 
     # --- Posts ---
     posts = _load_jsonl(gram_dir / "posts.jsonl")
@@ -826,7 +826,7 @@ def build_microhood_db() -> None:
     conn.execute(MICROHOOD_WATCHLIST_DDL)
     conn.execute(MICROHOOD_NEWS_DDL)
 
-    hood_dir = DATA_DIR / "content" / "microhood"
+    hood_dir = DATA_DIR / "catalogs" / "microhood"
 
     # --- Stocks ---
     stocks = _load_jsonl(hood_dir / "stocks.jsonl")
@@ -1158,7 +1158,7 @@ def build_microhub_db() -> None:
     ):
         conn.execute(ddl)
 
-    hub_dir = DATA_DIR / "content" / "microhub"
+    hub_dir = DATA_DIR / "catalogs" / "microhub"
 
     # --- Repository (single row, stored as JSON blob) ---
     repos = _load_jsonl(hub_dir / "repository.jsonl")
@@ -1556,7 +1556,7 @@ def build_microlendar_db() -> None:
 
     conn.execute(MICROLENDAR_EVENTS_DDL)
 
-    events_file = DATA_DIR / "content" / "microlendar" / "events.jsonl"
+    events_file = DATA_DIR / "catalogs" / "microlendar" / "events.jsonl"
     count = 0
     for line in events_file.read_text().splitlines():
         line = line.strip()
@@ -1649,7 +1649,7 @@ def build_microscholar_db() -> None:
     conn.execute(MICROSCHOLAR_COAUTHORS_DDL)
 
     # Papers
-    papers = _load_jsonl(DATA_DIR / "content" / "microscholar" / "papers.jsonl")
+    papers = _load_jsonl(DATA_DIR / "catalogs" / "microscholar" / "papers.jsonl")
     for p in papers:
         conn.execute(
             """INSERT INTO papers
@@ -1677,7 +1677,7 @@ def build_microscholar_db() -> None:
         )
 
     # Alerts
-    alerts = _load_jsonl(DATA_DIR / "content" / "microscholar" / "alerts.jsonl")
+    alerts = _load_jsonl(DATA_DIR / "catalogs" / "microscholar" / "alerts.jsonl")
     for a in alerts:
         conn.execute(
             """INSERT INTO alerts
@@ -1695,7 +1695,7 @@ def build_microscholar_db() -> None:
         )
 
     # Coauthors
-    coauthors = _load_jsonl(DATA_DIR / "content" / "microscholar" / "coauthors.jsonl")
+    coauthors = _load_jsonl(DATA_DIR / "catalogs" / "microscholar" / "coauthors.jsonl")
     for c in coauthors:
         conn.execute(
             """INSERT INTO coauthors
@@ -1799,7 +1799,7 @@ def build_microtube_db() -> None:
     conn.execute(MICROTUBE_NOTIFICATIONS_DDL)
 
     # Videos
-    videos = _load_jsonl(DATA_DIR / "content" / "microtube" / "videos.jsonl")
+    videos = _load_jsonl(DATA_DIR / "catalogs" / "microtube" / "videos.jsonl")
     for v in videos:
         conn.execute(
             """INSERT INTO videos
@@ -1829,7 +1829,7 @@ def build_microtube_db() -> None:
         )
 
     # Channels
-    channels = _load_jsonl(DATA_DIR / "content" / "microtube" / "channels.jsonl")
+    channels = _load_jsonl(DATA_DIR / "catalogs" / "microtube" / "channels.jsonl")
     for ch in channels:
         conn.execute(
             """INSERT INTO channels
@@ -1852,7 +1852,7 @@ def build_microtube_db() -> None:
         )
 
     # Comments
-    comments = _load_jsonl(DATA_DIR / "content" / "microtube" / "comments.jsonl")
+    comments = _load_jsonl(DATA_DIR / "catalogs" / "microtube" / "comments.jsonl")
     for c in comments:
         conn.execute(
             """INSERT INTO comments
@@ -1871,7 +1871,7 @@ def build_microtube_db() -> None:
         )
 
     # Notifications
-    notifications = _load_jsonl(DATA_DIR / "content" / "microtube" / "notifications.jsonl")
+    notifications = _load_jsonl(DATA_DIR / "catalogs" / "microtube" / "notifications.jsonl")
     for n in notifications:
         conn.execute(
             """INSERT INTO notifications
@@ -1912,7 +1912,7 @@ def build_shared_db() -> None:
     conn.execute(IMAGES_DDL)
 
     # --- Users ---
-    users_path = DATA_DIR / "profiles" / "users.json"
+    users_path = DATA_DIR / "catalogs" / "users.json"
     with open(users_path, encoding="utf-8") as fh:
         users = json.load(fh)
 
@@ -1924,7 +1924,7 @@ def build_shared_db() -> None:
     print(f"  users: {len(users)} rows")
 
     # --- Images ---
-    images_dir = DATA_DIR / "images" / "authors"
+    images_dir = DATA_DIR / "catalogs" / "author-photos"
     img_count = 0
     for p in sorted(images_dir.iterdir()):
         if p.name.startswith("."):

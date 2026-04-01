@@ -1,8 +1,11 @@
-# cli client that plays back a scenario json file against the running sentinel_api server.
-# drives the simulation lifecycle: /close (reset) -> /init (load scenario) -> /advance (tick time).
-# used for local testing and automated benchmarking.
+# Scenario playback tool for local testing.
+# Drives the simulation lifecycle against a running server:
+#   /close (reset) -> /init (load scenario) -> /advance (tick loop) -> /evaluate
 #
-# flow: scenario.json -> run_simulation.py -> POST /init -> GET /advance (loop) -> final /status
+# This is NOT the agent evaluation harness. It replays events at accelerated
+# speed for verifying scenarios. The agent harness will live in evals/.
+#
+# flow: scenario.json -> run_simulation.py -> POST /init -> GET /advance (loop) -> /evaluate
 # example: python -m sentinel_api.run_simulation scenarios/micromail_001.json --speed 2
 import argparse
 import json
