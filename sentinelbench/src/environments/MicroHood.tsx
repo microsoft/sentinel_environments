@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useMicrohoodData } from "../hooks/useMicrohoodData";
-import { syntheticData } from "../data";
 import {
   Search,
   Bell,
@@ -53,15 +52,15 @@ export const TASK_ID_MICROHOOD = "microhood";
 const MicroHood = () => {
   // ===================== API DATA =====================
   const {
-    stocks, watchlist: apiWatchlist, news, portfolio, config,
+    stocks, watchlist: apiWatchlist, news, portfolio, users, config,
     isLoading, error,
     placeOrder, toggleWatchlist: apiToggleWatchlist,
   } = useMicrohoodData();
 
-  // Get current user from users.json
+  // Get current user from API
   const currentUser = useMemo(() => {
-    return syntheticData.users.find(u => u.isSelf) || syntheticData.users[0];
-  }, []);
+    return users.find((u: any) => u.isSelf) || users[0] || { name: "User", username: "user", avatarUrl: "" };
+  }, [users]);
 
   // ===================== DERIVED FROM API =====================
   const microhoodDuration = config?.duration ?? 120;
@@ -1309,7 +1308,7 @@ const MicroHood = () => {
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                     <span className="text-white font-bold text-sm">
-                      {currentUser.name.split(" ").map(n => n[0]).join("")}
+                      {currentUser.name.split(" ").map((n: string) => n[0]).join("")}
                     </span>
                   </div>
                 )}

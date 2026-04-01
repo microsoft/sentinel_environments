@@ -32,11 +32,8 @@
     "noUncheckedSideEffectImports": true,
 
     /* Path aliases */
-    "baseUrl": ".",
-    "paths": {
-      "@data/*": ["../data/*"]
-    }
+    "baseUrl": "."
   },
-  "include": ["src", "../data"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

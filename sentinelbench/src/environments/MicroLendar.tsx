@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
-import { getUserById, getSelfUser } from "../data";
 import { useMicroLendarData, ApiCalendarEvent, ApiTask } from "../hooks/useMicroLendarData";
 import {
   ChevronLeft,
@@ -99,36 +98,6 @@ const getEventDuration = (startTime: string, endTime?: string): string => {
   return `${Math.floor(durationMinutes / 60)}h ${durationMinutes % 60}m`;
 };
 
-// ============================================================================
-// USER HELPERS
-// ============================================================================
-
-// Get current user (self)
-const currentUser = getSelfUser();
-
-// Get user info for display
-const getAttendeeInfo = (userId: string): { name: string; initials: string; avatarUrl?: string; color: string } => {
-  const user = getUserById(userId);
-  if (!user) {
-    return { name: 'Unknown', initials: '?', color: '#9CA3AF' };
-  }
-
-  const nameParts = user.name.split(' ');
-  const initials = nameParts.length >= 2
-    ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
-    : user.name[0];
-
-  // Generate consistent color from user ID
-  const colors = ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#14B8A6', '#3B82F6', '#8B5CF6', '#EC4899'];
-  const colorIndex = parseInt(userId.replace('user', ''), 10) % colors.length;
-
-  return {
-    name: user.name,
-    initials: initials.toUpperCase(),
-    avatarUrl: user.avatarUrl,
-    color: colors[colorIndex],
-  };
-};
 
 // Generate initial calendars
 const generateInitialCalendars = (): CalendarCategory[] => [
@@ -149,6 +118,7 @@ const MicroLendar = () => {
   const {
     events: apiEvents,
     tasks: apiTasks,
+    users,
     config,
     isLoading: apiIsLoading,
     error,
@@ -159,6 +129,33 @@ const MicroLendar = () => {
     toggleTask: apiToggleTask,
     deleteTask: apiDeleteTask,
   } = useMicroLendarData();
+
+  // User helpers (derived from API data)
+  const currentUser = useMemo(() => {
+    return users.find((u: any) => u.isSelf) || users[0] || null;
+  }, [users]);
+
+  const getAttendeeInfo = useCallback((userId: string): { name: string; initials: string; avatarUrl?: string; color: string } => {
+    const user = users.find((u: any) => u.id === userId);
+    if (!user) {
+      return { name: 'Unknown', initials: '?', color: '#9CA3AF' };
+    }
+
+    const nameParts = user.name.split(' ');
+    const initials = nameParts.length >= 2
+      ? `${nameParts[0][0]}${nameParts[nameParts.length - 1][0]}`
+      : user.name[0];
+
+    const colors = ['#EF4444', '#F97316', '#EAB308', '#22C55E', '#14B8A6', '#3B82F6', '#8B5CF6', '#EC4899'];
+    const colorIndex = parseInt(userId.replace('user', ''), 10) % colors.length;
+
+    return {
+      name: user.name,
+      initials: initials.toUpperCase(),
+      avatarUrl: user.avatarUrl,
+      color: colors[colorIndex],
+    };
+  }, [users]);
 
   // Map API data to local CalendarEvent/Task types (add client-only fields like rsvpStatus)
   const events: CalendarEvent[] = useMemo(() =>
@@ -813,7 +810,7 @@ const MicroLendar = () => {
                   <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                    {currentUser ? currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'U'}
+                    {currentUser ? currentUser.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'U'}
                   </div>
                 )}
               </button>
@@ -826,7 +823,7 @@ const MicroLendar = () => {
                         <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover" />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                          {currentUser ? currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'U'}
+                          {currentUser ? currentUser.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'U'}
                         </div>
                       )}
                       <div>
@@ -2117,7 +2114,7 @@ const MicroLendar = () => {
                         {/* Current user (organizer) */}
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-xs font-semibold">
-                            {currentUser ? currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'U'}
+                            {currentUser ? currentUser.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'U'}
                           </div>
                           <div>
                             <p className="text-sm font-medium">{currentUser?.name || 'You'}</p>
@@ -2265,7 +2262,7 @@ const MicroLendar = () => {
                   <img src={currentUser.avatarUrl} alt={currentUser.name} className="w-20 h-20 rounded-full object-cover" />
                 ) : (
                   <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-2xl font-semibold">
-                    {currentUser.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    {currentUser.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                   </div>
                 )}
                 <div className="flex-1">
@@ -2280,7 +2277,7 @@ const MicroLendar = () => {
                 <div className="flex items-center gap-3"><Briefcase size={18} className="text-gray-400" /><div><p className="text-xs text-gray-400">Role</p><p className="text-sm">{currentUser.jobTitle}</p></div></div>
                 <div className="flex items-center gap-3"><MapPin size={18} className="text-gray-400" /><div><p className="text-xs text-gray-400">Location</p><p className="text-sm">{currentUser.location}</p></div></div>
                 {currentUser.bio && (<div className="pt-4 border-t border-gray-200"><p className="text-xs text-gray-400 mb-1">About</p><p className="text-sm text-gray-600">{currentUser.bio}</p></div>)}
-                {currentUser.interests && (<div className="pt-4 border-t border-gray-200"><p className="text-xs text-gray-400 mb-2">Interests</p><div className="flex flex-wrap gap-2">{currentUser.interests.map(interest => (<span key={interest} className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">{interest}</span>))}</div></div>)}
+                {currentUser.interests && (<div className="pt-4 border-t border-gray-200"><p className="text-xs text-gray-400 mb-2">Interests</p><div className="flex flex-wrap gap-2">{currentUser.interests.map((interest: string) => (<span key={interest} className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">{interest}</span>))}</div></div>)}
               </div>
               <div className="mt-6 pt-4 border-t border-gray-200">
                 <button onClick={() => setShowProfileModal(false)} className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>

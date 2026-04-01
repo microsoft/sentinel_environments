@@ -46,11 +46,13 @@ export function useMicrohoodData() {
   const [watchlist, setWatchlist] = useState<ApiWatchlistItem[]>([]);
   const [news, setNews] = useState<ApiNews[]>([]);
   const [portfolio, setPortfolio] = useState<ApiPortfolio | null>(null);
+  const [users, setUsers] = useState<any[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const configLoaded = useRef(false);
+  const usersLoaded = useRef(false);
   const mismatch = useRef(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -77,6 +79,20 @@ export function useMicrohoodData() {
           setConfig(data);
         })
         .catch(() => {}); // Will retry on next poll
+    }
+
+    // Fetch users once
+    if (!usersLoaded.current) {
+      fetch("/api/data/users")
+        .then((r) => {
+          if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
+          return r.json();
+        })
+        .then((data) => {
+          usersLoaded.current = true;
+          setUsers(data.users ?? []);
+        })
+        .catch(() => {});
     }
 
     // Poll stocks, portfolio, watchlist, news in parallel
@@ -168,6 +184,7 @@ export function useMicrohoodData() {
     watchlist,
     news,
     portfolio,
+    users,
     config,
     isLoading,
     error,

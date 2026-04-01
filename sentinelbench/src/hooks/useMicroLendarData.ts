@@ -34,11 +34,13 @@ export interface ApiTaskConfig {
 export function useMicroLendarData() {
   const [events, setEvents] = useState<ApiCalendarEvent[]>([]);
   const [tasks, setTasks] = useState<ApiTask[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const configLoaded = useRef(false);
+  const usersLoaded = useRef(false);
   const mismatch = useRef(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -62,6 +64,20 @@ export function useMicroLendarData() {
           }
           configLoaded.current = true;
           setConfig(data);
+        })
+        .catch(() => {});
+    }
+
+    // Fetch users once
+    if (!usersLoaded.current) {
+      fetch("/api/data/users")
+        .then((r) => {
+          if (!r.ok) throw new Error(`Users fetch failed: ${r.status}`);
+          return r.json();
+        })
+        .then((data) => {
+          usersLoaded.current = true;
+          setUsers(data.users ?? []);
         })
         .catch(() => {});
     }
@@ -197,6 +213,7 @@ export function useMicroLendarData() {
   return {
     events,
     tasks,
+    users,
     config,
     isLoading,
     error,

@@ -10,7 +10,6 @@ import { useNavigate } from "react-router-dom";
 import VariantSelector from "../components/VariantSelector";
 import MicroMailTaskSelector from "../components/MicroMailTaskSelector";
 import { routes, RouteConfig } from "../router/routes";
-import { getSelfUser } from "../data";
 
 // Authors data for the Authors window
 interface Author {
@@ -249,7 +248,17 @@ const iconAssetMap: Record<string, string> = {
 
 const Home2 = () => {
   const navigate = useNavigate();
-  const selfUser = getSelfUser();
+  const [selfUser, setSelfUser] = useState<any>(null);
+  useEffect(() => {
+    fetch("/api/data/users")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.users) {
+          setSelfUser(data.users.find((u: any) => u.isSelf) || data.users[0] || null);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const desktopRef = useRef<HTMLDivElement | null>(null);
   const startMenuWrapperRef = useRef<HTMLDivElement | null>(null);
   const infoWindowRef = useRef<HTMLDivElement | null>(null);

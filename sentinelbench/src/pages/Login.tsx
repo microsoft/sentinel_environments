@@ -1,6 +1,5 @@
 import { FormEvent, useEffect, useState, useRef } from "react";
 import { Navigate, useLocation, useSearchParams } from "react-router-dom";
-import { getSelfUser } from "../data";
 
 const SITE_PASSWORD = "microsoftaifrontiers-blogpost";
 
@@ -43,7 +42,18 @@ export default function Login() {
   const location = useLocation();
   const [bootPhase, setBootPhase] = useState<BootPhase>("boot");
   const [bootProgress, setBootProgress] = useState(0);
-  const selfUser = getSelfUser();
+  const [selfUser, setSelfUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("/api/data/users")
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (data?.users) {
+          setSelfUser(data.users.find((u: any) => u.isSelf) || data.users[0] || null);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Get the intended path from the state, or default to "/"
   const fromPathname = location.state?.from?.pathname || "/";
