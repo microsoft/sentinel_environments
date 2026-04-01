@@ -105,7 +105,7 @@
   "annotator_notes": "",
   "taxonomy": {
     "criteria": "objective",
-    "milestone_type": "relative_delta",
+    "milestone_type": "relative",
     "event_persistence": "persistent",
     "monitoring_approach": "active",
     "difficulty": "medium",

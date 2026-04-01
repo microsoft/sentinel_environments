@@ -52,15 +52,15 @@ export const TASK_ID_MICROHOOD = "microhood";
 const MicroHood = () => {
   // ===================== API DATA =====================
   const {
-    stocks, watchlist: apiWatchlist, news, portfolio, users, config,
+    stocks, watchlist: apiWatchlist, news, portfolio, config,
     isLoading, error,
     placeOrder, toggleWatchlist: apiToggleWatchlist,
   } = useMicrohoodData();
 
-  // Get current user from API
+  // Get current user from config
   const currentUser = useMemo(() => {
-    return users.find((u: any) => u.isSelf) || users[0] || { name: "User", username: "user", avatarUrl: "" };
-  }, [users]);
+    return config?.selfUser || { name: "User", username: "user", avatarUrl: "" };
+  }, [config?.selfUser]);
 
   // ===================== DERIVED FROM API =====================
   const microhoodDuration = config?.duration ?? 120;

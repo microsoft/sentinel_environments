@@ -9,10 +9,27 @@ import json
 import subprocess
 import sys
 import time
+from pathlib import Path
 import requests
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from sentinel_api.catalogs import (
+    MICROCHAT_CALL_CATALOG,
+    MICRODIN_MESSAGE_CATALOG,
+    MICROFY_PLAYLIST_CATALOG,
+    MICROGRAM_MESSAGE_CATALOG,
+    MICROTUBE_COMMENT_CATALOG,
+    MICROTUBE_VIDEO_CATALOG,
+    load_catalogs,
+)
 
 BASE = "http://localhost:8000"
 TIMEOUT = 5
+
+load_catalogs()
 
 
 def wait_for_server(max_wait=15):
@@ -71,6 +88,16 @@ def build_init_body(scenario):
         "duration": scenario["duration"],
         "eval_sql": scenario.get("eval_sql", ""),
         "events": scenario["events"],
+    }
+
+
+def build_manual_init_body(environment, events, duration=120, eval_sql="SELECT 1"):
+    """Build POST /init body for targeted branch coverage tests."""
+    return {
+        "environment": environment,
+        "duration": duration,
+        "eval_sql": eval_sql,
+        "events": events,
     }
 
 
@@ -632,6 +659,11 @@ def test_microhood():
         watchlist = get("/data/microhood-watchlist")
         wl_count = len(watchlist.get("watchlist", []))
         t.check("GET /data/microhood-watchlist", wl_count > 0, f"count={wl_count}")
+        if watchlist["watchlist"]:
+            w0 = watchlist["watchlist"][0]
+            has_watchlist_fields = all(k in w0 for k in ["price", "change", "changePercent"])
+            t.check("Watchlist has price interpolation fields", has_watchlist_fields,
+                f"keys={list(w0.keys())}")
 
         news = get("/data/microhood-news")
         news_count = len(news.get("news", []))
@@ -737,9 +769,33 @@ def test_microhub():
         commit_count = len(commits.get("commits", []))
         t.check("GET /data/microhub-commits", commit_count > 0, f"count={commit_count}")
 
+        runs = get("/data/microhub-runs")
+        run_count = len(runs.get("runs", []))
+        t.check("GET /data/microhub-runs", run_count > 0, f"count={run_count}")
+
+        workflows = get("/data/microhub-workflows")
+        workflow_count = len(workflows.get("workflows", []))
+        t.check("GET /data/microhub-workflows", workflow_count > 0, f"count={workflow_count}")
+
+        wiki = get("/data/microhub-wiki")
+        wiki_count = len(wiki.get("pages", []))
+        t.check("GET /data/microhub-wiki", wiki_count > 0, f"count={wiki_count}")
+
+        insights = get("/data/microhub-insights")
+        insight_count = len(insights.get("insights", []))
+        t.check("GET /data/microhub-insights", insight_count > 0, f"count={insight_count}")
+
         releases = get("/data/microhub-releases")
         t.check("GET /data/microhub-releases", "releases" in releases,
                 f"count={len(releases.get('releases', []))}")
+
+        security = get("/data/microhub-security")
+        security_count = len(security.get("advisories", []))
+        t.check("GET /data/microhub-security", security_count > 0, f"count={security_count}")
+
+        code_scanning = get("/data/microhub-code-scanning")
+        scan_count = len(code_scanning.get("alerts", []))
+        t.check("GET /data/microhub-code-scanning", scan_count > 0, f"count={scan_count}")
 
         activity = get("/data/microhub-activity")
         t.check("GET /data/microhub-activity", "activity" in activity,
@@ -1218,6 +1274,136 @@ def test_state_machine():
 
 
 # ---------------------------------------------------------------------------
+# Test: /play endpoint
+# ---------------------------------------------------------------------------
+def test_play_endpoint():
+    t = TestResult("Play endpoint")
+    ensure_closed()
+
+    try:
+        scenario = get("/scenarios/micromail-unread-absolute-passive")
+        init_resp = post("/init", build_init_body(scenario))
+        t.check("POST /init", init_resp["success"] and init_resp["status"] == "ready",
+                f"status={init_resp.get('status')}")
+
+        play_resp = get("/play")
+        t.check("GET /play", play_resp.get("success") and play_resp.get("status") == "running_auto",
+                f"status={play_resp.get('status')}, next_event_time={play_resp.get('next_event_time')}")
+
+        time.sleep(0.25)
+        status = get("/status")
+        t.check("/status reflects running or completed after /play",
+                status.get("status") in ("running_auto", "completed"),
+                f"status={status.get('status')}")
+
+        close = get("/close")
+        t.check("GET /close", close["success"] and close["status"] == "preinit")
+
+    except Exception as e:
+        t.check("EXCEPTION", False, str(e))
+        try:
+            get("/close")
+        except Exception:
+            pass
+
+    return t
+
+
+# ---------------------------------------------------------------------------
+# Test: event branch coverage for scenario-only event types
+# ---------------------------------------------------------------------------
+def test_event_branch_coverage():
+    t = TestResult("Event branch coverage")
+
+    try:
+        ensure_closed()
+        microchat_call_id = next(iter(MICROCHAT_CALL_CATALOG))
+        body = build_manual_init_body("microchat", [
+            {"time": 1, "type": "new_call", "payload": {"call_id": microchat_call_id}},
+        ])
+        post("/init", body)
+        get("/advance", params={"time": 2})
+        calls = get("/data/microchat-calls")
+        call_ids = {call["id"] for call in calls.get("calls", [])}
+        t.check("MicroChat new_call event loads call", microchat_call_id in call_ids,
+                f"count={len(call_ids)}")
+        get("/close")
+
+        microfy_playlist_id = next(iter(MICROFY_PLAYLIST_CATALOG))
+        body = build_manual_init_body("microfy", [
+            {"time": 1, "type": "new_playlist", "payload": {"playlist_id": microfy_playlist_id}},
+        ])
+        post("/init", body)
+        get("/advance", params={"time": 2})
+        playlists = get("/data/microfy-playlists")
+        playlist_ids = {playlist["id"] for playlist in playlists.get("playlists", [])}
+        t.check("MicroFy new_playlist event loads playlist", microfy_playlist_id in playlist_ids,
+                f"count={len(playlist_ids)}")
+        get("/close")
+
+        microdin_message_id = next(iter(MICRODIN_MESSAGE_CATALOG))
+        body = build_manual_init_body("microdin", [
+            {"time": 1, "type": "new_message", "payload": {"message_id": microdin_message_id}},
+        ])
+        post("/init", body)
+        get("/advance", params={"time": 2})
+        conversations = get("/data/microdin-conversations")
+        din_message_ids = {
+            message["id"]
+            for conversation in conversations.get("conversations", [])
+            for message in conversation.get("messages", [])
+        }
+        t.check("MicroDin new_message event loads conversation message", microdin_message_id in din_message_ids,
+                f"count={len(din_message_ids)}")
+        get("/close")
+
+        microgram_message_id = next(iter(MICROGRAM_MESSAGE_CATALOG))
+        body = build_manual_init_body("microgram", [
+            {"time": 1, "type": "new_message", "payload": {"message_id": microgram_message_id}},
+        ])
+        post("/init", body)
+        get("/advance", params={"time": 2})
+        gram_messages = get("/data/microgram-messages")
+        gram_message_ids = {message["id"] for message in gram_messages.get("messages", [])}
+        t.check("MicroGram new_message event loads direct message", microgram_message_id in gram_message_ids,
+                f"count={len(gram_message_ids)}")
+        get("/close")
+
+        microtube_video_id = next(iter(MICROTUBE_VIDEO_CATALOG))
+        body = build_manual_init_body("microtube", [
+            {"time": 1, "type": "new_video", "payload": {"video_id": microtube_video_id}},
+        ])
+        post("/init", body)
+        get("/advance", params={"time": 2})
+        videos = get("/data/microtube-videos")
+        video_ids = {video["id"] for video in videos.get("videos", [])}
+        t.check("MicroTube new_video event loads video", microtube_video_id in video_ids,
+                f"count={len(video_ids)}")
+        get("/close")
+
+        microtube_comment_id = next(iter(MICROTUBE_COMMENT_CATALOG))
+        body = build_manual_init_body("microtube", [
+            {"time": 1, "type": "new_comment", "payload": {"comment_id": microtube_comment_id}},
+        ])
+        post("/init", body)
+        get("/advance", params={"time": 2})
+        comments = get("/data/microtube-comments")
+        comment_ids = {comment["id"] for comment in comments.get("comments", [])}
+        t.check("MicroTube new_comment event loads comment", microtube_comment_id in comment_ids,
+                f"count={len(comment_ids)}")
+        get("/close")
+
+    except Exception as e:
+        t.check("EXCEPTION", False, str(e))
+        try:
+            get("/close")
+        except Exception:
+            pass
+
+    return t
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 def main():
@@ -1246,6 +1432,8 @@ def main():
         ("MicroScholar", test_microscholar),
         ("MicroTube", test_microtube),
         ("Actions", test_actions),
+        ("Play endpoint", test_play_endpoint),
+        ("Event branch coverage", test_event_branch_coverage),
         ("State Machine", test_state_machine),
     ]
 

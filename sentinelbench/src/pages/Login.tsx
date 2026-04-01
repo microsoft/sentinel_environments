@@ -45,11 +45,11 @@ export default function Login() {
   const [selfUser, setSelfUser] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/data/users")
+    fetch("/api/data/self-user")
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
-        if (data?.users) {
-          setSelfUser(data.users.find((u: any) => u.isSelf) || data.users[0] || null);
+        if (data?.user) {
+          setSelfUser(data.user);
         }
       })
       .catch(() => {});
