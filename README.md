@@ -139,8 +139,14 @@ Visit `http://localhost:5173` to interact with tasks manually.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r sentinel_api/requirements.txt
+
+# Build the SQLite databases from JSONL catalogs (required on first setup)
+python -m sentinel_api.scripts.build_db
+
 uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000
 ```
+
+> **Note:** The `.db` files are not checked into git. You must run `build_db` before starting the server. Re-run it whenever the JSONL catalogs in `data/catalogs/` change.
 
 The frontend proxies API requests to `localhost:8000`, so the backend must be running for full functionality.
 

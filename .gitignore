@@ -120,8 +120,9 @@ env.bak/
 .venv/
 venv.bak/
 
-# Database journals (but NOT .db files — those are tracked)
+# Database files (built from JSONL catalogs via build_db.py)
 # ---------------------------------------------------------
+*.db
 *.db-journal
 *.sqlite3
 *.sqlite
