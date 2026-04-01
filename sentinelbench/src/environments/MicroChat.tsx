@@ -1179,20 +1179,6 @@ const MicroChat = () => {
       .slice(0, 5);
   }, [mentionQuery, apiUsers]);
 
-  // ---------------------------------------------------------------------------
-  // MicroChat Logo Component
-  // ---------------------------------------------------------------------------
-  const MicroChatLogo = () => (
-    <svg viewBox="0 0 48 48" width="24" height="24">
-      {/* Purple background */}
-      <rect fill="#5B5FC7" width="48" height="48" rx="8"/>
-      {/* Chat icon - people collaboration */}
-      <path fill="white" d="M30 16c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4z"/>
-      <path fill="white" d="M36 20h-12c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V22c0-1.1-.9-2-2-2z"/>
-      <path fill="white" d="M18 14c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5z" opacity="0.8"/>
-      <path fill="white" d="M20 18H8c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V20c0-1.1-.9-2-2-2z" opacity="0.8"/>
-    </svg>
-  );
 
   const handleResetTask = () => {
     if (window.confirm("Are you sure you want to reset this task?")) {
@@ -2615,7 +2601,7 @@ const MicroChat = () => {
         <div className="flex items-center gap-4">
           {/* MicroChat logo */}
           <div className="flex items-center gap-2">
-            <MicroChatLogo />
+            <img src="desktop/teams-icon.png" alt="MicroChat" className="w-6 h-6 object-contain" />
           </div>
 
         </div>

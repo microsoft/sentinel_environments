@@ -519,11 +519,7 @@ const MicroHood = () => {
             {/* Logo */}
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#00C805] flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="black">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                  </svg>
-                </div>
+                <img src="desktop/microhood-icon.png" alt="MicroHood" className="w-8 h-8 object-contain" />
                 <span className="text-xl font-bold text-white">MicroHood</span>
               </div>
 

@@ -757,6 +757,10 @@ const MicroFy = () => {
           {/* Top panel: Home + Search */}
           <div className="bg-[#121212] rounded-lg px-5 py-4">
             <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-3 mb-2">
+                <img src="desktop/microfy-icon.png" alt="MicroFy" className="w-8 h-8 object-contain" />
+                <span className="text-white font-bold text-lg">MicroFy</span>
+              </div>
               <button onClick={handleHome} className="flex items-center gap-5 text-[#b3b3b3] hover:text-white transition">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z" />

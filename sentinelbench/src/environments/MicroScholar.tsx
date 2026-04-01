@@ -461,19 +461,6 @@ const MicroScholar = () => {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Logo Component (reused across views)
-  // ---------------------------------------------------------------------------
-  const MicroScholarLogo = ({ size = "xl" }: { size?: "sm" | "xl" }) => (
-    <h1 className={size === "xl" ? "text-5xl font-normal tracking-tight" : "text-xl font-normal"}>
-      <span className="text-[#4285F4]">M</span>
-      <span className="text-[#EA4335]">i</span>
-      <span className="text-[#FBBC04]">c</span>
-      <span className="text-[#4285F4]">r</span>
-      <span className="text-[#34A853]">o</span>
-      <span className={size === "xl" ? "text-gray-500 font-light ml-2" : "text-gray-500 font-light ml-1"}>Scholar</span>
-    </h1>
-  );
 
   // ---------------------------------------------------------------------------
   // Back Header Component (reused across views)
@@ -488,7 +475,7 @@ const MicroScholar = () => {
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Scholar</span>
         </button>
-        <MicroScholarLogo size="sm" />
+        <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
         <div className="w-32"></div>
       </div>
     </header>
@@ -537,7 +524,7 @@ const MicroScholar = () => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Scholar</span>
             </button>
-            <MicroScholarLogo size="sm" />
+            <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
             <div className="relative">
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
@@ -889,7 +876,7 @@ const MicroScholar = () => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to my profile</span>
             </button>
-            <MicroScholarLogo size="sm" />
+            <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
             <div className="w-32"></div>
           </div>
         </header>

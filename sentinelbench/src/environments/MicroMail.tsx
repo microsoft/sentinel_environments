@@ -835,17 +835,6 @@ const Micromail = () => {
 
   const handleHeaderAction = (message: string) => () => triggerToast(message, "info");
 
-  // ---------------------------------------------------------------------------
-  // MicroMail Logo Component
-  // ---------------------------------------------------------------------------
-  const MicroMailLogo = () => (
-    <svg viewBox="0 0 48 48" width="40" height="40">
-      {/* Blue background */}
-      <rect fill="#0078D4" width="48" height="48" rx="4"/>
-      {/* Email envelope design */}
-      <ellipse cx="24" cy="24" rx="12" ry="10" fill="none" stroke="white" strokeWidth="3"/>
-    </svg>
-  );
 
   // ---------------------------------------------------------------------------
   // Loading Gate
@@ -920,7 +909,7 @@ const Micromail = () => {
           <Menu size={20} />
         </button>
         <div className="flex items-center gap-3">
-          <MicroMailLogo />
+          <img src="desktop/micromail-icon.png" alt="MicroMail" className="w-10 h-10 object-contain" />
           <div>
             <p className="text-xs uppercase tracking-widest text-white/70">Micromail</p>
             <p className="text-base font-semibold">Email Workspace</p>

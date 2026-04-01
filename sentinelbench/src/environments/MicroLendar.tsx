@@ -291,21 +291,6 @@ const MicroLendar = () => {
   // ---------------------------------------------------------------------------
   // MicroLendar Logo Component
   // ---------------------------------------------------------------------------
-  const today = new Date().getDate();
-  const MicroLendarLogo = () => (
-    <svg viewBox="0 0 48 48" width="40" height="40">
-      {/* Blue outer shape */}
-      <path fill="#4285F4" d="M36,6H12C8.7,6,6,8.7,6,12v24c0,3.3,2.7,6,6,6h24c3.3,0,6-2.7,6-6V12C42,8.7,39.3,6,36,6z"/>
-      {/* White background */}
-      <path fill="#FFFFFF" d="M34,42H14c-4.4,0-8-3.6-8-8V14c0-4.4,3.6-8,8-8h20c4.4,0,8,3.6,8,8v20C42,38.4,38.4,42,34,42z"/>
-      {/* Red corner fold */}
-      <path fill="#EA4335" d="M36,6h-5l11,11V12C42,8.7,39.3,6,36,6z"/>
-      {/* Blue top bar */}
-      <path fill="#4285F4" d="M12,6h24c3.3,0,6,2.7,6,6v2H6v-2C6,8.7,8.7,6,12,6z"/>
-      {/* Date number */}
-      <text x="24" y="33" textAnchor="middle" fill="#1967D2" fontSize="18" fontWeight="500" fontFamily="sans-serif">{today}</text>
-    </svg>
-  );
 
   // ---------------------------------------------------------------------------
   // Handlers
@@ -741,7 +726,7 @@ const MicroLendar = () => {
             </button>
 
             <div className="flex items-center gap-2">
-              <MicroLendarLogo />
+              <img src="desktop/microlendar-icon.png" alt="MicroLendar" className="w-10 h-10 object-contain" />
               <span className="text-xl text-gray-700">MicroLendar</span>
             </div>
 
