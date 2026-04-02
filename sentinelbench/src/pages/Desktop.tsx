@@ -8,7 +8,6 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import VariantSelector from "../components/VariantSelector";
-import MicroMailTaskSelector from "../components/MicroMailTaskSelector";
 import { routes, RouteConfig } from "../router/routes";
 
 // Authors data for the Authors window
@@ -77,153 +76,25 @@ const INFO_ICON_ID = "sentinel-info";
 const AUTHORS_ICON_ID = "authors";
 const CITATION_ICON_ID = "citation";
 const PAPER_ICON_ID = "paper";
-const DOWNLOAD_ICON_ID = "download-benchmark";
 const LEADERBOARD_ICON_ID = "leaderboard";
-const RIGHT_SIDE_ICON_IDS: readonly string[] = [INFO_ICON_ID, CITATION_ICON_ID, PAPER_ICON_ID, DOWNLOAD_ICON_ID, LEADERBOARD_ICON_ID, AUTHORS_ICON_ID];
-
-// Environment task definitions for benchmark generator
-const ENVIRONMENT_TASKS: Record<string, { name: string; tasks: string[] }> = {
-  micromail: { name: "MicroMail", tasks: ["unread", "junk", "attachment", "flagged", "inbox"] },
-  microdin: { name: "MicroDin", tasks: ["posts", "connections", "messages", "notifications", "jobs"] },
-  microgram: { name: "MicroGram", tasks: ["like", "comment", "follow", "save", "story"] },
-  microfy: { name: "MicroFy", tasks: ["newreleases", "followers", "playlists", "likes", "plays"] },
-  microhood: { name: "MicroHood", tasks: ["price", "portfolio", "orders", "alerts", "watchlist"] },
-  microlendar: { name: "MicroLendar", tasks: ["events", "today", "work", "tasks", "conflict"] },
-  microscholar: { name: "MicroScholar", tasks: ["citation", "new_paper", "cited_by", "alert", "search"] },
-  microtube: { name: "MicroTube", tasks: ["subscribers", "views", "likes", "comments", "notifications"] },
-  microchat: { name: "MicroChat", tasks: ["messages", "mentions", "reactions", "calls", "files"] },
-  microhub: { name: "MicroHub", tasks: ["issues", "prs", "commits", "reviews", "notifications"] },
-};
-
-const CRITERIA_TYPES = ["absolute", "relative"] as const;
-const ACTIVITY_TYPES = ["passive", "active"] as const;
-
-const BASE_URL = "https://sentinel-bench.vercel.app";
-
-// Task descriptions for benchmark JSONL generation
-// Format: { [environment]: { [task]: { absolute: string, relative: string, action: string } } }
-const TASK_DESCRIPTIONS: Record<string, Record<string, { absolute: string; relative: string; action: string }>> = {
-  micromail: {
-    unread: { absolute: "Wait until there are at least 15 unread emails", relative: "Wait until at least 15 new unread emails arrive (relative to start)", action: "mark all as read" },
-    junk: { absolute: "Wait until there are at least 10 emails in Junk", relative: "Wait until at least 10 new Junk emails arrive (relative to start)", action: "clear the Junk folder" },
-    attachment: { absolute: "Wait until there are at least 10 emails with attachments", relative: "Wait until at least 10 new emails with attachments arrive (relative to start)", action: "open an attachment preview" },
-    flagged: { absolute: "Wait until there are at least 10 flagged emails", relative: "Wait until the flagged email count doubles (relative to start)", action: "archive all flagged emails" },
-    inbox: { absolute: "Wait until there are at least 20 emails in Inbox", relative: "Wait until the Inbox email count grows by 50% (relative to start)", action: "archive all Inbox emails" },
-  },
-  microdin: {
-    posts: { absolute: "Wait until you see a post from the target user", relative: "Wait until 1 new post from target user appears (relative to start)", action: "like the post" },
-    connections: { absolute: "Wait until there are 10 pending connection requests", relative: "Wait until 5 new connection requests arrive (relative to start)", action: "accept a connection request" },
-    messages: { absolute: "Wait until you have 10 unread messages", relative: "Wait until 5 new unread messages arrive (relative to start)", action: "reply to a message" },
-    notifications: { absolute: "Wait until you have 20 notifications", relative: "Wait until 10 new notifications arrive (relative to start)", action: "mark notifications as read" },
-    jobs: { absolute: "Wait until a matching job appears", relative: "Wait until 1 new matching job appears (relative to start)", action: "apply to the job" },
-  },
-  microgram: {
-    like: { absolute: "Wait until the post reaches 1000 likes", relative: "Wait until likes increase by 500 (relative to start)", action: "unlike the post" },
-    comment: { absolute: "Wait until the post has 100 comments", relative: "Wait until 50 new comments appear (relative to start)", action: "post a comment" },
-    follow: { absolute: "Wait until you have 1000 followers", relative: "Wait until followers increase by 100 (relative to start)", action: "follow back a user" },
-    save: { absolute: "Wait until you have 50 saved posts", relative: "Wait until 25 new posts are saved (relative to start)", action: "unsave a post" },
-    story: { absolute: "Wait until a story from target user appears", relative: "Wait until 1 new story from target appears (relative to start)", action: "react to the story" },
-  },
-  microfy: {
-    newreleases: { absolute: "Wait until a new release from target artist appears", relative: "Wait until 1 new release appears (relative to start)", action: "save the track" },
-    followers: { absolute: "Wait until you have 10000 followers", relative: "Wait until followers increase by 1000 (relative to start)", action: "follow back a user" },
-    playlists: { absolute: "Wait until you have 20 playlists", relative: "Wait until 5 new playlists are created (relative to start)", action: "add a track to playlist" },
-    likes: { absolute: "Wait until you have 500 liked songs", relative: "Wait until 100 new songs are liked (relative to start)", action: "unlike a song" },
-    plays: { absolute: "Wait until the track reaches 1M plays", relative: "Wait until plays increase by 100K (relative to start)", action: "add to queue" },
-  },
-  microhood: {
-    price: { absolute: "Wait until the stock reaches target price", relative: "Wait until price changes by 5% (relative to start)", action: "place a trade" },
-    portfolio: { absolute: "Wait until portfolio value reaches $10000", relative: "Wait until portfolio grows by 10% (relative to start)", action: "rebalance portfolio" },
-    orders: { absolute: "Wait until an order is filled", relative: "Wait until 1 new order is filled (relative to start)", action: "cancel an order" },
-    alerts: { absolute: "Wait until 10 alerts are triggered", relative: "Wait until 5 new alerts trigger (relative to start)", action: "dismiss an alert" },
-    watchlist: { absolute: "Wait until watchlist has 20 stocks", relative: "Wait until 5 new stocks are added (relative to start)", action: "remove from watchlist" },
-  },
-  microlendar: {
-    events: { absolute: "Wait until there are 10 events today", relative: "Wait until 5 new events are added (relative to start)", action: "delete an event" },
-    today: { absolute: "Wait until a meeting starts in 5 minutes", relative: "Wait until the next meeting is imminent", action: "join the meeting" },
-    work: { absolute: "Wait until there are 5 work meetings", relative: "Wait until 3 new work meetings appear (relative to start)", action: "decline a meeting" },
-    tasks: { absolute: "Wait until there are 10 tasks due today", relative: "Wait until 5 new tasks are added (relative to start)", action: "complete a task" },
-    conflict: { absolute: "Wait until a scheduling conflict appears", relative: "Wait until 1 new conflict appears (relative to start)", action: "resolve the conflict" },
-  },
-  microscholar: {
-    citation: { absolute: "Wait until paper reaches 1000 citations", relative: "Wait until citations increase by 500 (relative to start)", action: "open the cite modal" },
-    new_paper: { absolute: "Wait until 10 new papers are visible", relative: "Wait until 5 new papers appear (relative to start)", action: "save a paper" },
-    cited_by: { absolute: "Wait until there are 20 citing papers", relative: "Wait until 10 new citing papers appear (relative to start)", action: "open cited by list" },
-    alert: { absolute: "Wait until there are 10 alerts", relative: "Wait until 5 new alerts arrive (relative to start)", action: "create an alert" },
-    search: { absolute: "Wait until target paper appears in search", relative: "Wait until 1 new matching paper appears (relative to start)", action: "save the paper" },
-  },
-  microtube: {
-    subscribers: { absolute: "Wait until channel reaches 10K subscribers", relative: "Wait until subscribers increase by 1000 (relative to start)", action: "unsubscribe" },
-    views: { absolute: "Wait until video reaches 1M views", relative: "Wait until views increase by 100K (relative to start)", action: "add to playlist" },
-    likes: { absolute: "Wait until video reaches 100K likes", relative: "Wait until likes increase by 10K (relative to start)", action: "unlike the video" },
-    comments: { absolute: "Wait until video has 1000 comments", relative: "Wait until 500 new comments appear (relative to start)", action: "post a comment" },
-    notifications: { absolute: "Wait until there are 50 notifications", relative: "Wait until 25 new notifications arrive (relative to start)", action: "clear notifications" },
-  },
-  microchat: {
-    messages: { absolute: "Wait until there are 20 unread messages", relative: "Wait until 10 new messages arrive (relative to start)", action: "reply to a message" },
-    mentions: { absolute: "Wait until there are 10 mentions", relative: "Wait until 5 new mentions appear (relative to start)", action: "react to a mention" },
-    reactions: { absolute: "Wait until message has 50 reactions", relative: "Wait until 25 new reactions appear (relative to start)", action: "add a reaction" },
-    calls: { absolute: "Wait until there is an incoming call", relative: "Wait until 1 new missed call appears (relative to start)", action: "return the call" },
-    files: { absolute: "Wait until there are 10 shared files", relative: "Wait until 5 new files are shared (relative to start)", action: "download a file" },
-  },
-  microhub: {
-    issues: { absolute: "Wait until there are 100 open issues", relative: "Wait until 50 new issues are opened (relative to start)", action: "close an issue" },
-    prs: { absolute: "Wait until there are 20 open PRs", relative: "Wait until 10 new PRs are opened (relative to start)", action: "review a PR" },
-    commits: { absolute: "Wait until there are 500 commits", relative: "Wait until 50 new commits appear (relative to start)", action: "revert a commit" },
-    reviews: { absolute: "Wait until PR has 5 reviews", relative: "Wait until 3 new reviews appear (relative to start)", action: "approve the PR" },
-    notifications: { absolute: "Wait until there are 30 notifications", relative: "Wait until 15 new notifications arrive (relative to start)", action: "mark as read" },
-  },
-};
-
-const buildDescription = (env: string, task: string, criteria: string, activity: string): string => {
-  const taskDesc = TASK_DESCRIPTIONS[env]?.[task];
-  if (!taskDesc) return `Complete the ${task} task in ${env}`;
-
-  const prefix = criteria === "absolute" ? taskDesc.absolute : taskDesc.relative;
-  const suffix = activity === "active"
-    ? `, then ${taskDesc.action}.`
-    : ".";
-
-  return prefix + suffix;
-};
+const RIGHT_SIDE_ICON_IDS: readonly string[] = [INFO_ICON_ID, CITATION_ICON_ID, PAPER_ICON_ID, LEADERBOARD_ICON_ID, AUTHORS_ICON_ID];
 
 const ICON_HEIGHT_BASE = 88;
 const ICON_WIDTH_BASE = 88;
 const ICON_VERTICAL_GAP_BASE = 18;
 const ICON_HORIZONTAL_GAP_BASE = 28;
-const SHOW_OLD_TASKS_STORAGE_KEY = "showOldTasks";
-
 const pixelIconPalette: Record<
   string,
   { background: string; accent: string; glyph: string }
 > = {
-  reactor: { background: "#14356b", accent: "#f4c03f", glyph: "RX" },
-  "animal-mover": { background: "#0e5f32", accent: "#f5f0d0", glyph: "Farm" },
-  "button-presser": { background: "#3d2d6b", accent: "#f68f6c", glyph: "BTN" },
-  "linkedin-monitor": { background: "#0e76a8", accent: "#69c0ff", glyph: "in" },
-  "flight-monitor": { background: "#004c97", accent: "#a7d6ff", glyph: "✈" },
-  "github-watcher": { background: "#202020", accent: "#8cf1ff", glyph: "{}" },
-  "teams-monitor": { background: "#4b53bc", accent: "#b4c0ff", glyph: "T" },
   microchat: { background: "#464775", accent: "#b4c0ff", glyph: "💬" },
-  "news-checker": { background: "#8b1f1f", accent: "#ffddb5", glyph: "News" },
-  trading: { background: "#0b2f2f", accent: "#66ffb3", glyph: "$" },
-  photoshare: { background: "#f2994a", accent: "#ffe7c6", glyph: "📷" },
-  "google-scholar": { background: "#0b5394", accent: "#b4c7e7", glyph: "GS" },
   microscholar: { background: "#0b5394", accent: "#b4c7e7", glyph: "🎓" },
-  lincondin: { background: "#b3560b", accent: "#ffd9b3", glyph: "LD" },
-  calendar: { background: "#a61c3c", accent: "#ffe4e1", glyph: "Cal" },
   microlendar: { background: "#a61c3c", accent: "#ffe4e1", glyph: "📅" },
-  microhouses: { background: "#2a4d69", accent: "#71c6ff", glyph: "🏠" },
   micromail: { background: "#00578a", accent: "#9ad7ff", glyph: "✉" },
-  flickerchat: { background: "#571f88", accent: "#ff8ad4", glyph: "FC" },
-  spoofinfy: { background: "#1db954", accent: "#b2f7d3", glyph: "♫" },
-  "download-benchmark": { background: "#0d9488", accent: "#5eead4", glyph: "DL" },
   "leaderboard": { background: "#dc2626", accent: "#fca5a5", glyph: "LB" },
 };
 
 type IconPositions = Record<string, { x: number; y: number }>;
-
-const getBaseTaskTitle = (title: string) => title;
 
 const assetBase = `${import.meta.env.BASE_URL}desktop/`;
 const wallpaperUrl = `${assetBase}xp-wallpaper.jpg`;
@@ -242,11 +113,10 @@ const iconAssetMap: Record<string, string> = {
   authors: `${assetBase}authors-icon.png`,
   citation: `${assetBase}citations-icon.png`,
   paper: `${assetBase}pdf-icon.png`,
-  "download-benchmark": `${assetBase}download-icon.png`,
   leaderboard: `${assetBase}leaderboard-icon.png`,
 };
 
-const Home2 = () => {
+const Desktop = () => {
   const navigate = useNavigate();
   const desktopRef = useRef<HTMLDivElement | null>(null);
   const startMenuWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -262,44 +132,27 @@ const Home2 = () => {
   const [citationWindowPosition, setCitationWindowPosition] = useState<{ x: number; y: number } | null>(null);
   const [activeCitationFormat, setActiveCitationFormat] = useState<"bibtex" | "apa" | "mla" | "chicago">("bibtex");
 
-  // Benchmark generator state
-  const [benchmarkWindowOpen, setBenchmarkWindowOpen] = useState(false);
-  const [isBenchmarkMaximized, setIsBenchmarkMaximized] = useState(false);
-  const [benchmarkWindowPosition, setBenchmarkWindowPosition] = useState<{ x: number; y: number } | null>(null);
-  const [selectedEnvironments, setSelectedEnvironments] = useState<Set<string>>(new Set(Object.keys(ENVIRONMENT_TASKS)));
-
   // Leaderboard state
   const [leaderboardWindowOpen, setLeaderboardWindowOpen] = useState(false);
   const [isLeaderboardMaximized, setIsLeaderboardMaximized] = useState(false);
   const [leaderboardWindowPosition, setLeaderboardWindowPosition] = useState<{ x: number; y: number } | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [leaderboardFilter, setLeaderboardFilter] = useState<"all" | "duration" | "environment" | "criteria" | "activity">("all");
-  const [durationsInput, setDurationsInput] = useState("30, 60, 120, 300");
-  const [generatedJsonl, setGeneratedJsonl] = useState("");
-
   const [iconPositions, setIconPositions] = useState<IconPositions>({});
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
   const [activeTask, setActiveTask] = useState<DesktopIcon | null>(null);
   const [showVariantSelector, setShowVariantSelector] = useState(false);
-  const [showMicromailTaskSelector, setShowMicromailTaskSelector] = useState(false);
   const [clockValue, setClockValue] = useState(() => new Date());
   const [startMenuOpen, setStartMenuOpen] = useState(false);
-  const [adminConsoleEnabled, setAdminConsoleEnabled] = useState(() => {
-    return localStorage.getItem("adminConsoleEnabled") === "true";
-  });
-  const [degroupTaskVariants, setDegroupTaskVariants] = useState(() => {
-    return localStorage.getItem("degroupTaskVariants") === "true";
-  });
-  const [showOldTasks, setShowOldTasks] = useState(() => {
-    return localStorage.getItem(SHOW_OLD_TASKS_STORAGE_KEY) === "true";
-  });
+  const adminConsoleEnabled = localStorage.getItem("adminConsoleEnabled") === "true";
+  const degroupTaskVariants = localStorage.getItem("degroupTaskVariants") === "true";
+  const showOldTasks = localStorage.getItem("showOldTasks") === "true";
 
   // Window minimized states for taskbar
   const [infoWindowMinimized, setInfoWindowMinimized] = useState(false);
   const [authorsWindowMinimized, setAuthorsWindowMinimized] = useState(false);
   const [citationWindowMinimized, setCitationWindowMinimized] = useState(false);
-  const [benchmarkWindowMinimized, setBenchmarkWindowMinimized] = useState(false);
   const [leaderboardWindowMinimized, setLeaderboardWindowMinimized] = useState(false);
 
   // Context menu state
@@ -410,17 +263,6 @@ const Home2 = () => {
         close: () => { setCitationWindowOpen(false); setCitationWindowMinimized(false); }
       });
     }
-    if (benchmarkWindowOpen) {
-      windows.push({
-        id: 'benchmark',
-        title: 'Benchmark Generator',
-        icon: 'download-icon.png',
-        isMinimized: benchmarkWindowMinimized,
-        restore: () => setBenchmarkWindowMinimized(false),
-        minimize: () => setBenchmarkWindowMinimized(true),
-        close: () => { setBenchmarkWindowOpen(false); setBenchmarkWindowMinimized(false); }
-      });
-    }
     if (leaderboardWindowOpen) {
       windows.push({
         id: 'leaderboard',
@@ -438,7 +280,6 @@ const Home2 = () => {
     infoWindowOpen, infoWindowMinimized,
     authorsWindowOpen, authorsWindowMinimized,
     citationWindowOpen, citationWindowMinimized,
-    benchmarkWindowOpen, benchmarkWindowMinimized,
     leaderboardWindowOpen, leaderboardWindowMinimized
   ]);
 
@@ -491,14 +332,6 @@ const Home2 = () => {
       variants: [],
     };
 
-    const downloadIcon: DesktopIcon = {
-      id: DOWNLOAD_ICON_ID,
-      title: "Download",
-      baseTask: DOWNLOAD_ICON_ID,
-      emoji: "📥",
-      variants: [],
-    };
-
     const leaderboardIcon: DesktopIcon = {
       id: LEADERBOARD_ICON_ID,
       title: "Leaderboard",
@@ -522,7 +355,7 @@ const Home2 = () => {
         ],
       }));
 
-      return [infoIcon, citationIcon, paperIcon, downloadIcon, leaderboardIcon, ...icons, authorsIcon];
+      return [infoIcon, citationIcon, paperIcon, leaderboardIcon, ...icons, authorsIcon];
     }
 
     const grouped = new Map<string, RouteConfig[]>();
@@ -560,7 +393,7 @@ const Home2 = () => {
       }
 
       const main = variants[0];
-      const displayTitle = getBaseTaskTitle(main.title);
+      const displayTitle = main.title;
       mappedIcons.push({
         id: baseTask,
         title: displayTitle,
@@ -574,7 +407,7 @@ const Home2 = () => {
       });
     });
 
-    return [infoIcon, citationIcon, paperIcon, downloadIcon, leaderboardIcon, ...mappedIcons, authorsIcon];
+    return [infoIcon, citationIcon, paperIcon, leaderboardIcon, ...mappedIcons, authorsIcon];
   }, [degroupTaskVariants, visibleTaskRoutes]);
 
   const getDefaultPosition = useCallback((index: number, iconId?: string) => {
@@ -824,22 +657,10 @@ const Home2 = () => {
       return;
     }
 
-    if (icon.baseTask === DOWNLOAD_ICON_ID) {
-      setBenchmarkWindowOpen(true);
-      setBenchmarkWindowPosition(null);
-      setIsBenchmarkMaximized(false);
-      return;
-    }
-
     if (icon.baseTask === LEADERBOARD_ICON_ID) {
       setLeaderboardWindowOpen(true);
       setLeaderboardWindowPosition(null);
       setIsLeaderboardMaximized(false);
-      return;
-    }
-
-    if (icon.baseTask === "micromail") {
-      setShowMicromailTaskSelector(true);
       return;
     }
 
@@ -929,103 +750,6 @@ const Home2 = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [startMenuOpen]);
-
-  const toggleAdminConsole = () => {
-    const newValue = !adminConsoleEnabled;
-    setAdminConsoleEnabled(newValue);
-    localStorage.setItem("adminConsoleEnabled", newValue.toString());
-    window.dispatchEvent(
-      new CustomEvent("adminConsoleToggle", {
-        detail: { enabled: newValue },
-      })
-    );
-  };
-
-  const toggleDegroupTaskVariantsSetting = () => {
-    const newValue = !degroupTaskVariants;
-    setDegroupTaskVariants(newValue);
-    localStorage.setItem("degroupTaskVariants", newValue.toString());
-  };
-
-  const toggleShowOldTasksSetting = () => {
-    const newValue = !showOldTasks;
-    setShowOldTasks(newValue);
-    localStorage.setItem(SHOW_OLD_TASKS_STORAGE_KEY, newValue.toString());
-  };
-
-  // Benchmark generator functions
-  const toggleEnvironment = (env: string) => {
-    setSelectedEnvironments(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(env)) {
-        newSet.delete(env);
-      } else {
-        newSet.add(env);
-      }
-      return newSet;
-    });
-  };
-
-  const selectAllEnvironments = () => {
-    setSelectedEnvironments(new Set(Object.keys(ENVIRONMENT_TASKS)));
-  };
-
-  const deselectAllEnvironments = () => {
-    setSelectedEnvironments(new Set());
-  };
-
-  const parsedDurations = useMemo(() => {
-    return durationsInput
-      .split(/[,\s]+/)
-      .map(s => parseInt(s.trim(), 10))
-      .filter(n => !isNaN(n) && n > 0);
-  }, [durationsInput]);
-
-  const generateBenchmarkJsonl = () => {
-    const lines: string[] = [];
-
-    for (const envKey of selectedEnvironments) {
-      const env = ENVIRONMENT_TASKS[envKey];
-      if (!env) continue;
-
-      for (const task of env.tasks) {
-        for (const criteria of CRITERIA_TYPES) {
-          for (const activity of ACTIVITY_TYPES) {
-            for (const duration of parsedDurations) {
-              const taskId = `${envKey}-${task}-${criteria}-${activity}-${duration}`;
-              const url = `${BASE_URL}/${envKey}?task=${task}&criteria=${criteria}&activity=${activity}&duration=${duration}`;
-              const description = buildDescription(envKey, task, criteria, activity);
-
-              const entry = { task_id: taskId, url, description };
-              lines.push(JSON.stringify(entry));
-            }
-          }
-        }
-      }
-    }
-
-    setGeneratedJsonl(lines.join('\n'));
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedJsonl);
-  };
-
-  const downloadJsonl = () => {
-    const blob = new Blob([generatedJsonl], { type: 'application/jsonl' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'benchmark-tasks.jsonl';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const totalTaskCount = useMemo(() => {
-    return selectedEnvironments.size * 5 * 2 * 2 * parsedDurations.length;
-  }, [selectedEnvironments.size, parsedDurations.length]);
 
   const resetIconLayout = () => {
     // Reset icon positions to defaults
@@ -1332,134 +1056,7 @@ const Home2 = () => {
                   </span>
                 </div>
 
-                {/* Two-column layout */}
-                <div className="flex">
-                  {/* Left column - Programs (white background) */}
-                  <div
-                    className="w-1/2"
-                    style={{
-                      background: 'linear-gradient(to bottom, #ffffff 0%, #f5f5f5 100%)',
-                      borderRight: '1px solid #8eb4dc',
-                    }}
-                  >
-                    <div className="p-1.5">
-                      {/* Settings Section */}
-                      <button
-                        onClick={toggleAdminConsole}
-                        className="w-full flex items-center justify-between gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <svg className="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
-                          </svg>
-                          <span>Admin Console</span>
-                        </div>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${adminConsoleEnabled ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"} group-hover:bg-white/30`}>
-                          {adminConsoleEnabled ? "ON" : "OFF"}
-                        </span>
-                      </button>
-                      <button
-                        onClick={toggleDegroupTaskVariantsSetting}
-                        className="w-full flex items-center justify-between gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <svg className="w-5 h-5 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                          </svg>
-                          <span>Show Variants</span>
-                        </div>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${degroupTaskVariants ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"} group-hover:bg-white/30`}>
-                          {degroupTaskVariants ? "ON" : "OFF"}
-                        </span>
-                      </button>
-                      <button
-                        onClick={toggleShowOldTasksSetting}
-                        className="w-full flex items-center justify-between gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors group"
-                      >
-                        <div className="flex items-center gap-2">
-                          <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-                          </svg>
-                          <span>Old Tasks</span>
-                        </div>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${showOldTasks ? "bg-green-500 text-white" : "bg-gray-300 text-gray-600"} group-hover:bg-white/30`}>
-                          {showOldTasks ? "ON" : "OFF"}
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Right column - Places (blue tint background) */}
-                  <div
-                    className="w-1/2"
-                    style={{
-                      background: 'linear-gradient(to bottom, #d3e5fa 0%, #b9d5f5 100%)',
-                    }}
-                  >
-                    <div className="p-1.5">
-                      <button
-                        onClick={() => { setStartMenuOpen(false); setInfoWindowOpen(true); }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors"
-                      >
-                        <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-                        </svg>
-                        <span className="font-medium">Sentinel Info</span>
-                      </button>
-                      <button
-                        onClick={() => { setStartMenuOpen(false); setAuthorsWindowOpen(true); }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors"
-                      >
-                        <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-                        </svg>
-                        <span className="font-medium">Authors</span>
-                      </button>
-                      <button
-                        onClick={() => { setStartMenuOpen(false); setCitationWindowOpen(true); }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors"
-                      >
-                        <svg className="w-5 h-5 text-amber-700" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
-                        </svg>
-                        <span className="font-medium">Cite</span>
-                      </button>
-                      <button
-                        onClick={() => { setStartMenuOpen(false); setLeaderboardWindowOpen(true); }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors"
-                      >
-                        <svg className="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                        </svg>
-                        <span className="font-medium">Leaderboard</span>
-                      </button>
-                      <button
-                        onClick={() => { setStartMenuOpen(false); setBenchmarkWindowOpen(true); }}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-[#316ac5] hover:text-white rounded transition-colors"
-                      >
-                        <svg className="w-5 h-5 text-teal-600" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                        </svg>
-                        <span className="font-medium">Download</span>
-                      </button>
-
-                      {/* Separator */}
-                      <div className="my-2 border-t border-[#a0c4e8]" />
-
-                      <button
-                        onClick={resetIconLayout}
-                        className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm text-red-700 hover:bg-[#316ac5] hover:text-white rounded transition-colors"
-                      >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                        </svg>
-                        <span>Reset Layout</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom bar - Orange gradient like XP */}
+                {/* Bottom bar */}
                 <div
                   className="px-2 py-1.5 flex justify-end items-center gap-1"
                   style={{
@@ -1684,12 +1281,6 @@ const Home2 = () => {
           variants={activeTask.variants}
         />
       )}
-      <MicroMailTaskSelector
-        isOpen={showMicromailTaskSelector}
-        onClose={() => setShowMicromailTaskSelector(false)}
-        taskTitle="MicroMail"
-        taskIcon="📧"
-      />
       {authorsWindowOpen && !authorsWindowMinimized && (
         <div className="fixed inset-0 z-50">
           <div
@@ -1970,221 +1561,6 @@ const Home2 = () => {
         </div>
       )}
 
-      {/* Benchmark Generator Window */}
-      {benchmarkWindowOpen && !benchmarkWindowMinimized && (
-        <div className="fixed inset-0 z-50">
-          <div
-            className="absolute inset-0 bg-[rgba(7,13,37,0.55)]"
-            onClick={() => {
-              setBenchmarkWindowOpen(false);
-              setIsBenchmarkMaximized(false);
-              setBenchmarkWindowPosition(null);
-            }}
-          />
-          <div
-            className={`absolute ${isBenchmarkMaximized ? "w-[92vw] max-w-[1200px] h-[85vh]" : "w-[900px] h-[600px]"} bg-[#f5f2e9] border-2 border-[#0046ad] rounded-md shadow-2xl font-[Tahoma] text-sm flex flex-col`}
-            style={
-              isBenchmarkMaximized
-                ? { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }
-                : benchmarkWindowPosition
-                ? { left: benchmarkWindowPosition.x, top: benchmarkWindowPosition.y }
-                : { left: "50%", top: "50%", transform: "translate(-50%, -50%)" }
-            }
-          >
-            {/* Title Bar */}
-            <div
-              className={`bg-gradient-to-r from-[#0a5ad4] to-[#0f7df5] text-white flex items-center justify-between px-4 py-2 rounded-t select-none ${
-                isBenchmarkMaximized ? "" : "cursor-move"
-              }`}
-              onDoubleClick={() => setIsBenchmarkMaximized((prev) => !prev)}
-              onMouseDown={(event) => {
-                if (isBenchmarkMaximized) return;
-                event.preventDefault();
-                const initialPosition = benchmarkWindowPosition || {
-                  x: window.innerWidth / 2 - 450,
-                  y: window.innerHeight / 2 - 300,
-                };
-                const startX = event.clientX;
-                const startY = event.clientY;
-                const handleMove = (moveEvent: MouseEvent) => {
-                  const deltaX = moveEvent.clientX - startX;
-                  const deltaY = moveEvent.clientY - startY;
-                  const width = 900;
-                  const height = 600;
-                  const maxX = window.innerWidth - width - 8;
-                  const maxY = window.innerHeight - height - 8;
-                  setBenchmarkWindowPosition({
-                    x: Math.min(Math.max(8, initialPosition.x + deltaX), maxX),
-                    y: Math.min(Math.max(24, initialPosition.y + deltaY), maxY),
-                  });
-                };
-                const stopDrag = () => {
-                  window.removeEventListener("mousemove", handleMove);
-                  window.removeEventListener("mouseup", stopDrag);
-                };
-                window.addEventListener("mousemove", handleMove);
-                window.addEventListener("mouseup", stopDrag);
-              }}
-            >
-              <div className="flex items-center gap-2 font-semibold">
-                <span>Benchmark JSONL Generator</span>
-              </div>
-              <div className="flex items-center gap-1 text-xs">
-                <button
-                  onClick={() => setBenchmarkWindowMinimized(true)}
-                  className="w-6 h-6 flex items-center justify-center bg-[#0d63de] border border-white/40 text-white font-bold"
-                  aria-label="Minimize"
-                >
-                  _
-                </button>
-                <button
-                  onClick={() => setIsBenchmarkMaximized((prev) => !prev)}
-                  className="w-6 h-6 flex items-center justify-center bg-[#0d63de] border border-white/40 text-white font-bold"
-                  aria-label={isBenchmarkMaximized ? "Restore" : "Maximize"}
-                >
-                  □
-                </button>
-                <button
-                  onClick={() => {
-                    setBenchmarkWindowOpen(false);
-                    setIsBenchmarkMaximized(false);
-                    setBenchmarkWindowPosition(null);
-                  }}
-                  className="w-6 h-6 flex items-center justify-center bg-[#cf1b1b] border border-white/40 text-white font-bold"
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-auto p-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
-                {/* Left Column - Configuration */}
-                <div className="space-y-4">
-                  {/* Environments Section */}
-                  <div className="bg-white border border-gray-300 rounded p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-[#1b3e8b]">Environments</h3>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={selectAllEnvironments}
-                          className="text-xs px-2 py-1 text-[#0a5ad4] hover:bg-blue-50 rounded"
-                        >
-                          Select All
-                        </button>
-                        <button
-                          onClick={deselectAllEnvironments}
-                          className="text-xs px-2 py-1 text-gray-500 hover:bg-gray-100 rounded"
-                        >
-                          Clear
-                        </button>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      {Object.entries(ENVIRONMENT_TASKS).map(([key, env]) => (
-                        <label
-                          key={key}
-                          className={`flex items-center gap-2 p-2 rounded border cursor-pointer transition-colors text-xs ${
-                            selectedEnvironments.has(key)
-                              ? 'bg-blue-50 border-blue-300'
-                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedEnvironments.has(key)}
-                            onChange={() => toggleEnvironment(key)}
-                            className="w-3 h-3 text-[#0a5ad4] rounded"
-                          />
-                          <span className="font-medium text-gray-700">{env.name}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Tasks Info */}
-                  <div className="bg-[#e8e5dc] rounded p-3">
-                    <h3 className="font-semibold text-[#1b3e8b] mb-1 text-xs">Tasks per Environment</h3>
-                    <p className="text-xs text-gray-600 mb-1">
-                      5 task types × 2 criteria × 2 activity = 20 variants/env
-                    </p>
-                    <div className="text-xs text-gray-500 space-y-0.5">
-                      <p><strong>Criteria:</strong> absolute, relative</p>
-                      <p><strong>Activity:</strong> passive, active</p>
-                    </div>
-                  </div>
-
-                  {/* Durations Input */}
-                  <div className="bg-white border border-gray-300 rounded p-3">
-                    <h3 className="font-semibold text-[#1b3e8b] mb-2 text-xs">Durations (seconds)</h3>
-                    <input
-                      type="text"
-                      value={durationsInput}
-                      onChange={(e) => setDurationsInput(e.target.value)}
-                      placeholder="30, 60, 120, 300"
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-[#0a5ad4] focus:border-transparent"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Parsed: {parsedDurations.length > 0 ? parsedDurations.join(', ') : 'none'}
-                    </p>
-                  </div>
-
-                  {/* Generate Button */}
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={generateBenchmarkJsonl}
-                      disabled={selectedEnvironments.size === 0 || parsedDurations.length === 0}
-                      className="px-4 py-2 bg-[#0a5ad4] text-white font-semibold rounded hover:bg-[#0848a8] disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-sm"
-                    >
-                      Generate JSONL
-                    </button>
-                    <span className="text-xs text-gray-600">
-                      {totalTaskCount.toLocaleString()} total tasks
-                    </span>
-                  </div>
-                </div>
-
-                {/* Right Column - Output */}
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-semibold text-[#1b3e8b] text-xs">Generated Output</h3>
-                    {generatedJsonl && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={copyToClipboard}
-                          className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded flex items-center gap-1"
-                        >
-                          📋 Copy
-                        </button>
-                        <button
-                          onClick={downloadJsonl}
-                          className="text-xs px-2 py-1 bg-blue-100 hover:bg-blue-200 text-[#0a5ad4] rounded flex items-center gap-1"
-                        >
-                          ↓ Download
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <textarea
-                    value={generatedJsonl}
-                    readOnly
-                    placeholder="Click 'Generate JSONL' to create benchmark tasks..."
-                    className="flex-1 w-full p-2 font-mono text-xs bg-[#1e1e1e] text-[#4ec9b0] rounded border border-gray-700 resize-none min-h-[300px]"
-                  />
-                  {generatedJsonl && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {generatedJsonl.split('\n').length.toLocaleString()} lines generated
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Leaderboard Window */}
       {leaderboardWindowOpen && !leaderboardWindowMinimized && (
         <div className="fixed inset-0 z-50">
@@ -2325,15 +1701,6 @@ const Home2 = () => {
                   >
                     How to Participate
                   </button>
-                  <button
-                    onClick={() => {
-                      setLeaderboardWindowOpen(false);
-                      setBenchmarkWindowOpen(true);
-                    }}
-                    className="px-5 py-2 bg-gray-200 text-gray-700 rounded font-medium hover:bg-gray-300 transition-colors"
-                  >
-                    Generate Benchmark
-                  </button>
                 </div>
 
                 {/* What We'll Track */}
@@ -2386,10 +1753,9 @@ const Home2 = () => {
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-8 h-8 bg-[#0a5ad4] text-white rounded-full flex items-center justify-center font-bold">1</div>
                   <div>
-                    <h3 className="font-semibold text-[#1b3e8b] mb-1">Generate Benchmark JSONL</h3>
+                    <h3 className="font-semibold text-[#1b3e8b] mb-1">Get Benchmark Tasks</h3>
                     <p className="text-gray-600 mb-2">
-                      Use the <strong>Download</strong> app on the desktop to generate your benchmark task file.
-                      Select which environments and durations you want to test, then click "Generate JSONL".
+                      Download the benchmark task file from the SentinelBench repository.
                     </p>
                     <div className="bg-[#1e1e1e] text-[#4ec9b0] p-3 rounded font-mono text-xs">
                       {'{"task_id": "micromail-unread-absolute-passive-900", "url": "https://...", "description": "..."}'}
@@ -2662,4 +2028,4 @@ const Home2 = () => {
   );
 };
 
-export default Home2;
+export default Desktop;
