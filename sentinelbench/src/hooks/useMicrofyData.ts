@@ -13,6 +13,7 @@ export interface ApiTrack {
   duration: string;
   durationSeconds: number;
   description: string;
+  coverUrl: string;
   coverColor: string;
   coverInitials: string;
   genre: string;
@@ -32,6 +33,7 @@ export interface ApiPlaylist {
   ownerName?: string;
   trackIds: string[];
   followerCount?: number;
+  coverUrl?: string;
   coverColor?: string;
   coverInitials?: string;
   isPublic?: boolean;
@@ -51,6 +53,8 @@ export interface ApiArtist {
   id: string;
   entityId: string;
   name: string;
+  imageUrl: string;
+  bannerUrl: string;
 }
 
 export interface ApiTaskConfig {

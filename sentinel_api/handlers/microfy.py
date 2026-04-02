@@ -39,6 +39,7 @@ def _build_track_row(track_id: str) -> dict:
         "duration": raw.get("duration", "0:00"),
         "durationSeconds": raw.get("duration_seconds", 0),
         "description": raw.get("description", ""),
+        "coverUrl": f"images/microfy/tracks/{track_id}.webp",
         "coverColor": raw.get("cover_color", "#333"),
         "coverInitials": raw.get("cover_initials", ""),
         "genre": raw.get("genre", ""),

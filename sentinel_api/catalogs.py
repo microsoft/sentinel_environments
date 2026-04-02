@@ -212,17 +212,22 @@ def _load_microfy_catalogs() -> None:
         MICROFY_TRACK_CATALOG[d["id"]] = d
 
     for row in conn.execute("SELECT id, data FROM playlists"):
-        MICROFY_PLAYLIST_CATALOG[row["id"]] = json.loads(row["data"])
+        pl = json.loads(row["data"])
+        pl["coverUrl"] = f"images/microfy/playlists-logos/{row['id']}.webp"
+        MICROFY_PLAYLIST_CATALOG[row["id"]] = pl
 
     for row in conn.execute("SELECT id, data FROM moods"):
         MICROFY_MOOD_CATALOG[row["id"]] = json.loads(row["data"])
 
     for row in conn.execute("SELECT * FROM artists"):
         d = dict(row)
+        eid = d["entity_id"]
         MICROFY_ARTIST_CATALOG[d["id"]] = {
             "id": d["id"],
-            "entityId": d["entity_id"],
+            "entityId": eid,
             "name": d["name"],
+            "imageUrl": f"images/microfy/band-logos/{eid}.webp",
+            "bannerUrl": f"images/microfy/band-banners/{eid}_banner.webp",
         }
 
     conn.close()

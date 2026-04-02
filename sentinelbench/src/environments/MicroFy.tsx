@@ -77,7 +77,7 @@ const apiTrackToSong = (track: ApiTrack): Song => ({
   artistId: track.artistId,
   duration: track.duration,
   description: track.description || `A ${track.genre || 'music'} track`,
-  coverUrl: `/images/microfy/tracks/${track.id}.png`,
+  coverUrl: `/${track.coverUrl}`,
   tag: getTrackTag(track),
   audioUrl: `/audio/microfy/${track.id}.mp3`,
   lyrics: track.lyrics || "",
@@ -139,8 +139,8 @@ const MicroFy = () => {
     () => apiArtists.map((a) => ({
       id: a.id,
       name: a.name,
-      imageUrl: `/images/microfy/band-logos/${a.entityId}.png`,
-      bannerUrl: `/images/microfy/band-banners/${a.entityId}_banner.png`,
+      imageUrl: `/${a.imageUrl}`,
+      bannerUrl: `/${a.bannerUrl}`,
     })),
     [apiArtists]
   );
@@ -821,7 +821,7 @@ const MicroFy = () => {
                     onClick={() => handleSelectPlaylist(`public-${playlist.id}`)}
                   >
                     <img
-                      src={`/images/microfy/playlists-logos/${playlist.id}.png`}
+                      src={playlist.coverUrl ? `/${playlist.coverUrl}` : ''}
                       alt={playlist.name}
                       className="w-12 h-12 rounded object-cover"
                     />
@@ -1079,7 +1079,7 @@ const MicroFy = () => {
                     </div>
                   ) : selectedPlaylistId.startsWith('public-') ? (
                     <img
-                      src={`/images/microfy/playlists-logos/${selectedPlaylistId.replace('public-', '')}.png`}
+                      src={(() => { const pl = catalogPlaylists.find(p => `public-${p.id}` === selectedPlaylistId); return pl?.coverUrl ? `/${pl.coverUrl}` : ''; })()}
                       alt="Playlist cover"
                       className="w-48 h-48 rounded-lg shadow-2xl object-cover"
                     />

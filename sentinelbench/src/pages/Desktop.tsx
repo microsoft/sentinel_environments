@@ -21,37 +21,37 @@ const authorsData: Author[] = [
   {
     name: "Matheus Kunzler Maldaner",
     affiliation: "University of Florida",
-    photo: new URL("../../../data/catalogs/author-photos/matheus.jpeg", import.meta.url).href,
+    photo: "/author-photos/matheus.jpeg",
     profileUrl: "https://matheuskunzler.com",
   },
   {
     name: "Hussein Mozannar",
     affiliation: "Microsoft Research",
-    photo: new URL("../../../data/catalogs/author-photos/hussein.png", import.meta.url).href,
+    photo: "/author-photos/hussein.png",
     profileUrl: "https://husseinmozannar.github.io",
   },
   {
     name: "Adam Fourney",
     affiliation: "Microsoft Research",
-    photo: new URL("../../../data/catalogs/author-photos/adam.png", import.meta.url).href,
+    photo: "/author-photos/adam.png",
     profileUrl: "https://www.adamfourney.com",
   },
   {
     name: "Amanda Swearngin",
     affiliation: "Microsoft Research",
-    photo: new URL("../../../data/catalogs/author-photos/amanda.png", import.meta.url).href,
+    photo: "/author-photos/amanda.png",
     profileUrl: "https://amaswea.github.io",
   },
   {
     name: "Gagan Bansal",
     affiliation: "Microsoft Research",
-    photo: new URL("../../../data/catalogs/author-photos/gagan.png", import.meta.url).href,
+    photo: "/author-photos/gagan.png",
     profileUrl: "https://homes.cs.washington.edu/~bansalg/",
   },
   {
     name: "Maya Murad",
     affiliation: "Microsoft Research",
-    photo: new URL("../../../data/catalogs/author-photos/maya.png", import.meta.url).href,
+    photo: "/author-photos/maya.png",
     profileUrl: "https://www.mayamurad.com",
   },
 ];
