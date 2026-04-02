@@ -11,6 +11,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 3000, // 3MB limit
   },
   server: {
+    allowedHosts: ["host.docker.internal"],
     proxy: {
       "/api": {
         target: apiTarget,

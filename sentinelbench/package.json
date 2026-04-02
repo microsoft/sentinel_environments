@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "dev:api": "python3 -m uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000 --reload --app-dir ../",
     "dev:full": "concurrently \"npm run dev\" \"npm run dev:api\"",
     "dev:build": "vite build --watch",
