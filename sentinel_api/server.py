@@ -125,7 +125,6 @@ from sentinel_api.schemas import (
     MicrotubeVideoDetailResponse,
     MicrotubeVideosResponse,
     OrderResponse,
-    SelfUserResponse,
     StarResponse,
     StateChangeResponse,
     SuccessResponse,
@@ -502,12 +501,6 @@ async def evaluate() -> EvaluateResponse:
 async def data_users() -> UsersResponse:
     users = list(USER_CATALOG.values())
     return UsersResponse(users=users)
-
-
-@app.get("/data/self-user", response_model=SelfUserResponse)
-async def data_self_user() -> SelfUserResponse:
-    user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
-    return SelfUserResponse(user=user)
 
 
 # ---------------------------------------------------------------------------

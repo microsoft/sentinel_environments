@@ -1,10 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Suspense } from "react";
 import Desktop from "../pages/Desktop";
-import Login from "../pages/Login";
 import NotFound from "../pages/NotFound";
 import RouteErrorBoundary from "../components/RouteErrorBoundary";
-import RequireAuth from "../components/RequireAuth";
 import { routes } from "./routes";
 
 const uniqueRoutableRoutes = (() => {
@@ -19,26 +17,13 @@ const uniqueRoutableRoutes = (() => {
 
 export const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <Login />,
-    errorElement: <RouteErrorBoundary />,
-  },
-  {
     path: "/settings",
-    element: (
-      <RequireAuth>
-        <Desktop />
-      </RequireAuth>
-    ),
+    element: <Desktop />,
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/",
-    element: (
-      <RequireAuth>
-        <Desktop />
-      </RequireAuth>
-    ),
+    element: <Desktop />,
     errorElement: <RouteErrorBoundary />,
   },
   ...uniqueRoutableRoutes
@@ -47,22 +32,16 @@ export const router = createBrowserRouter([
       return {
         path: route.path,
         element: (
-          <RequireAuth>
-            <Suspense fallback={<div>Loading...</div>}>
-              <Component />
-            </Suspense>
-          </RequireAuth>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Component />
+          </Suspense>
         ),
         errorElement: <RouteErrorBoundary />,
       };
     }),
   {
     path: "*",
-    element: (
-      <RequireAuth>
-        <NotFound />
-      </RequireAuth>
-    ),
+    element: <NotFound />,
     errorElement: <RouteErrorBoundary />,
   },
 ]);

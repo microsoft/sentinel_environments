@@ -38,7 +38,6 @@ async function initAndAdvanceScenario(scenarioId: string) {
 
 async function authenticate(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await page.evaluate(() => localStorage.setItem("isAuthenticated", "true"));
 }
 
 type SmokeCase = {

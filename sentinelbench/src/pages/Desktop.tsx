@@ -248,17 +248,6 @@ const iconAssetMap: Record<string, string> = {
 
 const Home2 = () => {
   const navigate = useNavigate();
-  const [selfUser, setSelfUser] = useState<any>(null);
-  useEffect(() => {
-    fetch("/api/data/self-user")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (data?.user) {
-          setSelfUser(data.user);
-        }
-      })
-      .catch(() => {});
-  }, []);
   const desktopRef = useRef<HTMLDivElement | null>(null);
   const startMenuWrapperRef = useRef<HTMLDivElement | null>(null);
   const infoWindowRef = useRef<HTMLDivElement | null>(null);
@@ -1330,7 +1319,7 @@ const Home2 = () => {
                   borderBottom: '1px solid #1f3f7a',
                 }}
               >
-                {/* User Header - Blue gradient with avatar */}
+                {/* Header - Blue gradient */}
                 <div
                   className="px-3 py-2 flex items-center gap-3"
                   style={{
@@ -1338,24 +1327,8 @@ const Home2 = () => {
                     borderBottom: '1px solid #0a3c8a',
                   }}
                 >
-                  <div
-                    className="w-12 h-12 rounded flex items-center justify-center overflow-hidden"
-                    style={{
-                      background: selfUser?.avatarUrl ? 'transparent' : `linear-gradient(135deg, #7eb4ea 0%, #4a90d9 100%)`,
-                      border: '2px solid white',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
-                    }}
-                  >
-                    {selfUser?.avatarUrl ? (
-                      <img src={selfUser.avatarUrl} alt={selfUser.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-white font-bold text-lg">
-                        {selfUser?.name?.charAt(0) || 'U'}
-                      </span>
-                    )}
-                  </div>
                   <span className="text-white font-bold text-lg" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-                    {selfUser?.name || 'Sentinel User'}
+                    SentinelBench
                   </span>
                 </div>
 
@@ -1494,20 +1467,6 @@ const Home2 = () => {
                     borderTop: '1px solid #5c9eff',
                   }}
                 >
-                  <button
-                    onClick={() => {
-                      setStartMenuOpen(false);
-                      localStorage.removeItem("isAuthenticated");
-                      navigate("/login");
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1 text-white text-xs font-medium rounded hover:bg-white/20 transition-colors"
-                    style={{ textShadow: '0 1px 1px rgba(0,0,0,0.3)' }}
-                  >
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
-                    </svg>
-                    Log Off
-                  </button>
                   <button
                     onClick={() => {
                       setStartMenuOpen(false);

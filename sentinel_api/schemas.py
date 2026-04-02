@@ -40,10 +40,6 @@ class UsersResponse(BaseModel):
     users: list[dict]
 
 
-class SelfUserResponse(BaseModel):
-    user: dict
-
-
 class EvaluateResponse(BaseModel):
     success: bool
     detail: str = ""

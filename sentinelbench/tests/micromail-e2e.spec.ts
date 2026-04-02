@@ -41,7 +41,6 @@ async function initAndAdvanceAll() {
 
 async function authenticate(page: import("@playwright/test").Page) {
   await page.goto("/");
-  await page.evaluate(() => localStorage.setItem("isAuthenticated", "true"));
 }
 
 test.describe("MicroMail E2E", () => {
