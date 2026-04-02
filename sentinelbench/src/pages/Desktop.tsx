@@ -7,7 +7,6 @@ import {
   ComponentType,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import VariantSelector from "../components/VariantSelector";
 import { routes, RouteConfig } from "../router/routes";
 
 // Authors data for the Authors window
@@ -141,13 +140,9 @@ const Desktop = () => {
   const [iconPositions, setIconPositions] = useState<IconPositions>({});
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
-  const [activeTask, setActiveTask] = useState<DesktopIcon | null>(null);
-  const [showVariantSelector, setShowVariantSelector] = useState(false);
   const [clockValue, setClockValue] = useState(() => new Date());
   const [startMenuOpen, setStartMenuOpen] = useState(false);
   const adminConsoleEnabled = localStorage.getItem("adminConsoleEnabled") === "true";
-  const degroupTaskVariants = localStorage.getItem("degroupTaskVariants") === "true";
-  const showOldTasks = localStorage.getItem("showOldTasks") === "true";
 
   // Window minimized states for taskbar
   const [infoWindowMinimized, setInfoWindowMinimized] = useState(false);
@@ -208,15 +203,13 @@ const Desktop = () => {
   const iconLabelTextClass = "text-sm";
 
   const visibleTaskRoutes = useMemo(() => {
-    const allTasks = routes.filter(
+    return routes.filter(
       (route) =>
         route.tags?.includes("sentinel") &&
-        route.component !== null
+        route.component !== null &&
+        route.category === "environment"
     );
-
-    if (showOldTasks) return allTasks;
-    return allTasks.filter((route) => route.category === "environment");
-  }, [showOldTasks]);
+  }, []);
 
   // Window registry for taskbar
   const openWindows = useMemo(() => {
@@ -340,24 +333,6 @@ const Desktop = () => {
       variants: [],
     };
 
-    if (degroupTaskVariants) {
-      const icons: DesktopIcon[] = visibleTaskRoutes.map((route) => ({
-        id: route.id ?? route.path,
-        title: route.title,
-        baseTask: route.base_task || route.path,
-        emoji: route.icon,
-        variants: [
-          {
-            path: route.url ? route.url.replace("{base_url}", "") : `/${route.path}`,
-            title: route.title,
-            component: route.component! as ComponentType,
-          },
-        ],
-      }));
-
-      return [infoIcon, citationIcon, paperIcon, leaderboardIcon, ...icons, authorsIcon];
-    }
-
     const grouped = new Map<string, RouteConfig[]>();
 
     visibleTaskRoutes.forEach((task) => {
@@ -408,7 +383,7 @@ const Desktop = () => {
     });
 
     return [infoIcon, citationIcon, paperIcon, leaderboardIcon, ...mappedIcons, authorsIcon];
-  }, [degroupTaskVariants, visibleTaskRoutes]);
+  }, [visibleTaskRoutes]);
 
   const getDefaultPosition = useCallback((index: number, iconId?: string) => {
     const vw = window.innerWidth;
@@ -664,18 +639,7 @@ const Desktop = () => {
       return;
     }
 
-    if (icon.variants.length > 1) {
-      setActiveTask(icon);
-      setShowVariantSelector(true);
-      return;
-    }
-
     navigate(icon.variants[0].path);
-  };
-
-  const handleCloseSelector = () => {
-    setShowVariantSelector(false);
-    setActiveTask(null);
   };
 
   const startDrag = (
@@ -1271,15 +1235,6 @@ const Desktop = () => {
             </div>
           </div>
         </div>
-      )}
-      {activeTask && (
-        <VariantSelector
-          isOpen={showVariantSelector}
-          onClose={handleCloseSelector}
-          taskTitle={activeTask.title}
-          taskIcon={activeTask.emoji}
-          variants={activeTask.variants}
-        />
       )}
       {authorsWindowOpen && !authorsWindowMinimized && (
         <div className="fixed inset-0 z-50">
