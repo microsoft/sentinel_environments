@@ -486,7 +486,13 @@ async def evaluate() -> EvaluateResponse:
 
         _dispatch_materialize(session, conn)
 
-        row = conn.execute(session.eval_sql).fetchone()
+        try:
+            row = conn.execute(session.eval_sql).fetchone()
+        except Exception as e:
+            return EvaluateResponse(
+                success=False,
+                detail=f"eval_sql error: {e}\nQuery: {session.eval_sql}",
+            )
         sql_pass = bool(row and row[0])
 
         return EvaluateResponse(
