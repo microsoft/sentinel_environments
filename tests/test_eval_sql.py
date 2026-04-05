@@ -6,7 +6,7 @@ the full lifecycle (init -> advance all events -> simulate user actions ->
 evaluate -> assert success), and reports pass/fail.
 
 Usage:
-    cd SentinelBench
+    cd sentinel_environments
     .venv/bin/python tests/test_eval_sql.py             # positive tests only
     .venv/bin/python tests/test_eval_sql.py --negative   # also run negative tests
 
@@ -159,6 +159,12 @@ def simulate_actions(scenario_id):
         for c in channels[:3]:
             post(f"/data/microtube-channels/{c['id']}/subscribe")
 
+    else:
+        raise ValueError(
+            f"Scenario '{scenario_id}' is in NEEDS_USER_ACTION but has no "
+            f"simulation defined in simulate_actions(). Add an elif branch."
+        )
+
 
 # ---------------------------------------------------------------------------
 # Test runners
@@ -269,7 +275,7 @@ def main():
 
     scenarios = discover_scenarios()
     if not scenarios:
-        print("ERROR: No scenario files found. Run from SentinelBench/ directory.")
+        print("ERROR: No scenario files found. Run from sentinel_environments/ directory.")
         sys.exit(1)
 
     print(f"Discovered {len(scenarios)} scenarios\n")

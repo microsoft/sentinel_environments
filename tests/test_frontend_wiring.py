@@ -6,7 +6,7 @@ the API — something backend-only tests (test_eval_sql.py) cannot detect.
 Pure file-based checks; no running server needed.
 
 Usage:
-    cd SentinelBench
+    cd sentinel_environments
     .venv/bin/python tests/test_frontend_wiring.py
 """
 import re
@@ -176,7 +176,7 @@ def check_no_direct_localstorage(env_files: list[Path]) -> tuple[list, list, lis
 def main():
     # Verify we're in the right directory
     if not FRONTEND_SRC.is_dir():
-        print(f"ERROR: {FRONTEND_SRC} not found. Run from SentinelBench/ directory.")
+        print(f"ERROR: {FRONTEND_SRC} not found. Run from sentinel_environments/ directory.")
         sys.exit(1)
 
     env_files = sorted(ENV_DIR.glob("Micro*.tsx"))

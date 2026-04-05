@@ -1,15 +1,12 @@
 /**
  * Environment Components
  *
- * These are the 10 unified environments for SentinelBench v2.
- * Each environment supports multi-task variants via URL parameters.
- *
- * URL Schema:
- *   /{environment}?task={type}&criteria={absolute|relative}&activity={active|passive}&duration={seconds}
+ * These are the 10 unified environments for the Sentinel Environments benchmark.
+ * Each environment supports multi-task variants via scenario JSON files.
  *
  * Each environment uses SQL-based evaluation queries for success verification.
  *
- * Target: 10 environments × 20 tasks × 5 durations = 1000 total configurations
+ * Target: 10 environments × 20 tasks at configurable durations
  */
 
 // 1. MicroMail - Email client environment

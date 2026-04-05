@@ -1,7 +1,7 @@
 <div align="center">
 
 <!-- Replace with your own banner/logo path -->
-<img src="banner.svg" alt="SentinelBench Logo">
+<img src="banner.svg" alt="Sentinel Environments Logo">
 
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
@@ -13,7 +13,7 @@
 
 ---
 
-**SentinelBench** is a benchmark for evaluating AI agents on **long-horizon monitoring tasks**. SentinelBench addresses a critical gap in current evaluations by testing whether agents can *wait*, *monitor*, and *act* over extended periods of time.
+**Sentinel Environments** is a benchmark for evaluating AI agents on **long-horizon monitoring tasks**, addressing a critical gap in current evaluations by testing whether agents can *wait*, *monitor*, and *act* over extended periods of time.
 
 > **Status**: Under active development. Part of ongoing research on enabling agents to complete long-duration tasks.
 
@@ -28,15 +28,11 @@ Current agents fail at long-duration monitoring due to:
 - **Rate limiting**: Aggressive polling triggers API and website limits
 - **Attention drift**: Agents lose focus, hallucinate, or deviate from instructions
 
-SentinelBench provides a controlled testbed to evaluate these failure modes and measure progress on long-horizon agent capabilities.
+This benchmark provides a controlled testbed to evaluate these failure modes and measure progress on long-horizon agent capabilities.
 
 ## Benchmark Structure
 
-SentinelBench consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each exposing **20 objective task variants**, evaluated at **5 durations**:
-
-```
-10 environments × 20 variants × 5 durations = 1,000 task configurations
-```
+The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with **20 objective task variants** at configurable durations:
 
 ### Environments
 
@@ -57,7 +53,7 @@ SentinelBench consists of **10 high-fidelity web-app environment replicas** (Mic
 
 ### Task Dimensions
 
-Each environment defines **20 task variants** via URL parameters:
+Each environment defines **20 task variants** via scenario JSON files:
 
 ```
 5 task types × 2 criteria × 2 activity = 20 variants
@@ -71,23 +67,25 @@ Each environment defines **20 task variants** via URL parameters:
 
 ### Durations
 
-All tasks are **time-based**: the success condition becomes satisfiable exactly at the specified duration. Tasks cannot complete early.
+All tasks are **time-based**: the success condition becomes satisfiable exactly at the specified duration. Tasks cannot complete early. Durations are configurable per scenario — scale up for stress-testing persistence or scale down for rapid iteration.
 
-- 15 minutes
-- 30 minutes
-- 1 hour
-- 2 hours
-- 4 hours
+### Example Scenario
 
-The benchmark supports arbitrary durations via URL parameters for stress-testing persistence over longer periods.
+Each task is defined as a JSON file in `sentinel_api/<env>/scenarios/`:
 
-### Example Task URL
-
+```json
+{
+  "id": "micromail-junk-relative-active",
+  "environment": "micromail",
+  "prompt": "Notify when 10 new junk emails arrive.",
+  "events": [ ... ],
+  "eval_sql": "SELECT ..."
+}
 ```
-/micromail?task=junk&criteria=relative&activity=active&duration=3600
-```
 
-This configures: *Monitor for new junk emails relative to baseline, perform cleanup action when threshold met, 1-hour duration.*
+Event timings within each scenario control the effective duration — scale them up or down to adjust task length.
+
+The eval harness discovers these scenarios automatically and runs them against an agent subprocess.
 
 ## Evaluation Protocol
 
@@ -107,9 +105,9 @@ For `activity=active` tasks, the SQL query checks whether the required action wa
 
 ### Anti-Gaming Measures
 
-- **URL parameter stripping**: Parameters are captured on first render, then stripped from the URL to prevent agents from reading their assignment
-- **State persistence**: Task state persists across browser refreshes via localStorage
-- **Deterministic timing**: Events occur at predictable intervals based on duration parameter
+- **Server-side state**: All task state is managed by the API server, not exposed to the agent
+- **Deterministic timing**: Events occur at predictable intervals based on scenario duration
+- **SQL-based evaluation**: Success is determined by `eval_sql` queries against materialized session state
 
 ### Recommended Dataset Splits
 
@@ -123,17 +121,15 @@ For system development, split at the **environment level**:
 
 ## Quick Start
 
-### Run the Frontend (Manual Testing)
+A convenience script launches all components in a single tmux session:
 
 ```bash
-cd sentinelbench
-npm install
-npm run dev
+./start.sh
 ```
 
-Visit `http://localhost:5173` to interact with tasks manually.
+This opens 3 tmux windows: **server** (API on `:8000`), **frontend** (Vite on `:5173`), and **harness** (shell ready for eval runs).
 
-### Run the Backend
+### 1. API Server
 
 ```bash
 python3 -m venv .venv
@@ -148,16 +144,21 @@ uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000
 
 > **Note:** The `.db` files are not checked into git. You must run `build_db` before starting the server. Re-run it whenever the JSONL catalogs in `data/catalogs/` change.
 
-The frontend proxies API requests to `localhost:8000`, so the backend must be running for full functionality.
+### 2. Frontend
 
-## Running the Eval Harness
+```bash
+cd sentinelbench
+npm install
+npm run dev
+```
 
-The eval harness runs all benchmark tasks against an agent and collects results.
+Visit `http://localhost:5173` to interact with environments manually. The frontend proxies API requests to `localhost:8000`, so the API server must be running.
 
-### Setup
+### 3. Eval Harness
 
-1. In one terminal, ensure the frontend and backend are running (navigate to `sentinelbench` and run 'npm run dev:full' to start both).
-2. In another terminal, create an `eval_config.yaml` in your working directory (e.g, repo root) with the following content:
+The eval harness discovers all scenario JSON files, runs each against an agent subprocess, and collects results.
+
+**Configure your agent** by creating an `eval_config.yaml` in the repo root:
 
 ```yaml
 host: http://localhost:8000
@@ -170,10 +171,10 @@ host: http://localhost:8000
 agent_subprocess: ["your-agent-command", "--url", "__TASK_URL__", "--prompt", "__TASK_PROMPT__"]
 ```
 
-### Running
+**Run:**
 
 ```bash
-python -m sentinel_api.eval_harness <run_name> [--config eval_config.yaml] [--host http://localhost:8000]
+python -m sentinel_api.eval_harness <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
 ```
 
 Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
@@ -186,11 +187,11 @@ Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
 
 Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be resumed after interruption.
 
-### Example
+**Example:**
 
 ```bash
 python -m sentinel_api.eval_harness my_first_run
-# Found 62 tasks. Results -> results/my_first_run
+# Found 56 tasks. Results -> results/my_first_run
 #   Running micromail-inbox-absolute-active ...
 #   Running micromail-cc-absolute-active ...
 #   ...
@@ -207,7 +208,7 @@ python -m sentinel_api.eval_harness my_first_run
 
 ## Related Work
 
-SentinelBench is designed to complement existing agent benchmarks:
+This benchmark is designed to complement existing agent benchmarks:
 
 | Benchmark | Focus | Long-Horizon Aspect |
 |-----------|-------|---------------------|
@@ -215,11 +216,11 @@ SentinelBench is designed to complement existing agent benchmarks:
 | WebVoyager | Real web browsing | Multi-step navigation, one session |
 | AssistantBench | User-like web tasks | Time-consuming but continuous runs |
 | WebGames | Interactive web challenges | Complex tasks, no idle periods |
-| **SentinelBench** | Monitoring tasks | 15min–4h waits with periodic checking |
+| **Sentinel Environments** | Monitoring tasks | Configurable-duration waits with periodic checking |
 
 ## Research Context
 
-SentinelBench is part of research on **SentinelSteps**, a method for enabling multi-agent orchestration systems to handle long-duration conditional tasks. SentinelSteps extend standard plan steps with:
+This benchmark is part of research on **SentinelSteps**, a method for enabling multi-agent orchestration systems to handle long-duration conditional tasks. SentinelSteps extend standard plan steps with:
 
 - A natural-language termination condition
 - An adaptive sleep schedule between checks
@@ -252,7 +253,7 @@ sentinel_environments/
 
 ## Synthetic Data Generation
 
-The `data_generation/` folder contains all scripts and prompts used to generate synthetic media for SentinelBench environments.
+The `data_generation/` folder contains all scripts and prompts used to generate synthetic media for Sentinel Environments.
 
 ### Generated Asset Types
 
@@ -308,6 +309,7 @@ Citation information will be provided upon publication.
 
 - Matheus Kunzler Maldaner — [GitHub](https://github.com/matheusmaldaner)
 - Adam Fourney — [GitHub](https://github.com/afourney)
+- Amanda Swearngin — [GitHub](https://github.com/amaswea)
 - Hussein Mozannar — [GitHub](https://github.com/husseinmozannar)
 - Gagan Bansal — [GitHub](https://github.com/gagb)
 - Maya Murad — [GitHub](https://github.com/mmurad2)

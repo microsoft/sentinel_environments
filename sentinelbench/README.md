@@ -1,6 +1,6 @@
-# SentinelBench Frontend
+# Sentinel Environments Frontend
 
-Skeleton web UI for 10 Micro* environments used by the SentinelBench benchmark.
+Skeleton web UI for 10 Micro* environments used by the Sentinel Environments benchmark.
 
 Each environment is a single-page React app backed by a FastAPI server (`sentinel_api/`). The server drives the simulation lifecycle: `/init` loads a scenario, `/advance` ticks time and fires events, and `POST /evaluate` runs a SQL query against materialized session state to determine success.
 

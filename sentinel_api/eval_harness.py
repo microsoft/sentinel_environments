@@ -1,4 +1,4 @@
-# eval harness cli for running all sentinelbench tasks and collecting results.
+# eval harness cli for running all sentinel environments tasks and collecting results.
 #
 # flow: enumerate all scenario json files -> create result folders -> call run_task() for each
 # example: python -m sentinel_api.eval_harness my_run --config eval_config.yaml
@@ -156,7 +156,7 @@ def run_task(config, task_json_file, task_result_folder):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="SentinelBench eval harness.")
+    parser = argparse.ArgumentParser(description="Sentinel Environments eval harness.")
     parser.add_argument("run_name", help="Name of this evaluation run")
     parser.add_argument("--config", default="eval_config.yaml", help="Path to eval config YAML")
     parser.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")

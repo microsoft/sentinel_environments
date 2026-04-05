@@ -25,12 +25,6 @@ const authorsData: Author[] = [
     profileUrl: "https://matheuskunzler.com",
   },
   {
-    name: "Hussein Mozannar",
-    affiliation: "Microsoft Research",
-    photo: "/author-photos/hussein.png",
-    profileUrl: "https://husseinmozannar.github.io",
-  },
-  {
     name: "Adam Fourney",
     affiliation: "Microsoft Research",
     photo: "/author-photos/adam.png",
@@ -41,6 +35,12 @@ const authorsData: Author[] = [
     affiliation: "Microsoft Research",
     photo: "/author-photos/amanda.png",
     profileUrl: "https://amaswea.github.io",
+  },
+  {
+    name: "Hussein Mozannar",
+    affiliation: "Microsoft Research",
+    photo: "/author-photos/hussein.png",
+    profileUrl: "https://husseinmozannar.github.io",
   },
   {
     name: "Gagan Bansal",
@@ -1016,7 +1016,7 @@ const Desktop = () => {
                   }}
                 >
                   <span className="text-white font-bold text-lg" style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}>
-                    SentinelBench
+                    Sentinel Environments
                   </span>
                 </div>
 
@@ -1208,19 +1208,18 @@ const Desktop = () => {
               />
               <div>
                 <h2 className="text-lg font-semibold text-[#1b3e8b] mb-2">
-                  Welcome to SentinelBench!
+                  Welcome to Sentinel Environments!
                 </h2>
                 <p className="mb-3 leading-relaxed text-[#3b3b3b]">
-                  <strong>SentinelBench</strong> evaluates AI agents on{" "}
+                  This benchmark evaluates AI agents on{" "}
                   <em>long-horizon monitoring tasks</em>. It provides{" "}
                   <strong>10 web-app replicas</strong> (Micro* environments),
                   each with <strong>20 task variants</strong> configurable to any duration.
                 </p>
                 <p className="mb-3 text-[#3b3b3b]">
-                  Tasks are configured via URL: <code>task</code>, <code>criteria</code>{" "}
-                  (absolute/relative), <code>activity</code> (passive/active), and{" "}
-                  <code>duration</code> in seconds. For example:<br />
-                  <code className="text-xs">/micromail?task=junk&criteria=relative&activity=active&duration=900</code>
+                  Tasks are defined as scenario JSON files with timed events, a natural-language
+                  prompt, and an <code>eval_sql</code> query. The eval harness discovers
+                  scenarios and runs them against an agent subprocess.
                 </p>
                 <p className="mb-3 text-[#3b3b3b]">
                   All tasks are <strong>time-based</strong>—the condition becomes satisfiable
@@ -1419,7 +1418,7 @@ const Desktop = () => {
               }}
             >
               <div className="flex items-center gap-2 font-semibold">
-                <span>Cite SentinelBench</span>
+                <span>Cite Sentinel Environments</span>
               </div>
               <div className="flex items-center gap-1 text-xs">
                 <button
@@ -1468,42 +1467,42 @@ const Desktop = () => {
               <div className="bg-white border border-gray-300 rounded p-4 font-mono text-xs leading-relaxed">
                 {activeCitationFormat === "bibtex" && (
                   <pre className="whitespace-pre-wrap">
-{`@article{maldaner2025sentinelbench,
-  title={SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks},
-  author={Maldaner, Matheus Kunzler and Mozannar, Hussein and Fourney, Adam and Bansal, Gagan and Murad, Maya},
+{`@article{maldaner2026sentinelenvironments,
+  title={Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks},
+  author={Maldaner, Matheus Kunzler and Fourney, Adam and Swearngin, Amanda and Mozannar, Hussein and Bansal, Gagan and Murad, Maya},
   journal={arXiv preprint},
-  year={2025}
+  year={2026}
 }`}
                   </pre>
                 )}
                 {activeCitationFormat === "apa" && (
                   <p>
-                    Maldaner, M. K., Mozannar, H., Fourney, A., Bansal, G., & Murad, M. (2025). SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks. <em>arXiv preprint</em>.
+                    Maldaner, M. K., Fourney, A., Swearngin, A., Mozannar, H., Bansal, G., & Murad, M. (2026). Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks. <em>arXiv preprint</em>.
                   </p>
                 )}
                 {activeCitationFormat === "mla" && (
                   <p>
-                    Maldaner, Matheus Kunzler, et al. "SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks." <em>arXiv preprint</em>, 2025.
+                    Maldaner, Matheus Kunzler, et al. "Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks." <em>arXiv preprint</em>, 2026.
                   </p>
                 )}
                 {activeCitationFormat === "chicago" && (
                   <p>
-                    Maldaner, Matheus Kunzler, Hussein Mozannar, Adam Fourney, Gagan Bansal, and Maya Murad. "SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks." <em>arXiv preprint</em>, 2025.
+                    Maldaner, Matheus Kunzler, Adam Fourney, Amanda Swearngin, Hussein Mozannar, Gagan Bansal, and Maya Murad. "Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks." <em>arXiv preprint</em>, 2026.
                   </p>
                 )}
               </div>
               <button
                 onClick={() => {
                   const citations: Record<string, string> = {
-                    bibtex: `@article{maldaner2025sentinelbench,
-  title={SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks},
-  author={Maldaner, Matheus Kunzler and Mozannar, Hussein and Fourney, Adam and Bansal, Gagan and Murad, Maya},
+                    bibtex: `@article{maldaner2026sentinelenvironments,
+  title={Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks},
+  author={Maldaner, Matheus Kunzler and Fourney, Adam and Swearngin, Amanda and Mozannar, Hussein and Bansal, Gagan and Murad, Maya},
   journal={arXiv preprint},
-  year={2025}
+  year={2026}
 }`,
-                    apa: "Maldaner, M. K., Mozannar, H., Fourney, A., Bansal, G., & Murad, M. (2025). SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks. arXiv preprint.",
-                    mla: 'Maldaner, Matheus Kunzler, et al. "SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks." arXiv preprint, 2025.',
-                    chicago: 'Maldaner, Matheus Kunzler, Hussein Mozannar, Adam Fourney, Gagan Bansal, and Maya Murad. "SentinelBench: A Benchmark for Evaluating Agents on Long-Lived, Attention-Heavy Tasks." arXiv preprint, 2025.',
+                    apa: "Maldaner, M. K., Fourney, A., Swearngin, A., Mozannar, H., Bansal, G., & Murad, M. (2026). Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks. arXiv preprint.",
+                    mla: 'Maldaner, Matheus Kunzler, et al. "Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks." arXiv preprint, 2026.',
+                    chicago: 'Maldaner, Matheus Kunzler, Adam Fourney, Amanda Swearngin, Hussein Mozannar, Gagan Bansal, and Maya Murad. "Sentinel Environments: A Benchmark for Evaluating Agents on Long-Running Monitoring Tasks." arXiv preprint, 2026.',
                   };
                   navigator.clipboard.writeText(citations[activeCitationFormat]);
                 }}
@@ -1573,7 +1572,7 @@ const Desktop = () => {
               }}
             >
               <div className="flex items-center gap-3 font-semibold">
-                <span>SentinelBench Leaderboard</span>
+                <span>Sentinel Environments Leaderboard</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1645,7 +1644,7 @@ const Desktop = () => {
                 </h2>
 
                 <p className="text-gray-600 mb-6 max-w-md">
-                  Be the first to benchmark your AI agent on SentinelBench!
+                  Be the first to benchmark your AI agent on Sentinel Environments!
                   Test your agent's ability to monitor, wait, and act on long-horizon tasks.
                 </p>
 
@@ -1710,7 +1709,7 @@ const Desktop = () => {
                   <div>
                     <h3 className="font-semibold text-[#1b3e8b] mb-1">Get Benchmark Tasks</h3>
                     <p className="text-gray-600 mb-2">
-                      Download the benchmark task file from the SentinelBench repository.
+                      Download the benchmark task file from the Sentinel Environments repository.
                     </p>
                     <div className="bg-[#1e1e1e] text-[#4ec9b0] p-3 rounded font-mono text-xs">
                       {'{"task_id": "micromail-unread-absolute-passive-900", "url": "https://...", "description": "..."}'}
@@ -1807,10 +1806,10 @@ const Desktop = () => {
                     Ready to submit? Email your results to:
                   </p>
                   <a
-                    href="mailto:sentinelbench@example.com"
+                    href="mailto:sentinel-environments@example.com"
                     className="inline-block px-6 py-2 bg-[#0a5ad4] text-white rounded font-medium hover:bg-[#0848a8] transition-colors"
                   >
-                    sentinelbench@example.com
+                    sentinel-environments@example.com
                   </a>
                 </div>
               </div>
