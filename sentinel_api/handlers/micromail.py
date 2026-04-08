@@ -138,6 +138,8 @@ def process_event(session: Session, event: dict) -> None:
 
     if etype == "preload_emails":
         email_ids = event.get("payload", {}).get("email_ids") or event.get("email_ids", [])
+        if email_ids == ["*"]:
+            email_ids = list(MICROMAIL_EMAIL_CATALOG.keys())
         for email_id in email_ids:
             row = _build_email_row(email_id, backdated=True)
             session.micromail_emails.append(row)

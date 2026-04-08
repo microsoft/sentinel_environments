@@ -177,6 +177,8 @@ def process_event(session: Session, event: dict) -> None:
 
         # Load videos
         video_ids = payload.get("video_ids", [])
+        if video_ids == ["*"]:
+            video_ids = list(MICROTUBE_VIDEO_CATALOG.keys())
         for vid in video_ids:
             row = _build_video_row(vid)
             session.microtube_videos.append(row)
@@ -184,6 +186,8 @@ def process_event(session: Session, event: dict) -> None:
 
         # Load channels
         channel_ids = payload.get("channel_ids", [])
+        if channel_ids == ["*"]:
+            channel_ids = list(MICROTUBE_CHANNEL_CATALOG.keys())
         for cid in channel_ids:
             row = _build_channel_row(cid)
             session.microtube_channels.append(row)
@@ -191,12 +195,16 @@ def process_event(session: Session, event: dict) -> None:
 
         # Load comments
         comment_ids = payload.get("comment_ids", [])
+        if comment_ids == ["*"]:
+            comment_ids = list(MICROTUBE_COMMENT_CATALOG.keys())
         for cmid in comment_ids:
             row = _build_comment_row(cmid)
             session.microtube_comments.append(row)
 
         # Load notifications
         notif_ids = payload.get("notification_ids", [])
+        if notif_ids == ["*"]:
+            notif_ids = list(MICROTUBE_NOTIFICATION_CATALOG.keys())
         for nid in notif_ids:
             row = _build_notification_row(nid)
             session.microtube_notifications.append(row)

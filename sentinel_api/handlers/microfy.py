@@ -100,19 +100,28 @@ def process_event(session: Session, event: dict) -> None:
         payload = event.get("payload", {})
 
         # Load tracks
-        for track_id in payload.get("track_ids", []):
+        track_ids = payload.get("track_ids", [])
+        if track_ids == ["*"]:
+            track_ids = list(MICROFY_TRACK_CATALOG.keys())
+        for track_id in track_ids:
             row = _build_track_row(track_id)
             session.microfy_tracks.append(row)
             session.microfy_track_states[track_id] = _init_track_state(track_id)
 
         # Load playlists (catalog playlists, not user-created)
-        for playlist_id in payload.get("playlist_ids", []):
+        playlist_ids = payload.get("playlist_ids", [])
+        if playlist_ids == ["*"]:
+            playlist_ids = list(MICROFY_PLAYLIST_CATALOG.keys())
+        for playlist_id in playlist_ids:
             pl = MICROFY_PLAYLIST_CATALOG.get(playlist_id)
             if pl:
                 session.microfy_playlists.append(dict(pl))
 
         # Load moods
-        for mood_id in payload.get("mood_ids", []):
+        mood_ids = payload.get("mood_ids", [])
+        if mood_ids == ["*"]:
+            mood_ids = list(MICROFY_MOOD_CATALOG.keys())
+        for mood_id in mood_ids:
             mood = MICROFY_MOOD_CATALOG.get(mood_id)
             if mood:
                 session.microfy_moods.append(dict(mood))

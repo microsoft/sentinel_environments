@@ -139,6 +139,8 @@ def process_event(session: Session, event: dict) -> None:
 
     if etype == "preload_messages":
         message_ids = event.get("payload", {}).get("message_ids", [])
+        if message_ids == ["*"]:
+            message_ids = list(MICROCHAT_MESSAGE_CATALOG.keys())
         for msg_id in message_ids:
             row = _build_message_row(msg_id, backdated=True)
             session.microchat_messages.append(row)
@@ -147,6 +149,8 @@ def process_event(session: Session, event: dict) -> None:
             )
         # Load calls
         call_ids = event.get("payload", {}).get("call_ids", [])
+        if call_ids == ["*"]:
+            call_ids = list(MICROCHAT_CALL_CATALOG.keys())
         for call_id in call_ids:
             row = _build_call_row(call_id)
             session.microchat_calls.append(row)

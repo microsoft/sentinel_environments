@@ -270,19 +270,28 @@ def process_event(session: Session, event: dict) -> None:
         payload = event.get("payload", {})
 
         # Load posts
-        for post_id in payload.get("post_ids", []):
+        post_ids = payload.get("post_ids", [])
+        if post_ids == ["*"]:
+            post_ids = list(MICRODIN_POST_CATALOG.keys())
+        for post_id in post_ids:
             row = _build_post_row(post_id, backdated=True)
             session.microdin_posts.append(row)
             session.microdin_post_states[post_id] = _init_post_state(post_id)
 
         # Load connections
-        for conn_id in payload.get("connection_ids", []):
+        connection_ids = payload.get("connection_ids", [])
+        if connection_ids == ["*"]:
+            connection_ids = list(MICRODIN_CONNECTION_CATALOG.keys())
+        for conn_id in connection_ids:
             row = _build_connection_row(conn_id)
             session.microdin_connections.append(row)
             session.microdin_connection_states[conn_id] = _init_connection_state(conn_id)
 
         # Load conversations and their messages
-        for conv_id in payload.get("conversation_ids", []):
+        conversation_ids = payload.get("conversation_ids", [])
+        if conversation_ids == ["*"]:
+            conversation_ids = list(MICRODIN_CONVERSATION_CATALOG.keys())
+        for conv_id in conversation_ids:
             conv_data = MICRODIN_CONVERSATION_CATALOG.get(conv_id)
             if conv_data:
                 row = dict(conv_data)
@@ -300,13 +309,19 @@ def process_event(session: Session, event: dict) -> None:
                 session.microdin_message_states[msg_id] = _init_message_state(msg_id)
 
         # Load notifications
-        for notif_id in payload.get("notification_ids", []):
+        notification_ids = payload.get("notification_ids", [])
+        if notification_ids == ["*"]:
+            notification_ids = list(MICRODIN_NOTIFICATION_CATALOG.keys())
+        for notif_id in notification_ids:
             row = _build_notification_row(notif_id, backdated=True)
             session.microdin_notifications.append(row)
             session.microdin_notification_states[notif_id] = _init_notification_state(notif_id)
 
         # Load jobs
-        for job_id in payload.get("job_ids", []):
+        job_ids = payload.get("job_ids", [])
+        if job_ids == ["*"]:
+            job_ids = list(MICRODIN_JOB_CATALOG.keys())
+        for job_id in job_ids:
             row = _build_job_row(job_id)
             session.microdin_jobs.append(row)
             session.microdin_job_states[job_id] = _init_job_state(job_id)

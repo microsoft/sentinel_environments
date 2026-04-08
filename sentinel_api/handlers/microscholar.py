@@ -149,6 +149,8 @@ def process_event(session: Session, event: dict) -> None:
     if etype == "preload_papers":
         # Load initial (non-target) papers
         paper_ids = event.get("payload", {}).get("paper_ids", [])
+        if paper_ids == ["*"]:
+            paper_ids = list(MICROSCHOLAR_PAPER_CATALOG.keys())
         for pid in paper_ids:
             row = _build_paper_row(pid)
             session.microscholar_papers.append(row)
@@ -156,6 +158,8 @@ def process_event(session: Session, event: dict) -> None:
 
         # Load alerts
         alert_ids = event.get("payload", {}).get("alert_ids", [])
+        if alert_ids == ["*"]:
+            alert_ids = list(MICROSCHOLAR_ALERT_CATALOG.keys())
         for aid in alert_ids:
             row = _build_alert_row(aid)
             session.microscholar_alerts.append(row)

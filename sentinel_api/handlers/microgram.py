@@ -184,24 +184,36 @@ def process_event(session: Session, event: dict) -> None:
         payload = event.get("payload", {})
 
         # Load posts
-        for post_id in payload.get("post_ids", []):
+        post_ids = payload.get("post_ids", [])
+        if post_ids == ["*"]:
+            post_ids = list(MICROGRAM_POST_CATALOG.keys())
+        for post_id in post_ids:
             row = _build_post_row(post_id)
             session.microgram_posts.append(row)
             session.microgram_post_states[post_id] = _init_post_state(post_id)
 
         # Load stories
-        for story_id in payload.get("story_ids", []):
+        story_ids = payload.get("story_ids", [])
+        if story_ids == ["*"]:
+            story_ids = list(MICROGRAM_STORY_CATALOG.keys())
+        for story_id in story_ids:
             row = _build_story_row(story_id)
             session.microgram_stories.append(row)
             session.microgram_story_states[story_id] = _init_story_state(story_id)
 
         # Load DM conversations
-        for msg_id in payload.get("message_ids", []):
+        message_ids = payload.get("message_ids", [])
+        if message_ids == ["*"]:
+            message_ids = list(MICROGRAM_MESSAGE_CATALOG.keys())
+        for msg_id in message_ids:
             row = _build_message_row(msg_id)
             session.microgram_messages.append(row)
 
         # Load activity
-        for act_id in payload.get("activity_ids", []):
+        activity_ids = payload.get("activity_ids", [])
+        if activity_ids == ["*"]:
+            activity_ids = list(MICROGRAM_ACTIVITY_CATALOG.keys())
+        for act_id in activity_ids:
             row = _build_activity_row(act_id)
             session.microgram_activity.append(row)
 
