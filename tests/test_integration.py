@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sentinel_api.catalogs import (
+from server.catalogs import (
     MICROCHAT_CALL_CATALOG,
     MICRODIN_MESSAGE_CATALOG,
     MICROFY_PLAYLIST_CATALOG,

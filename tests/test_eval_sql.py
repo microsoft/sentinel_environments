@@ -243,7 +243,7 @@ def run_negative(scenario_path: Path) -> tuple:
 
 def discover_scenarios() -> list:
     """Find all scenario JSONs across environment subdirectories."""
-    base = Path("sentinel_api")
+    base = Path("server")
     # Exclude webarena reference implementations
     scenarios = sorted(
         p for p in base.glob("*/scenarios/*.json")
@@ -267,7 +267,7 @@ def main():
         requests.get(f"{HOST}/status", timeout=3)
     except requests.ConnectionError:
         print("ERROR: Server not running on localhost:8000")
-        print("Start with: .venv/bin/uvicorn sentinel_api.server:app --port 8000")
+        print("Start with: .venv/bin/uvicorn server.server:app --port 8000")
         sys.exit(1)
 
     # Ensure clean state

@@ -71,7 +71,7 @@ All tasks are **time-based**: the success condition becomes satisfiable exactly 
 
 ### Example Scenario
 
-Each task is defined as a JSON file in `sentinel_api/<env>/scenarios/`:
+Each task is defined as a JSON file in `server/<env>/scenarios/`:
 
 ```json
 {
@@ -134,12 +134,12 @@ This opens 3 tmux windows: **server** (API on `:8000`), **frontend** (Vite on `:
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r sentinel_api/requirements.txt
+pip install -r server/requirements.txt
 
 # Build the SQLite databases from JSONL catalogs (required on first setup)
-python -m sentinel_api.scripts.build_db
+python -m server.scripts.build_db
 
-uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000
+uvicorn server.server:app --host 0.0.0.0 --port 8000
 ```
 
 > **Note:** The `.db` files are not checked into git. You must run `build_db` before starting the server. Re-run it whenever the JSONL catalogs in `data/catalogs/` change.
@@ -147,7 +147,7 @@ uvicorn sentinel_api.server:app --host 0.0.0.0 --port 8000
 ### 2. Frontend
 
 ```bash
-cd sentinelbench
+cd frontend
 npm install
 npm run dev
 ```
@@ -160,13 +160,13 @@ Set `SENTINEL_DEV` to skip the `/init` flow and preload environment data on star
 
 ```bash
 # Backend -- preload all environments
-SENTINEL_DEV=all uvicorn sentinel_api.server:app --reload --port 8000
+SENTINEL_DEV=all uvicorn server.server:app --reload --port 8000
 
 # Backend -- preload a single environment
-SENTINEL_DEV=microfy uvicorn sentinel_api.server:app --reload --port 8000
+SENTINEL_DEV=microfy uvicorn server.server:app --reload --port 8000
 
 # Frontend (separate terminal)
-cd sentinelbench && npm run dev
+cd frontend && npm run dev
 ```
 
 Each environment has a `scenarios/dev.json` that uses `["*"]` wildcards to load all catalog data. New catalog entries are picked up automatically.
@@ -191,7 +191,7 @@ agent_subprocess: ["your-agent-command", "--url", "__TASK_URL__", "--prompt", "_
 **Run:**
 
 ```bash
-python -m sentinel_api.eval_harness <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
+python -m server.eval_harness <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
 ```
 
 Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
@@ -207,7 +207,7 @@ Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be
 **Example:**
 
 ```bash
-python -m sentinel_api.eval_harness my_first_run
+python -m server.eval_harness my_first_run
 # Found 56 tasks. Results -> results/my_first_run
 #   Running micromail-inbox-absolute-active ...
 #   Running micromail-cc-absolute-active ...
@@ -249,13 +249,13 @@ The approach is implemented in [Magentic-UI](https://github.com/microsoft/magent
 
 ```
 sentinel_environments/
-├── sentinel_api/          # FastAPI backend (handlers, scenarios, SQLite databases)
+├── server/                # FastAPI backend (handlers, scenarios, SQLite databases)
 │   ├── handlers/          # Per-environment request handlers
 │   ├── scripts/           # build_db.py (JSONL → SQLite)
 │   ├── <env>/             # .db file + scenarios/*.json per environment
 │   ├── server.py          # Main FastAPI app
 │   └── run_simulation.py  # CLI evaluation harness
-├── sentinelbench/         # React/Vite frontend
+├── frontend/              # React/Vite frontend
 │   ├── src/
 │   │   ├── environments/  # Micro* UI components
 │   │   ├── hooks/         # API data hooks
@@ -292,7 +292,7 @@ The following environments use **text-only JSONL data** and do not require AI-ge
 - **MicroLendar** (calendar) - Uses calendar event data
 - **MicroScholar** (academic search) - Uses academic paper metadata
 
-These environments rely solely on the JSONL files in `sentinelbench/src/data/content/` which contain all necessary text-based content for benchmark tasks.
+These environments rely solely on the JSONL files in `frontend/src/data/content/` which contain all necessary text-based content for benchmark tasks.
 
 ### Running Data Generation
 

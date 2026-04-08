@@ -179,7 +179,7 @@ audit_screenshots/
 .vercel
 .netlify/
 
-# Large media files (except those in sentinelbench/public/)
+# Large media files (except those in frontend/public/)
 # ---------------------------------------------------------
 *.mp4
 *.avi
@@ -193,7 +193,7 @@ audit_screenshots/
 !logo.*
 !icon.*
 !*.svg
-!sentinelbench/public/**
+!frontend/public/**
 
 # AI tools
 # --------

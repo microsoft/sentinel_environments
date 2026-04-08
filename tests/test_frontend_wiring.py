@@ -17,7 +17,7 @@ from pathlib import Path
 # Config
 # ---------------------------------------------------------------------------
 
-FRONTEND_SRC = Path("sentinelbench/src")
+FRONTEND_SRC = Path("frontend/src")
 ENV_DIR = FRONTEND_SRC / "environments"
 HOOKS_DIR = FRONTEND_SRC / "hooks"
 
