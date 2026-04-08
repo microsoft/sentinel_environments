@@ -1,0 +1,25 @@
+{
+  "id": "dev-microgram",
+  "environment": "microgram",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "*"
+        ],
+        "story_ids": [
+          "*"
+        ],
+        "message_ids": [
+          "*"
+        ],
+        "activity_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "dev-microhood",
+  "environment": "microhood",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "*"
+        ],
+        "buying_power": 10000.0
+      }
+    }
+  ]
+}

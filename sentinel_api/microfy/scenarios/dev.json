@@ -1,0 +1,22 @@
+{
+  "id": "dev-microfy",
+  "environment": "microfy",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "*"
+        ],
+        "playlist_ids": [
+          "*"
+        ],
+        "mood_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}

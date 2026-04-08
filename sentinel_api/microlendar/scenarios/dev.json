@@ -1,0 +1,19 @@
+{
+  "id": "dev-microlendar",
+  "environment": "microlendar",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_events",
+      "payload": {
+        "event_ids": [
+          "*"
+        ],
+        "task_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}

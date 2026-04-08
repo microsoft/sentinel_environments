@@ -1,0 +1,19 @@
+{
+  "id": "dev-microscholar",
+  "environment": "microscholar",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_papers",
+      "payload": {
+        "paper_ids": [
+          "*"
+        ],
+        "alert_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}

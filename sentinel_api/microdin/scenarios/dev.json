@@ -1,0 +1,28 @@
+{
+  "id": "dev-microdin",
+  "environment": "microdin",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "*"
+        ],
+        "connection_ids": [
+          "*"
+        ],
+        "conversation_ids": [
+          "*"
+        ],
+        "notification_ids": [
+          "*"
+        ],
+        "job_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}

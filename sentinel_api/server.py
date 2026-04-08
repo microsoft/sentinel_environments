@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 import sqlite3
 import time
 from pathlib import Path
@@ -143,16 +144,6 @@ from sentinel_api.schemas import (
 )
 from sentinel_api.session import Session, build_event_timeline
 
-_MICROMAIL_SCENARIO_DIR = Path(__file__).parent / "micromail" / "scenarios"
-_MICROCHAT_SCENARIO_DIR = Path(__file__).parent / "microchat" / "scenarios"
-_MICRODIN_SCENARIO_DIR = Path(__file__).parent / "microdin" / "scenarios"
-_MICROFY_SCENARIO_DIR = Path(__file__).parent / "microfy" / "scenarios"
-_MICROGRAM_SCENARIO_DIR = Path(__file__).parent / "microgram" / "scenarios"
-_MICROHOOD_SCENARIO_DIR = Path(__file__).parent / "microhood" / "scenarios"
-_MICROHUB_SCENARIO_DIR = Path(__file__).parent / "microhub" / "scenarios"
-_MICROLENDAR_SCENARIO_DIR = Path(__file__).parent / "microlendar" / "scenarios"
-_MICROSCHOLAR_SCENARIO_DIR = Path(__file__).parent / "microscholar" / "scenarios"
-_MICROTUBE_SCENARIO_DIR = Path(__file__).parent / "microtube" / "scenarios"
 _SHARED_DB = Path(__file__).parent / "shared.db"
 _SCENARIOS: dict[str, dict] = {}
 
@@ -177,22 +168,91 @@ _state: str = STATE_STARTING
 _session: Optional[Session] = None
 
 
+_ENV_NAMES = [
+    "micromail", "microchat", "microdin", "microfy", "microgram",
+    "microhood", "microhub", "microlendar", "microscholar", "microtube",
+]
+_SCENARIO_DIRS = {
+    name: Path(__file__).parent / name / "scenarios" for name in _ENV_NAMES
+}
+
+
 def _load_scenarios() -> None:
-    for scenario_dir in (_MICROMAIL_SCENARIO_DIR, _MICROCHAT_SCENARIO_DIR, _MICRODIN_SCENARIO_DIR, _MICROFY_SCENARIO_DIR, _MICROGRAM_SCENARIO_DIR, _MICROHOOD_SCENARIO_DIR, _MICROHUB_SCENARIO_DIR, _MICROLENDAR_SCENARIO_DIR, _MICROSCHOLAR_SCENARIO_DIR, _MICROTUBE_SCENARIO_DIR):
+    for scenario_dir in _SCENARIO_DIRS.values():
         if not scenario_dir.exists():
             continue
         for path in scenario_dir.glob("*.json"):
+            if path.name == "dev.json":
+                continue
             with open(path, encoding="utf-8") as f:
                 scenario = json.load(f)
             _SCENARIOS[scenario["id"]] = scenario
 
 
+def _build_dev_session(dev_value: str) -> Optional[Session]:
+    """Build a pre-populated session for dev mode (SENTINEL_DEV env var).
+
+    Returns a Session with all events fired, or None if no dev.json found.
+    - "all" or "1": load dev.json for every environment
+    - "<env name>":  load dev.json for that single environment
+    """
+    val = dev_value.strip().lower()
+    if val in ("all", "1", "true"):
+        env_names = _ENV_NAMES
+    elif val in _ENV_NAMES:
+        env_names = [val]
+    else:
+        print(f"[DEV] Unknown SENTINEL_DEV value: {dev_value!r}")
+        print(f"[DEV] Use 'all', '1', or one of: {', '.join(_ENV_NAMES)}")
+        return None
+
+    session = Session(
+        status=STATE_READY,
+        simulation_time=0,
+        start_wall_time=None,
+        events=[],
+        next_event_index=0,
+        environment=env_names[0],
+        duration=9999,
+        eval_sql="",
+        baseline_metrics={},
+    )
+
+    loaded = []
+    for env_name in env_names:
+        dev_path = _SCENARIO_DIRS[env_name] / "dev.json"
+        if not dev_path.exists():
+            print(f"[DEV] No dev.json for {env_name}, skipping")
+            continue
+        with open(dev_path, encoding="utf-8") as f:
+            dev_scenario = json.load(f)
+        session.environment = env_name
+        for event in build_event_timeline(dev_scenario["events"]):
+            _dispatch_process_event(session, event)
+        loaded.append(env_name)
+
+    if not loaded:
+        print("[DEV] No dev.json files found, skipping auto-init")
+        return None
+
+    session.environment = loaded[0] if len(loaded) == 1 else "all"
+    print(f"[DEV] Loaded: {', '.join(loaded)}")
+    return session
+
+
 @app.on_event("startup")
 def _startup() -> None:
-    global _state
+    global _state, _session
     load_catalogs()
     _load_scenarios()
     _state = STATE_PREINIT
+
+    dev = os.getenv("SENTINEL_DEV")
+    if dev:
+        session = _build_dev_session(dev)
+        if session is not None:
+            _session = session
+            _state = STATE_READY
 
 
 # ---------------------------------------------------------------------------

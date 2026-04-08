@@ -1,0 +1,14 @@
+{
+  "id": "dev-microhub",
+  "environment": "microhub",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_repo",
+      "payload": {
+        "load_all": true
+      }
+    }
+  ]
+}

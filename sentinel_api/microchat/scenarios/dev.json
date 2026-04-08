@@ -1,0 +1,19 @@
+{
+  "id": "dev-microchat",
+  "environment": "microchat",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "*"
+        ],
+        "call_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "dev-microtube",
+  "environment": "microtube",
+  "duration": 9999,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "*"
+        ],
+        "channel_ids": [
+          "*"
+        ],
+        "comment_ids": [
+          "*"
+        ],
+        "notification_ids": [
+          "*"
+        ]
+      }
+    }
+  ]
+}
