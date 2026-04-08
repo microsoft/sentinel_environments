@@ -288,7 +288,7 @@ const MicroScholar = () => {
     if (ids.length > 0) setUserCoauthorIds(ids);
   }, [selfUser, getCoauthors, userCoauthorIds.length]);
 
-  // Target paper injection detection — server injects the target paper via event.
+  // Target paper injection detection -- server injects the target paper via event.
   // When it appears in polled data, prepend to search results if active.
   useEffect(() => {
     if (targetPaperShown) return;

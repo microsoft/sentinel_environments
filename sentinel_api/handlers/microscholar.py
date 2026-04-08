@@ -188,7 +188,7 @@ def process_event(session: Session, event: dict) -> None:
 
 def handle_action(session: Session, action_name: str) -> dict:
     if action_name == "cite_target_paper":
-        pass  # No state change — action acknowledgement only
+        pass  # No state change -- action acknowledgement only
 
     elif action_name == "clear_saved_papers":
         for s in session.microscholar_paper_states.values():

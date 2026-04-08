@@ -2,7 +2,7 @@
 """Static analysis checks for frontend wiring.
 
 Catches bugs like environment components reading bundled data instead of
-the API — something backend-only tests (test_eval_sql.py) cannot detect.
+the API -- something backend-only tests (test_eval_sql.py) cannot detect.
 Pure file-based checks; no running server needed.
 
 Usage:
@@ -21,7 +21,7 @@ FRONTEND_SRC = Path("sentinelbench/src")
 ENV_DIR = FRONTEND_SRC / "environments"
 HOOKS_DIR = FRONTEND_SRC / "hooks"
 
-# No allowlist — every environment should be fully migrated to API data.
+# No allowlist -- every environment should be fully migrated to API data.
 SYNTH_DATA_ALLOWLIST: set[str] = set()
 
 # The only localStorage key allowed in environment components.
@@ -77,7 +77,7 @@ def check_no_synthetic_data(env_files: list[Path]) -> tuple[list, list, list]:
     passes = []
     warns = []
     fails = []
-    # Match import statements only — skip comments and string literals.
+    # Match import statements only -- skip comments and string literals.
     import_from_data = re.compile(r'''^\s*import\s.*from\s+['"]\.\.\/data['"]''', re.MULTILINE)
     import_synthetic = re.compile(r'''^\s*import\s.*syntheticData''', re.MULTILINE)
 

@@ -1221,7 +1221,7 @@ const Desktop = () => {
                   scenarios and runs them against an agent subprocess.
                 </p>
                 <p className="mb-3 text-[#3b3b3b]">
-                  All tasks are <strong>time-based</strong>—the condition becomes satisfiable
+                  All tasks are <strong>time-based</strong>--the condition becomes satisfiable
                   exactly at the specified duration. The harness evaluates
                   success via SQL when the agent completes.
                 </p>

@@ -559,7 +559,7 @@ const MicroFy = () => {
     [updateArrowVisibility]
   );
 
-  // State is now managed server-side — no local persistence needed
+  // State is now managed server-side -- no local persistence needed
 
   // Audio management - Use actual audio element for playback
   useEffect(() => {
@@ -746,7 +746,7 @@ const MicroFy = () => {
       {/* Hidden audio element for actual playback */}
       <audio ref={audioRef} preload="metadata" />
 
-      {/* Main Layout — sidebar + main in a padded flex container */}
+      {/* Main Layout -- sidebar + main in a padded flex container */}
       <div className="flex gap-2 p-2" style={{ height: playbarVisible ? 'calc(100vh - 72px)' : '100vh' }}>
         {/* Sidebar */}
         <aside className="hidden md:flex flex-col gap-2 w-[280px] shrink-0">
@@ -920,7 +920,7 @@ const MicroFy = () => {
 
         {/* Main area */}
         <main className="flex-1 bg-[#121212] rounded-lg overflow-y-auto">
-          {/* Top bar — back/forward, search (mobile), user avatar */}
+          {/* Top bar -- back/forward, search (mobile), user avatar */}
           <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-[#121212]/95 backdrop-blur-sm">
             <div className="flex items-center gap-4">
               {/* Back/Forward Navigation */}
@@ -1401,7 +1401,7 @@ const MicroFy = () => {
                       <li><button onClick={() => setShowPremiumModal(true)} className="text-[#b3b3b3] hover:text-white transition text-sm">Premium Duo</button></li>
                       <li><button onClick={() => setShowPremiumModal(true)} className="text-[#b3b3b3] hover:text-white transition text-sm">Premium Family</button></li>
                       <li><button onClick={() => setShowPremiumModal(true)} className="text-[#b3b3b3] hover:text-white transition text-sm">Premium Student</button></li>
-                      <li><button onClick={() => showToast('MicroFy Free — you\'re already on it!')} className="text-[#b3b3b3] hover:text-white transition text-sm">MicroFy Free</button></li>
+                      <li><button onClick={() => showToast('MicroFy Free -- you\'re already on it!')} className="text-[#b3b3b3] hover:text-white transition text-sm">MicroFy Free</button></li>
                     </ul>
                   </div>
                 </div>
@@ -2367,21 +2367,21 @@ const MicroFy = () => {
               <div className="bg-[#282828] rounded-lg p-6">
                 <h3 className="text-white text-xl font-bold mb-2">Account Issues</h3>
                 <p className="text-[#b3b3b3] mb-4">Having trouble accessing your account? We can help you reset your password or recover your username.</p>
-                <button onClick={() => { showToast('Support ticket submitted — we\'ll get back to you shortly'); setShowSupportModal(false); }} className="bg-[#1DB954] text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
+                <button onClick={() => { showToast('Support ticket submitted -- we\'ll get back to you shortly'); setShowSupportModal(false); }} className="bg-[#1DB954] text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
                   Get Help
                 </button>
               </div>
               <div className="bg-[#282828] rounded-lg p-6">
                 <h3 className="text-white text-xl font-bold mb-2">Payment & Subscriptions</h3>
                 <p className="text-[#b3b3b3] mb-4">Questions about billing, subscriptions, or payment methods? Our team is here to assist.</p>
-                <button onClick={() => { showToast('Support ticket submitted — we\'ll get back to you shortly'); setShowSupportModal(false); }} className="bg-[#1DB954] text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
+                <button onClick={() => { showToast('Support ticket submitted -- we\'ll get back to you shortly'); setShowSupportModal(false); }} className="bg-[#1DB954] text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
                   Contact Support
                 </button>
               </div>
               <div className="bg-[#282828] rounded-lg p-6">
                 <h3 className="text-white text-xl font-bold mb-2">Technical Problems</h3>
                 <p className="text-[#b3b3b3] mb-4">Experiencing playback issues, app crashes, or other technical difficulties?</p>
-                <button onClick={() => { showToast('Running diagnostics — please wait'); setShowSupportModal(false); }} className="bg-[#1DB954] text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
+                <button onClick={() => { showToast('Running diagnostics -- please wait'); setShowSupportModal(false); }} className="bg-[#1DB954] text-black px-6 py-2 rounded-full font-semibold hover:scale-105 transition">
                   Troubleshoot
                 </button>
               </div>

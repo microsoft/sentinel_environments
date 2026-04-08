@@ -724,7 +724,7 @@ def build_microgram_db() -> None:
         )
     print(f"  stories: {len(stories)} rows")
 
-    # --- Messages (DM conversations — JSON blob) ---
+    # --- Messages (DM conversations -- JSON blob) ---
     messages = _load_jsonl(gram_dir / "messages.jsonl")
     for m in messages:
         conn.execute(

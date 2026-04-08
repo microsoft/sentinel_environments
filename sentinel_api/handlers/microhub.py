@@ -38,7 +38,7 @@ if TYPE_CHECKING:
 
 
 # ---------------------------------------------------------------------------
-# Row builders — convert catalog rows (snake_case) to API format (camelCase)
+# Row builders -- convert catalog rows (snake_case) to API format (camelCase)
 # ---------------------------------------------------------------------------
 
 def _resolve_user(user_id: str) -> dict:

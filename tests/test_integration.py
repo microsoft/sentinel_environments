@@ -196,7 +196,7 @@ def test_micromail():
         unread_resp = post(f"/data/micromail-emails/{first_email_id}/unread")
         t.check(f"POST /data/micromail-emails/{first_email_id}/unread", unread_resp.get("success"))
 
-        # 7. Evaluate (after mutations — email moved to archive reduces inbox count)
+        # 7. Evaluate (after mutations -- email moved to archive reduces inbox count)
         eval_final = post("/evaluate")
         t.check("POST /evaluate (post-mutation may fail)", eval_final.get("success") is not None,
                 f"success={eval_final.get('success')}")

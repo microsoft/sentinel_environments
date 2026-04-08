@@ -178,32 +178,6 @@ def handle_action(session: Session, action_name: str) -> dict:
     elif action_name == "open_attachment":
         pass  # No state change required
 
-    elif action_name == "move_all_external_to_junk":
-        external_ids = {e["id"] for e in session.micromail_emails if e.get("isExternal")}
-        for eid, s in states.items():
-            if eid in external_ids and s.get("folder") == "inbox":
-                s["folder"] = "junk"
-
-    elif action_name == "archive_all_inbox":
-        for eid, s in states.items():
-            if s.get("folder") == "inbox":
-                s["folder"] = "archive"
-
-    elif action_name == "flag_all_urgent":
-        urgent_ids = {e["id"] for e in session.micromail_emails if e.get("importance") == "high"}
-        for eid, s in states.items():
-            if eid in urgent_ids and s.get("folder") == "inbox":
-                s["isFlagged"] = True
-
-    elif action_name == "archive_all_mentions":
-        mention_ids = {e["id"] for e in session.micromail_emails if e.get("mentionsMe")}
-        for eid, s in states.items():
-            if eid in mention_ids and s.get("folder") == "inbox":
-                s["folder"] = "archive"
-
-    elif action_name == "forward_all_cc":
-        pass  # No state change required — action is "acknowledged"
-
     else:
         return {"success": False, "error": f"Unknown action: {action_name}"}
 

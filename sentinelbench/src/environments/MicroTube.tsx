@@ -408,7 +408,7 @@ const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 const VIDEO_QUALITIES = ["Auto", "1080p", "720p", "480p", "360p", "240p", "144p"];
 
 export default function MicroTube() {
-  // Server data hook — all data and mutations
+  // Server data hook -- all data and mutations
   const {
     videos: apiVideos,
     channels: apiChannels,
@@ -570,7 +570,7 @@ export default function MicroTube() {
   const [clipEndTime, setClipEndTime] = useState(30);
   const [reportReason, setReportReason] = useState("");
 
-  // API-derived lookup sets for rendering — maps video/channel ID to boolean state
+  // API-derived lookup sets for rendering -- maps video/channel ID to boolean state
   const videoStateMap = useMemo(() => {
     const map: Record<string, { isLiked: boolean; isDisliked: boolean; isSaved: boolean; isWatched: boolean }> = {};
     for (const v of apiVideos) {
@@ -629,7 +629,7 @@ export default function MicroTube() {
     return SAMPLE_VIDEOS.filter(v => v.channelId === channelId);
   }, [SAMPLE_VIDEOS]);
 
-  // Comments state — fetched on demand from API
+  // Comments state -- fetched on demand from API
   const [loadedComments, setLoadedComments] = useState<CommentData[]>([]);
 
   const getCommentsForVideo = useCallback((videoId: string): CommentData[] => {
@@ -854,7 +854,7 @@ export default function MicroTube() {
     }, 3000);
   }, []);
 
-  // Get active notifications (not dismissed) — from API
+  // Get active notifications (not dismissed) -- from API
   const activeNotifications = useMemo(() => {
     return apiNotifications
       .filter(n => !n.isDismissed)

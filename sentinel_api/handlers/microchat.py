@@ -208,7 +208,7 @@ def handle_action(session: Session, action_name: str) -> dict:
             states[mid]["isRead"] = True
 
     elif action_name == "mark_conversation_read":
-        # Requires conversation_id passed via query param — handled in server
+        # Requires conversation_id passed via query param -- handled in server
         pass
 
     else:

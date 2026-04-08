@@ -118,10 +118,10 @@ const MicroHood = () => {
     return mcro?.shares ?? 0;
   }, [stocks]);
 
-  // allStocksWithCurrentPrices — directly from API (already has current prices)
+  // allStocksWithCurrentPrices -- directly from API (already has current prices)
   const allStocksWithCurrentPrices = stocks;
 
-  // Watchlist from API — enrich with inWatchlist flag
+  // Watchlist from API -- enrich with inWatchlist flag
   const watchlistItems = useMemo(() =>
     apiWatchlist.map(w => ({ ...w, color: "#6B7280", inWatchlist: true })),
     [apiWatchlist]
@@ -1177,7 +1177,7 @@ const MicroHood = () => {
                   <p className={`${themeClasses.textMuted} text-sm text-center py-4`}>No items in watchlist</p>
                 )}
               </div>
-              {/* Watchlist is fully managed via API — removed items disappear on next poll */}
+              {/* Watchlist is fully managed via API -- removed items disappear on next poll */}
             </div>
 
             {/* News */}
@@ -1510,7 +1510,7 @@ const MicroHood = () => {
         </div>
       )}
 
-      {/* Hints removed — dev info in dev tools bar */}
+      {/* Hints removed -- dev info in dev tools bar */}
 
       {/* Search Modal */}
       {showSearchModal && (

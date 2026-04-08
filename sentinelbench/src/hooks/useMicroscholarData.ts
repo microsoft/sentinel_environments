@@ -103,7 +103,7 @@ export function useMicroscholarData() {
   const mismatch = useRef(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Always poll ALL papers (no search filter) — search is a separate one-shot fetch
+  // Always poll ALL papers (no search filter) -- search is a separate one-shot fetch
   const fetchData = useCallback(() => {
     if (mismatch.current) return;
 

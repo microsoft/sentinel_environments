@@ -1,5 +1,5 @@
 # loads all sqlite databases into in-memory python dicts at server startup.
-# these catalogs are read-only lookup tables — they never change during a simulation.
+# these catalogs are read-only lookup tables -- they never change during a simulation.
 # handlers read from catalogs to build api responses (e.g. look up email sender info).
 #
 # flow: build_db.py creates .db files -> catalogs.py loads them into dicts -> handlers read from dicts

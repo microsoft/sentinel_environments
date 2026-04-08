@@ -224,7 +224,7 @@ def run_negative(scenario_path: Path) -> tuple:
         if not init_resp.get("success"):
             return (sid, False, f"init failed: {init_resp}")
 
-        # No advance, no actions — just evaluate immediately after preload
+        # No advance, no actions -- just evaluate immediately after preload
         result = post("/evaluate")
         if result.get("success"):
             return (sid, False, "NEGATIVE: eval_sql passes without events")
@@ -291,7 +291,7 @@ def main():
         status = "\033[32mPASS\033[0m" if passed else "\033[31mFAIL\033[0m"
         line = f"  [{status}] {sid}"
         if not passed:
-            line += f" — {detail}"
+            line += f" -- {detail}"
         print(line)
 
     pos_passed = sum(1 for _, p, _ in results if p)
@@ -308,7 +308,7 @@ def main():
     neg_total = 0
     if args.negative:
         print(f"\n{'=' * 60}")
-        print("NEGATIVE TESTS (init only, no advance — eval should fail)")
+        print("NEGATIVE TESTS (init only, no advance -- eval should fail)")
         print("=" * 60)
         neg_results = []
         for s in scenarios:
@@ -317,7 +317,7 @@ def main():
             status = "\033[32mPASS\033[0m" if passed else "\033[31mFAIL\033[0m"
             line = f"  [{status}] {sid}"
             if not passed:
-                line += f" — {detail}"
+                line += f" -- {detail}"
             print(line)
 
         neg_total = len(neg_results)

@@ -67,7 +67,7 @@ Each environment defines **20 task variants** via scenario JSON files:
 
 ### Durations
 
-All tasks are **time-based**: the success condition becomes satisfiable exactly at the specified duration. Tasks cannot complete early. Durations are configurable per scenario — scale up for stress-testing persistence or scale down for rapid iteration.
+All tasks are **time-based**: the success condition becomes satisfiable exactly at the specified duration. Tasks cannot complete early. Durations are configurable per scenario -- scale up for stress-testing persistence or scale down for rapid iteration.
 
 ### Example Scenario
 
@@ -83,7 +83,7 @@ Each task is defined as a JSON file in `sentinel_api/<env>/scenarios/`:
 }
 ```
 
-Event timings within each scenario control the effective duration — scale them up or down to adjust task length.
+Event timings within each scenario control the effective duration -- scale them up or down to adjust task length.
 
 The eval harness discovers these scenarios automatically and runs them against an agent subprocess.
 
@@ -153,6 +153,23 @@ npm run dev
 ```
 
 Visit `http://localhost:5173` to interact with environments manually. The frontend proxies API requests to `localhost:8000`, so the API server must be running.
+
+### Dev Mode
+
+Set `SENTINEL_DEV` to skip the `/init` flow and preload environment data on startup:
+
+```bash
+# Backend -- preload all environments
+SENTINEL_DEV=all uvicorn sentinel_api.server:app --reload --port 8000
+
+# Backend -- preload a single environment
+SENTINEL_DEV=microfy uvicorn sentinel_api.server:app --reload --port 8000
+
+# Frontend (separate terminal)
+cd sentinelbench && npm run dev
+```
+
+Each environment has a `scenarios/dev.json` that uses `["*"]` wildcards to load all catalog data. New catalog entries are picked up automatically.
 
 ### 3. Eval Harness
 
@@ -307,9 +324,9 @@ Citation information will be provided upon publication.
 
 ## 👥 Authors
 
-- Matheus Kunzler Maldaner — [GitHub](https://github.com/matheusmaldaner)
-- Adam Fourney — [GitHub](https://github.com/afourney)
-- Amanda Swearngin — [GitHub](https://github.com/amaswea)
-- Hussein Mozannar — [GitHub](https://github.com/husseinmozannar)
-- Gagan Bansal — [GitHub](https://github.com/gagb)
-- Maya Murad — [GitHub](https://github.com/mmurad2)
+- Matheus Kunzler Maldaner -- [GitHub](https://github.com/matheusmaldaner)
+- Adam Fourney -- [GitHub](https://github.com/afourney)
+- Amanda Swearngin -- [GitHub](https://github.com/amaswea)
+- Hussein Mozannar -- [GitHub](https://github.com/husseinmozannar)
+- Gagan Bansal -- [GitHub](https://github.com/gagb)
+- Maya Murad -- [GitHub](https://github.com/mmurad2)

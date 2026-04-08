@@ -163,7 +163,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global simulation state — one active session at a time, matching Docker protocol
+# Global simulation state -- one active session at a time, matching Docker protocol
 _state: str = STATE_STARTING
 _session: Optional[Session] = None
 
@@ -345,7 +345,7 @@ async def _run_auto(session: Session) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Harness endpoints — flat protocol matching Docker sentinel_api
+# Harness endpoints -- flat protocol matching Docker sentinel_api
 # ---------------------------------------------------------------------------
 
 @app.get("/status")
@@ -475,7 +475,7 @@ async def close() -> JSONResponse:
 
 
 # ---------------------------------------------------------------------------
-# Data endpoints — shared
+# Data endpoints -- shared
 # ---------------------------------------------------------------------------
 
 @app.get("/data/config", response_model=ConfigResponse)

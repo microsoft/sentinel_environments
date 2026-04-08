@@ -98,7 +98,7 @@ def process_event(session: Session, event: dict) -> None:
         news_ids = payload.get("news_ids", [])
         buying_power = payload.get("buying_power", 10000.0)
 
-        # Load stocks — "*" means all
+        # Load stocks -- "*" means all
         if stock_symbols == ["*"]:
             stock_symbols = list(MICROHOOD_STOCK_CATALOG.keys())
         for symbol in stock_symbols:
@@ -118,7 +118,7 @@ def process_event(session: Session, event: dict) -> None:
                 "avgCost": raw.get("avg_cost", 0),
             }
 
-        # Load watchlist — "*" means all
+        # Load watchlist -- "*" means all
         if watchlist_symbols == ["*"]:
             watchlist_symbols = list(MICROHOOD_WATCHLIST_CATALOG.keys())
         for symbol in watchlist_symbols:
@@ -128,7 +128,7 @@ def process_event(session: Session, event: dict) -> None:
             session.microhood_watchlist.append(dict(raw))
             session.microhood_watchlist_states[symbol] = {"inWatchlist": True}
 
-        # Load news — "*" means all
+        # Load news -- "*" means all
         if news_ids == ["*"]:
             news_ids = list(MICROHOOD_NEWS_CATALOG.keys())
         for nid in news_ids:
@@ -168,7 +168,7 @@ def handle_action(session: Session, action_name: str) -> dict:
             state["inWatchlist"] = False
 
     elif action_name == "place_order":
-        # Generic "place order" action — no-op, the actual order was already
+        # Generic "place order" action -- no-op, the actual order was already
         # placed via the /data/stocks/{symbol}/order endpoint.
         pass
 

@@ -156,7 +156,7 @@ def process_event(session: Session, event: dict) -> None:
         event_ids = payload.get("event_ids", [])
         task_ids = payload.get("task_ids", [])
 
-        # Load calendar events — "*" means all non-task events
+        # Load calendar events -- "*" means all non-task events
         if event_ids == ["*"]:
             event_ids = [
                 eid for eid, e in MICROLENDAR_EVENT_CATALOG.items()
@@ -169,7 +169,7 @@ def process_event(session: Session, event: dict) -> None:
             session.microlendar_events.append(_build_event_row(raw))
             session.microlendar_event_states[eid] = {}
 
-        # Load tasks — "*" means all task items
+        # Load tasks -- "*" means all task items
         if task_ids == ["*"]:
             task_ids = [
                 eid for eid, e in MICROLENDAR_EVENT_CATALOG.items()

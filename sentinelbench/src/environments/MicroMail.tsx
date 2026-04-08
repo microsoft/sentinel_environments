@@ -544,7 +544,7 @@ const Micromail = () => {
         return;
       }
 
-      // TODO: incomplete feature — email built but not yet pushed to state
+      // TODO: incomplete feature -- email built but not yet pushed to state
 
       setSelectedEmailIds([]);
       setIsComposeOpen(false);
@@ -562,7 +562,7 @@ const Micromail = () => {
       return;
     }
 
-    // TODO: incomplete feature — draft built but not yet saved to state
+    // TODO: incomplete feature -- draft built but not yet saved to state
 
     setSelectedEmailIds([]);
     setIsComposeOpen(false);
