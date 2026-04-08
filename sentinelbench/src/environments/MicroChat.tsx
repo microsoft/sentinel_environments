@@ -679,11 +679,7 @@ const MicroChat = () => {
     }));
   }, [apiTeams, selfUser.id]);
 
-  const microchatDuration = apiConfig?.duration || 120;
-  const [startTime] = useState(Date.now());
-
   // ---- UI state ----
-  const [currentTime, setCurrentTime] = useState(Date.now());
   const [currentView, setCurrentView] = useState<ViewType>("chat");
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
@@ -765,14 +761,6 @@ const MicroChat = () => {
   const toastTimeoutRef = useRef<number | null>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const voicePlaybackTimeoutRef = useRef<number | null>(null);
-
-  // Timer
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-    return () => window.clearInterval(timer);
-  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -1193,37 +1181,6 @@ const MicroChat = () => {
       .slice(0, 5);
   }, [mentionQuery, allKnownUsers]);
 
-
-  const handleResetTask = () => {
-    if (window.confirm("Are you sure you want to reset this task?")) {
-      window.location.reload();
-    }
-  };
-
-  // Admin console
-  const elapsedTime = Math.floor((currentTime - startTime) / 1000);
-  const isLocalhost = window.location.hostname === "localhost";
-  const [adminConsoleEnabled, setAdminConsoleEnabledState] = useState(() => {
-    const stored = localStorage.getItem("adminConsoleEnabled");
-    return stored === "true";
-  });
-
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => {
-      setAdminConsoleEnabledState(e.detail.enabled);
-    };
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "adminConsoleEnabled") {
-        setAdminConsoleEnabledState(e.newValue === "true");
-      }
-    };
-    window.addEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
 
   // ============================================================================
   // RENDER HELPERS
@@ -2592,24 +2549,6 @@ const MicroChat = () => {
 
   return (
     <div className={classNames("flex h-screen flex-col transition-colors duration-200", darkMode ? "bg-[#1f1f1f]" : "bg-white")}>
-      {/* Dev toolbar */}
-      {(isLocalhost || adminConsoleEnabled) && (
-        <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-yellow-200/50 px-4 py-2">
-          <div className="flex items-center justify-between text-sm">
-            <div className="text-yellow-800 font-medium">
-              <strong>Dev Tools:</strong> Elapsed: {elapsedTime}s | Duration: {microchatDuration}s |
-              API: {apiError ? "Error" : apiLoading ? "Loading" : "Connected"}
-            </div>
-            <button
-              onClick={handleResetTask}
-              className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm"
-            >
-              Reset Task
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Top header bar */}
       <header className="flex h-12 items-center justify-between border-b border-gray-200 bg-[#292929] px-4">
         <div className="flex items-center gap-4">

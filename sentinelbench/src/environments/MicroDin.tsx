@@ -627,13 +627,6 @@ const MicroDin = () => {
     });
   };
 
-  const handleResetTask = () => {
-    if (window.confirm('Are you sure you want to reset this task?')) {
-      window.location.reload();
-    }
-  };
-
-
   const handleCloseChat = (contactId: string) => {
     setOpenChats(prev => prev.filter(id => id !== contactId));
     if (activeChat === contactId) {
@@ -793,32 +786,7 @@ const MicroDin = () => {
     setViewedCompanyId(null);
   };
 
-  const isLocalhost = window.location.hostname === 'localhost';
-  const [adminConsoleEnabled, setAdminConsoleEnabled] = useState(() => {
-    const stored = localStorage.getItem('adminConsoleEnabled');
-    return stored === 'true';
-  });
 
-  // Listen for admin console toggle events
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => {
-      setAdminConsoleEnabled(e.detail.enabled);
-    };
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'adminConsoleEnabled') {
-        setAdminConsoleEnabled(e.newValue === 'true');
-      }
-    };
-
-    window.addEventListener('adminConsoleToggle', handleAdminToggle as EventListener);
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('adminConsoleToggle', handleAdminToggle as EventListener);
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
 
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
 
@@ -870,26 +838,6 @@ const MicroDin = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Dev Tools */}
-      {(isLocalhost || adminConsoleEnabled) && (
-        <div className="max-w-7xl mx-auto px-4 pt-4">
-          <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200/50 rounded-xl p-4 mb-4 shadow-sm">
-            <div className="flex items-center justify-between text-sm">
-              <div className="text-yellow-800 font-medium">
-                <strong>Dev Tools:</strong> Duration: {config?.duration ?? '?'}s |
-                {isLoading ? 'Loading...' : error ? `Error: ${error}` : 'Connected'}
-              </div>
-              <button
-                onClick={handleResetTask}
-                className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm"
-              >
-                Reset Task
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* MicroDin Header */}
       <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-2">

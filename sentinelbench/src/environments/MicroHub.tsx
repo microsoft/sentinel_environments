@@ -121,23 +121,6 @@ const buildFileTree = (flatFiles: ApiFile[]): RepoFile[] => {
 export const TASK_ID_MICROHUB = "microhub";
 
 // ============================================================================
-// ELAPSED TIME DISPLAY COMPONENT (separate to avoid re-rendering main component)
-// ============================================================================
-const ElapsedTimeDisplay = ({ startTime }: { startTime: number }) => {
-  const [currentTime, setCurrentTime] = useState(Date.now());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const elapsedTime = Math.floor((currentTime - startTime) / 1000);
-  return <>{elapsedTime}s</>;
-};
-
-// ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
 
@@ -446,30 +429,6 @@ const MicroHub = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Admin console
-  const isLocalhost = window.location.hostname === "localhost";
-  const [adminConsoleEnabled, setAdminConsoleEnabled] = useState(() => {
-    const stored = localStorage.getItem("adminConsoleEnabled");
-    return stored === "true";
-  });
-
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => {
-      setAdminConsoleEnabled(e.detail.enabled);
-    };
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "adminConsoleEnabled") {
-        setAdminConsoleEnabled(e.newValue === "true");
-      }
-    };
-    window.addEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
-
   // Close header dropdown when clicking outside
   useEffect(() => {
     if (!headerDropdown) return;
@@ -482,12 +441,6 @@ const MicroHub = () => {
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [headerDropdown]);
-
-  const handleResetTask = () => {
-    if (window.confirm("Are you sure you want to reset this task?")) {
-      window.location.reload();
-    }
-  };
 
   // Event handlers
   const handleStarToggle = useCallback(() => {
@@ -3169,22 +3122,6 @@ npm run dev`}</code>
 
   return (
     <div className={classNames("min-h-screen", theme.bg, theme.text)}>
-      {/* Dev Tools */}
-      {(isLocalhost || adminConsoleEnabled) && (
-        <div className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-b border-yellow-700/50 px-4 py-2">
-          <div className="flex items-center justify-between text-sm max-w-7xl mx-auto">
-            <div className="text-yellow-300">
-              <strong>Dev Tools:</strong> Elapsed: <ElapsedTimeDisplay startTime={startTime} /> |
-              Duration: {config?.duration || 0}s |
-              View: {currentView}
-            </div>
-            <button onClick={handleResetTask} className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded">
-              Reset Task
-            </button>
-          </div>
-        </div>
-      )}
-
       <Header />
 
       {/* Side Menu (hamburger menu) */}

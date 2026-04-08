@@ -196,8 +196,6 @@ const MicroGram = () => {
 
   const getPlaceholderImageUrl = getImageUrl;
 
-  const taskDuration = config?.duration ?? 120;
-
   // ---------------------------------------------------------------------------
   // Derived counts from API data
   // ---------------------------------------------------------------------------
@@ -295,33 +293,6 @@ const MicroGram = () => {
 
   const storyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Dev mode
-  const isLocalhost = typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-
-  const showHints = false; // No longer from URL params
-
-  const [adminConsoleEnabled, setAdminConsoleEnabledState] = useState(() => {
-    const stored = localStorage.getItem("adminConsoleEnabled");
-    return stored === "true";
-  });
-
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => {
-      setAdminConsoleEnabledState(e.detail.enabled);
-    };
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "adminConsoleEnabled") {
-        setAdminConsoleEnabledState(e.newValue === "true");
-      }
-    };
-    window.addEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
 
   // Update profile display name / bio if selfUser loads after initial render
   useEffect(() => {
@@ -366,10 +337,6 @@ const MicroGram = () => {
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
-
-  const handleResetTask = useCallback(() => {
-    window.location.reload();
-  }, []);
 
   const handleLikePost = useCallback((postId: string) => {
     likePost(postId);
@@ -1500,25 +1467,8 @@ const MicroGram = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Dev Tools Banner - appears above header */}
-      {(isLocalhost || showHints || adminConsoleEnabled) && (
-        <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-yellow-200 px-4 py-2 z-50">
-          <div className="max-w-5xl mx-auto flex items-center justify-between text-sm">
-            <div className="text-yellow-800 font-medium">
-              <strong>Dev:</strong> Duration: {taskDuration}s |
-              Likes: {currentCounts.likes} | Follows: {currentCounts.follows} |
-              Stories: {currentCounts.stories} |
-              API: {apiError ? "Error" : isLoading ? "Loading" : "Connected"}
-            </div>
-            <button onClick={handleResetTask} className="px-3 py-1 bg-red-500 text-white text-xs rounded-lg">
-              Reset
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
-      <header className={`fixed left-0 right-0 bg-white border-b border-gray-200 z-40 ${isLocalhost || showHints || adminConsoleEnabled ? 'top-10' : 'top-0'}`}>
+      <header className="fixed left-0 right-0 bg-white border-b border-gray-200 z-40 top-0">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <button
             onClick={() => { setNavSection("home"); setSelectedProfile(null); }}
@@ -1552,7 +1502,7 @@ const MicroGram = () => {
 
 
       {/* Main Content */}
-      <main style={{ paddingTop: isLocalhost || showHints || adminConsoleEnabled ? '96px' : '56px' }}>
+      <main style={{ paddingTop: '56px' }}>
         {navSection === "home" && renderFeed()}
         {navSection === "explore" && renderExplore()}
         {navSection === "search" && (
@@ -1857,19 +1807,6 @@ const MicroGram = () => {
         </div>
       )}
 
-      {/* Hints Panel */}
-      {showHints && (
-        <div className="fixed bottom-4 left-4 bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-xs max-w-sm z-50 border border-green-500">
-          <h3 className="font-bold text-green-300 mb-2">TECHNICAL SPECS</h3>
-          <p><span className="text-yellow-400">Task ID:</span> {TASK_ID_MICROGRAM}</p>
-          <p><span className="text-yellow-400">Duration:</span> {taskDuration}s</p>
-          <p><span className="text-yellow-400">Likes:</span> {currentCounts.likes}</p>
-          <p><span className="text-yellow-400">Comments:</span> {currentCounts.comments}</p>
-          <p><span className="text-yellow-400">Follows:</span> {currentCounts.follows}</p>
-          <p><span className="text-yellow-400">Saves:</span> {currentCounts.saves}</p>
-          <p><span className="text-yellow-400">Stories:</span> {currentCounts.stories}</p>
-        </div>
-      )}
     </div>
   );
 };

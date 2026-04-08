@@ -160,8 +160,6 @@ const MicroLendar = () => {
   );
   const tasks: Task[] = apiTasks;
 
-  const taskDuration = config?.duration || 120;
-
   // Lock screen state
   const [isSignedOut, setIsSignedOut] = useState(false);
 
@@ -247,32 +245,6 @@ const MicroLendar = () => {
   });
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // Dev mode detection
-  const isLocalhost = typeof window !== 'undefined' &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
-
-  const [adminConsoleEnabled, setAdminConsoleEnabledState] = useState(() => {
-    const stored = localStorage.getItem("adminConsoleEnabled");
-    return stored === "true";
-  });
-
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => {
-      setAdminConsoleEnabledState(e.detail.enabled);
-    };
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "adminConsoleEnabled") {
-        setAdminConsoleEnabledState(e.newValue === "true");
-      }
-    };
-    window.addEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-    window.addEventListener("storage", handleStorageChange);
-    return () => {
-      window.removeEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-      window.removeEventListener("storage", handleStorageChange);
-    };
-  }, []);
 
   // Focus search input when modal opens
   useEffect(() => {
@@ -857,21 +829,9 @@ const MicroLendar = () => {
         </div>
       </div>
 
-      {/* Dev Tools Banner */}
-      {(isLocalhost || adminConsoleEnabled) && (
-        <div className="fixed top-14 left-0 right-0 bg-gradient-to-r from-yellow-50 to-amber-50 border-b border-yellow-200 px-4 py-2 z-40">
-          <div className="flex items-center justify-between">
-            <div className="text-yellow-800 font-medium text-sm">
-              <strong>Dev Tools:</strong> Duration: {taskDuration}s
-            </div>
-          </div>
-        </div>
-      )}
-
-
       {/* Sidebar */}
       {showSidebar && (
-        <div className={`fixed left-0 ${isLocalhost || adminConsoleEnabled ? 'top-24' : 'top-14'} bottom-0 w-64 bg-white border-r border-gray-200 overflow-y-auto pt-4 px-4`}>
+        <div className={`fixed left-0 top-14 bottom-0 w-64 bg-white border-r border-gray-200 overflow-y-auto pt-4 px-4`}>
           {/* Create button */}
           <div className="relative mb-6">
             <button
@@ -1129,7 +1089,7 @@ const MicroLendar = () => {
       )}
 
       {/* Main calendar grid */}
-      <div className={`flex-1 ${showSidebar ? 'ml-64' : 'ml-0'} ${isLocalhost || adminConsoleEnabled ? 'mt-24' : 'mt-14'} p-4`}>
+      <div className={`flex-1 ${showSidebar ? 'ml-64' : 'ml-0'} mt-14 p-4`}>
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {/* Month View */}
           {viewMode === 'month' && (
@@ -1645,7 +1605,7 @@ const MicroLendar = () => {
 
       {/* Tasks Panel */}
       {showTasksPanel && (
-        <div className={`fixed right-0 ${isLocalhost || adminConsoleEnabled ? 'top-24' : 'top-14'} bottom-0 w-80 bg-white border-l border-gray-200 shadow-lg p-4 overflow-y-auto z-40`}>
+        <div className={`fixed right-0 top-14 bottom-0 w-80 bg-white border-l border-gray-200 shadow-lg p-4 overflow-y-auto z-40`}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Tasks</h2>
             <button onClick={() => setShowTasksPanel(false)} className="p-1 hover:bg-gray-100 rounded">

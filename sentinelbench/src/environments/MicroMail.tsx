@@ -175,8 +175,6 @@ const Micromail = () => {
     performAction: apiPerformAction,
   } = useMicromailData();
 
-  const micromailDuration = apiConfig?.duration ?? 300;
-
   // Transform API emails to the richer Email shape the UI expects
   const emails = useMemo<Email[]>(() => {
     return apiEmails.map((api) => ({
@@ -667,45 +665,6 @@ const Micromail = () => {
     setContextMenu(null);
   }, [apiMoveEmail, apiFlagEmail, apiMarkRead, apiMarkUnread, contextMenu, triggerToast]);
 
-  const isLocalhost = window.location.hostname === "localhost";
-  const [adminConsoleEnabled, setAdminConsoleEnabledState] = useState(() => {
-    const stored = localStorage.getItem("adminConsoleEnabled");
-    return stored === "true";
-  });
-
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => {
-      setAdminConsoleEnabledState(e.detail.enabled);
-    };
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "adminConsoleEnabled") {
-        setAdminConsoleEnabledState(e.newValue === "true");
-      }
-    };
-
-    const syncWithStorage = () => {
-      const currentValue = localStorage.getItem("adminConsoleEnabled") === "true";
-      setAdminConsoleEnabledState(currentValue);
-    };
-
-    window.addEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("focus", syncWithStorage);
-
-    return () => {
-      window.removeEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("focus", syncWithStorage);
-    };
-  }, []);
-
-  const handleResetTask = () => {
-    if (window.confirm("Are you sure you want to reset this task?")) {
-      window.location.reload();
-    }
-  };
-
   const renderSidebar = (isOverlay = false) => {
     const favoriteFolders = FOLDER_DEFINITIONS.filter((item) => item.isFavorite);
     const allFolders = FOLDER_DEFINITIONS;
@@ -856,22 +815,6 @@ const Micromail = () => {
 
   return (
     <div className="min-h-screen bg-[#eef1f6]">
-      {(isLocalhost || adminConsoleEnabled) && (
-        <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200/50 rounded-xl p-4 mb-6 shadow-sm backdrop-blur-sm max-w-6xl mx-auto mt-6">
-          <div className="flex items-center justify-between text-sm">
-            <div className="text-yellow-800 font-medium">
-              <strong>Dev Tools:</strong> Duration: {micromailDuration}s
-            </div>
-            <button
-              onClick={handleResetTask}
-              className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-sm"
-            >
-              Reset Task
-            </button>
-          </div>
-        </div>
-      )}
-
       <header className="flex items-center gap-4 bg-[#0b65d7] px-6 py-3 text-white shadow">
         <button
           className="rounded-md p-2 hover:bg-white/10 lg:hidden"

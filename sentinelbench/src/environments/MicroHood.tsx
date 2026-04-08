@@ -63,8 +63,6 @@ const MicroHood = () => {
   }, [config?.selfUser]);
 
   // ===================== DERIVED FROM API =====================
-  const microhoodDuration = config?.duration ?? 120;
-
   // MCRO price from server-interpolated stocks
   const currentPrice = useMemo(() => {
     const mcro = stocks.find(s => s.symbol === "MCRO");
@@ -216,36 +214,9 @@ const MicroHood = () => {
     borderSecondary: theme === "dark" ? "border-gray-700" : "border-gray-300",
     navActive: theme === "dark" ? "text-white" : "text-gray-900",
     navInactive: theme === "dark" ? "text-gray-500" : "text-gray-400",
-    devToolsBg: theme === "dark" ? "bg-gradient-to-r from-yellow-900/30 to-amber-900/30" : "bg-gradient-to-r from-yellow-100 to-amber-100",
-    devToolsBorder: theme === "dark" ? "border-yellow-500/30" : "border-yellow-400",
-    devToolsText: theme === "dark" ? "text-yellow-400" : "text-yellow-700",
     chartLine: theme === "dark" ? "#4B5563" : "#9CA3AF",
     chartText: theme === "dark" ? "#6B7280" : "#6B7280",
   }), [theme]);
-
-  // Admin console
-  const isLocalhost = window.location.hostname === "localhost";
-  const [adminConsoleEnabled, setAdminConsoleEnabled] = useState(() => {
-    return localStorage.getItem("adminConsoleEnabled") === "true";
-  });
-
-  useEffect(() => {
-    const handleAdminToggle = (e: CustomEvent) => setAdminConsoleEnabled(e.detail.enabled);
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "adminConsoleEnabled") setAdminConsoleEnabled(e.newValue === "true");
-    };
-    const syncWithStorage = () => setAdminConsoleEnabled(localStorage.getItem("adminConsoleEnabled") === "true");
-
-    window.addEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("focus", syncWithStorage);
-
-    return () => {
-      window.removeEventListener("adminConsoleToggle", handleAdminToggle as EventListener);
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("focus", syncWithStorage);
-    };
-  }, []);
 
   // Toast helper
   const showToast = useCallback((message: string) => {
@@ -339,12 +310,6 @@ const MicroHood = () => {
     showToast(`${feature} coming soon!`);
   }, [showToast]);
   void _handleComingSoon; // Mark as intentionally unused for now
-
-  const handleResetTask = () => {
-    if (window.confirm("Reset this task?")) {
-      window.location.reload();
-    }
-  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -493,24 +458,6 @@ const MicroHood = () => {
 
   return (
     <div className={`min-h-screen ${themeClasses.bg} ${themeClasses.text} transition-colors duration-300`} style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      {/* Dev Tools */}
-      {(isLocalhost || adminConsoleEnabled) && (
-        <div className="bg-gradient-to-r from-yellow-900/30 to-amber-900/30 border-b border-yellow-500/30 px-4 py-3">
-          <div className="max-w-7xl mx-auto flex items-center justify-between text-sm">
-            <div className="text-yellow-400 font-mono">
-              <strong>Dev:</strong> Duration: {microhoodDuration}s |
-              Price: {formatCurrency(currentPrice)}
-            </div>
-            <button
-              onClick={handleResetTask}
-              className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <header className={`border-b ${themeClasses.border} sticky top-0 ${themeClasses.bg} z-40 transition-colors duration-300`}>
         <div className="max-w-7xl mx-auto px-4 py-3">

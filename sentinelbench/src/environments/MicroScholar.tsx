@@ -169,8 +169,6 @@ const MicroScholar = () => {
     [papers]
   );
 
-  const taskDuration = config?.duration ?? 120;
-
   // ---------------------------------------------------------------------------
   // State Variables
   // ---------------------------------------------------------------------------
@@ -178,7 +176,6 @@ const MicroScholar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Paper[]>([]);
   const [targetPaperShown, setTargetPaperShown] = useState(false);
-  const [targetPaperClicked, setTargetPaperClicked] = useState(false);
   const [isSignedOut, setIsSignedOut] = useState(false);
   const [thresholdReachedAt, setThresholdReachedAt] = useState<number | null>(null);
   const [actionCompleted, setActionCompleted] = useState(false);
@@ -348,7 +345,6 @@ const MicroScholar = () => {
 
     // Mark action as completed when citing the target paper
     if (paper.isTargetPaper && !actionCompleted) {
-      setTargetPaperClicked(true);
       setActionCompleted(true);
       setActionCompletedAt(Date.now());
     }
@@ -359,12 +355,6 @@ const MicroScholar = () => {
       prev.includes(paperId) ? prev.filter((id) => id !== paperId) : [...prev, paperId]
     );
     hookSavePaper(paperId);
-  };
-
-  const handleResetTask = () => {
-    if (window.confirm("Reset this task? Progress will be lost.")) {
-      window.location.reload();
-    }
   };
 
   const getCitationFormats = (paper: Paper) => {
@@ -394,29 +384,6 @@ const MicroScholar = () => {
       },
     ];
   };
-
-  // ---------------------------------------------------------------------------
-  // Computed Values
-  // ---------------------------------------------------------------------------
-  const elapsedTime = Math.floor((currentTime - startTime) / 1000);
-  const isLocalhost = window.location.hostname === "localhost";
-  const [adminConsoleEnabled, setAdminConsoleEnabled] = useState(() => {
-    return localStorage.getItem("adminConsoleEnabled") === "true";
-  });
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setAdminConsoleEnabled(localStorage.getItem("adminConsoleEnabled") === "true");
-    };
-    window.addEventListener("storage", handleStorageChange);
-    const interval = setInterval(handleStorageChange, 2000);
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
-
-  const showDevTools = isLocalhost || adminConsoleEnabled;
 
   // ---------------------------------------------------------------------------
   // Loading Gate
@@ -2468,24 +2435,6 @@ const MicroScholar = () => {
   // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Dev Tools */}
-      {showDevTools && (
-        <div className="bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200/50 rounded-xl p-4 mx-4 mt-4 shadow-sm">
-          <div className="flex items-center justify-between text-sm">
-            <div className="text-yellow-800 font-medium">
-              <strong>Dev:</strong> Elapsed: {elapsedTime}s | Results: {searchResults.length} |
-              Target: {targetPaperShown ? "✅" : "❌"} | Clicked: {targetPaperClicked ? "✅" : "❌"}
-            </div>
-            <button
-              onClick={handleResetTask}
-              className="px-3 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-lg hover:from-red-600 hover:to-red-700"
-            >
-              Reset
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* ===================================================================== */}
       {/* HEADER                                                               */}
       {/* ===================================================================== */}
@@ -3471,32 +3420,10 @@ JF ${selectedPaper.source}`;
         </div>
       )}
 
-      {/* ===================================================================== */}
-      {/* HINTS (Dev mode)                                                     */}
-      {/* ===================================================================== */}
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-2xl z-[9999] text-sm font-medium animate-pulse">
           {toastMessage}
-        </div>
-      )}
-
-      {showDevTools && (
-        <div className="fixed bottom-4 left-4 bg-gray-900 text-green-400 rounded-lg p-4 font-mono text-xs max-w-md z-50">
-          <div className="font-bold text-green-300 mb-2">🛠️ HINTS</div>
-          <p>
-            <strong className="text-yellow-400">Task:</strong> Search for papers, wait for target
-            paper to appear, click Cite on it
-          </p>
-          <p>
-            <strong className="text-yellow-400">Duration:</strong> {taskDuration}s
-          </p>
-          <p>
-            <strong className="text-yellow-400">Status ID:</strong> #microscholar-status
-          </p>
-          <p>
-            <strong className="text-yellow-400">Code ID:</strong> #microscholar-code
-          </p>
         </div>
       )}
 
