@@ -57,6 +57,7 @@ pnpm-lock.yaml
 
 # Build outputs
 # -------------
+.vite/
 dist/
 dist-ssr/
 build/
