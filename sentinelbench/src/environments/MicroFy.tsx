@@ -2641,7 +2641,7 @@ const MicroFy = () => {
                   <div className="mb-4">
                     <div className="text-[#b3b3b3] text-sm mb-2">Top Genres</div>
                     <div className="flex flex-wrap gap-2">
-                      {selfUser.microfy.topGenres.map((genre, idx) => (
+                      {selfUser.microfy.topGenres.map((genre: string, idx: number) => (
                         <span key={idx} className="px-3 py-1 bg-[#3e3e3e] text-white text-sm rounded-full">{genre}</span>
                       ))}
                     </div>

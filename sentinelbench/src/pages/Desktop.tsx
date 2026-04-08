@@ -142,7 +142,6 @@ const Desktop = () => {
   const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
   const [clockValue, setClockValue] = useState(() => new Date());
   const [startMenuOpen, setStartMenuOpen] = useState(false);
-  const adminConsoleEnabled = localStorage.getItem("adminConsoleEnabled") === "true";
 
   // Window minimized states for taskbar
   const [infoWindowMinimized, setInfoWindowMinimized] = useState(false);
