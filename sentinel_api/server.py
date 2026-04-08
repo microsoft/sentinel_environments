@@ -479,11 +479,19 @@ async def close() -> JSONResponse:
 # ---------------------------------------------------------------------------
 
 @app.get("/data/config", response_model=ConfigResponse)
-async def data_config() -> ConfigResponse:
+async def data_config(request: Request) -> ConfigResponse:
     session = _require_session()
+    env = session.environment
+    # In dev "all" mode, detect which environment the frontend needs from the Referer path
+    if env == "all":
+        referer = request.headers.get("referer", "")
+        for name in _ENV_NAMES:
+            if f"/{name}" in referer:
+                env = name
+                break
     self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), None)
     return ConfigResponse(
-        environment=session.environment,
+        environment=env,
         duration=session.duration,
         selfUser=self_user,
     )
