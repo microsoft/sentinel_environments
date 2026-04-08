@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
-import { useMicrogramData, type ApiGramPost } from "../hooks/useMicrogramData";
+import { useMicrogramData, type ApiGramPost, type ApiGramUser } from "../hooks/useMicrogramData";
 import {
   Home,
   Search,
@@ -136,7 +136,7 @@ const MicroGram = () => {
   // ---------------------------------------------------------------------------
 
   /** Convert a raw API user object into MicroGramUser shape */
-  const toMicroGramUser = useCallback((u: Record<string, any>): MicroGramUser => {
+  const toMicroGramUser = useCallback((u: ApiGramUser): MicroGramUser => {
     const social = u.social || {};
     return {
       id: u.id,
@@ -168,13 +168,13 @@ const MicroGram = () => {
 
   const selfUser = useMemo(() => {
     const raw = config?.selfUser;
-    return raw ? toMicroGramUser(raw as Record<string, any>) : undefined;
+    return raw ? toMicroGramUser(raw as ApiGramUser) : undefined;
   }, [config, toMicroGramUser]);
 
   const MICROGRAM_USERS = useMemo(() =>
     Object.values(users)
-      .filter((u: any) => u.social)
-      .map((u: any) => toMicroGramUser(u)),
+      .filter(u => u.social)
+      .map(u => toMicroGramUser(u)),
     [users, toMicroGramUser]
   );
 

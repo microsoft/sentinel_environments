@@ -48,7 +48,7 @@ import {
 } from "lucide-react";
 
 import { useMicrohubData } from "../hooks/useMicrohubData";
-import type { ApiFile, ApiIssue, ApiPullRequest } from "../hooks/useMicrohubData";
+import type { ApiFile, ApiIssue, ApiPullRequest, ApiHubUser } from "../hooks/useMicrohubData";
 
 // ============================================================================
 // LOCAL TYPE DEFINITIONS (extending UserProfile with microhub data)
@@ -248,14 +248,14 @@ const MicroHub = () => {
     codeScanning, settings, deployments, packages, users,
     config, isLoading, error,
     starRepo, watchRepo, forkRepo, mergePR, commentOnIssue, commentOnPR,
-    closeIssue: _closeIssue, followUser,
+    followUser,
   } = useMicrohubData();
 
   // Derive users into MicroHubUser[]
   const microhubUsers = useMemo<MicroHubUser[]>(() => {
     return Object.values(users)
-      .filter((u: any) => !!u.microhub)
-      .map((u: any) => ({
+      .filter((u): u is ApiHubUser & { microhub: NonNullable<ApiHubUser['microhub']> } => !!u.microhub)
+      .map(u => ({
         id: u.id,
         isSelf: u.isSelf,
         name: u.name,

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 
 import { useMicrodinData } from "../hooks/useMicrodinData";
-import type { ApiDinCompany } from "../hooks/useMicrodinData";
+import type { ApiDinCompany, ApiDinUser } from "../hooks/useMicrodinData";
 
 export const TASK_ID_MICRODIN = "microdin";
 
@@ -265,7 +265,7 @@ interface ConnectionInvitation {
 // ============================================================================
 
 // Convert user to Person format
-const convertUserToPerson = (user: any, index: number): Person => {
+const convertUserToPerson = (user: ApiDinUser, index: number): Person => {
   // Generate pseudo-random but consistent connections count based on user ID
   const connectionCount = ((user.id.charCodeAt(4) || 0) * 17 + index * 23) % 400 + 50;
 
@@ -465,15 +465,15 @@ const MicroDin = () => {
 
   // Derive shared data from API
   const userMap = useMemo(() => {
-    const m = new Map<string, any>();
+    const m = new Map<string, ApiDinUser>();
     for (const u of apiUsers) m.set(u.id, u);
     return m;
   }, [apiUsers]);
 
-  const selfUser = config?.selfUser as any;
+  const selfUser = config?.selfUser as ApiDinUser | undefined;
 
   const allPeople = useMemo<Person[]>(
-    () => apiUsers.filter((u: any) => !u.isSelf).map((u: any, i: number) => convertUserToPerson(u, i)),
+    () => apiUsers.filter(u => !u.isSelf).map((u, i) => convertUserToPerson(u, i)),
     [apiUsers]
   );
 
@@ -524,7 +524,7 @@ const MicroDin = () => {
       };
     });
     return [...localPosts, ...mapped];
-  }, [apiPosts, localPosts]);
+  }, [apiPosts, localPosts, userMap]);
 
   const allPosts = posts;
 
@@ -542,7 +542,7 @@ const MicroDin = () => {
 
   const contacts = useMemo<Contact[]>(() => {
     return apiConversations.map(conv => {
-      const otherParticipant = (conv.participants ?? []).find((p: any) => p.id !== selfUser?.id) || (conv.participants ?? [])[0];
+      const otherParticipant = (conv.participants ?? []).find(p => p.id !== selfUser?.id) || (conv.participants ?? [])[0];
       return {
         id: conv.id,
         name: otherParticipant?.name || 'Unknown',
@@ -588,7 +588,7 @@ const MicroDin = () => {
       requirements: j.requirements,
       companyId: j.companyId,
     }));
-  }, [apiJobs]);
+  }, [apiJobs, companyMap]);
 
   // Use self person when viewing own profile, otherwise find in allPeople
   const viewedPerson = viewedPersonId === 'self'

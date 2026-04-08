@@ -7,7 +7,29 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: any;
+  selfUser?: { id: string; name: string; avatarUrl: string };
+}
+
+export interface ApiHubUser {
+  id: string;
+  isSelf?: boolean;
+  name: string;
+  username: string;
+  email: string;
+  avatarUrl: string;
+  bio?: string;
+  jobTitle?: string;
+  location?: string;
+  microhub?: {
+    company?: string;
+    website?: string;
+    followers?: number;
+    following?: number;
+    joinedDate?: string;
+    pinnedRepos?: string[];
+    achievements?: { id: string; icon: string; description: string; earnedDate: string }[];
+    contributionData?: number[];
+  };
 }
 
 export interface ApiRepository {
@@ -276,7 +298,7 @@ export function useMicrohubData() {
   const [settings, setSettings] = useState<Record<string, unknown> | null>(null);
   const [deployments, setDeployments] = useState<ApiDeployment[]>([]);
   const [packages, setPackages] = useState<ApiPackage[]>([]);
-  const [users, setUsers] = useState<Record<string, unknown>>({});
+  const [users, setUsers] = useState<Record<string, ApiHubUser>>({});
 
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -347,9 +369,10 @@ export function useMicrohubData() {
           if (deploymentsData) setDeployments(deploymentsData.deployments ?? []);
           if (packagesData) setPackages(packagesData.packages ?? []);
           if (usersData) {
-            const userMap: Record<string, unknown> = {};
+            const userMap: Record<string, ApiHubUser> = {};
             for (const u of usersData.users ?? []) {
-              (userMap as Record<string, unknown>)[(u as { id: string }).id] = u;
+              const user = u as ApiHubUser;
+              userMap[user.id] = user;
             }
             setUsers(userMap);
           }

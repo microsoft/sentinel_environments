@@ -2818,12 +2818,6 @@ export default function MicroTube() {
                     <p>{(selfChannel?.subscribers ?? 0).toLocaleString()} subscribers</p>
                     <p>{getVideosForChannel("ch-self").length} videos</p>
                   </div>
-                  {false && (
-                    <div style={{ marginBottom: 24 }}>
-                      <h4 style={{ color: '#aaa', marginBottom: 8, fontSize: 12, textTransform: 'uppercase' }}>Location</h4>
-                      <p>{"Unknown"}</p>
-                    </div>
-                  )}
                 </div>
               )}
             </div>

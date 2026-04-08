@@ -22,6 +22,7 @@ export interface ApiEmail {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: { id: string; name: string; email: string; avatarUrl: string };
 }
 
 type ReadOverrides = Map<string, boolean>;

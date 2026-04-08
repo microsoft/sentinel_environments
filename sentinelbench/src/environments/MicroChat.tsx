@@ -572,7 +572,6 @@ const MicroChat = () => {
     error: apiError,
     markRead,
     reactToMessage,
-    muteConversation: _apiMuteConversation,
     pinConversation: apiPinConversation,
   } = useMicrochatData();
 

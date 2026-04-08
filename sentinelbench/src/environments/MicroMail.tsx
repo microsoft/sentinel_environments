@@ -230,9 +230,11 @@ const Micromail = () => {
   const [showAttachmentPreviewPanel, setShowAttachmentPreviewPanel] = useState(false);
   const [previewingAttachment, setPreviewingAttachment] = useState<Attachment | null>(null);
 
-  // Hardcoded current user (matches self user in data)
-  const currentUser = { name: "Chris Taylor", email: "ctaylor@mymicromail.com", avatarUrl: "images/avatars/user000.webp", isSelf: true };
-  const userInitials = "CT";
+  const currentUser = apiConfig?.selfUser;
+  const userInitials = useMemo(
+    () => (currentUser?.name ? getInitials(currentUser.name) : ""),
+    [currentUser?.name],
+  );
 
   const searchFieldRef = useRef<HTMLInputElement>(null);
   const bulkCheckboxRef = useRef<HTMLInputElement>(null);
@@ -522,37 +524,13 @@ const Micromail = () => {
       event.preventDefault();
 
       const trimmedTo = composeDraft.to.trim();
-      const trimmedSubject = composeDraft.subject.trim();
 
       if (!trimmedTo) {
         setComposeError("Please specify at least one recipient.");
         return;
       }
 
-      // @ts-expect-error incomplete feature — email built but not yet pushed to state
-      const _newEmail: Email = {
-        id: `sent-${Date.now()}`,
-        folder: "sent",
-        sender: {
-          name: currentUser?.name ?? "",
-          email: currentUser?.email ?? "",
-          initials: userInitials,
-          color: "#2563eb",
-        },
-        recipients: trimmedTo
-          .split(/[,;]+/)
-          .map((entry) => entry.trim())
-          .filter(Boolean),
-        cc: [],
-        subject: trimmedSubject || "(no subject)",
-        preview: composeDraft.body.trim().slice(0, 140) || "Sent a blank message",
-        body: composeDraft.body || "",
-        timestamp: new Date().toISOString(),
-        isRead: true,
-        isFlagged: false,
-        hasAttachment: false,
-        mentionsMe: false,
-      };
+      // TODO: incomplete feature — email built but not yet pushed to state
 
       setSelectedEmailIds([]);
       setIsComposeOpen(false);
@@ -561,7 +539,7 @@ const Micromail = () => {
       setComposeError(null);
       triggerToast("Message sent", "success");
     },
-    [composeDraft, triggerToast, currentUser, userInitials],
+    [composeDraft, triggerToast],
   );
 
   const handleSaveDraft = useCallback(() => {
@@ -570,29 +548,7 @@ const Micromail = () => {
       return;
     }
 
-    // @ts-expect-error incomplete feature — draft built but not yet saved to state
-    const _draft: Email = {
-      id: `draft-${Date.now()}`,
-      folder: "drafts",
-      sender: {
-        name: currentUser?.name ?? "",
-        email: currentUser?.email ?? "",
-        initials: userInitials,
-        color: "#2563eb",
-      },
-      recipients: composeDraft.to
-        .split(/[,;]+/)
-        .map((entry) => entry.trim())
-        .filter(Boolean),
-      subject: composeDraft.subject || "(draft)",
-      preview: composeDraft.body.trim().slice(0, 140) || "Draft saved",
-      body: composeDraft.body || "",
-      timestamp: new Date().toISOString(),
-      isRead: true,
-      isFlagged: true,
-      hasAttachment: false,
-      mentionsMe: false,
-    };
+    // TODO: incomplete feature — draft built but not yet saved to state
 
     setSelectedEmailIds([]);
     setIsComposeOpen(false);
@@ -600,7 +556,7 @@ const Micromail = () => {
     setShowCcBcc(false);
     setComposeError(null);
     triggerToast("Draft saved", "info");
-  }, [composeDraft, triggerToast, currentUser, userInitials]);
+  }, [composeDraft, triggerToast]);
 
   // Discard draft handler
   const handleDiscardDraft = useCallback(() => {

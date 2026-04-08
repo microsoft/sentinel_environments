@@ -96,7 +96,23 @@ export interface ApiDinCompany {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: any;
+  selfUser?: { id: string; name: string; avatarUrl: string };
+}
+
+export interface ApiDinUser {
+  id: string;
+  isSelf?: boolean;
+  name: string;
+  username?: string;
+  email?: string;
+  avatarUrl: string;
+  bannerUrl?: string;
+  bio?: string;
+  jobTitle?: string;
+  location?: string;
+  interests?: string[];
+  microdin?: { company?: string };
+  scholar?: { title?: string; affiliation?: string };
 }
 
 export function useMicrodinData() {
@@ -105,7 +121,7 @@ export function useMicrodinData() {
   const [conversations, setConversations] = useState<ApiDinConversation[]>([]);
   const [notifications, setNotifications] = useState<ApiNotification[]>([]);
   const [jobs, setJobs] = useState<ApiJob[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<ApiDinUser[]>([]);
   const [companies, setCompanies] = useState<ApiDinCompany[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);

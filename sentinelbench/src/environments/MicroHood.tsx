@@ -270,7 +270,7 @@ const MicroHood = () => {
     showToast(`Viewing ${stock.symbol}`);
   }, [showToast]);
 
-  const handleToggleWatchlist = useCallback((symbol: string, _name: string, _price: number, _change: number, _changePercent: number) => {
+  const handleToggleWatchlist = useCallback((symbol: string) => {
     const existing = watchlistItems.find(item => item.symbol === symbol);
     const isCurrentlyInWatchlist = existing?.inWatchlist ?? false;
     apiToggleWatchlist(symbol);
@@ -959,12 +959,7 @@ const MicroHood = () => {
                     {/* Watchlist Toggle Button */}
                     <button
                       onClick={() => {
-                        const symbol = selectedStock?.symbol || "MCRO";
-                        const name = selectedStock?.name || "MicroSystems Corp";
-                        const price = selectedStock?.price || currentPrice;
-                        const change = selectedStock?.change || priceChange;
-                        const changePercent = selectedStock?.changePercent || priceChangePercent;
-                        handleToggleWatchlist(symbol, name, price, change, changePercent);
+                        handleToggleWatchlist(selectedStock?.symbol || "MCRO");
                       }}
                       className={`p-2 rounded-full transition-all ${
                         isInWatchlist(selectedStock?.symbol || "MCRO")
@@ -989,12 +984,7 @@ const MicroHood = () => {
                         <div className={`absolute right-0 top-full mt-2 w-48 ${themeClasses.bgTertiary} rounded-xl shadow-xl border ${themeClasses.borderSecondary} overflow-hidden z-50`}>
                           <button
                             onClick={() => {
-                              const symbol = selectedStock?.symbol || "MCRO";
-                              const name = selectedStock?.name || "MicroSystems Corp";
-                              const price = selectedStock?.price || currentPrice;
-                              const change = selectedStock?.change || priceChange;
-                              const changePercent = selectedStock?.changePercent || priceChangePercent;
-                              handleToggleWatchlist(symbol, name, price, change, changePercent);
+                              handleToggleWatchlist(selectedStock?.symbol || "MCRO");
                               setShowMoreOptionsDropdown(false);
                             }}
                             className={`w-full flex items-center gap-3 px-4 py-3 ${themeClasses.bgHover} text-left`}

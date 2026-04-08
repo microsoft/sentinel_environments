@@ -174,7 +174,7 @@ const MicroFy = () => {
   );
 
   // Derive selfUser from config
-  const selfUser = config?.selfUser as any;
+  const selfUser = config?.selfUser;
 
   // State management
   const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
@@ -184,7 +184,7 @@ const MicroFy = () => {
   const [lyricsExpanded, setLyricsExpanded] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [displayName, setDisplayName] = useState(selfUser?.name ?? "");
-  const [_isMenuOpen, setIsMenuOpen] = useState(false);
+  const [, setIsMenuOpen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);

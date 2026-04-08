@@ -56,7 +56,30 @@ export interface ApiGramActivity {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: any;
+  selfUser?: { id: string; name: string; avatarUrl: string };
+}
+
+export interface ApiGramUser {
+  id: string;
+  isSelf?: boolean;
+  name: string;
+  username: string;
+  email?: string;
+  avatarUrl: string;
+  bio?: string;
+  jobTitle?: string;
+  location?: string;
+  interests?: string[];
+  social?: {
+    followers?: number;
+    following?: number;
+    postsCount?: number;
+    isVerified?: boolean;
+    isPrivate?: boolean;
+    website?: string;
+    hasStory?: boolean;
+    storyId?: string;
+  };
 }
 
 export function useMicrogramData() {
@@ -66,7 +89,7 @@ export function useMicrogramData() {
   const [activity, setActivity] = useState<ApiGramActivity[]>([]);
   const [followedUserIds, setFollowedUserIds] = useState<string[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
-  const [users, setUsers] = useState<Record<string, any>>({});
+  const [users, setUsers] = useState<Record<string, ApiGramUser>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,7 +135,7 @@ export function useMicrogramData() {
         })
         .then((data) => {
           usersLoaded.current = true;
-          const userMap: Record<string, any> = {};
+          const userMap: Record<string, ApiGramUser> = {};
           for (const u of data.users ?? []) {
             userMap[u.id] = u;
           }

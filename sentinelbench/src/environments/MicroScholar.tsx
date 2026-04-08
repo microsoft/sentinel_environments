@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
-import { useMicroscholarData, type ApiPaper, type ApiCoauthor } from "../hooks/useMicroscholarData";
+import { useMicroscholarData, type ApiPaper, type ApiCoauthor, type ApiScholarUser } from "../hooks/useMicroscholarData";
 import {
   Menu,
   GraduationCap,
@@ -103,7 +103,7 @@ const MicroScholar = () => {
   // ---------------------------------------------------------------------------
   // API-derived helpers (replaces static syntheticData)
   // ---------------------------------------------------------------------------
-  const toScholarUser = useCallback((u: Record<string, any>): ScholarUser => {
+  const toScholarUser = useCallback((u: ApiScholarUser): ScholarUser => {
     const s = u.scholar || {};
     return {
       id: u.id,
@@ -129,8 +129,8 @@ const MicroScholar = () => {
 
   const scholarUsers = useMemo(() =>
     Object.values(users)
-      .filter((u: any) => !!u.scholar)
-      .map((u: any) => toScholarUser(u)),
+      .filter(u => !!u.scholar)
+      .map(u => toScholarUser(u)),
     [users, toScholarUser]
   );
 
@@ -182,7 +182,7 @@ const MicroScholar = () => {
   const [isSignedOut, setIsSignedOut] = useState(false);
   const [thresholdReachedAt, setThresholdReachedAt] = useState<number | null>(null);
   const [actionCompleted, setActionCompleted] = useState(false);
-  const [_actionCompletedAt, setActionCompletedAt] = useState<number | null>(null);
+  const [, setActionCompletedAt] = useState<number | null>(null);
   const [showCiteModal, setShowCiteModal] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
   const [savedPapers, setSavedPapers] = useState<string[]>([]);

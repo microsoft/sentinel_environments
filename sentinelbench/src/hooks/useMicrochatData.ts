@@ -73,7 +73,7 @@ export interface ApiCall {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: any;
+  selfUser?: { id: string; name: string; avatarUrl: string };
 }
 
 type ReadOverrides = Map<string, boolean>;

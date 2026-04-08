@@ -44,7 +44,31 @@ export interface ApiCoauthor {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: any;
+  selfUser?: { id: string; name: string; avatarUrl: string };
+}
+
+export interface ApiScholarUser {
+  id: string;
+  isSelf?: boolean;
+  name: string;
+  email?: string;
+  avatarUrl: string;
+  location?: string;
+  scholar?: {
+    email?: string;
+    affiliation?: string;
+    department?: string;
+    title?: string;
+    interests?: string[];
+    citations?: number;
+    hIndex?: number;
+    i10Index?: number;
+    citationsSince2020?: number;
+    hIndexSince2020?: number;
+    isVerified?: boolean;
+    homepage?: string;
+    orcid?: string;
+  };
 }
 
 export interface AdvancedSearchParams {
@@ -66,7 +90,7 @@ export function useMicroscholarData() {
   const [rawAlerts, setRawAlerts] = useState<ApiAlert[]>([]);
   const [coauthors, setCoauthors] = useState<ApiCoauthor[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
-  const [users, setUsers] = useState<Record<string, any>>({});
+  const [users, setUsers] = useState<Record<string, ApiScholarUser>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -112,7 +136,7 @@ export function useMicroscholarData() {
         })
         .then((data) => {
           usersLoaded.current = true;
-          const userMap: Record<string, any> = {};
+          const userMap: Record<string, ApiScholarUser> = {};
           for (const u of data.users ?? []) {
             userMap[u.id] = u;
           }

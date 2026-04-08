@@ -55,7 +55,7 @@ interface CalendarCategory {
 
 type ViewMode = 'month' | 'week' | 'day' | 'year' | 'schedule' | '4days';
 
-interface Task extends ApiTask {}
+type Task = ApiTask;
 
 
 // ============================================================================
@@ -132,7 +132,7 @@ const MicroLendar = () => {
   // User helpers (derived from config)
   const currentUser = config?.selfUser || null;
 
-  const getAttendeeInfo = useCallback((attendee: any): { name: string; initials: string; avatarUrl?: string; color: string } => {
+  const getAttendeeInfo = useCallback((attendee: { id?: string; name?: string; avatarUrl?: string }): { name: string; initials: string; avatarUrl?: string; color: string } => {
     if (!attendee || !attendee.name) {
       return { name: 'Unknown', initials: '?', color: '#9CA3AF' };
     }
@@ -1369,7 +1369,7 @@ const MicroLendar = () => {
                               </div>
                               {event.attendees && event.attendees.length > 0 && (
                                 <div className="flex -space-x-2">
-                                  {event.attendees.slice(0, 3).map((att: any) => {
+                                  {event.attendees.slice(0, 3).map((att) => {
                                     const info = getAttendeeInfo(att);
                                     return info.avatarUrl ? (
                                       <img
@@ -2118,7 +2118,7 @@ const MicroLendar = () => {
                           </div>
                         </div>
                         {/* Other attendees */}
-                        {selectedEvent.attendees.map((att: any) => {
+                        {selectedEvent.attendees.map((att) => {
                           const info = getAttendeeInfo(att);
                           return (
                             <div key={att.id} className="flex items-center gap-2">
