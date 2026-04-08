@@ -211,6 +211,8 @@ const Micromail = () => {
   // UI state
   const [selectedFolder, setSelectedFolder] = useState<FolderKey>("inbox");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
+  // Email pinned in a quick-filter view so it stays visible after being marked read/unflagged
+  const [pinnedEmailId, setPinnedEmailId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
   const [selectedEmailIds, setSelectedEmailIds] = useState<string[]>([]);
@@ -297,9 +299,9 @@ const Micromail = () => {
     let working = emails.filter((email) => email.folder === selectedFolder);
 
     if (quickFilter === "unread") {
-      working = working.filter((email) => !email.isRead);
+      working = working.filter((email) => !email.isRead || email.id === pinnedEmailId);
     } else if (quickFilter === "flagged") {
-      working = working.filter((email) => email.isFlagged);
+      working = working.filter((email) => email.isFlagged || email.id === pinnedEmailId);
     } else if (quickFilter === "mentions") {
       working = working.filter((email) => email.mentionsMe);
     }
@@ -324,7 +326,7 @@ const Micromail = () => {
     return [...working].sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
     );
-  }, [emails, selectedFolder, quickFilter, searchQuery]);
+  }, [emails, selectedFolder, quickFilter, searchQuery, pinnedEmailId]);
 
   const selectedEmail = useMemo(
     () => emails.find((email) => email.id === selectedEmailId) ?? null,
@@ -398,6 +400,7 @@ const Micromail = () => {
     (folder: FolderKey) => {
       setSelectedFolder(folder);
       setQuickFilter("all");
+      setPinnedEmailId(null);
       setSelectedEmailIds([]);
       setIsMobileNavOpen(false);
       setSearchQuery("");
@@ -409,8 +412,13 @@ const Micromail = () => {
     setSelectedEmailId(emailId);
     setSelectedEmailIds([]);
 
+    // Pin the email so it stays visible in the current quick-filter view
+    if (quickFilter !== "all") {
+      setPinnedEmailId(emailId);
+    }
+
     apiMarkRead(emailId);
-  }, [apiMarkRead]);
+  }, [apiMarkRead, quickFilter]);
 
   const handleEmailKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>, emailId: string) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -447,6 +455,14 @@ const Micromail = () => {
     targets.forEach((id) => apiMarkUnread(id));
     triggerToast(targets.length > 1 ? "Marked conversations as unread" : "Marked as unread", "info");
   }, [apiMarkUnread, selectedEmailIds, selectedEmailId, triggerToast]);
+
+  const handleMarkRead = useCallback(() => {
+    const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
+    if (!targets.length) return;
+
+    targets.forEach((id) => apiMarkRead(id));
+    triggerToast(targets.length > 1 ? "Marked conversations as read" : "Marked as read", "info");
+  }, [apiMarkRead, selectedEmailIds, selectedEmailId, triggerToast]);
 
   const handleArchiveSelection = useCallback(() => {
     const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
@@ -999,7 +1015,7 @@ const Micromail = () => {
                   return (
                     <button
                       key={filter.key}
-                      onClick={() => setQuickFilter(filter.key)}
+                      onClick={() => { setQuickFilter(filter.key); setPinnedEmailId(null); }}
                       className={classNames(
                         "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition",
                         isActive
@@ -1040,12 +1056,12 @@ const Micromail = () => {
                   <Flag size={16} />
                 </button>
                 <button
-                  onClick={handleMarkUnread}
+                  onClick={selectedEmail?.isRead ? handleMarkUnread : handleMarkRead}
                   className={actionButtonClass()}
                   disabled={!activeSelectionCount}
-                  aria-label="Mark unread"
+                  aria-label={selectedEmail?.isRead ? "Mark unread" : "Mark as read"}
                 >
-                  <Mail size={16} />
+                  {selectedEmail?.isRead ? <Mail size={16} /> : <MailOpen size={16} />}
                 </button>
                 <button
                   onClick={handleArchiveSelection}
@@ -1240,10 +1256,10 @@ const Micromail = () => {
                       <span>{new Date(selectedEmail.timestamp).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</span>
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={handleMarkUnread}
+                          onClick={selectedEmail.isRead ? handleMarkUnread : handleMarkRead}
                           className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
                         >
-                          Mark unread
+                          {selectedEmail.isRead ? "Mark unread" : "Mark as read"}
                         </button>
                         <button
                           onClick={handleToggleFlagSelection}
@@ -1315,7 +1331,7 @@ const Micromail = () => {
                   </button>
                 </div>
 
-                <div className="flex-1 space-y-4 overflow-y-auto px-6 py-6 text-[15px] leading-relaxed text-slate-700">
+                <div className="flex-1 space-y-1 overflow-y-auto px-6 py-6 text-[15px] leading-relaxed text-slate-700">
                   {selectedEmail.body.split("\n").map((paragraph, index) => (
                     <p key={`${selectedEmail.id}-paragraph-${index}`}>
                       {paragraph.trim().length ? paragraph : <span className="opacity-0">.</span>}
