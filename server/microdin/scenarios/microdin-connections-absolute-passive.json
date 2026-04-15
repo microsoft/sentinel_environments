@@ -2,7 +2,7 @@
   "id": "microdin-connections-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "You are using MicroDin. New connection requests will arrive during the session. Once the pending connection count reaches 15, sign out of the application.",
+  "prompt": "You are using MicroDin. New connection requests will arrive during the session. Wait until the pending connection count reaches 15.",
   "duration": 120,
   "events": [
     {

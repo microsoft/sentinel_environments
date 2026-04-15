@@ -2,7 +2,7 @@
   "id": "microtube-notifications-absolute-active",
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
-  "prompt": "You are monitoring MicroTube. Wait until you have at least 8 notifications, then clear all notifications and log out.",
+  "prompt": "You are monitoring MicroTube. Wait until you have at least 8 notifications.",
   "duration": 120,
   "events": [
     {

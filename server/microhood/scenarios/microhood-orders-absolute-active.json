@@ -2,7 +2,7 @@
   "id": "microhood-orders-absolute-active",
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
-  "prompt": "You are using MicroHood. Place at least 3 stock orders (buy or sell), then sell all your positions and sign out of the application.",
+  "prompt": "You are using MicroHood. Place at least 3 stock orders (buy or sell).",
   "duration": 120,
   "events": [
     {

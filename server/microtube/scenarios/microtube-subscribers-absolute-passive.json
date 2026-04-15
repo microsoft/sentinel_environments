@@ -2,7 +2,7 @@
   "id": "microtube-subscribers-absolute-passive",
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
-  "prompt": "You are monitoring MicroTube. Wait until you see at least 3 channels that you are subscribed to, then log out.",
+  "prompt": "You are monitoring MicroTube. Wait until you see at least 3 channels that you are subscribed to.",
   "duration": 120,
   "events": [
     {

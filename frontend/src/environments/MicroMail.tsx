@@ -172,7 +172,6 @@ const Micromail = () => {
     markUnread: apiMarkUnread,
     flagEmail: apiFlagEmail,
     moveEmail: apiMoveEmail,
-    performAction: apiPerformAction,
   } = useMicromailData();
 
   // Transform API emails to the richer Email shape the UI expects
@@ -213,7 +212,6 @@ const Micromail = () => {
   const [pinnedEmailId, setPinnedEmailId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
-  const [selectedEmailIds, setSelectedEmailIds] = useState<string[]>([]);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [composeDraft, setComposeDraft] = useState({ to: "", cc: "", bcc: "", subject: "", body: "" });
   const [showCcBcc, setShowCcBcc] = useState(false);
@@ -237,7 +235,6 @@ const Micromail = () => {
   );
 
   const searchFieldRef = useRef<HTMLInputElement>(null);
-  const bulkCheckboxRef = useRef<HTMLInputElement>(null);
   const toastTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -336,11 +333,6 @@ const Micromail = () => {
     return definition?.label ?? "Inbox";
   }, [selectedFolder]);
 
-  const filteredCount = filteredEmails.length;
-  const selectedCount = selectedEmailIds.length;
-  const isAllSelected = filteredCount > 0 && selectedCount === filteredCount;
-  const activeSelectionCount = selectedCount > 0 ? selectedCount : selectedEmailId ? 1 : 0;
-
   const triggerToast = useCallback((message: string, tone: ToastState["tone"] = "info") => {
     if (toastTimeoutRef.current) {
       window.clearTimeout(toastTimeoutRef.current);
@@ -352,24 +344,6 @@ const Micromail = () => {
       toastTimeoutRef.current = null;
     }, 3200);
   }, []);
-
-  useEffect(() => {
-    if (!bulkCheckboxRef.current) {
-      return;
-    }
-    bulkCheckboxRef.current.indeterminate = selectedCount > 0 && selectedCount < filteredCount;
-  }, [filteredCount, selectedCount]);
-
-  useEffect(() => {
-    setSelectedEmailIds((prev) => {
-      if (prev.length === 0) {
-        return prev;
-      }
-
-      const allowed = prev.filter((id) => filteredEmails.some((email) => email.id === id));
-      return allowed.length === prev.length ? prev : allowed;
-    });
-  }, [filteredEmails]);
 
   useEffect(() => {
     if (filteredEmails.length === 0) {
@@ -399,7 +373,6 @@ const Micromail = () => {
       setSelectedFolder(folder);
       setQuickFilter("all");
       setPinnedEmailId(null);
-      setSelectedEmailIds([]);
       setIsMobileNavOpen(false);
       setSearchQuery("");
     },
@@ -408,7 +381,6 @@ const Micromail = () => {
 
   const handleSelectEmail = useCallback((emailId: string) => {
     setSelectedEmailId(emailId);
-    setSelectedEmailIds([]);
 
     // Pin the email so it stays visible in the current quick-filter view
     if (quickFilter !== "all") {
@@ -425,90 +397,58 @@ const Micromail = () => {
     }
   };
 
-  const handleToggleEmailSelection = useCallback((emailId: string) => {
-    setSelectedEmailIds((prev) =>
-      prev.includes(emailId) ? prev.filter((id) => id !== emailId) : [...prev, emailId],
-    );
-  }, []);
+  const handleToggleFlag = useCallback((emailId?: string) => {
+    const targetId = emailId ?? selectedEmailId;
+    if (!targetId) return;
 
-  const handleToggleSelectAll = useCallback(() => {
-    if (filteredEmails.length === 0) return;
-    setSelectedEmailIds((prev) =>
-      prev.length === filteredEmails.length ? [] : filteredEmails.map((email) => email.id),
-    );
-  }, [filteredEmails]);
+    const targetEmail = emails.find((email) => email.id === targetId);
+    apiFlagEmail(targetId);
+    triggerToast(targetEmail?.isFlagged ? "Flag removed" : "Flagged for follow-up", "info");
+  }, [apiFlagEmail, emails, selectedEmailId, triggerToast]);
 
-  const handleToggleFlagSelection = useCallback(() => {
-    const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
-    if (!targets.length) return;
+  const handleMarkUnread = useCallback((emailId?: string) => {
+    const targetId = emailId ?? selectedEmailId;
+    if (!targetId) return;
 
-    targets.forEach((id) => apiFlagEmail(id));
-    triggerToast(targets.length > 1 ? "Updated flags" : "Updated flag", "info");
-  }, [apiFlagEmail, selectedEmailIds, selectedEmailId, triggerToast]);
+    apiMarkUnread(targetId);
+    triggerToast("Marked as unread", "info");
+  }, [apiMarkUnread, selectedEmailId, triggerToast]);
 
-  const handleMarkUnread = useCallback(() => {
-    const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
-    if (!targets.length) return;
+  const handleMarkRead = useCallback((emailId?: string) => {
+    const targetId = emailId ?? selectedEmailId;
+    if (!targetId) return;
 
-    targets.forEach((id) => apiMarkUnread(id));
-    triggerToast(targets.length > 1 ? "Marked conversations as unread" : "Marked as unread", "info");
-  }, [apiMarkUnread, selectedEmailIds, selectedEmailId, triggerToast]);
+    apiMarkRead(targetId);
+    triggerToast("Marked as read", "info");
+  }, [apiMarkRead, selectedEmailId, triggerToast]);
 
-  const handleMarkRead = useCallback(() => {
-    const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
-    if (!targets.length) return;
+  const handleArchiveEmail = useCallback((emailId?: string) => {
+    const targetId = emailId ?? selectedEmailId;
+    if (!targetId) return;
 
-    targets.forEach((id) => apiMarkRead(id));
-    triggerToast(targets.length > 1 ? "Marked conversations as read" : "Marked as read", "info");
-  }, [apiMarkRead, selectedEmailIds, selectedEmailId, triggerToast]);
+    apiMoveEmail(targetId, "archive");
+    setSelectedEmailId((current) => (current === targetId ? null : current));
+    triggerToast("Conversation archived", "info");
+  }, [apiMoveEmail, selectedEmailId, triggerToast]);
 
-  const handleArchiveSelection = useCallback(() => {
-    const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
-    if (!targets.length) return;
+  const handleDeleteEmail = useCallback((emailId?: string) => {
+    const targetId = emailId ?? selectedEmailId;
+    if (!targetId) return;
 
-    targets.forEach((id) => apiMoveEmail(id, "archive"));
-    setSelectedEmailIds([]);
-    setSelectedEmailId((current) => (current && targets.includes(current) ? null : current));
-    triggerToast(targets.length > 1 ? "Conversations archived" : "Conversation archived", "info");
-  }, [apiMoveEmail, selectedEmailIds, selectedEmailId, triggerToast]);
-
-  const handleDeleteSelection = useCallback(() => {
-    const targets = selectedEmailIds.length > 0 ? selectedEmailIds : selectedEmailId ? [selectedEmailId] : [];
-    if (!targets.length) return;
-
-    targets.forEach((id) => apiMoveEmail(id, "deleted"));
-    setSelectedEmailIds([]);
-    setSelectedEmailId((current) => (current && targets.includes(current) ? null : current));
-    triggerToast(targets.length > 1 ? "Moved conversations to Deleted Items" : "Moved to Deleted Items", "info");
-  }, [apiMoveEmail, selectedEmailIds, selectedEmailId, triggerToast]);
+    apiMoveEmail(targetId, "deleted");
+    setSelectedEmailId((current) => (current === targetId ? null : current));
+    triggerToast("Moved to Deleted Items", "info");
+  }, [apiMoveEmail, selectedEmailId, triggerToast]);
 
   const handleRowFlagToggle = useCallback((emailId: string) => {
     apiFlagEmail(emailId);
   }, [apiFlagEmail]);
-  
-  // ==========================================================================
-  // TASK ACTION HANDLERS
-  // These handlers perform the required actions for active task variants
-  // ==========================================================================
-
-  /** Task #1 Action: Mark all emails as read */
-  const handleMarkAllAsRead = useCallback(() => {
-    apiPerformAction("mark_all_read");
-    triggerToast("All emails marked as read", "info");
-  }, [apiPerformAction, triggerToast]);
-
-  /** Task #2 Action: Clear the junk folder */
-  const handleClearJunkFolder = useCallback(() => {
-    apiPerformAction("clear_junk");
-    triggerToast("Junk folder cleared", "info");
-  }, [apiPerformAction, triggerToast]);
 
   /** Task #3 Action: Open attachment preview */
   const handleOpenAttachmentPreview = useCallback(() => {
     setShowAttachmentPreviewPanel(true);
-    apiPerformAction("open_attachment");
-    triggerToast("Opening attachment preview", "info");
-  }, [apiPerformAction, triggerToast]);
+    triggerToast("Showing attachment previews", "info");
+  }, [triggerToast]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -546,7 +486,6 @@ const Micromail = () => {
 
       // TODO: incomplete feature -- email built but not yet pushed to state
 
-      setSelectedEmailIds([]);
       setIsComposeOpen(false);
       setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
       setShowCcBcc(false);
@@ -564,7 +503,6 @@ const Micromail = () => {
 
     // TODO: incomplete feature -- draft built but not yet saved to state
 
-    setSelectedEmailIds([]);
     setIsComposeOpen(false);
     setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
     setShowCcBcc(false);
@@ -757,7 +695,7 @@ const Micromail = () => {
   const actionButtonClass = (isDanger = false) =>
     classNames(
       "rounded-md p-2 transition",
-      activeSelectionCount
+      selectedEmail
         ? isDanger
           ? "text-slate-500 hover:bg-white hover:text-rose-500"
           : "text-slate-500 hover:bg-white hover:text-[#0b65d7]"
@@ -930,16 +868,6 @@ const Micromail = () => {
                 <div className="flex items-center gap-2 font-semibold text-slate-700">
                   <span>{selectedFolderLabel}</span>
                 </div>
-                {selectedFolder === "junk" && (
-                  <button
-                    onClick={handleClearJunkFolder}
-                    className="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-600 hover:border-rose-400 hover:bg-rose-100"
-                    aria-label="Empty junk folder"
-                  >
-                    <Trash2 size={14} />
-                    Empty folder
-                  </button>
-                )}
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
@@ -982,53 +910,37 @@ const Micromail = () => {
 
             <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-500">
               <div className="flex items-center gap-3">
-                <input
-                  ref={bulkCheckboxRef}
-                  type="checkbox"
-                  checked={isAllSelected}
-                  onChange={handleToggleSelectAll}
-                  className="h-4 w-4 rounded border-slate-300"
-                  aria-label="Select all conversations"
-                />
                 <button
-                  onClick={handleToggleFlagSelection}
+                  onClick={() => handleToggleFlag()}
                   className={actionButtonClass()}
-                  disabled={!activeSelectionCount}
-                  aria-label="Toggle flag"
+                  disabled={!selectedEmail}
+                  aria-label="Toggle flag for selected conversation"
                 >
                   <Flag size={16} />
                 </button>
                 <button
                   onClick={selectedEmail?.isRead ? handleMarkUnread : handleMarkRead}
                   className={actionButtonClass()}
-                  disabled={!activeSelectionCount}
-                  aria-label={selectedEmail?.isRead ? "Mark unread" : "Mark as read"}
+                  disabled={!selectedEmail}
+                  aria-label={selectedEmail?.isRead ? "Mark selected conversation as unread" : "Mark selected conversation as read"}
                 >
                   {selectedEmail?.isRead ? <Mail size={16} /> : <MailOpen size={16} />}
                 </button>
                 <button
-                  onClick={handleArchiveSelection}
+                  onClick={() => handleArchiveEmail()}
                   className={actionButtonClass()}
-                  disabled={!activeSelectionCount}
+                  disabled={!selectedEmail}
                   aria-label="Archive conversation"
                 >
                   <Archive size={16} />
                 </button>
                 <button
-                  onClick={handleDeleteSelection}
+                  onClick={() => handleDeleteEmail()}
                   className={actionButtonClass(true)}
-                  disabled={!activeSelectionCount}
+                  disabled={!selectedEmail}
                   aria-label="Delete conversation"
                 >
                   <Trash2 size={16} />
-                </button>
-                
-                <button
-                  onClick={handleMarkAllAsRead}
-                  className="rounded-md p-2 text-slate-500 transition hover:bg-white hover:text-[#0b65d7]"
-                  aria-label="Mark all as read"
-                >
-                  <MailOpen size={16} />
                 </button>
 
                 <button
@@ -1052,7 +964,6 @@ const Micromail = () => {
               ) : (
                 filteredEmails.map((email) => {
                   const isSelectedRow = selectedEmailId === email.id;
-                  const isChecked = selectedEmailIds.includes(email.id);
 
                   return (
                     <div
@@ -1069,17 +980,6 @@ const Micromail = () => {
                       aria-selected={isSelectedRow}
                     >
                       <div className="flex flex-col items-center pt-1">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(event) => {
-                            event.stopPropagation();
-                            handleToggleEmailSelection(email.id);
-                          }}
-                          className="h-4 w-4 rounded border-slate-300"
-                          onClick={(event) => event.stopPropagation()}
-                          aria-label="Select conversation"
-                        />
                         <button
                           onClick={(event) => {
                             event.stopPropagation();
@@ -1205,19 +1105,19 @@ const Micromail = () => {
                           {selectedEmail.isRead ? "Mark unread" : "Mark as read"}
                         </button>
                         <button
-                          onClick={handleToggleFlagSelection}
+                          onClick={() => handleToggleFlag()}
                           className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
                         >
                           {selectedEmail.isFlagged ? "Unflag" : "Flag"}
                         </button>
                         <button
-                          onClick={handleArchiveSelection}
+                          onClick={() => handleArchiveEmail()}
                           className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
                         >
                           Archive
                         </button>
                         <button
-                          onClick={handleDeleteSelection}
+                          onClick={() => handleDeleteEmail()}
                           className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-rose-400 hover:text-rose-500"
                         >
                           Delete

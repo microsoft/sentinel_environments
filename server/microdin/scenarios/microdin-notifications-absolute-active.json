@@ -2,7 +2,7 @@
   "id": "microdin-notifications-absolute-active",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "You are using MicroDin. New notifications will arrive during the session. Once the unread notification count reaches 10, mark all notifications as read, then sign out.",
+  "prompt": "You are using MicroDin. New notifications will arrive during the session. Wait until the unread notification count reaches 10.",
   "duration": 120,
   "events": [
     {

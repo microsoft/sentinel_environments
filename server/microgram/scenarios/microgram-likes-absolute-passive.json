@@ -2,7 +2,7 @@
   "id": "microgram-likes-absolute-passive",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "You are using MicroGram. Like at least 10 posts in your feed, then sign out of the application.",
+  "prompt": "You are using MicroGram. Like at least 10 posts in your feed.",
   "duration": 120,
   "events": [
     {

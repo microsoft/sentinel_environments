@@ -2,7 +2,7 @@
   "id": "microfy-plays-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "You are using MicroFy. Play at least 5 different songs to explore the music library, then sign out of the application.",
+  "prompt": "You are using MicroFy. Play at least 5 different songs to explore the music library.",
   "duration": 120,
   "events": [
     {

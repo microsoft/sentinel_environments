@@ -2,7 +2,7 @@
   "id": "microgram-stories-absolute-passive",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "You are using MicroGram. View at least 10 stories, then sign out of the application.",
+  "prompt": "You are using MicroGram. View at least 10 stories.",
   "duration": 120,
   "events": [
     {

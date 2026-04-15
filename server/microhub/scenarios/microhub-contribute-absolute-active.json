@@ -2,7 +2,7 @@
   "id": "microhub-contribute-absolute-active",
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
-  "prompt": "You are using MicroHub, a code repository platform. Add a comment to any open issue, then sign out of the application.",
+  "prompt": "You are using MicroHub, a code repository platform. Add a comment to any open issue.",
   "duration": 120,
   "events": [
     {

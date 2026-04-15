@@ -2,7 +2,7 @@
   "id": "microdin-jobs-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "You are using MicroDin. New job listings will appear during the session. Once the total number of job listings reaches 10, sign out of the application.",
+  "prompt": "You are using MicroDin. New job listings will appear during the session. Wait until the total number of job listings reaches 10.",
   "duration": 120,
   "events": [
     {

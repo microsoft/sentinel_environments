@@ -2,7 +2,7 @@
   "id": "microfy-followers-absolute-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "You are using MicroFy. Follow at least 5 artists you enjoy. Once you have followed 5 or more artists, unfollow all of them, then sign out.",
+  "prompt": "You are using MicroFy. Follow at least 5 artists you enjoy.",
   "duration": 120,
   "events": [
     {

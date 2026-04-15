@@ -2,7 +2,7 @@
   "id": "microgram-follows-absolute-active",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "You are using MicroGram. Follow at least 5 users, then unfollow all of them, and sign out of the application.",
+  "prompt": "You are using MicroGram. Follow at least 5 users.",
   "duration": 120,
   "events": [
     {

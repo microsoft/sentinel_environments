@@ -2,7 +2,7 @@
   "id": "microscholar-search-absolute-active",
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
-  "prompt": "Search for papers on MicroScholar. A specific paper about 'Autonomous AI Agents' will appear in the search results after some time. Once you see it, click Cite on that paper, then log out.",
+  "prompt": "Search for papers on MicroScholar. A specific paper about 'Autonomous AI Agents' will appear in the search results after some time. Wait until it appears in the search results.",
   "duration": 90,
   "events": [
     {

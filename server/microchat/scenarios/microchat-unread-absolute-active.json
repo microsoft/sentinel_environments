@@ -1,8 +1,8 @@
 {
-  "id": "microchat-logout-absolute-active",
+  "id": "microchat-unread-absolute-active",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
-  "prompt": "You are using MicroChat. New messages will arrive during the session. When you have at least 20 unread messages, mark all as read.",
+  "prompt": "You are using MicroChat. New messages will arrive during the session. Wait until you have at least 20 unread messages.",
   "duration": 120,
   "events": [
     {

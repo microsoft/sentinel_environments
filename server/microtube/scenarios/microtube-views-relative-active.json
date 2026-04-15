@@ -2,7 +2,7 @@
   "id": "microtube-views-relative-active",
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
-  "prompt": "You are monitoring MicroTube. Watch for new videos arriving. Once you have watched at least 5 videos, create a playlist with all of them, then log out.",
+  "prompt": "You are monitoring MicroTube. Watch new videos as they arrive until you have watched at least 5 additional videos.",
   "duration": 120,
   "events": [
     {

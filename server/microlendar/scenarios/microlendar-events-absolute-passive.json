@@ -2,7 +2,7 @@
   "id": "microlendar-events-absolute-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "You are using MicroLendar, a scheduling app. Wait for the total number of calendar events to reach 25, then sign out of the application.",
+  "prompt": "You are using MicroLendar, a scheduling app. Wait for the total number of calendar events to reach 25.",
   "duration": 120,
   "events": [
     {

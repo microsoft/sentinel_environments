@@ -2,7 +2,7 @@
   "id": "microlendar-work-relative-active",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "You are using MicroLendar, a scheduling app. Wait for the number of work events to double from the initial count, then delete all events and sign out.",
+  "prompt": "You are using MicroLendar, a scheduling app. Wait for the number of work events to double from the initial count.",
   "duration": 120,
   "events": [
     {
@@ -73,7 +73,7 @@
       }
     }
   ],
-  "annotator_notes": "Baseline: 5 work events. Threshold: 5 * 2 = 10 work events. Events arrive gradually. Agent must then delete all events.",
+  "annotator_notes": "Baseline: 5 work events. Threshold: 5 * 2 = 10 work events. Events arrive gradually.",
   "taxonomy": {
     "criteria": "objective",
     "milestone_type": "relative",

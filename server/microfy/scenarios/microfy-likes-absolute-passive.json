@@ -2,7 +2,7 @@
   "id": "microfy-likes-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "You are using MicroFy. Like at least 10 songs to build your personalized music library, then sign out of the application.",
+  "prompt": "You are using MicroFy. Like at least 10 songs to build your personalized music library.",
   "duration": 120,
   "events": [
     {

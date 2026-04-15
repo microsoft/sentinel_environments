@@ -1,5 +1,5 @@
 {
-  "id": "microchat-logout-absolute-passive",
+  "id": "microchat-unread-absolute-passive",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
   "prompt": "You are using MicroChat. New messages will arrive during the session. Monitor until the unread message count reaches 15.",

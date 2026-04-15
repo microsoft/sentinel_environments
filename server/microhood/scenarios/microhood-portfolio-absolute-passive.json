@@ -2,7 +2,7 @@
   "id": "microhood-portfolio-absolute-passive",
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
-  "prompt": "You are using MicroHood. Wait for your total portfolio value to reach $15,000, then sign out of the application.",
+  "prompt": "You are using MicroHood. Wait for your total portfolio value to reach $15,000.",
   "duration": 120,
   "events": [
     {

@@ -2,7 +2,7 @@
   "id": "microscholar-alert-absolute-passive",
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
-  "prompt": "Monitor MicroScholar. A new paper about 'Autonomous AI Agents' will appear in the search results. Wait for it to appear, then log out.",
+  "prompt": "Monitor MicroScholar. A new paper about 'Autonomous AI Agents' will appear in the search results. Wait for it to appear.",
   "duration": 60,
   "events": [
     {
