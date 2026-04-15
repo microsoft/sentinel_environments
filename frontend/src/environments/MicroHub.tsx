@@ -402,10 +402,6 @@ const MicroHub = () => {
     }
   };
 
-  const markAllNotificationsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  };
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -774,14 +770,8 @@ const MicroHub = () => {
 
                 {notificationsOpen && (
                   <div className="absolute right-0 mt-2 w-80 bg-[#161b22] border border-gray-700 rounded-lg shadow-lg">
-                    <div className="p-3 border-b border-gray-700 flex items-center justify-between">
+                    <div className="p-3 border-b border-gray-700">
                       <span className="font-medium">Notifications</span>
-                      <button
-                        className="text-xs text-blue-400 hover:text-blue-300"
-                        onClick={markAllNotificationsRead}
-                      >
-                        Mark all as read
-                      </button>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                       {notifications.map(n => (

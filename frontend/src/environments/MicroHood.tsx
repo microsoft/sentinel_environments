@@ -1660,17 +1660,9 @@ const MicroHood = () => {
           <div className={`${themeClasses.bgModal} w-full max-w-lg mx-4 rounded-2xl max-h-[80vh] overflow-hidden ${theme === "light" ? "border border-gray-200" : ""}`}>
             <div className={`p-4 border-b ${themeClasses.border} flex items-center justify-between sticky top-0 ${themeClasses.bgModal}`}>
               <h3 className="text-xl font-bold">All Notifications</h3>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setNotifications(prev => prev.map(n => ({ ...n, unread: false })))}
-                  className="text-sm text-[#00C805] hover:underline"
-                >
-                  Mark all read
-                </button>
-                <button onClick={() => { setShowAllNotifications(false); setShowNotificationsPanel(false); }} className="text-gray-400 hover:text-white">
-                  <X size={24} />
-                </button>
-              </div>
+              <button onClick={() => { setShowAllNotifications(false); setShowNotificationsPanel(false); }} className="text-gray-400 hover:text-white">
+                <X size={24} />
+              </button>
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
               {notifications.map((notif) => (
