@@ -1,0 +1,25 @@
+{
+  "id": "micromail-sender-absolute-passive",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Let me know when I get an email from Kevin Lee.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {"time": 40, "type": "new_email", "payload": {"email_id": "base-01"}},
+    {"time": 90, "type": "new_email", "payload": {"email_id": "base-02"}},
+    {"time": 140, "type": "new_email", "payload": {"email_id": "base-04"}},
+    {"time": 190, "type": "new_email", "payload": {"email_id": "base-05"}},
+    {"time": 250, "type": "new_email", "payload": {"email_id": "base-06"}},
+    {"time": 300, "type": "new_email", "payload": {"email_id": "att-01"}},
+    {"time": 370, "type": "new_email", "payload": {"email_id": "base-07"}},
+    {"time": 440, "type": "new_email", "payload": {"email_id": "base-08"}},
+    {"time": 520, "type": "new_email", "payload": {"email_id": "base-09"}},
+    {"time": 580, "type": "new_email", "payload": {"email_id": "base-10"}}
+  ],
+  "taxonomy": {
+    "milestone_type": "absolute",
+    "monitoring_approach": "passive"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states es ON e.id=es.email_id WHERE e.sender_name='Kevin Lee' AND es.folder='inbox') >= 1"
+}

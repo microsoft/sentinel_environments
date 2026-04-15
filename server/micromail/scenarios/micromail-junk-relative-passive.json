@@ -2,99 +2,23 @@
   "id": "micromail-junk-relative-passive",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "Monitor the junk folder. When 10 new emails have arrived in junk since the session started, log out.",
-  "duration": 120,
+  "prompt": "Keep an eye on the junk folder for me, tell me when 3 more emails end up there.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
-    {
-      "time": 0,
-      "type": "preload_emails",
-      "payload": {
-        "email_ids": [
-          "junk-01",
-          "junk-02",
-          "junk-03"
-        ]
-      }
-    },
-    {
-      "time": 12,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-04"
-      }
-    },
-    {
-      "time": 25,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-05"
-      }
-    },
-    {
-      "time": 35,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-06"
-      }
-    },
-    {
-      "time": 46,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-07"
-      }
-    },
-    {
-      "time": 59,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-08"
-      }
-    },
-    {
-      "time": 71,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-09"
-      }
-    },
-    {
-      "time": 86,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-10"
-      }
-    },
-    {
-      "time": 100,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-11"
-      }
-    },
-    {
-      "time": 109,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-12"
-      }
-    },
-    {
-      "time": 120,
-      "type": "new_email",
-      "payload": {
-        "email_id": "junk-13"
-      }
-    }
+    {"time": 0, "type": "preload_emails", "payload": {"email_ids": ["junk-01", "junk-02", "junk-03"]}},
+    {"time": 50, "type": "new_email", "payload": {"email_id": "base-01"}},
+    {"time": 100, "type": "new_email", "payload": {"email_id": "junk-04"}},
+    {"time": 180, "type": "new_email", "payload": {"email_id": "base-02"}},
+    {"time": 240, "type": "new_email", "payload": {"email_id": "junk-05"}},
+    {"time": 300, "type": "new_email", "payload": {"email_id": "junk-06"}},
+    {"time": 380, "type": "new_email", "payload": {"email_id": "base-03"}},
+    {"time": 460, "type": "new_email", "payload": {"email_id": "junk-07"}},
+    {"time": 540, "type": "new_email", "payload": {"email_id": "base-04"}}
   ],
-  "annotator_notes": "",
   "taxonomy": {
-    "criteria": "objective",
     "milestone_type": "relative",
-    "event_persistence": "persistent",
-    "monitoring_approach": "passive",
-    "difficulty": "easy",
-    "distraction_level": "low"
+    "monitoring_approach": "passive"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') - CAST((SELECT value FROM session_meta WHERE key='baseline_junk_count') AS REAL) >= 10"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_junk_count') + 3"
 }

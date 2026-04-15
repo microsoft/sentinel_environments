@@ -1,0 +1,24 @@
+{
+  "id": "micromail-attachment-name-absolute-active",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Watch for an email with the mobile app mockups attached.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {"time": 50, "type": "new_email", "payload": {"email_id": "att-11"}},
+    {"time": 100, "type": "new_email", "payload": {"email_id": "base-01"}},
+    {"time": 150, "type": "new_email", "payload": {"email_id": "att-16"}},
+    {"time": 200, "type": "new_email", "payload": {"email_id": "base-02"}},
+    {"time": 250, "type": "new_email", "payload": {"email_id": "att-20"}},
+    {"time": 300, "type": "new_email", "payload": {"email_id": "att-14"}},
+    {"time": 380, "type": "new_email", "payload": {"email_id": "att-24"}},
+    {"time": 460, "type": "new_email", "payload": {"email_id": "base-03"}},
+    {"time": 540, "type": "new_email", "payload": {"email_id": "base-04"}}
+  ],
+  "taxonomy": {
+    "milestone_type": "absolute",
+    "monitoring_approach": "active"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE attachment_name LIKE '%mobile-app-mockups%') >= 1"
+}
