@@ -181,16 +181,15 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(updated.isRead).toBe(true);
   });
 
-  test("bulk actions work correctly", async () => {
-    await apiPost("/data/actions/accept_all_connections");
-    const connections = await getConnections();
-    const anyPending = connections.some((c: any) => c.status === "pending");
-    expect(anyPending).toBe(false);
-  });
+  test("POST read conversation clears unread count for one conversation", async () => {
+    const conversations = await getConversations();
+    const target = conversations.find((c: any) => c.unreadCount > 0);
+    if (!target) return;
 
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    await apiPost(`/data/microdin-conversations/${target.id}/read`);
+    const after = await getConversations();
+    const updated = after.find((c: any) => c.id === target.id);
+    expect(updated.unreadCount).toBe(0);
   });
 });
 
@@ -379,11 +378,20 @@ test.describe("5 · Connections", () => {
     await screenshot(page, "connections-pending");
   });
 
-  test("accept all connections via API clears pending list", async () => {
-    await apiPost("/data/actions/accept_all_connections");
+  test("accepting one connection leaves other pending requests intact", async () => {
     const connections = await getConnections();
     const pending = connections.filter((c: any) => c.status === "pending");
-    expect(pending.length).toBe(0);
+    const target = pending[0];
+    if (!target) return;
+
+    await apiPost(`/data/microdin-connections/${target.id}/accept`);
+    const after = await getConnections();
+    const updated = after.find((c: any) => c.id === target.id);
+    expect(updated.status).toBe("accepted");
+
+    if (pending.length > 1) {
+      expect(after.some((c: any) => c.id !== target.id && c.status === "pending")).toBe(true);
+    }
   });
 });
 
@@ -428,11 +436,20 @@ test.describe("6 · Jobs", () => {
     await screenshot(page, "jobs-applied");
   });
 
-  test("apply_to_all_jobs action marks all as applied", async () => {
-    await apiPost("/data/actions/apply_to_all_jobs");
+  test("applying to one job leaves other jobs available", async () => {
     const jobs = await getJobs();
-    const allApplied = jobs.every((j: any) => j.isApplied);
-    expect(allApplied).toBe(true);
+    const unappliedJobs = jobs.filter((j: any) => !j.isApplied);
+    const target = unappliedJobs[0];
+    if (!target) return;
+
+    await apiPost(`/data/microdin-jobs/${target.id}/apply`);
+    const after = await getJobs();
+    const updated = after.find((j: any) => j.id === target.id);
+    expect(updated.isApplied).toBe(true);
+
+    if (unappliedJobs.length > 1) {
+      expect(after.some((j: any) => j.id !== target.id && !j.isApplied)).toBe(true);
+    }
   });
 });
 
@@ -462,11 +479,15 @@ test.describe("7 · Messaging", () => {
     await screenshot(page, "messaging-list");
   });
 
-  test("mark_all_messages_read clears unread", async () => {
-    await apiPost("/data/actions/mark_all_messages_read");
+  test("marking one conversation read clears its unread count", async () => {
     const conversations = await getConversations();
-    const anyUnread = conversations.some((c: any) => c.unreadCount > 0);
-    expect(anyUnread).toBe(false);
+    const target = conversations.find((c: any) => c.unreadCount > 0);
+    if (!target) return;
+
+    await apiPost(`/data/microdin-conversations/${target.id}/read`);
+    const after = await getConversations();
+    const updated = after.find((c: any) => c.id === target.id);
+    expect(updated.unreadCount).toBe(0);
   });
 });
 
@@ -574,17 +595,35 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-switch");
   });
 
-  test("like_all_posts then all posts show liked", async () => {
-    await apiPost("/data/actions/like_all_posts");
+  test("liking one post updates only that post", async () => {
     const posts = await getPosts();
-    const allLiked = posts.every((p: any) => p.isLiked);
-    expect(allLiked).toBe(true);
+    const unlikedPosts = posts.filter((p: any) => !p.isLiked);
+    const target = unlikedPosts[0];
+    if (!target) return;
+
+    await apiPost(`/data/microdin-posts/${target.id}/like`);
+    const after = await getPosts();
+    const updated = after.find((p: any) => p.id === target.id);
+    expect(updated.isLiked).toBe(true);
+
+    if (unlikedPosts.length > 1) {
+      expect(after.some((p: any) => p.id !== target.id && !p.isLiked)).toBe(true);
+    }
   });
 
-  test("mark_all_notifications_read clears unread count", async () => {
-    await apiPost("/data/actions/mark_all_notifications_read");
+  test("marking one notification read leaves other unread notifications", async () => {
     const notifications = await getNotifications();
-    const anyUnread = notifications.some((n: any) => !n.isRead);
-    expect(anyUnread).toBe(false);
+    const unreadNotifications = notifications.filter((n: any) => !n.isRead);
+    const target = unreadNotifications[0];
+    if (!target) return;
+
+    await apiPost(`/data/microdin-notifications/${target.id}/read`);
+    const after = await getNotifications();
+    const updated = after.find((n: any) => n.id === target.id);
+    expect(updated.isRead).toBe(true);
+
+    if (unreadNotifications.length > 1) {
+      expect(after.some((n: any) => n.id !== target.id && !n.isRead)).toBe(true);
+    }
   });
 });

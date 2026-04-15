@@ -51,7 +51,7 @@ type SmokeCase = {
 const smokeCases: SmokeCase[] = [
   {
     name: "MicroChat",
-    scenarioId: "microchat-logout-absolute-passive",
+    scenarioId: "microchat-unread-absolute-passive",
     route: "/microchat",
     stableTexts: ["chat", "teams", "calls"],
     dynamicText: async () => {

@@ -179,31 +179,35 @@ test.describe("1 · Endpoint Integrity", () => {
     }
   });
 
-  test("POST sell_all action sells all positions", async () => {
-    // Buy some first
+  test("POST sell order can close a purchased position", async () => {
     const stocks = await getStocks();
-    await apiPost(`/data/microhood-stocks/${stocks[0].symbol}/order`, {
+    const target = stocks[0];
+    if (!target) return;
+    const initialShares = target.shares ?? 0;
+
+    await apiPost(`/data/microhood-stocks/${target.symbol}/order`, {
       action: "buy",
       quantity: 5,
       type: "market",
     });
-
-    await apiPost("/data/actions/sell_all");
+    await apiPost(`/data/microhood-stocks/${target.symbol}/order`, {
+      action: "sell",
+      quantity: 5,
+      type: "market",
+    });
     const after = await getStocks();
-    const anyHeld = after.some((s: any) => s.shares > 0);
-    expect(anyHeld).toBe(false);
+    const updated = after.find((s: any) => s.symbol === target.symbol);
+    expect(updated.shares).toBe(initialShares);
   });
 
-  test("POST clear_watchlist removes all items", async () => {
-    await apiPost("/data/actions/clear_watchlist");
+  test("POST toggle watchlist removes one symbol from the active watchlist", async () => {
     const watchlist = await getWatchlist();
-    const anyInWatchlist = watchlist.some((w: any) => w.inWatchlist);
-    expect(anyInWatchlist).toBe(false);
-  });
+    const target = watchlist[0];
+    if (!target) return;
 
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    await apiPost(`/data/microhood-watchlist/${target.symbol}/toggle`);
+    const after = await getWatchlist();
+    expect(after.some((w: any) => w.symbol === target.symbol)).toBe(false);
   });
 });
 
@@ -580,25 +584,37 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-select");
   });
 
-  test("sell_all then portfolio shows no positions", async () => {
+  test("selling a position restores buying power after purchase", async () => {
     const stocks = await getStocks();
-    await apiPost(`/data/microhood-stocks/${stocks[0].symbol}/order`, {
+    const target = stocks[0];
+    if (!target) return;
+
+    const before = await getPortfolio();
+    await apiPost(`/data/microhood-stocks/${target.symbol}/order`, {
       action: "buy",
       quantity: 3,
       type: "market",
     });
-
-    await apiPost("/data/actions/sell_all");
-    const after = await getStocks();
-    const anyHeld = after.some((s: any) => s.shares > 0);
-    expect(anyHeld).toBe(false);
+    const afterBuy = await getPortfolio();
+    await apiPost(`/data/microhood-stocks/${target.symbol}/order`, {
+      action: "sell",
+      quantity: 3,
+      type: "market",
+    });
+    const afterSell = await getPortfolio();
+    expect(afterBuy.buying_power).toBeLessThan(before.buying_power);
+    expect(afterSell.buying_power).toBeGreaterThan(afterBuy.buying_power);
   });
 
-  test("clear_watchlist then watchlist is empty", async () => {
-    await apiPost("/data/actions/clear_watchlist");
+  test("toggling a symbol off and on re-adds it to the watchlist", async () => {
     const watchlist = await getWatchlist();
-    const anyActive = watchlist.some((w: any) => w.inWatchlist);
-    expect(anyActive).toBe(false);
+    const target = watchlist[0];
+    if (!target) return;
+
+    await apiPost(`/data/microhood-watchlist/${target.symbol}/toggle`);
+    await apiPost(`/data/microhood-watchlist/${target.symbol}/toggle`);
+    const after = await getWatchlist();
+    expect(after.some((w: any) => w.symbol === target.symbol)).toBe(true);
   });
 
   test("buying power decreases after purchase", async () => {

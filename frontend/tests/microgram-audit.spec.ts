@@ -179,26 +179,32 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(Array.isArray(followed)).toBe(true);
   });
 
-  test("bulk unlike_all clears all likes", async () => {
-    // Like a post first
+  test("POST like toggles a liked post back off", async () => {
     const posts = await getPosts();
-    await apiPost(`/data/microgram-posts/${posts[0].id}/like`);
+    const target = posts.find((p: any) => !p.isLiked) ?? posts[0];
+    if (!target) return;
 
-    await apiPost("/data/actions/unlike_all");
+    if (!target.isLiked) {
+      await apiPost(`/data/microgram-posts/${target.id}/like`);
+    }
+    await apiPost(`/data/microgram-posts/${target.id}/like`);
     const after = await getPosts();
-    const anyLiked = after.some((p: any) => p.isLiked);
-    expect(anyLiked).toBe(false);
+    const updated = after.find((p: any) => p.id === target.id);
+    expect(updated.isLiked).toBe(false);
   });
 
-  test("bulk unfollow_all clears all follows", async () => {
-    await apiPost("/data/actions/unfollow_all");
-    const followed = await getFollowed();
-    expect(followed.length).toBe(0);
-  });
+  test("POST follow toggles a selected user in followed list", async () => {
+    const { body } = await apiGet("/data/microgram-users");
+    const users = body.users ?? [];
+    const target = users.find((u: any) => !u.isSelf);
+    if (!target) return;
 
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    const before = await getFollowed();
+    const wasFollowed = before.includes(target.id);
+
+    await apiPost(`/data/microgram-users/${target.id}/follow`);
+    const after = await getFollowed();
+    expect(after.includes(target.id)).toBe(!wasFollowed);
   });
 });
 
@@ -379,16 +385,20 @@ test.describe("4 · Stories", () => {
     expect(updated.isViewed).toBe(true);
   });
 
-  test("clear_story_history resets all viewed states", async () => {
-    // View a story first
+  test("viewing one story leaves other stories unchanged", async () => {
     const stories = await getStories();
     if (stories.length === 0) return;
-    await apiPost(`/data/microgram-stories/${stories[0].id}/view`);
+    const initiallyUnviewed = stories.filter((s: any) => !s.isViewed);
+    const target = initiallyUnviewed[0] ?? stories[0];
 
-    await apiPost("/data/actions/clear_story_history");
+    await apiPost(`/data/microgram-stories/${target.id}/view`);
     const after = await getStories();
-    const anyViewed = after.some((s: any) => s.isViewed);
-    expect(anyViewed).toBe(false);
+    const updated = after.find((s: any) => s.id === target.id);
+    expect(updated.isViewed).toBe(true);
+
+    if (initiallyUnviewed.length > 1) {
+      expect(after.some((s: any) => s.id !== target.id && !s.isViewed)).toBe(true);
+    }
   });
 });
 
@@ -670,31 +680,44 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-like");
   });
 
-  test("unlike_all then UI shows no liked posts", async () => {
-    await apiPost("/data/actions/unlike_all");
+  test("unliking one liked post updates the saved feed state", async () => {
     const posts = await getPosts();
-    const anyLiked = posts.some((p: any) => p.isLiked);
-    expect(anyLiked).toBe(false);
-  });
+    const target = posts.find((p: any) => !p.isLiked) ?? posts[0];
+    if (!target) return;
 
-  test("unsave_all clears all saved posts", async () => {
-    // Save a post first
-    const posts = await getPosts();
-    await apiPost(`/data/microgram-posts/${posts[0].id}/save`);
-
-    await apiPost("/data/actions/unsave_all");
+    if (!target.isLiked) {
+      await apiPost(`/data/microgram-posts/${target.id}/like`);
+    }
+    await apiPost(`/data/microgram-posts/${target.id}/like`);
     const after = await getPosts();
-    const anySaved = after.some((p: any) => p.isSaved);
-    expect(anySaved).toBe(false);
+    expect(after.find((p: any) => p.id === target.id)?.isLiked).toBe(false);
   });
 
-  test("delete_comments removes user comments", async () => {
+  test("saving then unsaving one post only clears that post", async () => {
     const posts = await getPosts();
-    await apiPost(`/data/microgram-posts/${posts[0].id}/comment`, {
+    const target = posts.find((p: any) => !p.isSaved) ?? posts[0];
+    if (!target) return;
+
+    if (!target.isSaved) {
+      await apiPost(`/data/microgram-posts/${target.id}/save`);
+    }
+    await apiPost(`/data/microgram-posts/${target.id}/save`);
+    const after = await getPosts();
+    const updated = after.find((p: any) => p.id === target.id);
+    expect(updated.isSaved).toBe(false);
+  });
+
+  test("posting a comment increases the comment list for that post", async () => {
+    const posts = await getPosts();
+    const target = posts[0];
+    if (!target) return;
+    const beforeCount = target.comments?.length ?? 0;
+
+    await apiPost(`/data/microgram-posts/${target.id}/comment`, {
       text: "temp comment",
     });
-
-    const { body } = await apiPost("/data/actions/delete_comments");
-    expect(body.success).toBe(true);
+    const after = await getPosts();
+    const updated = after.find((p: any) => p.id === target.id);
+    expect((updated.comments ?? []).length).toBeGreaterThan(beforeCount);
   });
 });

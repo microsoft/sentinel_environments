@@ -151,27 +151,34 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(updated.isRead).toBe(true);
   });
 
-  test("POST clear_saved_papers clears all saved", async () => {
-    // Save a paper first
+  test("POST save toggles one paper back to unsaved", async () => {
     const papers = await getPapers();
-    await apiPost(`/data/microscholar-papers/${papers[0].id}/save`);
+    const target = papers.find((p: any) => !p.isSaved) ?? papers[0];
+    if (!target) return;
 
-    await apiPost("/data/actions/clear_saved_papers");
+    if (!target.isSaved) {
+      await apiPost(`/data/microscholar-papers/${target.id}/save`);
+    }
+    await apiPost(`/data/microscholar-papers/${target.id}/save`);
     const after = await getPapers();
-    const anySaved = after.some((p: any) => p.isSaved);
-    expect(anySaved).toBe(false);
+    const updated = after.find((p: any) => p.id === target.id);
+    expect(updated.isSaved).toBe(false);
   });
 
-  test("POST mark_all_alerts_read marks all as read", async () => {
-    await apiPost("/data/actions/mark_all_alerts_read");
+  test("POST read marks one alert read while leaving others unread", async () => {
     const alerts = await getAlerts();
-    const anyUnread = alerts.some((a: any) => !a.isRead);
-    expect(anyUnread).toBe(false);
-  });
+    const unreadAlerts = alerts.filter((a: any) => !a.isRead);
+    const target = unreadAlerts[0];
+    if (!target) return;
 
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    await apiPost(`/data/microscholar-alerts/${target.id}/read`);
+    const after = await getAlerts();
+    const updated = after.find((a: any) => a.id === target.id);
+    expect(updated.isRead).toBe(true);
+
+    if (unreadAlerts.length > 1) {
+      expect(after.some((a: any) => a.id !== target.id && !a.isRead)).toBe(true);
+    }
   });
 });
 
@@ -440,7 +447,13 @@ test.describe("6 · Alerts", () => {
     await screenshot(page, "alerts-unread");
   });
 
-  test("mark all as read button works", async ({ page }) => {
+  test("alerts view reflects reading one alert without a mark-all button", async ({ page }) => {
+    const alerts = await getAlerts();
+    const unread = alerts.find((a: any) => !a.isRead);
+    if (unread) {
+      await apiPost(`/data/microscholar-alerts/${unread.id}/read`);
+    }
+
     await loadApp(page);
     const labsBtn = page.locator('button:has-text("Labs"), a:has-text("Labs")').first();
     if (await labsBtn.isVisible()) {
@@ -454,12 +467,8 @@ test.describe("6 · Alerts", () => {
       await page.waitForTimeout(1000);
     }
 
-    const markAllBtn = page.locator('button:has-text("Mark all as read")').first();
-    if (await markAllBtn.isVisible()) {
-      await markAllBtn.click();
-      await page.waitForTimeout(1500);
-    }
-    await screenshot(page, "alerts-all-read");
+    await expect(page.locator('button:has-text("Mark all as read")')).toHaveCount(0);
+    await screenshot(page, "alerts-single-read");
   });
 });
 
@@ -625,20 +634,31 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-search");
   });
 
-  test("clear_saved_papers then library shows empty", async () => {
+  test("saving then unsaving one paper leaves it absent from saved state", async () => {
     const papers = await getPapers();
-    await apiPost(`/data/microscholar-papers/${papers[0].id}/save`);
+    const target = papers.find((p: any) => !p.isSaved) ?? papers[0];
+    if (!target) return;
 
-    await apiPost("/data/actions/clear_saved_papers");
+    if (!target.isSaved) {
+      await apiPost(`/data/microscholar-papers/${target.id}/save`);
+    }
+    await apiPost(`/data/microscholar-papers/${target.id}/save`);
     const after = await getPapers();
-    const anySaved = after.some((p: any) => p.isSaved);
-    expect(anySaved).toBe(false);
+    expect(after.find((p: any) => p.id === target.id)?.isSaved).toBe(false);
   });
 
-  test("mark_all_alerts_read clears unread badges", async () => {
-    await apiPost("/data/actions/mark_all_alerts_read");
+  test("marking one alert read leaves remaining unread alerts intact", async () => {
     const alerts = await getAlerts();
-    const anyUnread = alerts.some((a: any) => !a.isRead);
-    expect(anyUnread).toBe(false);
+    const unreadAlerts = alerts.filter((a: any) => !a.isRead);
+    const target = unreadAlerts[0];
+    if (!target) return;
+
+    await apiPost(`/data/microscholar-alerts/${target.id}/read`);
+    const after = await getAlerts();
+    expect(after.find((a: any) => a.id === target.id)?.isRead).toBe(true);
+
+    if (unreadAlerts.length > 1) {
+      expect(after.some((a: any) => a.id !== target.id && !a.isRead)).toBe(true);
+    }
   });
 });

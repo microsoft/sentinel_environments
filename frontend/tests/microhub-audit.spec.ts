@@ -174,23 +174,31 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(updated.state).toBe("closed");
   });
 
-  test("POST close_all_issues action", async () => {
-    await apiPost("/data/actions/close_all_issues");
+  test("POST close issue leaves other issues open", async () => {
     const issues = await getIssues();
-    const anyOpen = issues.some((i: any) => i.state === "open");
-    expect(anyOpen).toBe(false);
+    const openIssues = issues.filter((i: any) => i.state === "open");
+    const target = openIssues[0];
+    if (!target) return;
+
+    await apiPost(`/data/microhub-issues/${target.id}/close`);
+    const after = await getIssues();
+    const updated = after.find((i: any) => i.id === target.id);
+    expect(updated.state).toBe("closed");
+
+    if (openIssues.length > 1) {
+      expect(after.some((i: any) => i.id !== target.id && i.state === "open")).toBe(true);
+    }
   });
 
-  test("POST merge_all_prs action", async () => {
-    await apiPost("/data/actions/merge_all_prs");
+  test("POST merge PR changes that PR to merged", async () => {
     const prs = await getPRs();
-    const anyOpen = prs.some((pr: any) => pr.state === "open");
-    expect(anyOpen).toBe(false);
-  });
+    const target = prs.find((pr: any) => pr.state === "open");
+    if (!target) return;
 
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    await apiPost(`/data/microhub-pulls/${target.id}/merge`, { strategy: "merge" });
+    const after = await getPRs();
+    const updated = after.find((pr: any) => pr.id === target.id);
+    expect(updated.state).toBe("merged");
   });
 });
 
@@ -623,21 +631,37 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-tabs");
   });
 
-  test("close_all_issues then issues tab shows empty open list", async ({ page }) => {
-    await apiPost("/data/actions/close_all_issues");
+  test("closing one issue via API is reflected in the issues tab", async ({ page }) => {
+    const issues = await getIssues();
+    const target = issues.find((issue: any) => issue.state === "open");
+    if (target) {
+      await apiPost(`/data/microhub-issues/${target.id}/close`);
+      const after = await getIssues();
+      expect(after.find((issue: any) => issue.id === target.id)?.state).toBe("closed");
+    }
+
     await loadApp(page);
     const issuesTab = page.locator('button:has-text("Issues")').first();
     if (await issuesTab.isVisible()) {
       await issuesTab.click();
       await page.waitForTimeout(1000);
     }
-    await screenshot(page, "edge-no-open-issues");
+    await screenshot(page, "edge-closed-issue");
   });
 
-  test("merge_all_prs then no open PRs", async () => {
-    await apiPost("/data/actions/merge_all_prs");
+  test("merging one PR updates only that PR", async () => {
     const prs = await getPRs();
-    const anyOpen = prs.some((pr: any) => pr.state === "open");
-    expect(anyOpen).toBe(false);
+    const openPrs = prs.filter((pr: any) => pr.state === "open");
+    const target = openPrs[0];
+    if (!target) return;
+
+    await apiPost(`/data/microhub-pulls/${target.id}/merge`, { strategy: "merge" });
+    const after = await getPRs();
+    const updated = after.find((pr: any) => pr.id === target.id);
+    expect(updated.state).toBe("merged");
+
+    if (openPrs.length > 1) {
+      expect(after.some((pr: any) => pr.id !== target.id && pr.state === "open")).toBe(true);
+    }
   });
 });

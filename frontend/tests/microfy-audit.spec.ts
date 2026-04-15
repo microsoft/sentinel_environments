@@ -186,32 +186,45 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(Array.isArray(after)).toBe(true);
   });
 
-  test("POST like_all likes all tracks", async () => {
-    await apiPost("/data/actions/like_all");
+  test("POST like affects only the selected track", async () => {
     const tracks = await getTracks();
-    const allLiked = tracks.every((t: any) => t.isLiked);
-    expect(allLiked).toBe(true);
+    const unlikedTracks = tracks.filter((t: any) => !t.isLiked);
+    const target = unlikedTracks[0];
+    if (!target) return;
+
+    await apiPost(`/data/microfy-tracks/${target.id}/like`);
+    const after = await getTracks();
+    const updated = after.find((t: any) => t.id === target.id);
+    expect(updated.isLiked).toBe(true);
+
+    if (unlikedTracks.length > 1) {
+      expect(after.some((t: any) => t.id !== target.id && !t.isLiked)).toBe(true);
+    }
   });
 
-  test("POST unlike_all unlikes all tracks", async () => {
-    await apiPost("/data/actions/like_all");
-    await apiPost("/data/actions/unlike_all");
+  test("POST like toggles a liked track back off", async () => {
     const tracks = await getTracks();
-    const noneLiked = tracks.every((t: any) => !t.isLiked);
-    expect(noneLiked).toBe(true);
+    const target = tracks.find((t: any) => !t.isLiked) ?? tracks[0];
+    if (!target) return;
+
+    if (!target.isLiked) {
+      await apiPost(`/data/microfy-tracks/${target.id}/like`);
+    }
+    await apiPost(`/data/microfy-tracks/${target.id}/like`);
+    const after = await getTracks();
+    const updated = after.find((t: any) => t.id === target.id);
+    expect(updated.isLiked).toBe(false);
   });
 
-  test("POST delete_all_playlists removes user playlists", async () => {
-    await apiPost("/data/microfy-playlists", { name: "ToDelete" });
-    await apiPost("/data/actions/delete_all_playlists");
+  test("POST create playlist preserves multiple user playlists", async () => {
+    await apiPost("/data/microfy-playlists", { name: "Audit Playlist One" });
+    await apiPost("/data/microfy-playlists", { name: "Audit Playlist Two" });
     const playlists = await getPlaylists();
-    const userPlaylists = playlists.filter((p: any) => p.source === "user");
-    expect(userPlaylists.length).toBe(0);
-  });
-
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    const userPlaylistNames = playlists
+      .filter((p: any) => p.source === "user")
+      .map((p: any) => p.name);
+    expect(userPlaylistNames).toContain("Audit Playlist One");
+    expect(userPlaylistNames).toContain("Audit Playlist Two");
   });
 });
 
@@ -824,26 +837,32 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-clicks");
   });
 
-  test("unlike all then UI shows no liked songs", async ({ page }) => {
-    await apiPost("/data/actions/unlike_all");
+  test("unliking one song via API is reflected in the UI", async ({ page }) => {
+    const tracks = await getTracks();
+    const target = tracks.find((t: any) => !t.isLiked) ?? tracks[0];
+    if (!target) return;
+
+    if (!target.isLiked) {
+      await apiPost(`/data/microfy-tracks/${target.id}/like`);
+    }
+    await apiPost(`/data/microfy-tracks/${target.id}/like`);
     await loadApp(page);
 
-    const tracks = await getTracks();
-    const anyLiked = tracks.some((t: any) => t.isLiked);
-    expect(anyLiked).toBe(false);
+    const after = await getTracks();
+    expect(after.find((t: any) => t.id === target.id)?.isLiked).toBe(false);
 
-    await screenshot(page, "edge-no-likes");
+    await screenshot(page, "edge-unliked-track");
   });
 
-  test("delete all playlists then sidebar reflects", async ({ page }) => {
-    await apiPost("/data/actions/delete_all_playlists");
+  test("creating a playlist via API is reflected in the UI", async ({ page }) => {
+    await apiPost("/data/microfy-playlists", { name: "Edge UI Playlist" });
     await loadApp(page);
 
     const playlists = await getPlaylists();
-    const userPlaylists = playlists.filter((p: any) => p.source === "user");
-    expect(userPlaylists.length).toBe(0);
+    const created = playlists.find((p: any) => p.name === "Edge UI Playlist");
+    expect(created).toBeTruthy();
 
-    await screenshot(page, "edge-no-playlists");
+    await screenshot(page, "edge-created-playlist");
   });
 
   test("new tracks from events appear in UI after polling", async ({

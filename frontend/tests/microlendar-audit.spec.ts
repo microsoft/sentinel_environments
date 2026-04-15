@@ -153,28 +153,46 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(body.success).toBe(true);
   });
 
-  test("POST delete_all_events action", async () => {
-    await apiPost("/data/actions/delete_all_events");
+  test("POST delete event removes only the targeted event", async () => {
+    const { body: created } = await apiPost("/data/microlendar-events", {
+      title: "Delete One Event",
+      date: "2026-03-19",
+      time: "10:30",
+      calendar: "Work",
+    });
+    expect(created.success).toBe(true);
+
+    await apiPost(`/data/microlendar-events/${created.event.id}/delete`);
     const events = await getEvents();
-    expect(events.length).toBe(0);
+    expect(events.some((e: any) => e.id === created.event.id)).toBe(false);
   });
 
-  test("POST complete_all_tasks action", async () => {
-    await apiPost("/data/actions/complete_all_tasks");
+  test("POST complete task leaves other tasks incomplete", async () => {
     const tasks = await getTasks();
-    const anyIncomplete = tasks.some((t: any) => !t.completed);
-    expect(anyIncomplete).toBe(false);
+    const incompleteTasks = tasks.filter((t: any) => !t.completed);
+    const target = incompleteTasks[0];
+    if (!target) return;
+
+    await apiPost(`/data/microlendar-tasks/${target.id}/complete`);
+    const after = await getTasks();
+    const updated = after.find((t: any) => t.id === target.id);
+    expect(updated.completed).toBe(true);
+
+    if (incompleteTasks.length > 1) {
+      expect(after.some((t: any) => t.id !== target.id && !t.completed)).toBe(true);
+    }
   });
 
-  test("POST delete_all_tasks action", async () => {
-    await apiPost("/data/actions/delete_all_tasks");
+  test("POST delete task removes only the targeted task", async () => {
+    const { body: created } = await apiPost("/data/microlendar-tasks", {
+      title: "Delete One Task",
+      dueDate: "2026-03-20",
+    });
+    expect(created.success).toBe(true);
+
+    await apiPost(`/data/microlendar-tasks/${created.task.id}/delete`);
     const tasks = await getTasks();
-    expect(tasks.length).toBe(0);
-  });
-
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    expect(tasks.some((t: any) => t.id === created.task.id)).toBe(false);
   });
 });
 
@@ -614,19 +632,30 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-views");
   });
 
-  test("delete_all_events then calendar shows empty", async ({ page }) => {
-    await apiPost("/data/actions/delete_all_events");
+  test("deleting one event via API removes it from calendar data", async ({ page }) => {
+    const { body: created } = await apiPost("/data/microlendar-events", {
+      title: "Edge Delete Event",
+      date: "2026-03-21",
+      time: "09:00",
+      calendar: "Family",
+    });
+    expect(created.success).toBe(true);
+
+    await apiPost(`/data/microlendar-events/${created.event.id}/delete`);
     await loadApp(page);
     const events = await getEvents();
-    expect(events.length).toBe(0);
-    await screenshot(page, "edge-no-events");
+    expect(events.some((e: any) => e.id === created.event.id)).toBe(false);
+    await screenshot(page, "edge-deleted-event");
   });
 
-  test("complete_all_tasks then all checkboxes checked", async () => {
-    await apiPost("/data/actions/complete_all_tasks");
+  test("completing one task persists to the task list", async () => {
     const tasks = await getTasks();
-    const anyIncomplete = tasks.some((t: any) => !t.completed);
-    expect(anyIncomplete).toBe(false);
+    const target = tasks.find((t: any) => !t.completed);
+    if (!target) return;
+
+    await apiPost(`/data/microlendar-tasks/${target.id}/complete`);
+    const after = await getTasks();
+    expect(after.find((t: any) => t.id === target.id)?.completed).toBe(true);
   });
 
   test("creating event via API appears after polling", async ({ page }) => {

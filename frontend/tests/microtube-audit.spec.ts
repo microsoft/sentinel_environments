@@ -230,26 +230,29 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(updated.video_ids).toContain(videos[0].id);
   });
 
-  test("POST clear_notifications dismisses all", async () => {
-    await apiPost("/data/actions/clear_notifications");
+  test("POST read notification marks one notification as read", async () => {
     const notifications = await getNotifications();
-    const anyActive = notifications.some((n: any) => !n.isDismissed);
-    expect(anyActive).toBe(false);
+    const unread = notifications.find((n: any) => !n.isRead);
+    if (!unread) return;
+
+    await apiPost(`/data/microtube-notifications/${unread.id}/read`);
+    const after = await getNotifications();
+    const updated = after.find((n: any) => n.id === unread.id);
+    expect(updated.isRead).toBe(true);
   });
 
-  test("POST unlike_video clears all likes", async () => {
+  test("POST like toggles a liked video back off", async () => {
     const videos = await getVideos();
-    await apiPost(`/data/microtube-videos/${videos[0].id}/like`);
+    const target = videos.find((v: any) => !v.isLiked) ?? videos[0];
+    if (!target) return;
 
-    await apiPost("/data/actions/unlike_video");
+    if (!target.isLiked) {
+      await apiPost(`/data/microtube-videos/${target.id}/like`);
+    }
+    await apiPost(`/data/microtube-videos/${target.id}/like`);
     const after = await getVideos();
-    const anyLiked = after.some((v: any) => v.isLiked);
-    expect(anyLiked).toBe(false);
-  });
-
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    const updated = after.find((v: any) => v.id === target.id);
+    expect(updated.isLiked).toBe(false);
   });
 });
 
@@ -569,11 +572,19 @@ test.describe("7 · Notifications", () => {
     await screenshot(page, "notifications-dismiss");
   });
 
-  test("clear_notifications action dismisses all", async () => {
-    await apiPost("/data/actions/clear_notifications");
+  test("dismissing one notification leaves other notifications available", async () => {
+    const notificationsBefore = await getNotifications();
+    const activeNotifications = notificationsBefore.filter((n: any) => !n.isDismissed);
+    const target = activeNotifications[0];
+    if (!target) return;
+
+    await apiPost(`/data/microtube-notifications/${target.id}/dismiss`);
     const notifications = await getNotifications();
-    const anyActive = notifications.some((n: any) => !n.isDismissed);
-    expect(anyActive).toBe(false);
+    expect(notifications.find((n: any) => n.id === target.id)?.isDismissed).toBe(true);
+
+    if (activeNotifications.length > 1) {
+      expect(notifications.some((n: any) => n.id !== target.id && !n.isDismissed)).toBe(true);
+    }
   });
 });
 
@@ -693,27 +704,30 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-clicks");
   });
 
-  test("unlike_video clears all likes", async () => {
+  test("unliking one liked video clears only that video", async () => {
     const videos = await getVideos();
-    await apiPost(`/data/microtube-videos/${videos[0].id}/like`);
+    const target = videos.find((v: any) => !v.isLiked) ?? videos[0];
+    if (!target) return;
 
-    await apiPost("/data/actions/unlike_video");
+    if (!target.isLiked) {
+      await apiPost(`/data/microtube-videos/${target.id}/like`);
+    }
+    await apiPost(`/data/microtube-videos/${target.id}/like`);
     const after = await getVideos();
-    const anyLiked = after.some((v: any) => v.isLiked);
-    expect(anyLiked).toBe(false);
+    expect(after.find((v: any) => v.id === target.id)?.isLiked).toBe(false);
   });
 
-  test("unsubscribe_channel clears all subscriptions", async () => {
+  test("toggling subscribe off removes one subscribed channel", async () => {
     const channels = await getChannels();
-    const nonSelf = channels.find((c: any) => !c.isSelf);
-    if (nonSelf) {
-      await apiPost(`/data/microtube-channels/${nonSelf.id}/subscribe`);
-    }
+    const target = channels.find((c: any) => !c.isSelf) as any;
+    if (!target) return;
 
-    await apiPost("/data/actions/unsubscribe_channel");
+    if (!target.isSubscribed) {
+      await apiPost(`/data/microtube-channels/${target.id}/subscribe`);
+    }
+    await apiPost(`/data/microtube-channels/${target.id}/subscribe`);
     const after = await getChannels();
-    const anySubbed = after.some((c: any) => c.isSubscribed);
-    expect(anySubbed).toBe(false);
+    expect(after.find((c: any) => c.id === target.id)?.isSubscribed).toBe(false);
   });
 
   test("creating playlist and adding videos persists", async () => {

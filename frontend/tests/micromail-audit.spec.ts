@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } }); // Ensure lg+xl breakpoint
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../server/micromail/scenarios/micromail-attachment-absolute-active.json";
+  "../server/micromail/scenarios/micromail-inbox-relative-passive.json";
 const SCREENSHOTS = "../server/audit_screenshots/micromail";
 
 // ---------------------------------------------------------------------------
@@ -173,97 +173,42 @@ test.describe("1 · Endpoint Integrity", () => {
     }
   });
 
-  test("POST mark_all_read marks all inbox as read", async () => {
-    const { body } = await apiPost("/data/actions/mark_all_read");
+  test("POST read marks one inbox email as read without clearing all unread", async () => {
+    const emails = await getEmails();
+    const unreadInbox = emails.filter((e) => e.folder === "inbox" && !e.isRead);
+    const target = unreadInbox[0];
+    if (!target) return;
+
+    const { body } = await apiPost(`/data/micromail-emails/${target.id}/read`);
     expect(body.success).toBe(true);
 
     const after = await getEmails();
-    const inboxEmails = after.filter((e) => e.folder === "inbox");
-    for (const e of inboxEmails) {
-      expect(e.isRead).toBe(true);
+    const updated = after.find((e) => e.id === target.id)!;
+    expect(updated.isRead).toBe(true);
+
+    if (unreadInbox.length > 1) {
+      expect(
+        after.some((e) => e.id !== target.id && e.folder === "inbox" && !e.isRead)
+      ).toBe(true);
     }
   });
 
-  test("POST clear_junk moves junk emails to deleted", async () => {
+  test("POST move can take one email from junk to deleted", async () => {
     const emails = await getEmails();
-    // First move one to junk
-    await apiPost(`/data/micromail-emails/${emails[0].id}/move`, { folder: "junk" });
-    let after = await getEmails();
-    expect(after.filter((e) => e.folder === "junk").length).toBeGreaterThan(0);
+    const target = emails.find((e) => e.folder === "inbox") ?? emails[0];
+    if (!target) return;
 
-    const { body } = await apiPost("/data/actions/clear_junk");
+    await apiPost(`/data/micromail-emails/${target.id}/move`, { folder: "junk" });
+    let after = await getEmails();
+    expect(after.find((e) => e.id === target.id)?.folder).toBe("junk");
+
+    const { body } = await apiPost(`/data/micromail-emails/${target.id}/move`, {
+      folder: "deleted",
+    });
     expect(body.success).toBe(true);
 
     after = await getEmails();
-    expect(after.filter((e) => e.folder === "junk").length).toBe(0);
-  });
-
-  test("POST move_all_external_to_junk", async () => {
-    const before = await getEmails();
-    const externalInInbox = before.filter((e) => e.isExternal && e.folder === "inbox");
-
-    const { body } = await apiPost("/data/actions/move_all_external_to_junk");
-    expect(body.success).toBe(true);
-
-    if (externalInInbox.length > 0) {
-      const after = await getEmails();
-      for (const ext of externalInInbox) {
-        const updated = after.find((e) => e.id === ext.id)!;
-        expect(updated.folder).toBe("junk");
-      }
-    }
-  });
-
-  test("POST archive_all_inbox", async () => {
-    const { body } = await apiPost("/data/actions/archive_all_inbox");
-    expect(body.success).toBe(true);
-
-    const after = await getEmails();
-    expect(after.filter((e) => e.folder === "inbox").length).toBe(0);
-  });
-
-  test("POST flag_all_urgent flags high importance emails", async () => {
-    const before = await getEmails();
-    const urgentInInbox = before.filter(
-      (e) => e.importance === "high" && e.folder === "inbox"
-    );
-
-    const { body } = await apiPost("/data/actions/flag_all_urgent");
-    expect(body.success).toBe(true);
-
-    if (urgentInInbox.length > 0) {
-      const after = await getEmails();
-      for (const u of urgentInInbox) {
-        expect(after.find((e) => e.id === u.id)!.isFlagged).toBe(true);
-      }
-    }
-  });
-
-  test("POST archive_all_mentions", async () => {
-    const before = await getEmails();
-    const mentionedInInbox = before.filter(
-      (e) => e.mentionsMe && e.folder === "inbox"
-    );
-
-    const { body } = await apiPost("/data/actions/archive_all_mentions");
-    expect(body.success).toBe(true);
-
-    if (mentionedInInbox.length > 0) {
-      const after = await getEmails();
-      for (const m of mentionedInInbox) {
-        expect(after.find((e) => e.id === m.id)!.folder).toBe("archive");
-      }
-    }
-  });
-
-  test("POST open_attachment succeeds", async () => {
-    const { body } = await apiPost("/data/actions/open_attachment");
-    expect(body.success).toBe(true);
-  });
-
-  test("POST forward_all_cc succeeds", async () => {
-    const { body } = await apiPost("/data/actions/forward_all_cc");
-    expect(body.success).toBe(true);
+    expect(after.find((e) => e.id === target.id)?.folder).toBe("deleted");
   });
 
   test("invalid email ID returns 404 not 500", async () => {
@@ -283,11 +228,6 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(status).toBe(404);
   });
 
-  test("invalid action name returns error", async () => {
-    const { body } = await apiPost("/data/actions/totally_fake_action");
-    expect(body.success).toBe(false);
-    expect(body.error).toBeTruthy();
-  });
 });
 
 // ---------------------------------------------------------------------------
@@ -485,20 +425,19 @@ test.describe("2 · UI ↔ API Sync", () => {
     await screenshot(page, "ui-sync-bulk-archive");
   });
 
-  test("toolbar: Mark all as read clears all bold", async ({ page }) => {
+  test("toolbar view reflects per-email read state without a mark-all control", async ({ page }) => {
     await loadApp(page);
 
-    const markAllBtn = page.locator('button[aria-label="Mark all as read"]');
-    await markAllBtn.click();
+    await expect(page.locator('button[aria-label="Mark all as read"]')).toHaveCount(0);
+
+    const firstItem = page.locator('[role="listitem"]').first();
+    await firstItem.click();
     await page.waitForTimeout(2000);
 
     const after = await getEmails();
-    const inboxEmails = after.filter((e) => e.folder === "inbox");
-    for (const e of inboxEmails) {
-      expect(e.isRead).toBe(true);
-    }
+    expect(after.some((e) => e.folder === "inbox" && e.isRead)).toBe(true);
 
-    await screenshot(page, "ui-sync-mark-all-read");
+    await screenshot(page, "ui-sync-single-read");
   });
 
   test("folder badge counts update after mutations", async ({ page }) => {
@@ -507,12 +446,11 @@ test.describe("2 · UI ↔ API Sync", () => {
     // Take screenshot of initial badge counts
     await screenshot(page, "ui-sync-badge-initial");
 
-    // Mark all as read should update unread badge on inbox
-    const markAllBtn = page.locator('button[aria-label="Mark all as read"]');
-    await markAllBtn.click();
+    const firstItem = page.locator('[role="listitem"]').first();
+    await firstItem.click();
     await page.waitForTimeout(2000);
 
-    await screenshot(page, "ui-sync-badge-after-mark-all-read");
+    await screenshot(page, "ui-sync-badge-after-read");
   });
 });
 
@@ -606,12 +544,13 @@ test.describe("3 · Folder Navigation", () => {
     await screenshot(page, "folder-move-and-navigate");
   });
 
-  test("Junk Email folder has Empty folder button", async ({ page }) => {
+  test("Junk Email folder reflects per-email moves without an Empty folder button", async ({ page }) => {
     await loadApp(page);
 
     // First move an email to junk
     const emails = await getEmails();
-    await apiPost(`/data/micromail-emails/${emails[0].id}/move`, { folder: "junk" });
+    const target = emails[0];
+    await apiPost(`/data/micromail-emails/${target.id}/move`, { folder: "junk" });
     await page.waitForTimeout(1500);
 
     // Navigate to Junk
@@ -622,19 +561,11 @@ test.describe("3 · Folder Navigation", () => {
     await junkBtn.click();
     await page.waitForTimeout(1000);
 
-    // Verify "Empty folder" button exists
-    const emptyBtn = page.locator("text=Empty folder");
-    expect(await emptyBtn.isVisible()).toBe(true);
+    await expect(page.locator("text=Empty folder")).toHaveCount(0);
+    const body = await page.innerText("body");
+    expect(body).toContain(target.subject);
 
-    // Click it
-    await emptyBtn.click();
-    await page.waitForTimeout(1500);
-
-    // Verify junk is empty
-    const after = await getEmails();
-    expect(after.filter((e) => e.folder === "junk").length).toBe(0);
-
-    await screenshot(page, "folder-junk-empty");
+    await screenshot(page, "folder-junk-item");
   });
 });
 
@@ -726,12 +657,14 @@ test.describe("4 · Quick Filters", () => {
     await screenshot(page, "filters-mentions");
   });
 
-  test("after reading all, Unread filter shows empty state", async ({ page }) => {
+  test("after reading one email, Unread filter excludes that email", async ({ page }) => {
     await loadApp(page);
 
-    // Mark all as read
-    const markAllBtn = page.locator('button[aria-label="Mark all as read"]');
-    await markAllBtn.click();
+    const emails = await getEmails();
+    const target = emails.find((e) => e.folder === "inbox" && !e.isRead);
+    if (!target) return;
+
+    await apiPost(`/data/micromail-emails/${target.id}/read`);
     await page.waitForTimeout(2000);
 
     // Switch to Unread filter
@@ -739,11 +672,13 @@ test.describe("4 · Quick Filters", () => {
     await unreadBtn.click();
     await page.waitForTimeout(1000);
 
-    // Should show empty state
-    const emptyMsg = page.locator("text=No conversations match your filters");
-    expect(await emptyMsg.isVisible()).toBe(true);
+    const unreadEmails = (await getEmails()).filter(
+      (e) => e.folder === "inbox" && !e.isRead
+    );
+    const listItems = page.locator('[role="listitem"]');
+    expect(await listItems.count()).toBe(unreadEmails.length);
 
-    await screenshot(page, "filters-unread-empty");
+    await screenshot(page, "filters-unread-after-single-read");
   });
 });
 
@@ -1444,8 +1379,12 @@ test.describe("10 · Edge Cases", () => {
   });
 
   test("empty inbox shows empty state message", async ({ page }) => {
-    // Archive all inbox emails first
-    await apiPost("/data/actions/archive_all_inbox");
+    // Archive all inbox emails individually
+    const emails = await getEmails();
+    const inboxEmails = emails.filter((e) => e.folder === "inbox");
+    for (const e of inboxEmails) {
+      await apiPost(`/data/micromail-emails/${e.id}/move`, { folder: "archive" });
+    }
 
     await loadApp(page);
     await page.waitForTimeout(1500);

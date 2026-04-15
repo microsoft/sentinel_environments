@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../server/microchat/scenarios/microchat-logout-absolute-active.json";
+  "../server/microchat/scenarios/microchat-unread-absolute-active.json";
 const SCREENSHOTS = "../server/audit_screenshots/microchat";
 
 // ---------------------------------------------------------------------------
@@ -166,16 +166,21 @@ test.describe("1 · Endpoint Integrity", () => {
     expect(body).toHaveProperty("isMuted");
   });
 
-  test("POST mark_all_read marks all messages as read", async () => {
-    await apiPost("/data/actions/mark_all_read");
-    const messages = await getMessages();
-    const anyUnread = messages.some((m: any) => !m.isRead);
-    expect(anyUnread).toBe(false);
-  });
+  test("POST mark message as read updates only the targeted message", async () => {
+    const before = await getMessages();
+    const unreadMessages = before.filter((m: any) => !m.isRead);
+    const target = unreadMessages[0];
+    if (!target) return;
 
-  test("invalid action returns error", async () => {
-    const { status } = await apiPost("/data/actions/nonexistent_action_xyz");
-    expect(status).toBeGreaterThanOrEqual(400);
+    await apiPost(`/data/microchat-messages/${target.id}/read`);
+    const after = await getMessages();
+    const updated = after.find((m: any) => m.id === target.id);
+    expect(updated.isRead).toBe(true);
+
+    if (unreadMessages.length > 1) {
+      const remainingUnread = after.filter((m: any) => !m.isRead);
+      expect(remainingUnread.length).toBeGreaterThan(0);
+    }
   });
 });
 
@@ -213,11 +218,18 @@ test.describe("2 · UI ↔ API Sync", () => {
     await screenshot(page, "ui-sync-messages");
   });
 
-  test("marking all read via API clears unread badges in UI", async ({ page }) => {
-    await apiPost("/data/actions/mark_all_read");
+  test("reading one message via API is reflected when the UI loads", async ({ page }) => {
+    const messages = await getMessages();
+    const unread = messages.find((m: any) => !m.isRead);
+    if (unread) {
+      await apiPost(`/data/microchat-messages/${unread.id}/read`);
+      const after = await getMessages();
+      expect(after.find((m: any) => m.id === unread.id)?.isRead).toBe(true);
+    }
+
     await loadApp(page);
     await page.waitForTimeout(2000);
-    await screenshot(page, "ui-sync-all-read");
+    await screenshot(page, "ui-sync-read-message");
   });
 });
 
@@ -602,15 +614,20 @@ test.describe("10 · Edge Cases", () => {
     await screenshot(page, "edge-rapid-switch");
   });
 
-  test("mark_all_read then UI reflects no unread", async ({ page }) => {
-    await apiPost("/data/actions/mark_all_read");
+  test("reading one message leaves remaining unread state intact", async ({ page }) => {
+    const before = await getMessages();
+    const unreadMessages = before.filter((m: any) => !m.isRead);
+    if (unreadMessages.length === 0) return;
+
+    await apiPost(`/data/microchat-messages/${unreadMessages[0].id}/read`);
     await loadApp(page);
     await page.waitForTimeout(2000);
 
-    const messages = await getMessages();
-    const anyUnread = messages.some((m: any) => !m.isRead);
-    expect(anyUnread).toBe(false);
-    await screenshot(page, "edge-all-read");
+    const after = await getMessages();
+    if (unreadMessages.length > 1) {
+      expect(after.some((m: any) => !m.isRead)).toBe(true);
+    }
+    await screenshot(page, "edge-partial-read");
   });
 
   test("empty search yields no crash", async ({ page }) => {
