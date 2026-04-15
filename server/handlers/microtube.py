@@ -193,6 +193,14 @@ def process_event(session: Session, event: dict) -> None:
             session.microtube_channels.append(row)
             session.microtube_channel_states[cid] = _init_channel_state()
 
+        # Pre-subscribed channels
+        for cid in payload.get("subscribed_channel_ids", []):
+            if cid not in session.microtube_channel_states:
+                row = _build_channel_row(cid)
+                session.microtube_channels.append(row)
+                session.microtube_channel_states[cid] = _init_channel_state()
+            session.microtube_channel_states[cid]["isSubscribed"] = True
+
         # Load comments
         comment_ids = payload.get("comment_ids", [])
         if comment_ids == ["*"]:
@@ -211,6 +219,19 @@ def process_event(session: Session, event: dict) -> None:
             session.microtube_notification_states[nid] = _init_notification_state(
                 MICROTUBE_NOTIFICATION_CATALOG.get(nid, {})
             )
+
+        # Pre-watched videos
+        for vid in payload.get("watched_video_ids", []):
+            if vid not in session.microtube_video_states:
+                row = _build_video_row(vid)
+                session.microtube_videos.append(row)
+                session.microtube_video_states[vid] = _init_video_state()
+                cid = row["channel_id"]
+                if cid not in session.microtube_channel_states:
+                    channel_row = _build_channel_row(cid)
+                    session.microtube_channels.append(channel_row)
+                    session.microtube_channel_states[cid] = _init_channel_state()
+            session.microtube_watched_videos.add(vid)
 
         # Capture baseline after preload
         session.baseline_metrics = compute_current_metrics(session)

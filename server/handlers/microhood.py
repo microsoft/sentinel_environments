@@ -191,12 +191,12 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         [(n.get("id"), json.dumps(n)) for n in session.microhood_news],
     )
 
-    conn.execute("CREATE TABLE orders (id TEXT, symbol TEXT, action TEXT, quantity INT, price REAL)")
+    conn.execute("CREATE TABLE orders (id TEXT, symbol TEXT, action TEXT, quantity INT, price REAL, type TEXT)")
     conn.executemany(
-        "INSERT INTO orders VALUES (?,?,?,?,?)",
+        "INSERT INTO orders VALUES (?,?,?,?,?,?)",
         [
             (o.get("id"), o.get("symbol"), o.get("action"),
-             int(o.get("quantity", 0)), float(o.get("price", 0)))
+             int(o.get("quantity", 0)), float(o.get("price", 0)), o.get("type"))
             for o in session.microhood_orders
         ],
     )

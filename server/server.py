@@ -1803,6 +1803,7 @@ async def data_scholar_cite_paper(paper_id: str) -> dict:
     session = _require_session()
     if paper_id not in session.microscholar_paper_states:
         raise HTTPException(status_code=404, detail=f"Paper not found: {paper_id}")
+    session.microscholar_paper_states[paper_id]["isCited"] = True
     return {"success": True}
 
 

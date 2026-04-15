@@ -106,7 +106,7 @@ def _build_coauthor_row(coauthor: dict) -> dict:
 
 
 def _init_paper_state() -> dict:
-    return {"isSaved": False}
+    return {"isSaved": False, "isCited": False}
 
 
 def _init_alert_state(raw: dict) -> dict:
@@ -176,10 +176,26 @@ def process_event(session: Session, event: dict) -> None:
 
     elif etype == "inject_target_paper":
         paper_id = event.get("payload", {}).get("paper_id")
-        if paper_id:
+        if paper_id and paper_id not in session.microscholar_paper_states:
             row = _build_paper_row(paper_id)
             session.microscholar_papers.append(row)
             session.microscholar_paper_states[paper_id] = _init_paper_state()
+
+    elif etype == "new_paper":
+        paper_id = event.get("payload", {}).get("paper_id")
+        if paper_id and paper_id not in session.microscholar_paper_states:
+            row = _build_paper_row(paper_id)
+            session.microscholar_papers.append(row)
+            session.microscholar_paper_states[paper_id] = _init_paper_state()
+
+    elif etype == "new_alert":
+        alert_id = event.get("payload", {}).get("alert_id")
+        if alert_id and alert_id not in session.microscholar_alert_states:
+            row = _build_alert_row(alert_id)
+            session.microscholar_alerts.append(row)
+            session.microscholar_alert_states[alert_id] = _init_alert_state(
+                MICROSCHOLAR_ALERT_CATALOG.get(alert_id, {})
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -205,10 +221,13 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         ],
     )
 
-    conn.execute("CREATE TABLE paper_states (paper_id TEXT, isSaved INT)")
+    conn.execute("CREATE TABLE paper_states (paper_id TEXT, isSaved INT, isCited INT)")
     conn.executemany(
-        "INSERT INTO paper_states VALUES (?,?)",
-        [(pid, int(s.get("isSaved", False))) for pid, s in session.microscholar_paper_states.items()],
+        "INSERT INTO paper_states VALUES (?,?,?)",
+        [
+            (pid, int(s.get("isSaved", False)), int(s.get("isCited", False)))
+            for pid, s in session.microscholar_paper_states.items()
+        ],
     )
 
     conn.execute("CREATE TABLE alerts (id TEXT, type TEXT, title TEXT, description TEXT)")

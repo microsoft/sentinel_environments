@@ -477,6 +477,14 @@ def process_event(session: Session, event: dict) -> None:
         # Capture baseline after preload
         session.baseline_metrics = compute_current_metrics(session)
 
+    elif etype == "new_issue":
+        issue_id = event.get("payload", {}).get("issue_id")
+        raw = MICROHUB_ISSUE_CATALOG.get(issue_id)
+        if raw and issue_id not in session.microhub_issue_states:
+            row = _build_issue_row(raw)
+            session.microhub_issues.append(row)
+            session.microhub_issue_states[issue_id] = {"state": row["state"]}
+
 
 
 # ---------------------------------------------------------------------------
@@ -533,7 +541,15 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
     conn.execute("CREATE TABLE user_created_comments (id TEXT, target_type TEXT, target_id TEXT, body TEXT)")
     conn.executemany(
         "INSERT INTO user_created_comments VALUES (?,?,?,?)",
-        [(c.get("id"), c.get("target_type"), c.get("target_id"), c.get("body")) for c in session.microhub_user_created_comments],
+        [
+            (
+                c.get("id"),
+                c.get("target_type") or c.get("targetType"),
+                c.get("target_id") or c.get("targetId"),
+                c.get("body"),
+            )
+            for c in session.microhub_user_created_comments
+        ],
     )
 
     conn.execute("CREATE TABLE user_created_issues (id TEXT, title TEXT, body TEXT)")
