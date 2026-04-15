@@ -172,7 +172,6 @@ const MicroScholar = () => {
   // ---------------------------------------------------------------------------
   // State Variables
   // ---------------------------------------------------------------------------
-  const [startTime] = useState(Date.now());
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Paper[]>([]);
   const [targetPaperShown, setTargetPaperShown] = useState(false);
@@ -183,7 +182,6 @@ const MicroScholar = () => {
   const [showCiteModal, setShowCiteModal] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
   const [savedPapers, setSavedPapers] = useState<string[]>([]);
-  const [currentTime, setCurrentTime] = useState(Date.now());
   const [searchType, setSearchType] = useState<"articles" | "caselaw">("articles");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -253,10 +251,6 @@ const MicroScholar = () => {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Select all papers state
-  const [selectAllPapers, setSelectAllPapers] = useState(false);
-  const [selectedPaperIds, setSelectedPaperIds] = useState<string[]>([]);
-
   const searchInputRef = useRef<HTMLInputElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const profileButtonRef = useRef<HTMLButtonElement>(null);
@@ -273,13 +267,6 @@ const MicroScholar = () => {
   // ---------------------------------------------------------------------------
   // Effects
   // ---------------------------------------------------------------------------
-
-  // Update current time every second
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
 
   // Initialize coauthor IDs from API data once loaded
   useEffect(() => {
@@ -585,42 +572,14 @@ const MicroScholar = () => {
               {/* Publication list */}
               <div className="bg-white p-4 rounded-lg border border-gray-200">
                 <div className="grid grid-cols-12 items-center pb-3 border-b border-gray-200 mb-3 text-sm font-medium text-gray-500">
-                  <div className="col-span-9 flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4"
-                      checked={selectAllPapers}
-                      onChange={(e) => {
-                        setSelectAllPapers(e.target.checked);
-                        if (e.target.checked) {
-                          setSelectedPaperIds(papersToShow.map(p => p.id));
-                        } else {
-                          setSelectedPaperIds([]);
-                        }
-                      }}
-                    />
-                    <span>TITLE</span>
-                  </div>
+                  <div className="col-span-9">TITLE</div>
                   <div className="col-span-1 text-right">CITED BY</div>
                   <div className="col-span-2 text-right">YEAR</div>
                 </div>
                 <div className="space-y-4">
                   {papersToShow.map(paper => (
                     <div key={paper.id} className="grid grid-cols-12 items-start">
-                      <div className="col-span-9 flex items-start">
-                        <input
-                          type="checkbox"
-                          className="w-4 h-4 mt-1 mr-3"
-                          checked={selectedPaperIds.includes(paper.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedPaperIds(prev => [...prev, paper.id]);
-                            } else {
-                              setSelectedPaperIds(prev => prev.filter(id => id !== paper.id));
-                              setSelectAllPapers(false);
-                            }
-                          }}
-                        />
+                      <div className="col-span-9">
                         <div>
                           <button
                             onClick={() => {
@@ -1595,10 +1554,6 @@ const MicroScholar = () => {
       hookMarkAlertRead(alertId);
     };
 
-    const markAllAsRead = () => {
-      alerts.filter(a => !a.isRead).forEach(a => hookMarkAlertRead(a.id));
-    };
-
     const getAlertIcon = (type: string) => {
       switch (type) {
         case 'citation':
@@ -1623,14 +1578,6 @@ const MicroScholar = () => {
                 {unreadCount > 0 ? `${unreadCount} unread alerts` : "All caught up!"}
               </p>
             </div>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="text-sm text-[#1a73e8] hover:underline"
-              >
-                Mark all as read
-              </button>
-            )}
           </div>
 
           <div className="space-y-3">
