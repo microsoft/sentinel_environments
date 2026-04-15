@@ -251,14 +251,6 @@ export function useMicroscholarData() {
     await fetch(`/api/data/microscholar-alerts/${alertId}/read`, { method: "POST" }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, { method: "POST" }).catch(() => null);
-    if (!res) return { success: false };
-    setSaveOverrides(new Map());
-    setAlertReadOverrides(new Map());
-    return res.json();
-  }, []);
-
   return {
     papers,
     alerts,
@@ -270,7 +262,6 @@ export function useMicroscholarData() {
     citePaper,
     savePaper,
     markAlertRead,
-    performAction,
     searchPapers,
     advancedSearchPapers,
   };

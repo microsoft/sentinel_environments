@@ -494,14 +494,6 @@ export function useMicrohubData() {
     }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, {
-      method: "POST",
-    }).catch(() => null);
-    if (!res) return { success: false };
-    return res.json();
-  }, []);
-
   return {
     // Dynamic
     repository,
@@ -538,6 +530,5 @@ export function useMicrohubData() {
     commentOnPR,
     closeIssue,
     followUser,
-    performAction,
   };
 }

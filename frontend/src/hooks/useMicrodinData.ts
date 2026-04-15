@@ -285,14 +285,6 @@ export function useMicrodinData() {
     await fetch(`/api/data/microdin-jobs/${jobId}/apply`, { method: "POST" }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, { method: "POST" }).catch(() => null);
-    if (!res) return { success: false };
-    setLikeOverrides(new Map());
-    setReadOverrides(new Map());
-    return res.json();
-  }, []);
-
   return {
     posts: postsWithOverrides,
     connections,
@@ -310,6 +302,5 @@ export function useMicrodinData() {
     readConversation,
     markNotificationRead,
     applyJob,
-    performAction,
   };
 }

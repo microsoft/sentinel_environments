@@ -234,15 +234,6 @@ export function useMicrofyData() {
     []
   );
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, {
-      method: "POST",
-    }).catch(() => null);
-    if (!res) return { success: false };
-    setLikeOverrides(new Map());
-    return res.json();
-  }, []);
-
   return {
     tracks: tracksWithOverrides,
     playlists,
@@ -257,6 +248,5 @@ export function useMicrofyData() {
     followArtist,
     createPlaylist,
     addToPlaylist,
-    performAction,
   };
 }

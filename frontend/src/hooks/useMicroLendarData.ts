@@ -187,14 +187,6 @@ export function useMicroLendarData() {
     return res.json();
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, {
-      method: "POST",
-    }).catch(() => null);
-    if (!res) return { success: false };
-    return res.json();
-  }, []);
-
   return {
     events,
     tasks,
@@ -207,6 +199,5 @@ export function useMicroLendarData() {
     createTask,
     toggleTask,
     deleteTask,
-    performAction,
   };
 }

@@ -311,19 +311,6 @@ export function useMicrotubeData() {
     }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, {
-      method: "POST",
-    }).catch(() => null);
-    if (!res) return { success: false };
-    // Clear optimistic overrides after bulk action
-    setLikeOverrides(new Map());
-    setDislikeOverrides(new Map());
-    setSaveOverrides(new Map());
-    setSubscribeOverrides(new Map());
-    return res.json();
-  }, []);
-
   return {
     videos,
     channels: channelsWithOverrides,
@@ -343,6 +330,5 @@ export function useMicrotubeData() {
     markNotificationRead,
     createPlaylist,
     addToPlaylist,
-    performAction,
   };
 }

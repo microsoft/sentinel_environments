@@ -85,7 +85,7 @@ export interface ApiGramUser {
 export function useMicrogramData() {
   const [posts, setPosts] = useState<ApiGramPost[]>([]);
   const [stories, setStories] = useState<ApiGramStory[]>([]);
-  const [messages, setMessages] = useState<ApiGramMessage[]>([]);
+  const [rawMessages, setRawMessages] = useState<ApiGramMessage[]>([]);
   const [activity, setActivity] = useState<ApiGramActivity[]>([]);
   const [followedUserIds, setFollowedUserIds] = useState<string[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
@@ -96,6 +96,7 @@ export function useMicrogramData() {
   // Local optimistic overrides for likes/saves
   const [likeOverrides, setLikeOverrides] = useState<Map<string, boolean>>(new Map());
   const [saveOverrides, setSaveOverrides] = useState<Map<string, boolean>>(new Map());
+  const [messageReadOverrides, setMessageReadOverrides] = useState<Map<string, boolean>>(new Map());
 
   const configLoaded = useRef(false);
   const usersLoaded = useRef(false);
@@ -170,7 +171,7 @@ export function useMicrogramData() {
       .then(([postsData, storiesData, messagesData, activityData, followedData]) => {
         setPosts(postsData.posts ?? []);
         setStories(storiesData.stories ?? []);
-        setMessages(messagesData.messages ?? []);
+        setRawMessages(messagesData.messages ?? []);
         setActivity(activityData.activity ?? []);
         setFollowedUserIds(followedData.followed_users ?? []);
         setError(null);
@@ -205,6 +206,27 @@ export function useMicrogramData() {
       return { ...p, isLiked, isSaved };
     });
   }, [posts, likeOverrides, saveOverrides]);
+
+  const messages = useMemo<ApiGramMessage[]>(() => {
+    return rawMessages.map((conversation) => {
+      let unreadCount = 0;
+      const mergedMessages = conversation.messages.map((message) => {
+        const isRead = messageReadOverrides.has(message.id)
+          ? (messageReadOverrides.get(message.id) as boolean)
+          : Boolean(message.isRead);
+        if (!isRead) {
+          unreadCount += 1;
+        }
+        return { ...message, isRead };
+      });
+
+      return {
+        ...conversation,
+        messages: mergedMessages,
+        unreadCount,
+      };
+    });
+  }, [rawMessages, messageReadOverrides]);
 
   // Mutation helpers
   const likePost = useCallback(
@@ -255,16 +277,31 @@ export function useMicrogramData() {
     }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, {
+  const readConversation = useCallback(async (conversationId: string) => {
+    const conversation = rawMessages.find((item) => item.id === conversationId);
+    if (!conversation) return;
+
+    const unreadMessageIds = conversation.messages
+      .filter((message) => {
+        const isRead = messageReadOverrides.has(message.id)
+          ? (messageReadOverrides.get(message.id) as boolean)
+          : Boolean(message.isRead);
+        return !isRead;
+      })
+      .map((message) => message.id);
+
+    if (unreadMessageIds.length > 0) {
+      setMessageReadOverrides((prev) => {
+        const next = new Map(prev);
+        unreadMessageIds.forEach((messageId) => next.set(messageId, true));
+        return next;
+      });
+    }
+
+    await fetch(`/api/data/microgram-conversations/${conversationId}/read`, {
       method: "POST",
-    }).catch(() => null);
-    if (!res) return { success: false };
-    // Clear optimistic overrides after bulk action
-    setLikeOverrides(new Map());
-    setSaveOverrides(new Map());
-    return res.json();
-  }, []);
+    }).catch(() => {});
+  }, [rawMessages, messageReadOverrides]);
 
   return {
     posts: postsWithOverrides,
@@ -281,6 +318,6 @@ export function useMicrogramData() {
     commentOnPost,
     viewStory,
     followUser,
-    performAction,
+    readConversation,
   };
 }

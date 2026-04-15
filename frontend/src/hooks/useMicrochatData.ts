@@ -215,18 +215,6 @@ export function useMicrochatData() {
     }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(
-    async (action: string) => {
-      const res = await fetch(`/api/data/actions/${action}`, {
-        method: "POST",
-      }).catch(() => null);
-      if (!res) return { success: false };
-      setReadOverrides(new Map());
-      return res.json();
-    },
-    []
-  );
-
   return {
     messages,
     conversations,
@@ -239,6 +227,5 @@ export function useMicrochatData() {
     reactToMessage,
     muteConversation,
     pinConversation,
-    performAction,
   };
 }

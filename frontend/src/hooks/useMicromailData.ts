@@ -134,14 +134,6 @@ export function useMicromailData() {
     }).catch(() => {});
   }, []);
 
-  const performAction = useCallback(async (action: string) => {
-    const res = await fetch(`/api/data/actions/${action}`, { method: "POST" }).catch(() => null);
-    if (!res) return { success: false };
-    setReadOverrides(new Map());
-    setFlagOverrides(new Map());
-    return res.json();
-  }, []);
-
   return {
     emails,
     config,
@@ -151,6 +143,5 @@ export function useMicromailData() {
     markUnread,
     flagEmail,
     moveEmail,
-    performAction,
   };
 }
