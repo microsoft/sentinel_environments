@@ -40,7 +40,7 @@ from server.handlers import microlendar as microlendar_handler
 from server.handlers import microscholar as microscholar_handler
 from server.handlers import microtube as microtube_handler
 from server.schemas import (
-    ActionResponse,
+
     CommentResponse,
     ConfigResponse,
     CreateEventResponse,
@@ -297,31 +297,6 @@ def _dispatch_process_event(session: Session, event: dict) -> None:
         raise ValueError(f"Unknown environment: {session.environment}")
 
 
-def _dispatch_action(session: Session, action_name: str) -> dict:
-    if session.environment == "micromail":
-        return micromail_handler.handle_action(session, action_name)
-    elif session.environment == "microchat":
-        return microchat_handler.handle_action(session, action_name)
-    elif session.environment == "microdin":
-        return microdin_handler.handle_action(session, action_name)
-    elif session.environment == "microfy":
-        return microfy_handler.handle_action(session, action_name)
-    elif session.environment == "microgram":
-        return microgram_handler.handle_action(session, action_name)
-    elif session.environment == "microhood":
-        return microhood_handler.handle_action(session, action_name)
-    elif session.environment == "microhub":
-        return microhub_handler.handle_action(session, action_name)
-    elif session.environment == "microlendar":
-        return microlendar_handler.handle_action(session, action_name)
-    elif session.environment == "microscholar":
-        return microscholar_handler.handle_action(session, action_name)
-    elif session.environment == "microtube":
-        return microtube_handler.handle_action(session, action_name)
-    else:
-        raise ValueError(f"Unknown environment: {session.environment}")
-
-
 def _advance_session(session: Session, up_to_time: int) -> list[dict]:
     processed = []
     while session.next_event_index < len(session.events):
@@ -496,11 +471,6 @@ async def data_config(request: Request) -> ConfigResponse:
         selfUser=self_user,
     )
 
-
-@app.post("/data/actions/{action_name}", response_model=ActionResponse)
-async def data_action(action_name: str) -> dict:
-    session = _require_session()
-    return _dispatch_action(session, action_name)
 
 
 def _dispatch_materialize(session: Session, conn: sqlite3.Connection) -> None:

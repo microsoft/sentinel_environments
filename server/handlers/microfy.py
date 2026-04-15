@@ -157,31 +157,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "unlike_all":
-        for tid in session.microfy_track_states:
-            session.microfy_track_states[tid]["isLiked"] = False
-
-    elif action_name == "like_all":
-        for tid in session.microfy_track_states:
-            session.microfy_track_states[tid]["isLiked"] = True
-
-    elif action_name == "unfollow_all":
-        session.microfy_followed_artists.clear()
-
-    elif action_name == "follow_all_artists":
-        # Follow all unique artists from loaded tracks
-        for t in session.microfy_tracks:
-            session.microfy_followed_artists.add(t["artistId"])
-
-    elif action_name == "delete_all_playlists":
-        session.microfy_user_created_playlists.clear()
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

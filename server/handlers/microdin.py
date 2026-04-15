@@ -382,32 +382,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "accept_all_connections":
-        for cid in session.microdin_connection_states:
-            session.microdin_connection_states[cid]["status"] = "accepted"
-
-    elif action_name == "mark_all_notifications_read":
-        for nid in session.microdin_notification_states:
-            session.microdin_notification_states[nid]["isRead"] = True
-
-    elif action_name == "mark_all_messages_read":
-        for mid in session.microdin_message_states:
-            session.microdin_message_states[mid]["isRead"] = True
-
-    elif action_name == "apply_to_all_jobs":
-        for jid in session.microdin_job_states:
-            session.microdin_job_states[jid]["isApplied"] = True
-
-    elif action_name == "like_all_posts":
-        for pid in session.microdin_post_states:
-            session.microdin_post_states[pid]["isLiked"] = True
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

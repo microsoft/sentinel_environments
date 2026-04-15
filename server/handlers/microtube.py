@@ -242,49 +242,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "unsubscribe_channel":
-        for s in session.microtube_channel_states.values():
-            s["isSubscribed"] = False
-
-    elif action_name == "add_to_playlist":
-        # Create a playlist with all current videos
-        video_ids = [v["id"] for v in session.microtube_videos]
-        playlist = {
-            "id": f"pl-bulk-{len(session.microtube_user_created_playlists) + 1}",
-            "name": "All Videos",
-            "video_ids": video_ids,
-        }
-        session.microtube_user_created_playlists.append(playlist)
-
-    elif action_name == "unlike_video":
-        for s in session.microtube_video_states.values():
-            s["isLiked"] = False
-
-    elif action_name == "post_comment":
-        # Bulk action: post a generic comment on the first video
-        if session.microtube_videos:
-            comment = {
-                "id": f"user-cmt-bulk-{len(session.microtube_user_created_comments) + 1}",
-                "video_id": session.microtube_videos[0]["id"],
-                "content": "Great video!",
-                "user_id": "user000",
-                "userName": "You",
-                "userAvatar": "",
-                "likes": 0,
-                "replies": 0,
-            }
-            session.microtube_user_created_comments.append(comment)
-
-    elif action_name == "clear_notifications":
-        for s in session.microtube_notification_states.values():
-            s["isDismissed"] = True
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

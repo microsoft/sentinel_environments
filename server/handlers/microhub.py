@@ -483,21 +483,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "close_all_issues":
-        for iid in session.microhub_issue_states:
-            session.microhub_issue_states[iid]["state"] = "closed"
-
-    elif action_name == "merge_all_prs":
-        for pid in session.microhub_pr_states:
-            if session.microhub_pr_states[pid]["state"] == "open":
-                session.microhub_pr_states[pid]["state"] = "merged"
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

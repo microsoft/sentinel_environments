@@ -51,10 +51,6 @@ class SuccessResponse(BaseModel):
     success: bool
 
 
-class ActionResponse(BaseModel):
-    success: bool
-    error: Optional[str] = None
-
 
 class ToggleLikeResponse(BaseModel):
     success: bool

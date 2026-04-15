@@ -270,31 +270,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "unlike_all":
-        for pid in session.microgram_post_states:
-            session.microgram_post_states[pid]["isLiked"] = False
-
-    elif action_name == "unsave_all":
-        for pid in session.microgram_post_states:
-            session.microgram_post_states[pid]["isSaved"] = False
-
-    elif action_name == "unfollow_all":
-        session.microgram_followed_users.clear()
-
-    elif action_name == "delete_comments":
-        session.microgram_user_created_comments.clear()
-
-    elif action_name == "clear_story_history":
-        for sid in session.microgram_story_states:
-            session.microgram_story_states[sid]["isViewed"] = False
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
-
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation
 # ---------------------------------------------------------------------------

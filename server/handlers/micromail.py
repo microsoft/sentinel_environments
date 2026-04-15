@@ -162,27 +162,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    states = session.micromail_email_states
-
-    if action_name == "mark_all_read":
-        for eid, s in states.items():
-            if s.get("folder") == "inbox":
-                s["isRead"] = True
-
-    elif action_name == "clear_junk":
-        for eid, s in states.items():
-            if s.get("folder") == "junk":
-                s["folder"] = "deleted"
-
-    elif action_name == "open_attachment":
-        pass  # No state change required
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # SQLite materialisation

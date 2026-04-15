@@ -200,22 +200,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    states = session.microchat_message_states
-
-    if action_name == "mark_all_read":
-        for mid in states:
-            states[mid]["isRead"] = True
-
-    elif action_name == "mark_conversation_read":
-        # Requires conversation_id passed via query param -- handled in server
-        pass
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

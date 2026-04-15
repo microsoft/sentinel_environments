@@ -153,30 +153,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "sell_all":
-        prices = get_current_prices(session)
-        for symbol, state in session.microhood_stock_states.items():
-            shares = state.get("shares", 0)
-            if shares > 0:
-                price = prices.get(symbol, 0)
-                session.microhood_buying_power += shares * price
-                state["shares"] = 0
-
-    elif action_name == "clear_watchlist":
-        for symbol, state in session.microhood_watchlist_states.items():
-            state["inWatchlist"] = False
-
-    elif action_name == "place_order":
-        # Generic "place order" action -- no-op, the actual order was already
-        # placed via the /data/stocks/{symbol}/order endpoint.
-        pass
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

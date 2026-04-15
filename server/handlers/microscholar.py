@@ -186,23 +186,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "cite_target_paper":
-        pass  # No state change -- action acknowledgement only
-
-    elif action_name == "clear_saved_papers":
-        for s in session.microscholar_paper_states.values():
-            s["isSaved"] = False
-
-    elif action_name == "mark_all_alerts_read":
-        for s in session.microscholar_alert_states.values():
-            s["isRead"] = True
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation

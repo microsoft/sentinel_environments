@@ -208,30 +208,6 @@ def process_event(session: Session, event: dict) -> None:
 # Bulk actions
 # ---------------------------------------------------------------------------
 
-def handle_action(session: Session, action_name: str) -> dict:
-    if action_name == "delete_all_events":
-        for eid in session.microlendar_event_states:
-            session.microlendar_event_states[eid]["deleted"] = True
-        for ev in session.microlendar_user_created_events:
-            ev["deleted"] = True
-
-    elif action_name == "complete_all_tasks":
-        for tid in session.microlendar_task_states:
-            session.microlendar_task_states[tid]["completed"] = True
-        for t in session.microlendar_user_created_tasks:
-            t["completed"] = True
-
-    elif action_name == "delete_all_tasks":
-        for tid in session.microlendar_task_states:
-            session.microlendar_task_states[tid]["deleted"] = True
-        for t in session.microlendar_user_created_tasks:
-            t["deleted"] = True
-
-    else:
-        return {"success": False, "error": f"Unknown action: {action_name}"}
-
-    return {"success": True}
-
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation
