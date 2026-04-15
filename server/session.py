@@ -70,6 +70,7 @@ class Session:
     microgram_stories: list[dict] = field(default_factory=list)
     microgram_story_states: dict[str, dict] = field(default_factory=dict)  # {isViewed}
     microgram_messages: list[dict] = field(default_factory=list)  # DM conversations
+    microgram_message_states: dict[str, dict] = field(default_factory=dict)  # id → {isRead}
     microgram_activity: list[dict] = field(default_factory=list)
     microgram_followed_users: set[str] = field(default_factory=set)
     microgram_user_created_comments: list[dict] = field(default_factory=list)  # user-posted comments

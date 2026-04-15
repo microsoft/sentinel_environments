@@ -129,6 +129,7 @@ const MicroGram = () => {
     commentOnPost,
     viewStory: apiViewStory,
     followUser,
+    readConversation: apiReadConversation,
   } = useMicrogramData();
 
   // ---------------------------------------------------------------------------
@@ -195,17 +196,6 @@ const MicroGram = () => {
   }, [posts, stories]);
 
   const getPlaceholderImageUrl = getImageUrl;
-
-  // ---------------------------------------------------------------------------
-  // Derived counts from API data
-  // ---------------------------------------------------------------------------
-  const currentCounts = useMemo(() => ({
-    likes: posts.filter(p => p.isLiked).length,
-    comments: 0, // comments tracked server-side
-    follows: followedUserIds.length,
-    saves: posts.filter(p => p.isSaved).length,
-    stories: stories.filter(s => s.isViewed).length,
-  }), [posts, followedUserIds, stories]);
 
   // Explore tiles derived from non-target posts
   const EXPLORE_TILES = useMemo(() =>
@@ -280,8 +270,6 @@ const MicroGram = () => {
   // DM conversation messages (user replies - local only)
   const [dmReplies, setDmReplies] = useState<Record<string, { id: string; text: string; fromSelf: boolean; sharedPostId?: string; timestamp: number }[]>>({});
   const [dmDraft, setDmDraft] = useState("");
-  // Track which DMs have been read (opened)
-  const [readDMs, setReadDMs] = useState<string[]>([]);
   // Comment reply state
   const [replyToComment, setReplyToComment] = useState<{ id: string; authorUsername: string } | null>(null);
 
@@ -509,6 +497,11 @@ const MicroGram = () => {
     }));
     setDmDraft("");
   }, [selectedDM, dmDraft]);
+
+  const handleOpenDM = useCallback((dmId: string) => {
+    setSelectedDM(dmId);
+    apiReadConversation(dmId);
+  }, [apiReadConversation]);
 
   // ---------------------------------------------------------------------------
   // Derived Values
@@ -1181,13 +1174,7 @@ const MicroGram = () => {
             return (
               <button
                 key={dm.id}
-                onClick={() => {
-                  setSelectedDM(dm.id);
-                  // Mark this DM as read when opened
-                  if (!readDMs.includes(dm.id)) {
-                    setReadDMs(prev => [...prev, dm.id]);
-                  }
-                }}
+                onClick={() => handleOpenDM(dm.id)}
                 className="w-full p-4 flex items-center gap-3 hover:bg-gray-50"
               >
                 {renderAvatar(otherUser, "md")}
@@ -1195,7 +1182,7 @@ const MicroGram = () => {
                   <p className="font-semibold text-sm">{otherUser?.username}</p>
                   <p className="text-sm text-gray-500 truncate">{displayMessage}</p>
                 </div>
-                {dm.unreadCount > 0 && !userReplies.length && !readDMs.includes(dm.id) && (
+                {dm.unreadCount > 0 && (
                   <span className="w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
                     {dm.unreadCount}
                   </span>

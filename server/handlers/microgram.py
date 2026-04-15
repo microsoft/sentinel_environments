@@ -135,6 +135,16 @@ def _build_message_row(message_id: str) -> dict:
     return row
 
 
+def _init_message_states(message_row: dict) -> dict[str, dict]:
+    states: dict[str, dict] = {}
+    for msg in message_row.get("messages", []):
+        msg_id = msg.get("id")
+        if not msg_id:
+            continue
+        states[msg_id] = {"isRead": bool(msg.get("isRead", False))}
+    return states
+
+
 # ---------------------------------------------------------------------------
 # Metrics
 # ---------------------------------------------------------------------------
@@ -208,6 +218,7 @@ def process_event(session: Session, event: dict) -> None:
         for msg_id in message_ids:
             row = _build_message_row(msg_id)
             session.microgram_messages.append(row)
+            session.microgram_message_states.update(_init_message_states(row))
 
         # Load activity
         activity_ids = payload.get("activity_ids", [])
@@ -258,6 +269,7 @@ def process_event(session: Session, event: dict) -> None:
         if msg_id:
             row = _build_message_row(msg_id)
             session.microgram_messages.append(row)
+            session.microgram_message_states.update(_init_message_states(row))
 
     elif etype == "new_activity":
         act_id = event.get("payload", {}).get("activity_id")
@@ -269,6 +281,7 @@ def process_event(session: Session, event: dict) -> None:
 # ---------------------------------------------------------------------------
 # Bulk actions
 # ---------------------------------------------------------------------------
+
 
 # ---------------------------------------------------------------------------
 # Materialization for SQL-based evaluation
@@ -309,6 +322,12 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
     conn.executemany(
         "INSERT INTO messages VALUES (?,?)",
         [(m.get("id"), json.dumps(m)) for m in session.microgram_messages],
+    )
+
+    conn.execute("CREATE TABLE message_states (message_id TEXT, isRead INT)")
+    conn.executemany(
+        "INSERT INTO message_states VALUES (?,?)",
+        [(mid, int(s.get("isRead", False))) for mid, s in session.microgram_message_states.items()],
     )
 
     conn.execute("CREATE TABLE activity (id TEXT, type TEXT, actorId TEXT)")

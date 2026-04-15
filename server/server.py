@@ -297,6 +297,7 @@ def _dispatch_process_event(session: Session, event: dict) -> None:
         raise ValueError(f"Unknown environment: {session.environment}")
 
 
+
 def _advance_session(session: Session, up_to_time: int) -> list[dict]:
     processed = []
     while session.next_event_index < len(session.events):
@@ -995,7 +996,23 @@ async def data_gram_stories() -> MicrogramStoriesResponse:
 @app.get("/data/microgram-messages", response_model=MicrogramMessagesResponse)
 async def data_gram_messages() -> MicrogramMessagesResponse:
     session = _require_session()
-    return MicrogramMessagesResponse(messages=session.microgram_messages)
+    result = []
+    for conversation in session.microgram_messages:
+        merged_messages = []
+        unread_count = 0
+        for message in conversation.get("messages", []):
+            merged = {**message, **session.microgram_message_states.get(message["id"], {})}
+            if not merged.get("isRead", False):
+                unread_count += 1
+            merged_messages.append(merged)
+
+        result.append({
+            **conversation,
+            "messages": merged_messages,
+            "unreadCount": unread_count,
+        })
+
+    return MicrogramMessagesResponse(messages=result)
 
 
 @app.get("/data/microgram-activity", response_model=MicrogramActivityResponse)
@@ -1062,6 +1079,25 @@ async def data_gram_view_story(story_id: str) -> dict:
     if story_id not in session.microgram_story_states:
         raise HTTPException(status_code=404, detail=f"Story not found: {story_id}")
     session.microgram_story_states[story_id]["isViewed"] = True
+    return {"success": True}
+
+
+@app.post("/data/microgram-conversations/{conversation_id}/read", response_model=SuccessResponse)
+async def data_gram_read_conversation(conversation_id: str) -> dict:
+    session = _require_session()
+    conversation = next((conv for conv in session.microgram_messages if conv["id"] == conversation_id), None)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail=f"Conversation not found: {conversation_id}")
+
+    for message in conversation.get("messages", []):
+        message_id = message.get("id")
+        if not message_id:
+            continue
+        session.microgram_message_states[message_id] = {
+            **session.microgram_message_states.get(message_id, {}),
+            "isRead": True,
+        }
+
     return {"success": True}
 
 
