@@ -175,6 +175,7 @@ class MicromailSendEmailRequest(BaseModel):
     bcc: list[str] = []
     subject: str = ""
     body: str = ""
+    folder: str = "sent"
 
 
 class MicromailSendEmailResponse(BaseModel):

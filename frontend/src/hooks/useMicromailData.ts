@@ -149,11 +149,11 @@ export function useMicromailData() {
     await fetch(`/api/data/micromail-emails/${emailId}/pin`, { method: "POST" }).catch(() => {});
   }, [rawEmails, pinOverrides]);
 
-  const sendEmail = useCallback(async (to: string[], cc: string[], bcc: string[], subject: string, body: string) => {
+  const sendEmail = useCallback(async (to: string[], cc: string[], bcc: string[], subject: string, body: string, folder: string = "sent") => {
     const res = await fetch("/api/data/micromail-emails/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ to, cc, bcc, subject, body }),
+      body: JSON.stringify({ to, cc, bcc, subject, body, folder }),
     });
     if (!res.ok) throw new Error(`Send failed: ${res.status}`);
     return res.json();

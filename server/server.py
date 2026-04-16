@@ -618,6 +618,8 @@ async def data_pin_email(email_id: str) -> dict:
 @app.post("/data/micromail-emails/send", response_model=MicromailSendEmailResponse)
 async def data_send_email(body: MicromailSendEmailRequest) -> dict:
     session = _require_session()
+    if body.folder not in ("sent", "drafts"):
+        raise HTTPException(status_code=400, detail="folder must be 'sent' or 'drafts'")
     row = micromail_handler.send_email(
         session,
         to=body.to,
@@ -625,6 +627,7 @@ async def data_send_email(body: MicromailSendEmailRequest) -> dict:
         bcc=body.bcc,
         subject=body.subject,
         body=body.body,
+        folder=body.folder,
     )
     return {"success": True, "email": row}
 

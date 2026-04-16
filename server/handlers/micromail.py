@@ -176,10 +176,10 @@ def process_event(session: Session, event: dict) -> None:
 # ---------------------------------------------------------------------------
 
 def send_email(session: Session, *, to: list[str], cc: list[str], bcc: list[str],
-               subject: str, body: str) -> dict:
-    """Create a new outgoing email and place it in the sent folder."""
+               subject: str, body: str, folder: str = "sent") -> dict:
+    """Create a new outgoing email and place it in the given folder (sent or drafts)."""
     me = _self_user()
-    email_id = f"sent-{uuid.uuid4().hex[:12]}"
+    email_id = f"{folder}-{uuid.uuid4().hex[:12]}"
     ts = datetime.datetime.utcnow().isoformat() + "Z"
 
     row = {
@@ -206,7 +206,7 @@ def send_email(session: Session, *, to: list[str], cc: list[str], bcc: list[str]
         "isRead": True,
         "isFlagged": False,
         "isPinned": False,
-        "folder": "sent",
+        "folder": folder,
     }
     return row
 

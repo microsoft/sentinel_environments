@@ -471,9 +471,19 @@ const Micromail = () => {
   }, []);
 
   const handleCloseCompose = useCallback(() => {
+    const hasContent = composeDraft.to.trim() || composeDraft.subject.trim() || composeDraft.body.trim();
+    if (hasContent) {
+      const toList = composeDraft.to.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+      const ccList = composeDraft.cc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+      const bccList = composeDraft.bcc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+      apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body, "drafts").catch(() => {});
+      triggerToast("Draft saved", "info");
+    }
     setIsComposeOpen(false);
+    setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
+    setShowCcBcc(false);
     setComposeError(null);
-  }, []);
+  }, [composeDraft, apiSendEmail, triggerToast]);
 
   const handleComposeFieldChange =
     (field: "to" | "cc" | "bcc" | "subject" | "body") =>
@@ -483,7 +493,7 @@ const Micromail = () => {
     };
 
   const handleSendMessage = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
+    async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
       const trimmedTo = composeDraft.to.trim();
@@ -497,33 +507,41 @@ const Micromail = () => {
       const ccList = composeDraft.cc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
       const bccList = composeDraft.bcc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
 
-      apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body).catch(() => {
+      try {
+        await apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body);
+        setIsComposeOpen(false);
+        setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
+        setShowCcBcc(false);
+        setComposeError(null);
+        triggerToast("Message sent", "success");
+      } catch {
         triggerToast("Failed to send message", "error");
-      });
-
-      setIsComposeOpen(false);
-      setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
-      setShowCcBcc(false);
-      setComposeError(null);
-      triggerToast("Message sent", "success");
+      }
     },
     [composeDraft, triggerToast, apiSendEmail],
   );
 
-  const handleSaveDraft = useCallback(() => {
+  const handleSaveDraft = useCallback(async () => {
     if (!composeDraft.to.trim() && !composeDraft.subject.trim() && !composeDraft.body.trim()) {
       triggerToast("Nothing to save yet", "info");
       return;
     }
 
-    // TODO: incomplete feature -- draft built but not yet saved to state
+    const toList = composeDraft.to.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    const ccList = composeDraft.cc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+    const bccList = composeDraft.bcc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
 
-    setIsComposeOpen(false);
-    setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
-    setShowCcBcc(false);
-    setComposeError(null);
-    triggerToast("Draft saved", "info");
-  }, [composeDraft, triggerToast]);
+    try {
+      await apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body, "drafts");
+      setIsComposeOpen(false);
+      setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
+      setShowCcBcc(false);
+      setComposeError(null);
+      triggerToast("Draft saved", "info");
+    } catch {
+      triggerToast("Failed to save draft", "error");
+    }
+  }, [composeDraft, triggerToast, apiSendEmail]);
 
   // Discard draft handler
   const handleDiscardDraft = useCallback(() => {
