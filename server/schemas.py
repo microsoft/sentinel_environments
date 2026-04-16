@@ -169,6 +169,19 @@ class MicromailMoveEmailRequest(BaseModel):
     folder: str
 
 
+class MicromailSendEmailRequest(BaseModel):
+    to: list[str]
+    cc: list[str] = []
+    bcc: list[str] = []
+    subject: str = ""
+    body: str = ""
+
+
+class MicromailSendEmailResponse(BaseModel):
+    success: bool
+    email: dict
+
+
 # ---------------------------------------------------------------------------
 # Microchat
 # ---------------------------------------------------------------------------

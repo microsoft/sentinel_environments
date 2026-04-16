@@ -16,6 +16,7 @@ export interface ApiEmail {
   cc: string[];
   mentionsMe: boolean;
   importance: string;
+  isPinned: boolean;
   timestamp: string;
 }
 
@@ -27,6 +28,7 @@ export interface ApiTaskConfig {
 
 type ReadOverrides = Map<string, boolean>;
 type FlagOverrides = Map<string, boolean>;
+type PinOverrides = Map<string, boolean>;
 
 export function useMicromailData() {
   const [rawEmails, setRawEmails] = useState<ApiEmail[]>([]);
@@ -37,6 +39,7 @@ export function useMicromailData() {
   // Local overrides for optimistic UI updates
   const [readOverrides, setReadOverrides] = useState<ReadOverrides>(new Map());
   const [flagOverrides, setFlagOverrides] = useState<FlagOverrides>(new Map());
+  const [pinOverrides, setPinOverrides] = useState<PinOverrides>(new Map());
 
   // Track whether config has been loaded
   const configLoaded = useRef(false);
@@ -102,9 +105,12 @@ export function useMicromailData() {
       const isFlagged = flagOverrides.has(email.id)
         ? (flagOverrides.get(email.id) as boolean)
         : email.isFlagged;
-      return { ...email, isRead, isFlagged };
+      const isPinned = pinOverrides.has(email.id)
+        ? (pinOverrides.get(email.id) as boolean)
+        : email.isPinned;
+      return { ...email, isRead, isFlagged, isPinned };
     });
-  }, [rawEmails, readOverrides, flagOverrides]);
+  }, [rawEmails, readOverrides, flagOverrides, pinOverrides]);
 
   // Mutation helpers
   const markRead = useCallback(async (emailId: string) => {
@@ -134,6 +140,25 @@ export function useMicromailData() {
     }).catch(() => {});
   }, []);
 
+  const pinEmail = useCallback(async (emailId: string) => {
+    const current = rawEmails.find((e) => e.id === emailId);
+    const currentPinned = pinOverrides.has(emailId)
+      ? (pinOverrides.get(emailId) as boolean)
+      : current?.isPinned ?? false;
+    setPinOverrides((prev) => new Map(prev).set(emailId, !currentPinned));
+    await fetch(`/api/data/micromail-emails/${emailId}/pin`, { method: "POST" }).catch(() => {});
+  }, [rawEmails, pinOverrides]);
+
+  const sendEmail = useCallback(async (to: string[], cc: string[], bcc: string[], subject: string, body: string) => {
+    const res = await fetch("/api/data/micromail-emails/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to, cc, bcc, subject, body }),
+    });
+    if (!res.ok) throw new Error(`Send failed: ${res.status}`);
+    return res.json();
+  }, []);
+
   return {
     emails,
     config,
@@ -143,5 +168,7 @@ export function useMicromailData() {
     markUnread,
     flagEmail,
     moveEmail,
+    pinEmail,
+    sendEmail,
   };
 }

@@ -219,13 +219,13 @@ def test_micromail():
 # Test: MicroChat
 # ---------------------------------------------------------------------------
 def test_microchat():
-    t = TestResult("MicroChat (microchat-logout-absolute-passive)")
+    t = TestResult("MicroChat (microchat-unread-absolute-passive)")
     ensure_closed()
 
     try:
         # 1. Load scenario
-        scenario = get("/scenarios/microchat-logout-absolute-passive")
-        t.check("Load scenario", scenario["id"] == "microchat-logout-absolute-passive")
+        scenario = get("/scenarios/microchat-unread-absolute-passive")
+        t.check("Load scenario", scenario["id"] == "microchat-unread-absolute-passive")
 
         # 2. Init
         body = build_init_body(scenario)
@@ -1158,72 +1158,66 @@ def test_microtube():
 
 
 # ---------------------------------------------------------------------------
-# Test: POST /data/actions/{action} endpoint
+# Test: supported dedicated item endpoints
 # ---------------------------------------------------------------------------
-def test_actions():
-    t = TestResult("Actions Endpoint (/data/actions/{action})")
+def test_supported_item_actions():
+    t = TestResult("Supported item endpoints")
     ensure_closed()
 
     try:
-        # Test actions with MicroMail (mark_all_read)
+        # Test a supported per-email action with MicroMail
         scenario = get("/scenarios/micromail-unread-absolute-passive")
         body = build_init_body(scenario)
         init_resp = post("/init", body)
-        t.check("Init MicroMail for action test", init_resp["success"])
+        t.check("Init MicroMail for endpoint test", init_resp["success"])
 
         adv = get("/advance", params={"time": 60})
         t.check("Advance to deliver emails", adv["success"])
 
-        # Execute mark_all_read action
-        action_resp = post("/data/actions/mark_all_read")
-        t.check("POST /data/actions/mark_all_read", action_resp.get("success"),
-                f"response={action_resp}")
+        emails = get("/data/micromail-emails").get("emails", [])
+        unread = next((e for e in emails if not e.get("isRead", False)), None)
+        t.check("Find unread MicroMail email", unread is not None)
 
-        # Verify emails are now read
-        emails = get("/data/micromail-emails")
-        unread = [e for e in emails.get("emails", []) if not e.get("isRead", False)]
-        t.check("All emails marked as read", len(unread) == 0,
-                f"unread_count={len(unread)}")
+        if unread is not None:
+            read_resp = post(f"/data/micromail-emails/{unread['id']}/read")
+            t.check("POST /data/micromail-emails/{id}/read", read_resp.get("success"),
+                    f"response={read_resp}")
+
+            emails_after = get("/data/micromail-emails").get("emails", [])
+            updated = next((e for e in emails_after if e.get("id") == unread["id"]), None)
+            t.check("MicroMail email marked as read",
+                    updated is not None and updated.get("isRead") is True,
+                    f"updated={updated}")
 
         close = get("/close")
-        t.check("Close after mark_all_read", close["success"])
+        t.check("Close after MicroMail endpoint test", close["success"])
 
-        # Test actions with MicroHub (close_all_issues)
+        # Test a supported per-issue action with MicroHub
         scenario2 = get("/scenarios/microhub-browse-absolute-passive")
         body2 = build_init_body(scenario2)
         init_resp2 = post("/init", body2)
-        t.check("Init MicroHub for action test", init_resp2["success"])
+        t.check("Init MicroHub for endpoint test", init_resp2["success"])
 
         adv2 = get("/advance", params={"time": 30})
         t.check("Advance MicroHub", adv2["success"])
 
-        action_resp2 = post("/data/actions/close_all_issues")
-        t.check("POST /data/actions/close_all_issues", action_resp2.get("success"),
-                f"response={action_resp2}")
+        issues = get("/data/microhub-issues").get("issues", [])
+        open_issue = next((i for i in issues if i.get("state") == "open"), None)
+        t.check("Find open MicroHub issue", open_issue is not None)
+
+        if open_issue is not None:
+            close_issue_resp = post(f"/data/microhub-issues/{open_issue['id']}/close")
+            t.check("POST /data/microhub-issues/{id}/close", close_issue_resp.get("success"),
+                    f"response={close_issue_resp}")
+
+            issues_after = get("/data/microhub-issues").get("issues", [])
+            updated_issue = next((i for i in issues_after if i.get("id") == open_issue["id"]), None)
+            t.check("MicroHub issue closed",
+                    updated_issue is not None and updated_issue.get("state") == "closed",
+                    f"updated={updated_issue}")
 
         close2 = get("/close")
-        t.check("Close after close_all_issues", close2["success"])
-
-        # Test unknown action returns error (not crash)
-        scenario3 = get("/scenarios/micromail-unread-absolute-passive")
-        body3 = build_init_body(scenario3)
-        init_resp3 = post("/init", body3)
-        t.check("Init for unknown action test", init_resp3["success"])
-
-        try:
-            unknown_resp = post("/data/actions/nonexistent_action")
-            # If it returns without error, check success=false
-            t.check("Unknown action returns success=false",
-                    not unknown_resp.get("success", True),
-                    f"response={unknown_resp}")
-        except requests.HTTPError as e:
-            # 400/422 is acceptable for unknown actions
-            t.check("Unknown action returns error status",
-                    e.response.status_code in (400, 422, 500),
-                    f"status={e.response.status_code}")
-
-        close3 = get("/close")
-        t.check("Close after unknown action", close3["success"])
+        t.check("Close after MicroHub endpoint test", close2["success"])
 
     except Exception as e:
         t.check("EXCEPTION", False, str(e))

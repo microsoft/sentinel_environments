@@ -110,6 +110,8 @@ from server.schemas import (
     MicrolendarUpdateEventRequest,
     MicromailEmailResponse,
     MicromailMoveEmailRequest,
+    MicromailSendEmailRequest,
+    MicromailSendEmailResponse,
     MicroscholarAlertsResponse,
     MicroscholarCoauthorsResponse,
     MicroscholarPaperDetailResponse,
@@ -601,6 +603,30 @@ async def data_move_email(email_id: str, body: MicromailMoveEmailRequest) -> dic
         raise HTTPException(status_code=404, detail=f"Email not found: {email_id}")
     session.micromail_email_states[email_id]["folder"] = body.folder
     return {"success": True}
+
+
+@app.post("/data/micromail-emails/{email_id}/pin", response_model=TogglePinResponse)
+async def data_pin_email(email_id: str) -> dict:
+    session = _require_session()
+    if email_id not in session.micromail_email_states:
+        raise HTTPException(status_code=404, detail=f"Email not found: {email_id}")
+    current = session.micromail_email_states[email_id].get("isPinned", False)
+    session.micromail_email_states[email_id]["isPinned"] = not current
+    return {"success": True, "isPinned": not current}
+
+
+@app.post("/data/micromail-emails/send", response_model=MicromailSendEmailResponse)
+async def data_send_email(body: MicromailSendEmailRequest) -> dict:
+    session = _require_session()
+    row = micromail_handler.send_email(
+        session,
+        to=body.to,
+        cc=body.cc,
+        bcc=body.bcc,
+        subject=body.subject,
+        body=body.body,
+    )
+    return {"success": True, "email": row}
 
 
 # ---------------------------------------------------------------------------

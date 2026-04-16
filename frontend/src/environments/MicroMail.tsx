@@ -80,6 +80,7 @@ interface Email {
   timestamp: string;
   isRead: boolean;
   isFlagged: boolean;
+  isPinned: boolean;
   isExternal?: boolean;
   isCC?: boolean;
   hasAttachment?: boolean;
@@ -172,6 +173,8 @@ const Micromail = () => {
     markUnread: apiMarkUnread,
     flagEmail: apiFlagEmail,
     moveEmail: apiMoveEmail,
+    pinEmail: apiPinEmail,
+    sendEmail: apiSendEmail,
   } = useMicromailData();
 
   // Transform API emails to the richer Email shape the UI expects
@@ -186,7 +189,7 @@ const Micromail = () => {
         initials: getInitials(api.sender.name),
         color: pickColor(api.sender.name),
       },
-      recipients: api.recipients ?? ["you@micromail.com"],
+      recipients: api.recipients ?? [apiConfig?.selfUser?.email ?? "you@micromail.com"],
       cc: api.cc,
       subject: api.subject,
       preview: api.body?.replace(/\n/g, " ").slice(0, 140) ?? "",
@@ -194,6 +197,7 @@ const Micromail = () => {
       timestamp: api.timestamp,
       isRead: api.isRead,
       isFlagged: api.isFlagged,
+      isPinned: api.isPinned,
       isExternal: api.isExternal,
       isCC: api.isCC,
       hasAttachment: api.hasAttachment,
@@ -201,7 +205,7 @@ const Micromail = () => {
       mentionsMe: api.mentionsMe,
       importance: (api.importance || "normal") as ImportanceLevel,
     }));
-  }, [apiEmails]);
+  }, [apiEmails, apiConfig]);
 
   const [isSignedOut, setIsSignedOut] = useState(false);
 
@@ -319,7 +323,12 @@ const Micromail = () => {
     }
 
     return [...working].sort(
-      (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      (a, b) => {
+        // Pinned emails always come first
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      }
     );
   }, [emails, selectedFolder, quickFilter, searchQuery, pinnedEmailId]);
 
@@ -484,7 +493,13 @@ const Micromail = () => {
         return;
       }
 
-      // TODO: incomplete feature -- email built but not yet pushed to state
+      const toList = trimmedTo.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+      const ccList = composeDraft.cc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+      const bccList = composeDraft.bcc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
+
+      apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body).catch(() => {
+        triggerToast("Failed to send message", "error");
+      });
 
       setIsComposeOpen(false);
       setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
@@ -492,7 +507,7 @@ const Micromail = () => {
       setComposeError(null);
       triggerToast("Message sent", "success");
     },
-    [composeDraft, triggerToast],
+    [composeDraft, triggerToast, apiSendEmail],
   );
 
   const handleSaveDraft = useCallback(() => {
@@ -599,9 +614,10 @@ const Micromail = () => {
       case "markUnread": apiMarkUnread(emailId); triggerToast("Marked as unread", "info"); break;
       case "moveToJunk": apiMoveEmail(emailId, "junk"); triggerToast("Moved to Junk", "info"); break;
       case "moveToInbox": apiMoveEmail(emailId, "inbox"); triggerToast("Moved to Inbox", "info"); break;
+      case "pin": apiPinEmail(emailId); triggerToast("Pin updated", "info"); break;
     }
     setContextMenu(null);
-  }, [apiMoveEmail, apiFlagEmail, apiMarkRead, apiMarkUnread, contextMenu, triggerToast]);
+  }, [apiMoveEmail, apiFlagEmail, apiMarkRead, apiMarkUnread, apiPinEmail, contextMenu, triggerToast]);
 
   const renderSidebar = (isOverlay = false) => {
     const favoriteFolders = FOLDER_DEFINITIONS.filter((item) => item.isFavorite);
@@ -1024,6 +1040,9 @@ const Micromail = () => {
                             {email.sender.name}
                           </p>
                           <div className="flex items-center gap-1">
+                            {email.isPinned && (
+                              <MapPin size={14} className="text-[#0b65d7]" aria-label="Pinned" />
+                            )}
                             {email.importance === "high" && (
                               <ArrowUp size={14} className="text-rose-500" aria-label="High importance" />
                             )}
@@ -1053,7 +1072,7 @@ const Micromail = () => {
                           {email.mentionsMe && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f1fe] px-2 py-0.5 text-[10px] font-semibold text-[#0b65d7]">
                               <AtSign size={12} />
-                              Mention
+                              {currentUser?.name?.split(" ")[0] ?? "You"}
                             </span>
                           )}
                         </div>
@@ -1078,7 +1097,7 @@ const Micromail = () => {
                         {selectedEmail.mentionsMe && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f1fe] px-2 py-0.5 text-xs font-medium text-[#0b65d7]">
                             <AtSign size={12} />
-                            You were mentioned
+                            @{currentUser?.name ?? "You"} was mentioned
                           </span>
                         )}
                         {selectedEmail.importance === "high" && (
@@ -1167,10 +1186,20 @@ const Micromail = () => {
                     </div>
                   </div>
                   <button
-                    onClick={handleHeaderAction("Message pinned for later")}
-                    className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
+                    onClick={() => {
+                      if (selectedEmail) {
+                        apiPinEmail(selectedEmail.id);
+                        triggerToast(selectedEmail.isPinned ? "Unpinned" : "Pinned to top", "info");
+                      }
+                    }}
+                    className={classNames(
+                      "rounded-md border px-3 py-1 text-xs font-medium transition",
+                      selectedEmail?.isPinned
+                        ? "border-[#0b65d7] bg-[#e8f1fe] text-[#0b65d7]"
+                        : "border-slate-200 text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]",
+                    )}
                   >
-                    Pin
+                    {selectedEmail?.isPinned ? "Unpin" : "Pin"}
                   </button>
                 </div>
 
@@ -1540,6 +1569,13 @@ const Micromail = () => {
             >
               <Flag size={14} className={email.isFlagged ? "text-rose-500" : "text-slate-500"} />
               {email.isFlagged ? "Unflag" : "Flag"}
+            </button>
+            <button
+              onClick={() => handleContextMenuAction("pin")}
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+            >
+              <MapPin size={14} className={email.isPinned ? "text-[#0b65d7]" : "text-slate-500"} />
+              {email.isPinned ? "Unpin" : "Pin to top"}
             </button>
             <div className="my-1 border-t border-slate-100" />
             {email.isRead ? (
