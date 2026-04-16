@@ -174,8 +174,9 @@ _ENV_NAMES = [
     "micromail", "microchat", "microdin", "microfy", "microgram",
     "microhood", "microhub", "microlendar", "microscholar", "microtube",
 ]
+_REPO_ROOT = Path(__file__).resolve().parent.parent
 _SCENARIO_DIRS = {
-    name: Path(__file__).parent / name / "scenarios" for name in _ENV_NAMES
+    name: _REPO_ROOT / "scenarios" / name for name in _ENV_NAMES
 }
 
 

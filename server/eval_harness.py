@@ -57,8 +57,8 @@ def load_config(config_path):
 
 def discover_tasks():
     """Yield (environment, scenario_id, path) for every scenario JSON file."""
-    server_dir = Path(__file__).parent
-    for path in sorted(server_dir.glob("*/scenarios/*.json")):
+    scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
+    for path in sorted(scenarios_root.glob("*/*.json")):
         with open(path) as f:
             scenario = json.load(f)
         yield scenario["environment"], scenario["id"], path

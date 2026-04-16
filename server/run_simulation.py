@@ -6,7 +6,7 @@
 # speed for verifying scenarios. The agent harness will live in evals/.
 #
 # flow: scenario.json -> run_simulation.py -> POST /init -> GET /advance (loop) -> /evaluate
-# example: python -m server.run_simulation scenarios/micromail_001.json --speed 2
+# example: python -m server.run_simulation scenarios/micromail/micromail-unread-absolute-passive.json --speed 2
 import argparse
 import json
 import time

@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../server/microhood/scenarios/microhood-orders-absolute-active.json";
+  "../scenarios/microhood/microhood-orders-absolute-active.json";
 const SCREENSHOTS = "../server/audit_screenshots/microhood";
 
 // ---------------------------------------------------------------------------

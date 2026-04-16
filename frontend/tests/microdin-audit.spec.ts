@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../server/microdin/scenarios/microdin-connections-absolute-passive.json";
+  "../scenarios/microdin/microdin-connections-absolute-passive.json";
 const SCREENSHOTS = "../server/audit_screenshots/microdin";
 
 // ---------------------------------------------------------------------------

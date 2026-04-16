@@ -240,10 +240,10 @@ def run_negative(scenario_path: Path) -> tuple:
 
 def discover_scenarios() -> list:
     """Find all scenario JSONs across environment subdirectories."""
-    base = Path("server")
+    base = Path(__file__).resolve().parent.parent / "scenarios"
     # Exclude webarena reference implementations
     scenarios = sorted(
-        p for p in base.glob("*/scenarios/*.json")
+        p for p in base.glob("*/*.json")
         if "webarena" not in str(p) and p.name != "dev.json"
     )
     return scenarios

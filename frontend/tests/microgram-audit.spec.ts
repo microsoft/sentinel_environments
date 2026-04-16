@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../server/microgram/scenarios/microgram-likes-absolute-passive.json";
+  "../scenarios/microgram/microgram-likes-absolute-passive.json";
 const SCREENSHOTS = "../server/audit_screenshots/microgram";
 
 // ---------------------------------------------------------------------------

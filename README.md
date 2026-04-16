@@ -71,7 +71,7 @@ All tasks are **time-based**: the success condition becomes satisfiable exactly 
 
 ### Example Scenario
 
-Each task is defined as a JSON file in `server/<env>/scenarios/`:
+Each task is defined as a JSON file in `scenarios/<env>/`:
 
 ```json
 {
