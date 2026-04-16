@@ -2,8 +2,9 @@
   "id": "microlendar-tasks-absolute-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "You are using MicroLendar, a scheduling app. Wait for the total number of tasks to reach 12.",
-  "duration": 120,
+  "prompt": "Keep an eye on my tasks and tell me when the list reaches 10 items.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -34,49 +35,49 @@
       }
     },
     {
-      "time": 30,
+      "time": 150,
       "type": "new_task",
       "payload": {
         "event_id": "task09"
       }
     },
     {
-      "time": 50,
+      "time": 250,
       "type": "new_event",
       "payload": {
         "event_id": "noise01"
       }
     },
     {
-      "time": 60,
+      "time": 300,
       "type": "new_task",
       "payload": {
         "event_id": "task10"
       }
     },
     {
-      "time": 75,
+      "time": 375,
       "type": "new_event",
       "payload": {
         "event_id": "today01"
       }
     },
     {
-      "time": 90,
+      "time": 450,
       "type": "new_event",
       "payload": {
         "event_id": "today02"
       }
     }
   ],
-  "annotator_notes": "Tasks preloaded: 8, added at t=30 and t=60 (2 more = 10 total from catalog). Agent must create 2 more tasks to reach 12.",
+  "annotator_notes": "",
   "taxonomy": {
     "criteria": "objective",
     "milestone_type": "absolute",
     "event_persistence": "persistent",
     "monitoring_approach": "passive",
-    "difficulty": "medium",
+    "difficulty": "easy",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM tasks t JOIN task_states s ON t.id=s.task_id WHERE s.deleted=0) + (SELECT COUNT(*) FROM user_created_tasks WHERE deleted=0)) >= 12"
+  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM tasks t JOIN task_states s ON t.id=s.task_id WHERE s.deleted=0) + (SELECT COUNT(*) FROM user_created_tasks WHERE deleted=0)) >= 10"
 }

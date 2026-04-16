@@ -2,8 +2,9 @@
   "id": "microhood-orders-absolute-active",
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
-  "prompt": "You are using MicroHood. Place at least 3 stock orders (buy or sell).",
-  "duration": 120,
+  "prompt": "Keep an eye on DRNE for me. If it hits $42.20 or higher, place a market order to buy 2 shares and let me know once it's done.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -31,21 +32,21 @@
       }
     },
     {
-      "time": 20,
+      "time": 100,
       "type": "new_news",
       "payload": {
         "news_id": "14"
       }
     },
     {
-      "time": 50,
+      "time": 250,
       "type": "new_news",
       "payload": {
         "news_id": "15"
       }
     },
     {
-      "time": 80,
+      "time": 400,
       "type": "new_news",
       "payload": {
         "news_id": "16"
@@ -58,8 +59,8 @@
     "milestone_type": "absolute",
     "event_persistence": "persistent",
     "monitoring_approach": "active",
-    "difficulty": "easy",
+    "difficulty": "medium",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM orders) >= 3"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM orders WHERE symbol='DRNE' AND action='buy' AND quantity=2 AND type='market' AND price >= 42.2)"
 }

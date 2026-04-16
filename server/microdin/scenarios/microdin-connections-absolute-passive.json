@@ -2,8 +2,9 @@
   "id": "microdin-connections-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "You are using MicroDin. New connection requests will arrive during the session. Wait until the pending connection count reaches 15.",
-  "duration": 120,
+  "prompt": "Keep an eye on my network page and tell me when I have 15 pending connection requests.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -46,63 +47,63 @@
       }
     },
     {
-      "time": 15,
+      "time": 50,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-11"
       }
     },
     {
-      "time": 30,
+      "time": 100,
       "type": "new_post",
       "payload": {
         "post_id": "post-6"
       }
     },
     {
-      "time": 40,
+      "time": 133,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-12"
       }
     },
     {
-      "time": 55,
+      "time": 183,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-4"
       }
     },
     {
-      "time": 65,
+      "time": 217,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-13"
       }
     },
     {
-      "time": 78,
+      "time": 260,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-14"
       }
     },
     {
-      "time": 90,
+      "time": 300,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-15"
       }
     },
     {
-      "time": 100,
+      "time": 333,
       "type": "new_post",
       "payload": {
         "post_id": "post-7"
       }
     },
     {
-      "time": 110,
+      "time": 367,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-5"

@@ -2,8 +2,9 @@
   "id": "microdin-notifications-absolute-active",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "You are using MicroDin. New notifications will arrive during the session. Wait until the unread notification count reaches 10.",
-  "duration": 120,
+  "prompt": "Keep an eye on the jobs page. If a new role mentions Kubernetes in the requirements, apply to it and let me know.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -26,72 +27,71 @@
         "notification_ids": [
           "notif-1",
           "notif-2",
-          "notif-3",
-          "notif-4",
-          "notif-5",
-          "notif-6",
-          "notif-7"
+          "notif-3"
         ],
         "job_ids": [
           "job-1",
-          "job-2"
+          "job-2",
+          "job-3",
+          "job-4",
+          "job-5"
         ]
       }
     },
     {
-      "time": 12,
+      "time": 60,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-8"
       }
     },
     {
-      "time": 25,
+      "time": 100,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-9"
+      }
+    },
+    {
+      "time": 150,
       "type": "new_post",
       "payload": {
         "post_id": "post-8"
       }
     },
     {
-      "time": 38,
-      "type": "new_notification",
+      "time": 200,
+      "type": "new_job",
       "payload": {
-        "notification_id": "notif-9"
+        "job_id": "job-10"
       }
     },
     {
-      "time": 50,
+      "time": 300,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-6"
+      }
+    },
+    {
+      "time": 400,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-4"
       }
     },
     {
-      "time": 65,
+      "time": 450,
       "type": "new_notification",
       "payload": {
-        "notification_id": "notif-10"
+        "notification_id": "notif-9"
       }
     },
     {
-      "time": 80,
-      "type": "new_post",
-      "payload": {
-        "post_id": "post-9"
-      }
-    },
-    {
-      "time": 95,
+      "time": 500,
       "type": "new_job",
       "payload": {
-        "job_id": "job-3"
-      }
-    },
-    {
-      "time": 110,
-      "type": "new_notification",
-      "payload": {
-        "notification_id": "notif-noise-1"
+        "job_id": "job-11"
       }
     }
   ],
@@ -104,5 +104,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM notification_states WHERE isRead=0) >= 10"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM job_states WHERE job_id='job-6' AND isApplied=1)"
 }

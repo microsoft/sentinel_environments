@@ -2,8 +2,9 @@
   "id": "microhood-portfolio-absolute-passive",
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
-  "prompt": "You are using MicroHood. Wait for your total portfolio value to reach $15,000.",
-  "duration": 120,
+  "prompt": "Keep an eye on my portfolio and tell me when it reaches $108,837.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -31,21 +32,21 @@
       }
     },
     {
-      "time": 30,
+      "time": 150,
       "type": "new_news",
       "payload": {
         "news_id": "11"
       }
     },
     {
-      "time": 60,
+      "time": 300,
       "type": "new_news",
       "payload": {
         "news_id": "12"
       }
     },
     {
-      "time": 90,
+      "time": 450,
       "type": "new_news",
       "payload": {
         "news_id": "13"
@@ -61,5 +62,5 @@
     "difficulty": "easy",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT CAST((SELECT value FROM session_meta WHERE key='buying_power') AS REAL) + COALESCE(SUM(ss.shares * cp.price), 0) FROM stock_states ss JOIN current_prices cp ON ss.symbol=cp.symbol) >= 15000"
+  "eval_sql": "SELECT (SELECT CAST((SELECT value FROM session_meta WHERE key='buying_power') AS REAL) + COALESCE(SUM(ss.shares * cp.price), 0) FROM stock_states ss JOIN current_prices cp ON ss.symbol=cp.symbol) >= 108837"
 }

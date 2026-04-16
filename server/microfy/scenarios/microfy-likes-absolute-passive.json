@@ -2,8 +2,9 @@
   "id": "microfy-likes-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "You are using MicroFy. Like at least 10 songs to build your personalized music library.",
-  "duration": 120,
+  "prompt": "Keep checking for new songs, and like the first 4 that show up.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -33,23 +34,7 @@
           "track-021",
           "track-022",
           "track-023",
-          "track-024",
-          "track-025",
-          "track-026",
-          "track-027",
-          "track-028",
-          "track-029",
-          "track-030",
-          "track-031",
-          "track-032",
-          "track-033",
-          "track-034",
-          "track-035",
-          "track-036",
-          "track-037",
-          "track-038",
-          "track-039",
-          "track-040"
+          "track-024"
         ],
         "playlist_ids": [
           "playlist-001",
@@ -60,51 +45,47 @@
           "mood-001",
           "mood-002",
           "mood-003",
-          "mood-004",
-          "mood-005",
-          "mood-006"
-        ],
-        "liked_track_ids": [],
-        "followed_artist_ids": []
+          "mood-004"
+        ]
       }
     },
     {
-      "time": 20,
+      "time": 75,
       "type": "new_track",
       "payload": {
         "track_id": "track-041"
       }
     },
     {
-      "time": 40,
+      "time": 150,
       "type": "new_track",
       "payload": {
         "track_id": "track-042"
       }
     },
     {
-      "time": 55,
+      "time": 225,
       "type": "new_track",
       "payload": {
         "track_id": "track-043"
       }
     },
     {
-      "time": 70,
+      "time": 300,
       "type": "new_track",
       "payload": {
         "track_id": "track-044"
       }
     },
     {
-      "time": 85,
+      "time": 375,
       "type": "new_track",
       "payload": {
         "track_id": "track-045"
       }
     },
     {
-      "time": 100,
+      "time": 450,
       "type": "new_track",
       "payload": {
         "track_id": "track-046"
@@ -120,5 +101,5 @@
     "difficulty": "easy",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states WHERE isLiked=1) >= 10"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states WHERE track_id IN ('track-041','track-042','track-043','track-044') AND isLiked=1) >= 4"
 }

@@ -2,8 +2,9 @@
   "id": "microgram-follows-absolute-active",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "You are using MicroGram. Follow at least 5 users.",
-  "duration": 120,
+  "prompt": "As new creators show up in my feed, open their profiles and follow the first 3.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -21,25 +22,13 @@
           "post-surf-morning",
           "post-robotics-lab",
           "post-community-event",
-          "post-dubai-skyline",
-          "post-sailing-sunset",
-          "post-gaming-setup",
-          "post-rock-climbing",
-          "post-team-standup",
-          "post-golden-gate-run",
-          "post-coffee-code",
-          "post-sunset-hike",
-          "post-marathon-finish"
+          "post-dubai-skyline"
         ],
         "story_ids": [
           "story-rock-climbing-gym",
           "story-travel-photography",
           "story-figma-design-session",
-          "story-cozy-writing-cafe",
-          "story-pottery-studio-session",
-          "story-jazz-festival-night",
-          "story-character-sketch-timelapse",
-          "story-grand-canyon-sunrise"
+          "story-cozy-writing-cafe"
         ],
         "message_ids": [
           "dm-1",
@@ -49,44 +38,36 @@
           "act-1",
           "act-2",
           "act-3",
-          "act-4",
-          "act-5",
-          "act-6",
-          "act-7",
-          "act-8"
-        ],
-        "liked_post_ids": [],
-        "saved_post_ids": [],
-        "followed_user_ids": [],
-        "viewed_story_ids": []
+          "act-4"
+        ]
       }
     },
     {
-      "time": 30,
+      "time": 100,
       "type": "new_post",
       "payload": {
-        "post_id": "post-studio-session"
+        "post_id": "post-phoenix-camelback-mountain-sunrise"
       }
     },
     {
-      "time": 50,
-      "type": "new_story",
-      "payload": {
-        "story_id": "story-social-media-analytics"
-      }
-    },
-    {
-      "time": 70,
-      "type": "new_activity",
-      "payload": {
-        "activity_id": "act-9"
-      }
-    },
-    {
-      "time": 90,
+      "time": 200,
       "type": "new_post",
       "payload": {
-        "post_id": "post-mountain-bike"
+        "post_id": "post-urdu-calligraphy-practice"
+      }
+    },
+    {
+      "time": 300,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-vienna-state-opera-interior"
+      }
+    },
+    {
+      "time": 367,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-karachi-clifton-beach-sunset"
       }
     }
   ],
@@ -96,8 +77,8 @@
     "milestone_type": "absolute",
     "event_persistence": "persistent",
     "monitoring_approach": "active",
-    "difficulty": "easy",
+    "difficulty": "medium",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM followed_users) >= 5"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM followed_users WHERE user_id IN ('user097','user098','user099')) >= 3"
 }

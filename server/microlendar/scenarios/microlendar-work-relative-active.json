@@ -2,8 +2,9 @@
   "id": "microlendar-work-relative-active",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "You are using MicroLendar, a scheduling app. Wait for the number of work events to double from the initial count.",
-  "duration": 120,
+  "prompt": "I already have a few work events on my calendar. Tell me when 4 more work events get added.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -24,56 +25,56 @@
       }
     },
     {
-      "time": 15,
+      "time": 75,
       "type": "new_event",
       "payload": {
         "event_id": "work06"
       }
     },
     {
-      "time": 30,
+      "time": 150,
       "type": "new_event",
       "payload": {
         "event_id": "work07"
       }
     },
     {
-      "time": 45,
+      "time": 225,
       "type": "new_event",
       "payload": {
         "event_id": "work08"
       }
     },
     {
-      "time": 55,
+      "time": 275,
       "type": "new_event",
       "payload": {
         "event_id": "noise01"
       }
     },
     {
-      "time": 60,
+      "time": 300,
       "type": "new_event",
       "payload": {
         "event_id": "work09"
       }
     },
     {
-      "time": 75,
+      "time": 375,
       "type": "new_event",
       "payload": {
         "event_id": "work10"
       }
     },
     {
-      "time": 90,
+      "time": 450,
       "type": "new_event",
       "payload": {
         "event_id": "noise02"
       }
     }
   ],
-  "annotator_notes": "Baseline: 5 work events. Threshold: 5 * 2 = 10 work events. Events arrive gradually.",
+  "annotator_notes": "",
   "taxonomy": {
     "criteria": "objective",
     "milestone_type": "relative",
@@ -82,5 +83,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT CASE WHEN CAST((SELECT value FROM session_meta WHERE key='baseline_work_event_count') AS REAL) = 0 THEN (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work')) >= 10 ELSE (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_work_event_count') AS REAL) * 2.0 END"
+  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_work_event_count') AS REAL) + 4"
 }

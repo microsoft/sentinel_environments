@@ -2,8 +2,9 @@
   "id": "microfy-followers-absolute-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "You are using MicroFy. Follow at least 5 artists you enjoy.",
-  "duration": 120,
+  "prompt": "As new artists show up in the release feed, open their artist pages and follow the first 4 for me.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -29,17 +30,7 @@
           "track-017",
           "track-018",
           "track-019",
-          "track-020",
-          "track-021",
-          "track-022",
-          "track-023",
-          "track-024",
-          "track-025",
-          "track-026",
-          "track-027",
-          "track-028",
-          "track-029",
-          "track-030"
+          "track-020"
         ],
         "playlist_ids": [
           "playlist-004",
@@ -50,44 +41,48 @@
           "mood-001",
           "mood-002",
           "mood-003",
-          "mood-004",
-          "mood-005",
-          "mood-006"
+          "mood-004"
         ],
         "liked_track_ids": [
           "track-001",
           "track-009",
           "track-015"
-        ],
-        "followed_artist_ids": []
-      }
-    },
-    {
-      "time": 25,
-      "type": "new_track",
-      "payload": {
-        "track_id": "track-050"
-      }
-    },
-    {
-      "time": 50,
-      "type": "new_track",
-      "payload": {
-        "track_id": "track-060"
+        ]
       }
     },
     {
       "time": 75,
       "type": "new_track",
       "payload": {
-        "track_id": "track-070"
+        "track_id": "track-041"
       }
     },
     {
-      "time": 95,
+      "time": 150,
       "type": "new_track",
       "payload": {
-        "track_id": "track-080"
+        "track_id": "track-042"
+      }
+    },
+    {
+      "time": 225,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-043"
+      }
+    },
+    {
+      "time": 300,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-044"
+      }
+    },
+    {
+      "time": 375,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-045"
       }
     }
   ],
@@ -100,5 +95,5 @@
     "difficulty": "medium",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM followed_artists) >= 5"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM followed_artists WHERE artist_id IN ('artist-040','artist-041','artist-042','artist-043')) >= 4"
 }

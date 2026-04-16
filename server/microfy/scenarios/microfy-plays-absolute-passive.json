@@ -2,8 +2,9 @@
   "id": "microfy-plays-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "You are using MicroFy. Play at least 5 different songs to explore the music library.",
-  "duration": 120,
+  "prompt": "Keep checking for new songs, and play the first 3 that show up.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -29,31 +30,18 @@
           "track-017",
           "track-018",
           "track-019",
-          "track-020",
-          "track-051",
-          "track-052",
-          "track-053",
-          "track-054",
-          "track-055",
-          "track-056",
-          "track-057",
-          "track-058",
-          "track-059",
-          "track-060"
+          "track-020"
         ],
         "playlist_ids": [
           "playlist-007",
           "playlist-008",
-          "playlist-009",
-          "playlist-010"
+          "playlist-009"
         ],
         "mood_ids": [
           "mood-001",
           "mood-002",
           "mood-003",
-          "mood-004",
-          "mood-005",
-          "mood-006"
+          "mood-004"
         ],
         "liked_track_ids": [
           "track-004",
@@ -65,24 +53,38 @@
       }
     },
     {
-      "time": 30,
+      "time": 100,
       "type": "new_track",
       "payload": {
         "track_id": "track-061"
       }
     },
     {
-      "time": 60,
+      "time": 200,
       "type": "new_track",
       "payload": {
         "track_id": "track-062"
       }
     },
     {
-      "time": 90,
+      "time": 300,
       "type": "new_track",
       "payload": {
         "track_id": "track-063"
+      }
+    },
+    {
+      "time": 450,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-064"
+      }
+    },
+    {
+      "time": 550,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-065"
       }
     }
   ],
@@ -95,5 +97,5 @@
     "difficulty": "easy",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COALESCE(SUM(userPlayCount),0) FROM track_states) >= 5"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states WHERE track_id IN ('track-061','track-062','track-063') AND userPlayCount > 0) >= 3"
 }

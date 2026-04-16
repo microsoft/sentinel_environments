@@ -2,8 +2,9 @@
   "id": "microgram-stories-absolute-passive",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "You are using MicroGram. View at least 10 stories.",
-  "duration": 120,
+  "prompt": "Keep an eye on the story bar and watch the first 3 new stories that appear.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -15,13 +16,7 @@
           "post-barcelona-market",
           "post-minimal-desk",
           "post-character-sketch",
-          "post-jazz-festival",
-          "post-coffee-writing",
-          "post-pottery-studio",
-          "post-surf-morning",
-          "post-robotics-lab",
-          "post-community-event",
-          "post-dubai-skyline"
+          "post-jazz-festival"
         ],
         "story_ids": [
           "story-rock-climbing-gym",
@@ -31,14 +26,7 @@
           "story-pottery-studio-session",
           "story-jazz-festival-night",
           "story-character-sketch-timelapse",
-          "story-grand-canyon-sunrise",
-          "story-dubai-skyline-sunset",
-          "story-robotics-lab-prototype",
-          "story-coding-night-setup",
-          "story-social-media-analytics",
-          "story-team-wellness-event",
-          "story-security-ops-center",
-          "story-kubernetes-dashboard"
+          "story-grand-canyon-sunrise"
         ],
         "message_ids": [
           "dm-1",
@@ -47,56 +35,36 @@
         "activity_ids": [
           "act-1",
           "act-2",
-          "act-3",
-          "act-4",
-          "act-5"
-        ],
-        "liked_post_ids": [],
-        "saved_post_ids": [],
-        "followed_user_ids": [],
-        "viewed_story_ids": []
-      }
-    },
-    {
-      "time": 20,
-      "type": "new_story",
-      "payload": {
-        "story_id": "story-client-success-meeting"
-      }
-    },
-    {
-      "time": 40,
-      "type": "new_story",
-      "payload": {
-        "story_id": "story-market-analysis-charts"
-      }
-    },
-    {
-      "time": 55,
-      "type": "new_post",
-      "payload": {
-        "post_id": "post-sailing-sunset"
-      }
-    },
-    {
-      "time": 70,
-      "type": "new_story",
-      "payload": {
-        "story_id": "story-qa-testing-automation"
-      }
-    },
-    {
-      "time": 85,
-      "type": "new_activity",
-      "payload": {
-        "activity_id": "act-6"
+          "act-3"
+        ]
       }
     },
     {
       "time": 100,
       "type": "new_story",
       "payload": {
-        "story_id": "story-team-standup-meeting"
+        "story_id": "story-drone-sunset-photography"
+      }
+    },
+    {
+      "time": 200,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-user-interview-session"
+      }
+    },
+    {
+      "time": 300,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-coffee-roasting-home"
+      }
+    },
+    {
+      "time": 450,
+      "type": "new_story",
+      "payload": {
+        "story_id": "story-rock-concert-frontrow"
       }
     }
   ],
@@ -109,5 +77,5 @@
     "difficulty": "easy",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM story_states WHERE isViewed=1) >= 10"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM story_states WHERE story_id IN ('story-drone-sunset-photography','story-user-interview-session','story-coffee-roasting-home') AND isViewed=1) >= 3"
 }

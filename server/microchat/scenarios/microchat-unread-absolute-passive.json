@@ -2,8 +2,9 @@
   "id": "microchat-unread-absolute-passive",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
-  "prompt": "You are using MicroChat. New messages will arrive during the session. Monitor until the unread message count reaches 15.",
-  "duration": 120,
+  "prompt": "Keep an eye on my chats and let me know when I have 10 unread messages.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -39,70 +40,70 @@
       }
     },
     {
-      "time": 10,
+      "time": 50,
       "type": "new_message",
       "payload": {
         "message_id": "grp-01"
       }
     },
     {
-      "time": 22,
+      "time": 110,
       "type": "new_message",
       "payload": {
         "message_id": "grp-05"
       }
     },
     {
-      "time": 34,
+      "time": 170,
       "type": "new_message",
       "payload": {
         "message_id": "dm-13"
       }
     },
     {
-      "time": 48,
+      "time": 240,
       "type": "new_message",
       "payload": {
         "message_id": "grp-09"
       }
     },
     {
-      "time": 60,
+      "time": 300,
       "type": "new_message",
       "payload": {
         "message_id": "dm-19"
       }
     },
     {
-      "time": 75,
+      "time": 375,
       "type": "new_message",
       "payload": {
         "message_id": "grp-13"
       }
     },
     {
-      "time": 88,
+      "time": 440,
       "type": "new_message",
       "payload": {
         "message_id": "dm-25"
       }
     },
     {
-      "time": 100,
+      "time": 500,
       "type": "new_message",
       "payload": {
         "message_id": "grp-17"
       }
     },
     {
-      "time": 105,
+      "time": 525,
       "type": "new_message",
       "payload": {
         "message_id": "dm-30"
       }
     },
     {
-      "time": 112,
+      "time": 560,
       "type": "new_message",
       "payload": {
         "message_id": "grp-21"
@@ -118,5 +119,5 @@
     "difficulty": "easy",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM message_states WHERE isRead=0) >= 15"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM message_states WHERE isRead=0) >= 10"
 }

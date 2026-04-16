@@ -2,8 +2,9 @@
   "id": "microdin-jobs-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "You are using MicroDin. New job listings will appear during the session. Wait until the total number of job listings reaches 10.",
-  "duration": 120,
+  "prompt": "Keep an eye on the jobs page and tell me when there are 8 job listings.",
+  "condition_at": 300,
+  "duration": 600,
   "events": [
     {
       "time": 0,
@@ -38,63 +39,63 @@
       }
     },
     {
-      "time": 10,
+      "time": 50,
       "type": "new_job",
       "payload": {
         "job_id": "job-9"
       }
     },
     {
-      "time": 25,
+      "time": 125,
       "type": "new_post",
       "payload": {
         "post_id": "post-14"
       }
     },
     {
-      "time": 35,
+      "time": 175,
       "type": "new_job",
       "payload": {
         "job_id": "job-10"
       }
     },
     {
-      "time": 50,
+      "time": 250,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-6"
       }
     },
     {
-      "time": 60,
+      "time": 300,
       "type": "new_job",
       "payload": {
         "job_id": "job-11"
       }
     },
     {
-      "time": 75,
+      "time": 375,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-7"
       }
     },
     {
-      "time": 85,
+      "time": 425,
       "type": "new_job",
       "payload": {
         "job_id": "job-12"
       }
     },
     {
-      "time": 95,
+      "time": 475,
       "type": "new_job",
       "payload": {
         "job_id": "job-13"
       }
     },
     {
-      "time": 108,
+      "time": 540,
       "type": "new_post",
       "payload": {
         "post_id": "post-15"
@@ -110,5 +111,5 @@
     "difficulty": "easy",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM jobs) >= 10"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM jobs) >= 8"
 }
