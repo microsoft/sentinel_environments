@@ -1,0 +1,189 @@
+# Sentinel Environments CI
+# ---------------------------------------------------------------------------
+# Runs on every push and pull request to main. Two independent jobs execute
+# in parallel: `backend` (Python + API tests) and `frontend` (lint + type
+# check + build). A failure in either job blocks the PR.
+#
+# How to extend:
+#   - Add a new Python test file: drop it under tests/ and append a step to
+#     the `backend` job below. If it needs the dev server, put it after the
+#     "Wait for server to be ready" step; if it's static (file-based), put
+#     it before "Start API server" so it runs faster on failure.
+#   - Add a new npm script: append a step to the `frontend` job. Prefer
+#     adding small fast checks (lint, type-check) early so the build step
+#     doesn't mask upstream failures.
+#   - Add a whole new job (e.g., Playwright e2e): copy the job scaffold and
+#     adjust the steps. Keep jobs narrow so failures point at one thing.
+# ---------------------------------------------------------------------------
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel in-flight runs for the same ref when a new commit is pushed, so a
+# rapidly-updated PR doesn't queue up redundant runs.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Backend: Python tests against a live FastAPI server.
+  #
+  # The integration + eval_sql suites hit http://localhost:8000, so the job
+  # builds the SQLite catalogs, starts the server in the background, waits
+  # until /status is reachable, and only then runs the tests.
+  # -------------------------------------------------------------------------
+  backend:
+    name: Backend (pytest + eval_sql)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # Pin to 3.12 because the codebase uses 3.10+ typing features (e.g.
+          # `list[dict]` in server/scripts/build_db.py). Bump cautiously --
+          # the runtime deps in server/requirements.txt are not pinned.
+          python-version: "3.12"
+          cache: pip
+          # server/requirements.txt is the install manifest; pytest + requests
+          # are added in the install step below.
+          cache-dependency-path: server/requirements.txt
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r server/requirements.txt
+          # pytest is a test-only dep -- not in server/requirements.txt because
+          # the server itself doesn't need it. Pin nothing for now; tighten if
+          # CI flakes against a new pytest release.
+          pip install pytest
+
+      - name: Build SQLite catalogs (shared.db + per-env)
+        # The server expects server/*/shared.db to exist before it can serve
+        # /data endpoints. This step is the CI equivalent of the local
+        # first-run bootstrap documented in the README.
+        run: python -m server.scripts.build_db
+
+      - name: Run frontend-wiring static checks
+        # Pure file-based checks (no server needed). Runs first so a broken
+        # wiring PR fails fast without paying for the server boot.
+        run: python tests/test_frontend_wiring.py
+
+      - name: Start API server (background)
+        # nohup + & detaches the process so the step can finish; the PID is
+        # captured for the teardown step. Logs land in server.log for the
+        # post-run artifact, which is handy when a test fails.
+        run: |
+          nohup python -m uvicorn server.server:app \
+            --host 127.0.0.1 --port 8000 \
+            > server.log 2>&1 &
+          echo $! > server.pid
+
+      - name: Wait for server to be ready
+        # Poll /status until it responds or we hit the 30-attempt ceiling
+        # (~30s total). Fail loudly with the server log if it never came up
+        # so the debugging context is right there in the CI output.
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8000/status > /dev/null; then
+              echo "Server is up after ${i} attempt(s)."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server failed to start within 30s. Log:"
+          cat server.log
+          exit 1
+
+      - name: Run pytest integration suite
+        # 14 tests that drive the full /init -> /advance -> /evaluate ->
+        # /close lifecycle for each environment.
+        run: pytest tests/test_integration.py -v
+
+      - name: Run eval_sql scenario suite (positive)
+        # Exercises every scenario's eval_sql against a fresh session. Add
+        # `--negative` once the negative-path harness is stable enough to
+        # run on every PR.
+        run: python tests/test_eval_sql.py
+
+      - name: Stop API server
+        # `always()` so the server is killed even when an earlier step
+        # failed -- prevents runner teardown from seeing a zombie process.
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill "$(cat server.pid)" || true
+          fi
+
+      - name: Upload server log on failure
+        # Makes post-mortem easy: if any earlier step failed, the full
+        # uvicorn output is one click away in the run's Artifacts panel.
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-log
+          path: server.log
+          if-no-files-found: ignore
+
+  # -------------------------------------------------------------------------
+  # Frontend: lint + type check + production build.
+  #
+  # The Playwright e2e specs under frontend/tests/ are intentionally NOT run
+  # here -- they need a live API and frontend, which is better handled in a
+  # dedicated e2e workflow if/when we add one.
+  # -------------------------------------------------------------------------
+  frontend:
+    name: Frontend (lint + type-check + build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # `defaults.run.working-directory` saves the repeated `cd frontend` on
+    # every step. Only affects `run` steps; `uses` steps still run from the
+    # repo root.
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Node 20 LTS. Bump when the ecosystem moves; Vite 6 requires 18+.
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install npm dependencies
+        # `npm ci` is the CI-friendly install: honors package-lock.json
+        # exactly, refuses to mutate it, and is faster than `npm install`
+        # on a cold cache.
+        run: npm ci
+
+      - name: Lint
+        # eslint.config.js already ignores Playwright specs + dist/. If a
+        # fresh lint rule fires on legacy code, prefer fixing the code;
+        # don't widen the ignore list without discussion.
+        run: npm run lint
+
+      - name: Type-check
+        # `--noEmit` just validates types; the build step emits JS.
+        # `--skipLibCheck` trades strictness on node_modules for speed.
+        run: npx tsc --noEmit --skipLibCheck
+
+      - name: Build
+        # Vite production build. Fails on unresolved imports or TS errors
+        # that lint + type-check somehow missed, so keep it last.
+        run: npm run build

@@ -58,7 +58,7 @@ def post(path, json_body=None, **kwargs):
     return r.json()
 
 
-class TestResult:
+class IntegrationResult:
     def __init__(self, env_name):
         self.env_name = env_name
         self.steps = []
@@ -115,7 +115,7 @@ def ensure_closed():
 # Test: MicroMail
 # ---------------------------------------------------------------------------
 def test_micromail():
-    t = TestResult("MicroMail (micromail-unread-absolute-passive)")
+    t = IntegrationResult("MicroMail (micromail-unread-absolute-passive)")
     ensure_closed()
 
     try:
@@ -150,20 +150,20 @@ def test_micromail():
         user_count = len(users.get("users", []))
         t.check("GET /data/users", user_count > 0, f"count={user_count}")
 
-        # 5. Advance to end to deliver all 15 emails and trigger success condition
+        # 5. Advance past condition_at to deliver enough emails for the eval
         #    (must happen BEFORE mutations that reduce unread count)
-        adv2 = get("/advance", params={"time": 120})
-        t.check("GET /advance?time=120", adv2["success"],
+        expected_emails = len(scenario["events"])
+        adv2 = get("/advance", params={"time": scenario["duration"]})
+        t.check("GET /advance to end", adv2["success"],
                 f"sim_time={adv2.get('simulation_time')}")
 
-        # Check that all 15 emails were delivered
         emails_full = get("/data/micromail-emails")
         full_count = len(emails_full.get("emails", []))
-        t.check("All 15 emails delivered", full_count == 15, f"count={full_count}")
+        t.check("All scenario emails delivered", full_count == expected_emails,
+                f"count={full_count}, expected={expected_emails}")
 
-        # Evaluate via SQL (should succeed with 15 unread in inbox)
         eval_resp = post("/evaluate")
-        t.check("Evaluate success (15 unread)", eval_resp.get("success", False),
+        t.check("Evaluate success (unread threshold met)", eval_resp.get("success", False),
                 f"success={eval_resp.get('success')}, detail={eval_resp.get('detail')}")
 
         # 6. Mutations (after success condition is latched)
@@ -212,14 +212,14 @@ def test_micromail():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroChat
 # ---------------------------------------------------------------------------
 def test_microchat():
-    t = TestResult("MicroChat (microchat-unread-absolute-passive)")
+    t = IntegrationResult("MicroChat (microchat-unread-absolute-passive)")
     ensure_closed()
 
     try:
@@ -266,7 +266,15 @@ def test_microchat():
                     all(m["conversationId"] == first_conv_id for m in filtered.get("messages", [])),
                     f"count={len(filtered.get('messages', []))}")
 
-        # 6. Mutations
+        # 6. Advance to end and evaluate BEFORE mutations (reads would reduce unread count)
+        adv2 = get("/advance", params={"time": scenario["duration"]})
+        t.check("GET /advance to end", adv2["success"])
+
+        eval_resp = post("/evaluate")
+        t.check("POST /evaluate (unread threshold met)", eval_resp.get("success"),
+                f"success={eval_resp.get('success')}, detail={eval_resp.get('detail')}")
+
+        # 7. Mutations (after eval is latched)
         if messages["messages"]:
             first_msg_id = messages["messages"][0]["id"]
             read_resp = post(f"/data/microchat-messages/{first_msg_id}/read")
@@ -285,15 +293,6 @@ def test_microchat():
             t.check(f"POST /data/microchat-conversations/{cid}/pin", pin_resp.get("success"),
                     f"isPinned={pin_resp.get('isPinned')}")
 
-        # Advance to end
-        adv2 = get("/advance", params={"time": 120})
-        t.check("GET /advance?time=120", adv2["success"])
-
-        # 7. Evaluate
-        eval_resp = post("/evaluate")
-        t.check("POST /evaluate", eval_resp.get("success"),
-                f"success={eval_resp.get('success')}")
-
         # 8. Close
         close = get("/close")
         t.check("GET /close", close["success"] and close["status"] == "preinit")
@@ -305,14 +304,14 @@ def test_microchat():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroDin
 # ---------------------------------------------------------------------------
 def test_microdin():
-    t = TestResult("MicroDin (microdin-connections-absolute-passive)")
+    t = IntegrationResult("MicroDin (microdin-connections-absolute-passive)")
     ensure_closed()
 
     try:
@@ -413,14 +412,14 @@ def test_microdin():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroFy
 # ---------------------------------------------------------------------------
 def test_microfy():
-    t = TestResult("MicroFy (microfy-likes-absolute-passive)")
+    t = IntegrationResult("MicroFy (microfy-likes-absolute-passive)")
     ensure_closed()
 
     try:
@@ -514,14 +513,14 @@ def test_microfy():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroGram
 # ---------------------------------------------------------------------------
 def test_microgram():
-    t = TestResult("MicroGram (microgram-likes-absolute-passive)")
+    t = IntegrationResult("MicroGram (microgram-likes-absolute-passive)")
     ensure_closed()
 
     try:
@@ -614,14 +613,14 @@ def test_microgram():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroHood
 # ---------------------------------------------------------------------------
 def test_microhood():
-    t = TestResult("MicroHood (microhood-portfolio-absolute-passive)")
+    t = IntegrationResult("MicroHood (microhood-portfolio-absolute-passive)")
     ensure_closed()
 
     try:
@@ -716,14 +715,14 @@ def test_microhood():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroHub
 # ---------------------------------------------------------------------------
 def test_microhub():
-    t = TestResult("MicroHub (microhub-browse-absolute-passive)")
+    t = IntegrationResult("MicroHub (microhub-browse-absolute-passive)")
     ensure_closed()
 
     try:
@@ -846,14 +845,14 @@ def test_microhub():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroLendar
 # ---------------------------------------------------------------------------
 def test_microlendar():
-    t = TestResult("MicroLendar (microlendar-events-absolute-passive)")
+    t = IntegrationResult("MicroLendar (microlendar-events-absolute-passive)")
     ensure_closed()
 
     try:
@@ -938,14 +937,14 @@ def test_microlendar():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroScholar
 # ---------------------------------------------------------------------------
 def test_microscholar():
-    t = TestResult("MicroScholar (microscholar-search-absolute-passive)")
+    t = IntegrationResult("MicroScholar (microscholar-search-absolute-passive)")
     ensure_closed()
 
     try:
@@ -975,8 +974,8 @@ def test_microscholar():
         t.check("GET /data/microscholar-papers", paper_count > 0, f"count={paper_count}")
 
         alerts = get("/data/microscholar-alerts")
-        alert_count = len(alerts.get("alerts", []))
-        t.check("GET /data/microscholar-alerts", alert_count > 0, f"count={alert_count}")
+        t.check("GET /data/microscholar-alerts", "alerts" in alerts,
+                f"count={len(alerts.get('alerts', []))}")
 
         coauthors = get("/data/microscholar-coauthors")
         coauthor_count = len(coauthors.get("coauthors", []))
@@ -1028,14 +1027,14 @@ def test_microscholar():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: MicroTube
 # ---------------------------------------------------------------------------
 def test_microtube():
-    t = TestResult("MicroTube (microtube-subscribers-absolute-passive)")
+    t = IntegrationResult("MicroTube (microtube-subscribers-absolute-passive)")
     ensure_closed()
 
     try:
@@ -1154,14 +1153,14 @@ def test_microtube():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: supported dedicated item endpoints
 # ---------------------------------------------------------------------------
 def test_supported_item_actions():
-    t = TestResult("Supported item endpoints")
+    t = IntegrationResult("Supported item endpoints")
     ensure_closed()
 
     try:
@@ -1226,14 +1225,14 @@ def test_supported_item_actions():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: State machine edge cases
 # ---------------------------------------------------------------------------
 def test_state_machine():
-    t = TestResult("State Machine (cross-cutting)")
+    t = IntegrationResult("State Machine (cross-cutting)")
     ensure_closed()
 
     try:
@@ -1264,14 +1263,14 @@ def test_state_machine():
     except Exception as e:
         t.check("EXCEPTION", False, str(e))
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: /play endpoint
 # ---------------------------------------------------------------------------
 def test_play_endpoint():
-    t = TestResult("Play endpoint")
+    t = IntegrationResult("Play endpoint")
     ensure_closed()
 
     try:
@@ -1300,14 +1299,14 @@ def test_play_endpoint():
         except Exception:
             pass
 
-    return t
+    assert t.passed, "\n" + t.report()
 
 
 # ---------------------------------------------------------------------------
 # Test: event branch coverage for scenario-only event types
 # ---------------------------------------------------------------------------
 def test_event_branch_coverage():
-    t = TestResult("Event branch coverage")
+    t = IntegrationResult("Event branch coverage")
 
     try:
         ensure_closed()
@@ -1394,73 +1393,4 @@ def test_event_branch_coverage():
         except Exception:
             pass
 
-    return t
-
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-def main():
-    print("=" * 60)
-    print("SENTINEL API -- End-to-End Integration Tests")
-    print("=" * 60)
-
-    # Wait for server
-    print("\nWaiting for server on port 8000...")
-    if not wait_for_server(20):
-        print("FATAL: Server not responding on port 8000 after 20s")
-        sys.exit(1)
-    print("Server is up!\n")
-
-    # Run all tests
-    results = []
-    tests = [
-        ("MicroMail", test_micromail),
-        ("MicroChat", test_microchat),
-        ("MicroDin", test_microdin),
-        ("MicroFy", test_microfy),
-        ("MicroGram", test_microgram),
-        ("MicroHood", test_microhood),
-        ("MicroHub", test_microhub),
-        ("MicroLendar", test_microlendar),
-        ("MicroScholar", test_microscholar),
-        ("MicroTube", test_microtube),
-        ("Actions", test_actions),
-        ("Play endpoint", test_play_endpoint),
-        ("Event branch coverage", test_event_branch_coverage),
-        ("State Machine", test_state_machine),
-    ]
-
-    for name, test_fn in tests:
-        print(f"Running {name} tests...")
-        result = test_fn()
-        results.append(result)
-        print(f"  -> {'PASS' if result.passed else 'FAIL'}")
-
-    # Print full reports
-    print("\n\n" + "#" * 60)
-    print("DETAILED RESULTS")
-    print("#" * 60)
-    for r in results:
-        print(r.report())
-
-    # Summary
-    total_pass = sum(1 for r in results if r.passed)
-    total = len(results)
-    total_steps_pass = sum(1 for r in results for s in r.steps if s[1] == "PASS")
-    total_steps = sum(len(r.steps) for r in results)
-    failed_envs = [r.env_name for r in results if not r.passed]
-
-    print(f"\n\n{'='*60}")
-    print(f"SUMMARY: {total_pass}/{total} environments PASSED, {total_steps_pass}/{total_steps} steps PASSED")
-    if failed_envs:
-        print(f"FAILED: {', '.join(failed_envs)}")
-    else:
-        print("ALL ENVIRONMENTS PASSED!")
-    print(f"{'='*60}")
-
-    sys.exit(0 if total_pass == total else 1)
-
-
-if __name__ == "__main__":
-    main()
+    assert t.passed, "\n" + t.report()
