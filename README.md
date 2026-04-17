@@ -31,7 +31,7 @@ This benchmark provides a controlled testbed to evaluate these failure modes and
 
 ## Benchmark Structure
 
-The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with **20 objective task variants** at configurable durations:
+The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with a set of monitoring scenarios at configurable durations. The target matrix is **8 scenarios per environment** (80 total when fully populated); see [Task Dimensions](#task-dimensions) below.
 
 ### Environments
 
@@ -52,21 +52,24 @@ The benchmark consists of **10 high-fidelity web-app environment replicas** (Mic
 
 ### Task Dimensions
 
-Each environment defines **20 task variants** via scenario JSON files:
+Each environment targets **8 scenarios** via scenario JSON files, spanning the full `criteria × activity` matrix with two distinct monitoring targets per cell:
 
 ```
-5 task types × 2 criteria × 2 activity = 20 variants
+4 cells × 2 targets per cell = 8 scenarios per environment
 ```
 
 | Dimension | Options | Description |
 |-----------|---------|-------------|
-| **Task Type** | 5 per environment | Environment-specific monitoring targets (e.g., unread emails, GitHub stars) |
 | **Criteria** | `absolute` / `relative` | Fixed threshold vs. threshold relative to baseline at task start |
-| **Activity** | `passive` / `active` | Monitor-only vs. monitor + perform verifiable end action |
+| **Activity** | `passive` / `active` | Condition visible from the list/summary view (passive) vs. condition hidden inside detail views, requiring the agent to click into individual items each poll cycle (active). Examples of "active" content: email body past the 140-char preview, song lyrics, PR review comments, paper abstracts. |
+
+The four cells are `passive-absolute`, `passive-relative`, `active-absolute`, `active-relative`. Each is populated with two distinct environment-specific monitoring targets (e.g., MicroMail's `active-absolute` pair is `body-keyword` (keyword past the 140-char body preview) and `attachment-name` (attachment filename only visible when the email is opened)).
+
+Scenario filenames follow `<target>-<criteria>-<activity>.json` under `scenarios/<env>/`. Each scenario's internal `id` is env-prefixed (e.g. `micromail-body-keyword-absolute-active`). Present-day scenario counts per environment are uneven while the matrix is still being filled out.
 
 ### Durations
 
-All tasks are **time-based**: the success condition becomes satisfiable exactly at the specified duration. Tasks cannot complete early. Durations are configurable per scenario -- scale up for stress-testing persistence or scale down for rapid iteration.
+All tasks are **time-based**: the success condition becomes satisfiable at `condition_at` seconds of simulation time, and the task times out at `duration` seconds. Tasks cannot complete early. Both fields are configurable per scenario -- scale up for stress-testing persistence or scale down for rapid iteration.
 
 ### Example Scenario
 
@@ -74,15 +77,20 @@ Each task is defined as a JSON file in `scenarios/<env>/`:
 
 ```json
 {
-  "id": "micromail-junk-relative-active",
+  "id": "micromail-junk-relative-passive",
   "environment": "micromail",
-  "prompt": "Notify when 10 new junk emails arrive.",
-  "events": [ ... ],
-  "eval_sql": "SELECT ..."
+  "prompt": "Keep an eye on the junk folder for me, tell me when 3 more emails end up there.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [ { "time": 0, "type": "preload_emails", "payload": { ... } }, ... ],
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_junk_count') + 3"
 }
 ```
 
-Event timings within each scenario control the effective duration -- scale them up or down to adjust task length.
+- `condition_at` -- simulation-time (seconds) at which the success condition first becomes satisfiable.
+- `duration` -- total simulation-time budget before the task times out.
+- `events` -- deterministic list of state changes; `time` is in simulation-seconds.
+- `eval_sql` -- the SQL query run against a materialized snapshot of session state at `/evaluate`; a truthy result counts as success.
 
 The eval harness discovers these scenarios automatically and runs them against an agent subprocess.
 
@@ -92,7 +100,7 @@ The eval harness discovers these scenarios automatically and runs them against a
 
 Each task has a SQL evaluation query (`eval_sql`). The harness calls `POST /evaluate` after the agent completes, which materializes session state to an in-memory SQLite database and runs the query. Success is determined solely by whether the query returns a truthy value.
 
-For `activity=active` tasks, the SQL query checks whether the required action was performed by examining the database state directly.
+The `eval_sql` is orthogonal to passive/active: it always checks the monitored condition against the materialized session state (e.g., "at least 10 unread emails in inbox", "a paper titled X exists"). Passive vs. active only changes what the agent must do during monitoring -- list-view polling vs. detail-view drilldown -- not what the evaluator checks.
 
 ### Metrics
 
@@ -112,11 +120,13 @@ For `activity=active` tasks, the SQL query checks whether the required action wa
 
 For system development, split at the **environment level**:
 
-| Split | Environments | Configurations | Purpose |
-|-------|--------------|----------------|---------|
-| Reporting | 7 | 700 | Main results |
-| Validation | 2 | 200 | System selection/tuning |
-| Held-out Test | 1 | 100 | Blind evaluation (not released) |
+| Split | Environments | Scenarios | Purpose |
+|-------|--------------|-----------|---------|
+| Reporting | 7 | 56 | Main results |
+| Validation | 2 | 16 | System selection/tuning |
+| Held-out Test | 1 | 8 | Blind evaluation (not released) |
+
+Scenario counts assume the 8-per-env target matrix. Per-environment scaling comes from configurable scenario durations, not from adding more variants.
 
 ## Quick Start
 
@@ -207,9 +217,9 @@ Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be
 
 ```bash
 python -m server.eval_harness my_first_run
-# Found 56 tasks. Results -> results/my_first_run
-#   Running micromail-inbox-absolute-active ...
-#   Running micromail-cc-absolute-active ...
+# Found 32 tasks. Results -> results/my_first_run
+#   Running micromail-attachment-name-absolute-active ...
+#   Running micromail-body-december-relative-active ...
 #   ...
 # Done.
 ```
@@ -248,23 +258,27 @@ The approach is implemented in [Magentic-UI](https://github.com/microsoft/magent
 
 ```
 sentinel_environments/
-├── server/                # FastAPI backend (handlers, scenarios, SQLite databases)
+├── server/                # FastAPI backend
 │   ├── handlers/          # Per-environment request handlers
-│   ├── scripts/           # build_db.py (JSONL → SQLite)
-│   ├── <env>/             # .db file + scenarios/*.json per environment
+│   ├── scripts/           # build_db.py (JSONL/JSON → SQLite)
+│   ├── <env>/             # .db file per environment (generated, gitignored)
 │   ├── server.py          # Main FastAPI app
-│   └── run_simulation.py  # CLI evaluation harness
+│   ├── eval_harness.py    # CLI evaluation harness (discovers scenarios/)
+│   └── run_simulation.py  # Scenario playback tool for local testing
+├── scenarios/             # Scenario JSON files per environment
+│   └── <env>/             # <target>-<criteria>-<activity>.json + dev.json
+├── data/catalogs/         # Immutable catalogs (users.json, per-env JSONL files)
 ├── frontend/              # React/Vite frontend
 │   ├── src/
 │   │   ├── environments/  # Micro* UI components
 │   │   ├── hooks/         # API data hooks
-│   │   └── data/          # Type definitions and JSONL source data
+│   │   └── types/         # Shared TypeScript types
 │   └── public/            # Static media (images, audio, video)
 ├── data_generation/       # Synthetic data generation scripts and prompts
 │   ├── scripts/           # Generation scripts (batch_image_gen.py, SLURM jobs)
 │   ├── prompts/           # Prompt files organized by environment
 │   └── docs/              # REPRODUCTION.md, COMPLIANCE.md
-└── tests/                 # Integration, E2E, and eval_sql tests
+└── tests/                 # Backend pytest integration + eval_sql tests
 ```
 
 ## Synthetic Data Generation
@@ -291,7 +305,7 @@ The following environments use **text-only JSONL data** and do not require AI-ge
 - **MicroLendar** (calendar) - Uses calendar event data
 - **MicroScholar** (academic search) - Uses academic paper metadata
 
-These environments rely solely on the JSONL files in `frontend/src/data/content/` which contain all necessary text-based content for benchmark tasks.
+These environments rely solely on the JSONL/JSON files in `data/catalogs/<env>/` which contain all necessary text-based content for benchmark tasks.
 
 ### Running Data Generation
 
