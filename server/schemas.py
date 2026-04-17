@@ -23,6 +23,7 @@ class InitPayload(BaseModel):
     environment: str
     duration: int
     eval_sql: str = ""
+    condition_at: Optional[int] = None
     events: list[EventPayload]
 
 
@@ -43,6 +44,8 @@ class UsersResponse(BaseModel):
 class EvaluateResponse(BaseModel):
     success: bool
     detail: str = ""
+    simulation_time: Optional[int] = None
+    condition_at: Optional[int] = None
 
 
 # --- Shared POST response models ---

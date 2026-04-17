@@ -71,6 +71,7 @@ def main():
         "environment": scenario["environment"],
         "duration": scenario["duration"],
         "eval_sql": scenario.get("eval_sql", ""),
+        "condition_at": scenario.get("condition_at"),
         "events": scenario["events"],
     }
     resp = requests.post(f"{args.host}/init", json=init_payload)

@@ -106,6 +106,7 @@ def run_task(config, task_json_file, task_result_folder):
         "environment": scenario["environment"],
         "duration": scenario["duration"],
         "eval_sql": scenario.get("eval_sql", ""),
+        "condition_at": scenario.get("condition_at"),
         "events": scenario["events"],
     }
     resp = requests.post(f"{api_url}/init", json=init_payload)

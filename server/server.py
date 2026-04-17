@@ -360,6 +360,7 @@ async def init(payload: InitPayload) -> JSONResponse:
         environment=payload.environment,
         duration=payload.duration,
         eval_sql=payload.eval_sql,
+        condition_at=payload.condition_at,
         baseline_metrics={},
     )
 
@@ -507,7 +508,12 @@ async def evaluate() -> EvaluateResponse:
     session = _require_session()
 
     if not session.eval_sql:
-        return EvaluateResponse(success=False, detail="no eval_sql configured")
+        return EvaluateResponse(
+            success=False,
+            detail="no eval_sql configured",
+            simulation_time=session.simulation_time,
+            condition_at=session.condition_at,
+        )
 
     conn = sqlite3.connect(":memory:")
     try:
@@ -534,12 +540,16 @@ async def evaluate() -> EvaluateResponse:
             return EvaluateResponse(
                 success=False,
                 detail=f"eval_sql error: {e}\nQuery: {session.eval_sql}",
+                simulation_time=session.simulation_time,
+                condition_at=session.condition_at,
             )
         sql_pass = bool(row and row[0])
 
         return EvaluateResponse(
             success=sql_pass,
             detail=f"eval_sql returned {row[0] if row else None}",
+            simulation_time=session.simulation_time,
+            condition_at=session.condition_at,
         )
     finally:
         conn.close()

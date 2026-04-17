@@ -30,6 +30,7 @@ class Session:
     duration: int
     baseline_metrics: dict
     eval_sql: str = ""
+    condition_at: Optional[int] = None
 
     # MicroMail
     micromail_emails: list[dict] = field(default_factory=list)
