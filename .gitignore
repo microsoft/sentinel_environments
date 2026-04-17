@@ -168,7 +168,6 @@ site/
 junit.xml
 coverage.xml
 test-results/
-audit_screenshots/
 
 # Jupyter Notebooks
 # ------------------

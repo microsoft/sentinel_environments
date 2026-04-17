@@ -6,7 +6,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
   "../scenarios/microtube/microtube-notifications-absolute-active.json";
-const SCREENSHOTS = "../server/audit_screenshots/microtube";
+const SCREENSHOTS = "../.cache/audit_screenshots/microtube";
 
 // ---------------------------------------------------------------------------
 // Helpers
