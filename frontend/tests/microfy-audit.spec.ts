@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../scenarios/microfy/microfy-plays-absolute-passive.json";
+  "../scenarios/microfy/plays-absolute-passive.json";
 const SCREENSHOTS = "../.cache/audit_screenshots/microfy";
 
 // ---------------------------------------------------------------------------

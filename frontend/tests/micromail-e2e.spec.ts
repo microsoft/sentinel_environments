@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
-const SCENARIO_PATH = "../scenarios/micromail/micromail-inbox-relative-passive.json";
+const SCENARIO_PATH = "../scenarios/micromail/inbox-relative-passive.json";
 
 async function apiGet(path: string) {
   const res = await fetch(`${API}${path}`);

@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } }); // Ensure lg+xl breakpoint
 
 const API = process.env.PLAYWRIGHT_API_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../scenarios/micromail/micromail-inbox-relative-passive.json";
+  "../scenarios/micromail/inbox-relative-passive.json";
 const SCREENSHOTS = "../.cache/audit_screenshots/micromail";
 
 // ---------------------------------------------------------------------------
