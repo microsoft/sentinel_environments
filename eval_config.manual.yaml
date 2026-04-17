@@ -1,0 +1,10 @@
+#
+# Shell command to run the agent subprocess.
+# The command should include the placeholders __TASK_URL__ and __TASK_PROMPT__,
+# which will be replaced with the actual task URL and prompt when the subprocess
+# is executed (and they will be automatically shell-escaped as needed).
+#
+
+api_url: http://localhost:8000
+frontend_url: http://localhost:5173
+agent_subprocess: "google-chrome __TASK_URL__ 2> /dev/null"

@@ -4,7 +4,9 @@
 # example: python -m server.eval_harness my_run --config eval_config.yaml
 import argparse
 import json
+import os
 import shlex
+import signal
 import subprocess
 import sys
 import threading
@@ -59,8 +61,13 @@ def discover_tasks():
     """Yield (environment, scenario_id, path) for every scenario JSON file."""
     scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
     for path in sorted(scenarios_root.glob("*/*.json")):
+        if path.name == "dev.json":
+            continue
         with open(path) as f:
             scenario = json.load(f)
+        if not scenario.get("prompt"):
+            print(f"Skipping {path}: empty or missing prompt", file=sys.stderr, flush=True)
+            continue
         yield scenario["environment"], scenario["id"], path
 
 
@@ -130,6 +137,7 @@ def run_task(config, task_json_file, task_result_folder):
             file.flush()
 
     output_file = task_result_folder / "output.txt"
+    print(f"Prompt:\n{task_prompt}\n", flush=True)
     with open(output_file, "w") as out:
         with subprocess.Popen(
             agent_cmd,
@@ -137,13 +145,16 @@ def run_task(config, task_json_file, task_result_folder):
             stderr=subprocess.STDOUT,
             shell=shell,
             text=True,
+            start_new_session=True,
         ) as proc:
             t = threading.Thread(target=_tee, args=(proc.stdout, out))
             t.start()
             try:
-                proc.wait(timeout=900)  # 15 minutes
+                proc.wait(timeout=630)  # 10.5 minutes
             except subprocess.TimeoutExpired:
-                proc.kill()
+                print("Agent subprocess timed out, killing process group...", flush=True)
+                os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait()
             finally:
                 t.join()
 
@@ -162,7 +173,6 @@ def main():
     parser.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
     parser.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
     args = parser.parse_args()
-
     config = load_config(args.config)
     if args.api_url != DEFAULT_API_URL:
         config["api_url"] = args.api_url
@@ -171,25 +181,25 @@ def main():
     results_root = Path("results") / args.run_name
 
     tasks = list(discover_tasks())
-    print(f"Found {len(tasks)} tasks. Results -> {results_root}")
+    print(f"Found {len(tasks)} tasks. Results -> {results_root}", flush=True)
 
     for environment, scenario_id, task_path in tasks:
         task_result_folder = results_root / environment / scenario_id
         task_result_folder.mkdir(parents=True, exist_ok=True)
         if (task_result_folder / "results.json").exists():
-            print(f"  Skipping {scenario_id} (already done)")
+            print(f"  Skipping {scenario_id} (already done)", flush=True)
             continue
         if (task_result_folder / "error.txt").exists():
-            print(f"  Skipping {scenario_id} (previous error)")
+            print(f"  Skipping {scenario_id} (previous error)", flush=True)
             continue
-        print(f"  Running {scenario_id} ...")
+        print(f"  Running {scenario_id} ...", flush=True)
         try:
             run_task(config, task_path, task_result_folder)
         except Exception as e:
             (task_result_folder / "error.txt").write_text(traceback.format_exc())
-            print(f"  ERROR: {e}")
+            print(f"  ERROR: {e}", flush=True)
 
-    print("Done.")
+    print("Done.", flush=True)
 
 
 if __name__ == "__main__":
