@@ -1924,7 +1924,7 @@ def build_shared_db() -> None:
     print(f"  users: {len(users)} rows")
 
     # --- Images ---
-    images_dir = DATA_DIR / "catalogs" / "author-photos"
+    images_dir = DATA_DIR / "public" / "author-photos"
     img_count = 0
     for p in sorted(images_dir.iterdir()):
         if p.name.startswith("."):
