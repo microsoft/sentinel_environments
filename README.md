@@ -6,7 +6,6 @@
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
 [![Citation](https://img.shields.io/badge/Cite-BibTeX-blue)](#citation)
-[![Website](https://img.shields.io/badge/Website-Live-brightgreen)](https://sentinel-bench.vercel.app/)
 [![Blog](https://img.shields.io/badge/Blog-Post-6f42c1)](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/)
 
 </div>

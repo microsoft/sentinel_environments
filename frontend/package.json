@@ -12,20 +12,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0 --fix",
     "type-check": "tsc --noEmit --skipLibCheck",
-    "check:exports": "node scripts/check-exports.js",
-    "check:types": "node scripts/check-types.js",
-    "health-check": "node scripts/health-check.js",
-    "validate": "npm run type-check && npm run check:exports && npm run lint",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest --watch",
-    "test:all": "node scripts/run-tests.js",
-    "test:security": "vitest run src/__tests__/security",
-    "test:integration": "vitest run src/__tests__/integration",
-    "test:unit": "vitest run src/__tests__/utils src/__tests__/components"
+    "test:watch": "vitest --watch"
   },
   "dependencies": {
     "@types/canvas-confetti": "^1.9.0",
