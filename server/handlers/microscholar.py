@@ -44,7 +44,7 @@ def _build_paper_row(paper_id: str) -> dict:
     author_details = []
     for aid in author_ids:
         u = USER_CATALOG.get(aid, {})
-        scholar = u.get("scholar", {})
+        scholar = u.get("microscholar", {})
         author_details.append({
             "id": aid,
             "name": u.get("name", "Unknown"),

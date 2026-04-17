@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 // ---------------------------------------------------------------------------
 // API response types
@@ -83,6 +84,7 @@ export interface ApiTubePlaylist {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
+  selfUser?: ApiSelfUser;
 }
 
 export function useMicrotubeData() {

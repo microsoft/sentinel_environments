@@ -138,13 +138,13 @@ const MicroGram = () => {
 
   /** Convert a raw API user object into MicroGramUser shape */
   const toMicroGramUser = useCallback((u: ApiGramUser): MicroGramUser => {
-    const social = u.social || {};
+    const social = u.microgram || {};
     return {
       id: u.id,
       isSelf: u.isSelf,
       name: u.name,
       username: u.username,
-      email: u.email,
+      email: u.email ?? "",
       avatarUrl: u.avatarUrl,
       bio: u.bio || "",
       jobTitle: u.jobTitle || "",
@@ -168,13 +168,14 @@ const MicroGram = () => {
   }, [users, toMicroGramUser]);
 
   const selfUser = useMemo(() => {
-    const raw = config?.selfUser;
-    return raw ? toMicroGramUser(raw as ApiGramUser) : undefined;
-  }, [config, toMicroGramUser]);
+    const selfId = config?.selfUser?.id;
+    const resolved = (selfId ? users[selfId] : undefined) ?? Object.values(users).find((u) => u.isSelf);
+    return resolved ? toMicroGramUser(resolved) : undefined;
+  }, [config?.selfUser?.id, users, toMicroGramUser]);
 
   const MICROGRAM_USERS = useMemo(() =>
     Object.values(users)
-      .filter(u => u.social)
+      .filter(u => u.microgram)
       .map(u => toMicroGramUser(u)),
     [users, toMicroGramUser]
   );

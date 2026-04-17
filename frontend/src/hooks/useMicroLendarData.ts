@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 export interface ApiCalendarEvent {
   id: string;
@@ -29,7 +30,7 @@ export interface ApiTask {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 export function useMicroLendarData() {

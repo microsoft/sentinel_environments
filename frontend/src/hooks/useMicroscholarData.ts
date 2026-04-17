@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 export interface ApiPaper {
   id: string;
@@ -44,7 +45,7 @@ export interface ApiCoauthor {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 export interface ApiScholarUser {
@@ -54,7 +55,7 @@ export interface ApiScholarUser {
   email?: string;
   avatarUrl: string;
   location?: string;
-  scholar?: {
+  microscholar?: {
     email?: string;
     affiliation?: string;
     department?: string;

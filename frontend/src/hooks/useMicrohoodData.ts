@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 export interface ApiStock {
   symbol: string;
@@ -39,7 +40,7 @@ export interface ApiPortfolio {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 export function useMicrohoodData() {

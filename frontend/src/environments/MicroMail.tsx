@@ -953,7 +953,13 @@ const Micromail = () => {
                   <Flag size={16} />
                 </button>
                 <button
-                  onClick={selectedEmail?.isRead ? handleMarkUnread : handleMarkRead}
+                  onClick={() => {
+                    if (selectedEmail?.isRead) {
+                      handleMarkUnread();
+                    } else {
+                      handleMarkRead();
+                    }
+                  }}
                   className={actionButtonClass()}
                   disabled={!selectedEmail}
                   aria-label={selectedEmail?.isRead ? "Mark selected conversation as unread" : "Mark selected conversation as read"}
@@ -1136,7 +1142,13 @@ const Micromail = () => {
                       <span>{new Date(selectedEmail.timestamp).toLocaleString([], { dateStyle: "medium", timeStyle: "short" })}</span>
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={selectedEmail.isRead ? handleMarkUnread : handleMarkRead}
+                          onClick={() => {
+                            if (selectedEmail.isRead) {
+                              handleMarkUnread();
+                            } else {
+                              handleMarkRead();
+                            }
+                          }}
                           className="rounded-md border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
                         >
                           {selectedEmail.isRead ? "Mark unread" : "Mark as read"}

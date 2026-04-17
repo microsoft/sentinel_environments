@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 // ---------------------------------------------------------------------------
 // API response types
@@ -96,7 +97,7 @@ export interface ApiDinCompany {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 export interface ApiDinUser {
@@ -112,7 +113,7 @@ export interface ApiDinUser {
   location?: string;
   interests?: string[];
   microdin?: { company?: string };
-  scholar?: { title?: string; affiliation?: string };
+  microscholar?: { title?: string; affiliation?: string };
 }
 
 export function useMicrodinData() {

@@ -173,7 +173,6 @@ const MicroFy = () => {
     [apiPlaylists]
   );
 
-  // Derive selfUser from config
   const selfUser = config?.selfUser;
 
   // State management
@@ -228,6 +227,39 @@ const MicroFy = () => {
   const [settingAutoplay, setSettingAutoplay] = useState(true);
   const [settingPrivateSession, setSettingPrivateSession] = useState(false);
   const [settingListeningActivity, setSettingListeningActivity] = useState(true);
+
+  const accountHandle = selfUser?.username ?? "";
+
+  const ownedPlaylistsCount = useMemo(
+    () => apiPlaylists.filter((playlist) => playlist.ownerId === selfUser?.id).length,
+    [apiPlaylists, selfUser?.id]
+  );
+
+  const derivedTopGenres = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const track of apiTracks) {
+      if (!track.isLiked) continue;
+      counts.set(track.genre, (counts.get(track.genre) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 4)
+      .map(([genre]) => genre);
+  }, [apiTracks]);
+
+  // Profile stats: prefer backend selfUser.microfy.* values; fall back to derived from live state
+  const profileStats = useMemo(() => {
+    const backend = selfUser?.microfy;
+    return {
+      isPremium: backend?.isPremium ?? false,
+      followers: backend?.followers ?? 0,
+      following: backend?.following ?? followedArtistIds.length,
+      playlistCount: backend?.playlistCount ?? ownedPlaylistsCount,
+      likedTracksCount: backend?.likedTracksCount ?? favoriteSongs.length,
+      topGenres: backend?.topGenres && backend.topGenres.length > 0 ? backend.topGenres : derivedTopGenres,
+      joinedDate: backend?.joinedDate ?? "",
+    };
+  }, [selfUser?.microfy, followedArtistIds.length, ownedPlaylistsCount, favoriteSongs.length, derivedTopGenres]);
 
   // Active device
   const [activeDevice, setActiveDevice] = useState<string>('this-computer');
@@ -1000,7 +1032,7 @@ const MicroFy = () => {
                     <div className="absolute right-0 top-full mt-2 bg-[#282828] rounded shadow-lg py-1 z-50 w-52">
                       <div className="px-3 py-2 border-b border-[#3e3e3e]">
                         <div className="text-white font-semibold text-sm">{displayName}</div>
-                        <div className="text-[#b3b3b3] text-xs">@{selfUser?.username || 'user'}</div>
+                        <div className="text-[#b3b3b3] text-xs">@{accountHandle}</div>
                       </div>
                       <button
                         onClick={() => { setShowEditProfileModal(true); setShowUserDropdown(false); }}
@@ -1056,7 +1088,7 @@ const MicroFy = () => {
                   {selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
                 </div>
                 <div className="text-lg font-semibold text-white mb-1">{selfUser?.name || "User"}</div>
-                <div className="text-sm mb-6" style={{ color: "#b3b3b3" }}>{selfUser?.email || "user@microfy.com"}</div>
+                <div className="text-sm mb-6" style={{ color: "#b3b3b3" }}>{email || "user@microfy.com"}</div>
                 <input type="password" readOnly value="••••••••" className="w-full px-4 py-2 rounded mb-4 text-center" style={{ backgroundColor: "#3E3E3E", color: "#b3b3b3", border: "none" }} />
                 <button onClick={() => setIsSignedOut(false)} className="w-full py-2 text-black rounded-full font-semibold hover:opacity-90 transition-opacity" style={{ backgroundColor: "#1DB954" }}>
                   Sign in
@@ -2613,42 +2645,42 @@ const MicroFy = () => {
                   )}
                   <div>
                     <h3 className="text-white text-xl font-bold">{displayName}</h3>
-                    <p className="text-[#b3b3b3]">@{selfUser?.username || 'user'}</p>
-                    {selfUser?.microfy?.isPremium && (
+                    <p className="text-[#b3b3b3]">@{accountHandle}</p>
+                    {profileStats.isPremium && (
                       <span className="inline-block mt-1 px-2 py-0.5 bg-[#1DB954] text-black text-xs font-bold rounded">PREMIUM</span>
                     )}
                   </div>
                 </div>
                 <div className="grid grid-cols-4 gap-4 mb-4">
                   <div className="text-center">
-                    <div className="text-white text-xl font-bold">{selfUser?.microfy?.followers || 0}</div>
+                    <div className="text-white text-xl font-bold">{profileStats.followers}</div>
                     <div className="text-[#b3b3b3] text-sm">Followers</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-white text-xl font-bold">{selfUser?.microfy?.following || 0}</div>
+                    <div className="text-white text-xl font-bold">{profileStats.following}</div>
                     <div className="text-[#b3b3b3] text-sm">Following</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-white text-xl font-bold">{selfUser?.microfy?.playlistCount || 0}</div>
+                    <div className="text-white text-xl font-bold">{profileStats.playlistCount}</div>
                     <div className="text-[#b3b3b3] text-sm">Playlists</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-white text-xl font-bold">{selfUser?.microfy?.likedTracksCount || 0}</div>
+                    <div className="text-white text-xl font-bold">{profileStats.likedTracksCount}</div>
                     <div className="text-[#b3b3b3] text-sm">Liked</div>
                   </div>
                 </div>
-                {selfUser?.microfy?.topGenres && selfUser.microfy.topGenres.length > 0 && (
+                {profileStats.topGenres.length > 0 && (
                   <div className="mb-4">
                     <div className="text-[#b3b3b3] text-sm mb-2">Top Genres</div>
                     <div className="flex flex-wrap gap-2">
-                      {selfUser.microfy.topGenres.map((genre: string, idx: number) => (
+                      {profileStats.topGenres.map((genre: string, idx: number) => (
                         <span key={idx} className="px-3 py-1 bg-[#3e3e3e] text-white text-sm rounded-full">{genre}</span>
                       ))}
                     </div>
                   </div>
                 )}
-                {selfUser?.microfy?.joinedDate && (
-                  <div className="text-[#b3b3b3] text-sm">Member since {selfUser.microfy.joinedDate}</div>
+                {profileStats.joinedDate && (
+                  <div className="text-[#b3b3b3] text-sm">Member since {profileStats.joinedDate}</div>
                 )}
               </div>
 
@@ -2657,7 +2689,7 @@ const MicroFy = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-white">Username</span>
-                    <span className="text-[#b3b3b3]">{selfUser?.username || displayName}</span>
+                    <span className="text-[#b3b3b3]">{accountHandle}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-white">Email</span>

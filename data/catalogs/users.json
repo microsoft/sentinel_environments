@@ -23,7 +23,7 @@
       "agile methodologies",
       "rock climbing"
     ],
-    "social": {
+    "microgram": {
       "followers": 847,
       "following": 312,
       "postsCount": 24,
@@ -31,7 +31,7 @@
       "hasStory": true,
       "storyId": "story-self"
     },
-    "scholar": {
+    "microscholar": {
       "email": "ctaylor@stanford.edu",
       "affiliation": "Stanford University",
       "department": "Computer Science",
@@ -197,7 +197,7 @@
       "robotics",
       "hiking"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "achen@berkeley.edu",
       "affiliation": "UC Berkeley",
       "department": "EECS",
@@ -333,7 +333,7 @@
       "photography",
       "cooking"
     ],
-    "social": {
+    "microgram": {
       "followers": 2341,
       "following": 456,
       "postsCount": 87,
@@ -343,7 +343,7 @@
       "website": "brendatravels.com"
     },
     "bannerUrl": "images/banners/user002.webp",
-    "scholar": {
+    "microscholar": {
       "email": "brodriguez@gatech.edu",
       "affiliation": "Georgia Institute of Technology",
       "department": "Interactive Computing",
@@ -392,14 +392,14 @@
       "data visualization",
       "coffee"
     ],
-    "social": {
+    "microgram": {
       "followers": 1234,
       "following": 456,
       "postsCount": 34,
       "isVerified": false,
       "hasStory": false
     },
-    "scholar": {
+    "microscholar": {
       "email": "cdavis@utexas.edu",
       "affiliation": "University of Texas at Austin",
       "department": "Statistics and Data Science",
@@ -553,7 +553,7 @@
       "accessibility",
       "minimalism"
     ],
-    "social": {
+    "microgram": {
       "followers": 5678,
       "following": 234,
       "postsCount": 156,
@@ -563,7 +563,7 @@
       "website": "wilsondesign.co"
     },
     "bannerUrl": "images/banners/user005.webp",
-    "scholar": {
+    "microscholar": {
       "email": "ewilson@ox.ac.uk",
       "affiliation": "University of Oxford",
       "department": "Computer Science",
@@ -645,7 +645,7 @@
       "mechanical keyboards"
     ],
     "bannerUrl": "images/banners/user007.webp",
-    "scholar": {
+    "microscholar": {
       "email": "gthompson@princeton.edu",
       "affiliation": "Princeton University",
       "department": "Computer Science",
@@ -694,7 +694,7 @@
       "SEO",
       "creative writing"
     ],
-    "social": {
+    "microgram": {
       "followers": 3421,
       "following": 567,
       "postsCount": 92,
@@ -813,7 +813,7 @@
         6
       ]
     },
-    "scholar": {
+    "microscholar": {
       "email": "imartinez@ucla.edu",
       "affiliation": "UCLA",
       "department": "Computer Science",
@@ -862,7 +862,7 @@
       "support",
       "sailing"
     ],
-    "social": {
+    "microgram": {
       "followers": 1567,
       "following": 678,
       "postsCount": 89,
@@ -871,7 +871,7 @@
       "storyId": "story-julia"
     },
     "bannerUrl": "images/banners/user010.webp",
-    "scholar": {
+    "microscholar": {
       "email": "jnguyen@uiuc.edu",
       "affiliation": "University of Illinois Urbana-Champaign",
       "department": "Computer Science",
@@ -1024,7 +1024,7 @@
         3
       ]
     },
-    "scholar": {
+    "microscholar": {
       "email": "lscott@washington.edu",
       "affiliation": "University of Washington",
       "department": "Computer Science & Engineering",
@@ -1073,7 +1073,7 @@
       "mentorship",
       "golf"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "mbrown@mit.edu",
       "affiliation": "Massachusetts Institute of Technology",
       "department": "EECS",
@@ -1202,7 +1202,7 @@
       "python",
       "podcasts"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "nadams@cmu.edu",
       "affiliation": "Carnegie Mellon University",
       "department": "Machine Learning Department",
@@ -1284,7 +1284,7 @@
       "branding",
       "pottery"
     ],
-    "social": {
+    "microgram": {
       "followers": 4532,
       "following": 321,
       "postsCount": 201,
@@ -1326,7 +1326,7 @@
       "gaming"
     ],
     "bannerUrl": "images/banners/user017.webp",
-    "scholar": {
+    "microscholar": {
       "email": "qharris@cornell.edu",
       "affiliation": "Cornell University",
       "department": "Computer Science",
@@ -1407,7 +1407,7 @@
       "web development",
       "surfing"
     ],
-    "social": {
+    "microgram": {
       "followers": 456,
       "following": 234,
       "postsCount": 23,
@@ -1487,7 +1487,7 @@
         3
       ]
     },
-    "scholar": {
+    "microscholar": {
       "email": "syoung@cam.ac.uk",
       "affiliation": "University of Cambridge",
       "department": "Computer Science and Technology",
@@ -1568,7 +1568,7 @@
       "performance tuning",
       "cricket"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "ukhan@eth.ch",
       "affiliation": "ETH Zurich",
       "department": "Computer Science",
@@ -1619,7 +1619,7 @@
       "documentaries",
       "jazz music"
     ],
-    "social": {
+    "microgram": {
       "followers": 7823,
       "following": 445,
       "postsCount": 178,
@@ -1660,7 +1660,7 @@
       "bbq"
     ],
     "bannerUrl": "images/banners/user023.webp",
-    "scholar": {
+    "microscholar": {
       "email": "jpark@snu.ac.kr",
       "affiliation": "Seoul National University",
       "department": "Computer Science and Engineering",
@@ -1709,7 +1709,7 @@
       "digital painting",
       "museums"
     ],
-    "social": {
+    "microgram": {
       "followers": 12456,
       "following": 234,
       "postsCount": 312,
@@ -1719,7 +1719,7 @@
       "website": "xmorales.art"
     },
     "bannerUrl": "images/banners/user024.webp",
-    "scholar": {
+    "microscholar": {
       "email": "xmorales@unam.mx",
       "affiliation": "UNAM",
       "department": "Computer Science",
@@ -1768,7 +1768,7 @@
       "python",
       "travel"
     ],
-    "social": {
+    "microgram": {
       "followers": 2345,
       "following": 234,
       "postsCount": 45,
@@ -1776,7 +1776,7 @@
       "hasStory": true,
       "storyId": "story-yusuf"
     },
-    "scholar": {
+    "microscholar": {
       "email": "yahmed@nyu.edu",
       "affiliation": "New York University",
       "department": "Center for Data Science",
@@ -1859,7 +1859,7 @@
       "travel blogging",
       "surfing"
     ],
-    "social": {
+    "microgram": {
       "followers": 23456,
       "following": 567,
       "postsCount": 456,
@@ -1964,7 +1964,7 @@
       "mentorship",
       "classical music"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "djackson@utoronto.ca",
       "affiliation": "University of Toronto",
       "department": "Computer Science",
@@ -2016,7 +2016,7 @@
       "content creation",
       "video games"
     ],
-    "social": {
+    "microgram": {
       "followers": 8765,
       "following": 432,
       "postsCount": 234,
@@ -2056,7 +2056,7 @@
       "computer vision",
       "equestrianism"
     ],
-    "social": {
+    "microgram": {
       "followers": 3456,
       "following": 123,
       "postsCount": 67,
@@ -2064,7 +2064,7 @@
       "hasStory": true,
       "storyId": "story-fatima"
     },
-    "scholar": {
+    "microscholar": {
       "email": "falfassi@kaust.edu.sa",
       "affiliation": "King Abdullah University of Science and Technology",
       "department": "Electrical and Computer Engineering",
@@ -2116,7 +2116,7 @@
       "microservices",
       "brewing beer"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "grobinson@tcd.ie",
       "affiliation": "Trinity College Dublin",
       "department": "Computer Science and Statistics",
@@ -2199,7 +2199,7 @@
       "chess"
     ],
     "bannerUrl": "images/banners/user035.webp",
-    "scholar": {
+    "microscholar": {
       "email": "kjohnson@stanford.edu",
       "affiliation": "Stanford University",
       "department": "Computer Science",
@@ -2519,7 +2519,7 @@
         2
       ]
     },
-    "scholar": {
+    "microscholar": {
       "email": "palves@tecnico.pt",
       "affiliation": "Instituto Superior T\u00e9cnico",
       "department": "Computer Science",
@@ -2568,7 +2568,7 @@
       "mentorship",
       "whisky tasting"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "rfoster@deepmind.com",
       "affiliation": "Turing Research Labs",
       "department": "Research",
@@ -2619,7 +2619,7 @@
       "events",
       "highlife music"
     ],
-    "social": {
+    "microgram": {
       "followers": 5432,
       "following": 345,
       "postsCount": 156,
@@ -2659,7 +2659,7 @@
       "ci/cd",
       "classical dance"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "tsharma@iisc.ac.in",
       "affiliation": "Indian Institute of Science",
       "department": "Computational and Data Sciences",
@@ -2837,7 +2837,7 @@
       "k-pop",
       "esports"
     ],
-    "scholar": {
+    "microscholar": {
       "email": "akim@kaist.ac.kr",
       "affiliation": "KAIST",
       "department": "School of Computing",

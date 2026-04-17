@@ -104,7 +104,7 @@ const MicroScholar = () => {
   // API-derived helpers (replaces static syntheticData)
   // ---------------------------------------------------------------------------
   const toScholarUser = useCallback((u: ApiScholarUser): ScholarUser => {
-    const s = u.scholar || {};
+    const s = u.microscholar || {};
     return {
       id: u.id,
       isSelf: u.isSelf,
@@ -129,20 +129,21 @@ const MicroScholar = () => {
 
   const scholarUsers = useMemo(() =>
     Object.values(users)
-      .filter(u => !!u.scholar)
+      .filter(u => !!u.microscholar)
       .map(u => toScholarUser(u)),
     [users, toScholarUser]
   );
 
   const selfUser = useMemo(() => {
-    const raw = config?.selfUser;
-    return raw?.scholar ? toScholarUser(raw) : scholarUsers.find(u => u.isSelf);
-  }, [config, toScholarUser, scholarUsers]);
+    const selfId = config?.selfUser?.id;
+    const resolved = (selfId ? users[selfId] : undefined) ?? Object.values(users).find((u) => u.isSelf);
+    return resolved ? toScholarUser(resolved) : undefined;
+  }, [config?.selfUser?.id, users, toScholarUser]);
   const user = selfUser;
 
   const getUserById = useCallback((id: string): ScholarUser | undefined => {
     const raw = users[id];
-    return raw?.scholar ? toScholarUser(raw) : undefined;
+    return raw?.microscholar ? toScholarUser(raw) : undefined;
   }, [users, toScholarUser]);
 
   const getPapersByAuthor = useCallback((authorId: string): Paper[] =>

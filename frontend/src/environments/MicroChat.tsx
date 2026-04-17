@@ -434,6 +434,7 @@ const getInitials = (name: string) =>
     .map((part) => part.charAt(0).toUpperCase())
     .join("") || "U";
 
+
 const pickColor = (seed: string) => {
   if (!seed) return COLOR_PALETTE[0];
   const code = seed.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -591,11 +592,18 @@ const MicroChat = () => {
     return map;
   }, [apiConversations, apiTeams]);
 
-  // Derive selfUser from config
-  const selfUser = useMemo(() => {
-    const s = apiConfig?.selfUser;
-    return s || { id: "user000", name: "You", username: "you", email: "you@example.com", jobTitle: "User" };
-  }, [apiConfig]);
+  const selfUser = useMemo<UserProfile>(() => {
+    const raw = apiConfig?.selfUser;
+    const resolved = raw ? allKnownUsers.get(raw.id) : undefined;
+    return {
+      id: raw?.id ?? resolved?.id ?? "user000",
+      name: raw?.name ?? resolved?.name ?? "You",
+      username: raw?.username ?? resolved?.username ?? "",
+      email: raw?.email ?? "",
+      avatarUrl: raw?.avatarUrl ?? resolved?.avatarUrl ?? "",
+      jobTitle: raw?.jobTitle ?? resolved?.jobTitle ?? "User",
+    };
+  }, [apiConfig?.selfUser, allKnownUsers]);
 
   // Transform API messages: flat list -> Record<conversationId, ChatMessage[]>
   const apiMessagesGrouped = useMemo(() => {

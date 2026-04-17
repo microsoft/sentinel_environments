@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 
 import { useMicrodinData } from "../hooks/useMicrodinData";
 import type { ApiDinCompany, ApiDinUser } from "../hooks/useMicrodinData";
@@ -193,6 +193,8 @@ interface Notification {
 interface Person {
   id: string;
   name: string;
+  username?: string;
+  email?: string;
   title: string;
   company: string;
   location: string;
@@ -287,13 +289,13 @@ const convertUserToPerson = (user: ApiDinUser, index: number): Person => {
 
   // Create education entries
   const education: Person['education'] = [];
-  if (user.scholar) {
+  if (user.microscholar) {
     education.push({
-      degree: user.scholar.title || 'Researcher',
-      school: user.scholar.affiliation || 'University',
+      degree: user.microscholar.title || 'Researcher',
+      school: user.microscholar.affiliation || 'University',
       years: '2018 – 2022',
-      initial: (user.scholar.affiliation || 'U').charAt(0),
-      color: SCHOOL_COLORS[user.scholar.affiliation?.split(' ')[0] || 'default'] || SCHOOL_COLORS['default'],
+      initial: (user.microscholar.affiliation || 'U').charAt(0),
+      color: SCHOOL_COLORS[user.microscholar.affiliation?.split(' ')[0] || 'default'] || SCHOOL_COLORS['default'],
     });
   } else {
     education.push({
@@ -308,6 +310,8 @@ const convertUserToPerson = (user: ApiDinUser, index: number): Person => {
   return {
     id: user.id,
     name: user.name,
+    username: user.username,
+    email: user.email,
     title: user.jobTitle || 'Professional',
     company: userCompany,
     location: user.location ?? "",
@@ -4045,7 +4049,7 @@ const MicroDin = () => {
                 </svg>
                 <div>
                   <p className="text-sm font-semibold">Email</p>
-                  <a href="#" className="text-sm text-blue-600 hover:underline">{viewedPerson.name.toLowerCase().replace(' ', '.')}@email.com</a>
+                  <a href="#" className="text-sm text-blue-600 hover:underline">{viewedPerson.email ?? ""}</a>
                 </div>
               </div>
               <div className="flex items-start space-x-3">
@@ -4054,7 +4058,7 @@ const MicroDin = () => {
                 </svg>
                 <div>
                   <p className="text-sm font-semibold">MicroDin</p>
-                  <a href="#" className="text-sm text-blue-600 hover:underline">microdin.com/in/{viewedPerson.name.toLowerCase().replace(' ', '-')}</a>
+                  <a href="#" className="text-sm text-blue-600 hover:underline">microdin.com/in/{viewedPerson.username ?? viewedPerson.id}</a>
                 </div>
               </div>
             </div>
@@ -4639,7 +4643,7 @@ const MicroDin = () => {
                 <h4 className="font-semibold text-sm mb-2">Email addresses</h4>
                 <p className="text-xs text-gray-600 mb-3">Add or remove email addresses on your account</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm">{selfUser?.name?.toLowerCase().replace(' ', '.')}@email.com</span>
+                  <span className="text-sm">{selfUser?.email}</span>
                   <span className="text-xs text-green-600 font-medium">Primary</span>
                 </div>
               </div>

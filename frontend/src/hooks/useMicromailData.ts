@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 export interface ApiEmail {
   id: string;
@@ -23,7 +24,7 @@ export interface ApiEmail {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; email: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 type ReadOverrides = Map<string, boolean>;

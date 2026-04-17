@@ -129,8 +129,21 @@ const MicroLendar = () => {
     deleteTask: apiDeleteTask,
   } = useMicroLendarData();
 
-  // User helpers (derived from config)
-  const currentUser = config?.selfUser || null;
+  const currentUser = useMemo(() => {
+    const raw = config?.selfUser;
+    if (!raw) return null;
+    return {
+      id: raw.id,
+      name: raw.name,
+      avatarUrl: raw.avatarUrl,
+      email: raw.email,
+      username: raw.username,
+      jobTitle: raw.jobTitle ?? "",
+      location: raw.location ?? "",
+      bio: raw.bio ?? "",
+      interests: raw.interests ?? [],
+    };
+  }, [config?.selfUser]);
 
   const getAttendeeInfo = useCallback((attendee: { id?: string; name?: string; avatarUrl?: string }): { name: string; initials: string; avatarUrl?: string; color: string } => {
     if (!attendee || !attendee.name) {

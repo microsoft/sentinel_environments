@@ -1059,7 +1059,7 @@ async def data_gram_followed_users() -> MicrogramFollowedUsersResponse:
 
 @app.get("/data/microgram-users", response_model=MicrogramUsersResponse)
 async def data_gram_users() -> MicrogramUsersResponse:
-    users = [u for u in USER_CATALOG.values() if u.get("social")]
+    users = [u for u in USER_CATALOG.values() if u.get("microgram")]
     return MicrogramUsersResponse(users=users)
 
 
@@ -1874,7 +1874,7 @@ async def data_scholar_coauthors() -> MicroscholarCoauthorsResponse:
 
 @app.get("/data/microscholar-users", response_model=MicroscholarUsersResponse)
 async def data_scholar_users() -> MicroscholarUsersResponse:
-    users = [u for u in USER_CATALOG.values() if u.get("scholar")]
+    users = [u for u in USER_CATALOG.values() if u.get("microscholar")]
     return MicroscholarUsersResponse(users=users)
 
 

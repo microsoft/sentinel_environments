@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 // ---------------------------------------------------------------------------
 // API response types
@@ -73,7 +74,7 @@ export interface ApiCall {
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 type ReadOverrides = Map<string, boolean>;

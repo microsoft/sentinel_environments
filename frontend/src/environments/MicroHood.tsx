@@ -57,9 +57,17 @@ const MicroHood = () => {
     placeOrder, toggleWatchlist: apiToggleWatchlist,
   } = useMicrohoodData();
 
-  // Get current user from config
   const currentUser = useMemo(() => {
-    return config?.selfUser || { name: "User", username: "user", avatarUrl: "" };
+    const raw = config?.selfUser;
+    if (!raw) {
+      return { id: "user", name: "User", username: "user", avatarUrl: "" };
+    }
+    return {
+      id: raw.id,
+      name: raw.name,
+      username: raw.username,
+      avatarUrl: raw.avatarUrl,
+    };
   }, [config?.selfUser]);
 
   // ===================== DERIVED FROM API =====================

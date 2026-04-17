@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { ApiSelfUser } from "../types/selfUser";
 
 // ---------------------------------------------------------------------------
 // API response types
@@ -7,7 +8,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export interface ApiTaskConfig {
   environment: string;
   duration: number;
-  selfUser?: { id: string; name: string; avatarUrl: string };
+  selfUser?: ApiSelfUser;
 }
 
 export interface ApiHubUser {
@@ -27,7 +28,7 @@ export interface ApiHubUser {
     following?: number;
     joinedDate?: string;
     pinnedRepos?: string[];
-    achievements?: { id: string; icon: string; description: string; earnedDate: string }[];
+    achievements?: { id: string; name: string; icon: string; description: string; earnedDate: string }[];
     contributionData?: number[];
   };
 }

@@ -245,9 +245,9 @@ const MicroHub = () => {
         username: u.username,
         email: u.email,
         avatarUrl: u.avatarUrl,
-        bio: u.bio,
+        bio: u.bio ?? "",
         jobTitle: u.jobTitle,
-        location: u.location,
+        location: u.location ?? "",
         company: u.microhub?.company,
         website: u.microhub?.website,
         followers: u.microhub?.followers ?? 0,
@@ -259,7 +259,11 @@ const MicroHub = () => {
       }));
   }, [users]);
 
-  const selfUser = useMemo(() => {
+  const selfUser = useMemo<MicroHubUser | undefined>(() => {
+    const selfId = config?.selfUser?.id;
+    const resolved = (selfId ? microhubUsers.find((u) => u.id === selfId) : undefined) ?? microhubUsers.find((u) => u.isSelf);
+    if (resolved) return resolved;
+
     const raw = config?.selfUser;
     if (!raw) return undefined;
     return {
@@ -269,19 +273,14 @@ const MicroHub = () => {
       username: raw.username,
       email: raw.email,
       avatarUrl: raw.avatarUrl,
-      bio: raw.bio,
-      jobTitle: raw.jobTitle,
-      location: raw.location,
-      company: raw.microhub?.company,
-      website: raw.microhub?.website,
+      bio: raw.bio ?? "",
+      jobTitle: raw.jobTitle ?? "",
+      location: raw.location ?? "",
       followers: raw.microhub?.followers ?? 0,
       following: raw.microhub?.following ?? 0,
       joinedDate: raw.microhub?.joinedDate ?? "",
-      pinnedRepos: raw.microhub?.pinnedRepos,
-      achievements: raw.microhub?.achievements,
-      contributionData: raw.microhub?.contributionData,
-    } as MicroHubUser;
-  }, [config]);
+    };
+  }, [config?.selfUser, microhubUsers]);
   const getUserByUsername = useCallback((username: string) => microhubUsers.find(u => u.username === username), [microhubUsers]);
 
   // Build file tree from flat files
