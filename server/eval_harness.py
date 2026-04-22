@@ -171,13 +171,7 @@ def run_task(config, task_json_file, task_result_folder):
     (task_result_folder / "results.json").write_text(json.dumps(result, indent=2))
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Sentinel Environments eval harness.")
-    parser.add_argument("run_name", help="Name of this evaluation run")
-    parser.add_argument("--config", default="eval_config.yaml", help="Path to eval config YAML")
-    parser.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
-    parser.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
-    args = parser.parse_args()
+def cmd_run(args):
     config = load_config(args.config)
     if args.api_url != DEFAULT_API_URL:
         config["api_url"] = args.api_url
@@ -205,6 +199,90 @@ def main():
             print(f"  ERROR: {e}", flush=True)
 
     print("Done.", flush=True)
+
+
+def cmd_grade(args):
+    results_root = Path("results") / args.run_name
+    if not results_root.is_dir():
+        raise SystemExit(f"Results directory not found: {results_root}")
+
+    rows = []
+    for results_file in sorted(results_root.glob("*/*/results.json")):
+        name = results_file.parent.name
+        with open(results_file) as f:
+            data = json.load(f)
+        success = bool(data.get("success"))
+        stop_time = data.get("simulation_time")
+        condition_at = data.get("condition_at")
+
+        if success and stop_time is not None and condition_at is not None:
+            reaction_time = stop_time - condition_at
+            if reaction_time < 0:
+                raise RuntimeError(
+                    f"Task {name} reports success but reaction_time is negative "
+                    f"(stop_time={stop_time}, condition_at={condition_at}). "
+                    f"This indicates a serious problem."
+                )
+        else:
+            reaction_time = None
+
+        rows.append({
+            "name": name,
+            "success": success,
+            "stop_time": stop_time,
+            "condition_at": condition_at,
+            "reaction_time": reaction_time,
+        })
+
+    def fmt(v):
+        return "" if v is None else str(v)
+
+    headers = ["name", "success", "stop_time", "condition_at", "reaction_time"]
+    widths = {h: len(h) for h in headers}
+    for r in rows:
+        for h in headers:
+            widths[h] = max(widths[h], len(fmt(r[h])))
+
+    def print_row(vals):
+        print(" | ".join(fmt(v).ljust(widths[h]) for h, v in zip(headers, vals)))
+
+    print_row(headers)
+    print("-+-".join("-" * widths[h] for h in headers))
+    for r in rows:
+        print_row([r[h] for h in headers])
+
+    total = len(rows)
+    successes = [r for r in rows if r["success"]]
+    success_rate = (len(successes) / total) if total else 0.0
+    reaction_times = [r["reaction_time"] for r in successes if r["reaction_time"] is not None]
+    avg_reaction = (sum(reaction_times) / len(reaction_times)) if reaction_times else None
+
+    print()
+    print(f"Total Tasks: {total}")
+    print(f"Task Success Rate: {success_rate:.1%} ({len(successes)}/{total})")
+    if avg_reaction is None:
+        print("Average Reaction Time: N/A")
+    else:
+        print(f"Average Reaction Time: {avg_reaction:.1f}s")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Sentinel Environments eval harness.")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_run = sub.add_parser("run", help="Run all scenarios and collect results")
+    p_run.add_argument("run_name", help="Name of this evaluation run")
+    p_run.add_argument("--config", default="eval_config.yaml", help="Path to eval config YAML")
+    p_run.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
+    p_run.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
+    p_run.set_defaults(func=cmd_run)
+
+    p_grade = sub.add_parser("grade", help="Summarize results from a previous run")
+    p_grade.add_argument("run_name", help="Name of the evaluation run to grade")
+    p_grade.set_defaults(func=cmd_grade)
+
+    args = parser.parse_args()
+    args.func(args)
 
 
 if __name__ == "__main__":

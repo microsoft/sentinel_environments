@@ -222,17 +222,19 @@ agent_subprocess: ["your-agent-command", "--url", "__TASK_URL__", "--prompt", "_
 
 The 30-second reaction window past `condition_at` stays constant in wall-clock across all speeds; only the pre-target portion scales. All constants live in `server/timing.py`.
 
+The harness exposes two subcommands: `run` (execute scenarios) and `grade` (summarize a completed run).
+
 **Run:**
 
 ```bash
-python -m server.eval_harness <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
+python -m server.eval_harness run <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
 ```
 
 Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
 
 | File | Description |
 |------|-------------|
-| `results.json` | Evaluation result (`success`, `detail`) |
+| `results.json` | Evaluation result (`success`, `detail`, `simulation_time`, `condition_at`) |
 | `output.txt` | Agent subprocess stdout/stderr |
 | `error.txt` | Harness error traceback (if the task failed to run) |
 
@@ -241,12 +243,20 @@ Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be
 **Example:**
 
 ```bash
-python -m server.eval_harness my_first_run
+python -m server.eval_harness run my_first_run
 # Found 32 tasks. Results -> results/my_first_run
 #   Running micromail-attachment-name-absolute-active ...
 #   Running micromail-body-december-relative-active ...
 #   ...
 # Done.
+```
+
+**Grade:**
+
+Summarize a completed run by printing a per-task table and aggregate stats:
+
+```bash
+python -m server.eval_harness grade <run_name>
 ```
 
 ## System Requirements
