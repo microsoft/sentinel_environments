@@ -32,6 +32,9 @@ class Session:
     eval_sql: str = ""
     condition_at: Optional[float] = None
     speed_factor: float = 1.0
+    contact_get_time: Optional[int] = None
+    contact_post_time: Optional[int] = None
+    contact_message: Optional[str] = None
 
     # MicroMail
     micromail_emails: list[dict] = field(default_factory=list)
