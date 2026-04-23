@@ -167,6 +167,7 @@ app.add_middleware(
 # Global simulation state -- one active session at a time, matching Docker protocol
 _state: str = STATE_STARTING
 _session: Optional[Session] = None
+_run_task: Optional[asyncio.Task] = None
 
 
 _ENV_NAMES = [
@@ -314,17 +315,21 @@ def _advance_session(session: Session, up_to_time: float) -> list[dict]:
 
 
 async def _run_auto(session: Session) -> None:
-    global _state
+    global _state, _run_task
     tick = min(1.0, session.speed_factor)
-    while session.next_event_index < len(session.events):
-        await asyncio.sleep(tick)
-        if _state == STATE_COMPLETED:
-            # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)
-            break
-        wall_elapsed = time.time() - (session.start_wall_time or time.time())
-        sim_time = wall_elapsed / session.speed_factor
-        _advance_session(session, sim_time)
-    _state = STATE_COMPLETED
+    try:
+        while session.next_event_index < len(session.events):
+            await asyncio.sleep(tick)
+            if _state == STATE_COMPLETED:
+                # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)
+                break
+            wall_elapsed = time.time() - (session.start_wall_time or time.time())
+            sim_time = wall_elapsed / session.speed_factor
+            _advance_session(session, sim_time)
+        _state = STATE_COMPLETED
+    finally:
+        if _run_task is asyncio.current_task():
+            _run_task = None
 
 
 # ---------------------------------------------------------------------------
@@ -406,7 +411,7 @@ async def advance(time: float) -> JSONResponse:
 
 @app.get("/play")
 async def play() -> JSONResponse:
-    global _state
+    global _state, _run_task
     session = _require_session()
 
     if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
@@ -417,7 +422,7 @@ async def play() -> JSONResponse:
 
     _state = STATE_RUNNING_AUTO
     session.start_wall_time = time.time()
-    asyncio.create_task(_run_auto(session))
+    _run_task = asyncio.create_task(_run_auto(session))
 
     return JSONResponse(content={
         "success": True,
@@ -432,7 +437,7 @@ async def redirect(
     request: Request,
     frontend_url: Optional[str] = Query(None),
 ) -> RedirectResponse:
-    global _state
+    global _state, _run_task
     session = _require_session()
 
     if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
@@ -443,7 +448,7 @@ async def redirect(
 
     _state = STATE_RUNNING_AUTO
     session.start_wall_time = time.time()
-    asyncio.create_task(_run_auto(session))
+    _run_task = asyncio.create_task(_run_auto(session))
 
     redirect_origin = frontend_url or f"{request.url.scheme}://{request.url.hostname}:5173"
     url = f"{redirect_origin}/{session.environment}"
@@ -500,7 +505,14 @@ async def contact_post(message: str = Form("")) -> HTMLResponse:
 
 @app.get("/close")
 async def close() -> JSONResponse:
-    global _state, _session
+    global _state, _session, _run_task
+    if _run_task is not None and not _run_task.done():
+        _run_task.cancel()
+        try:
+            await _run_task
+        except (asyncio.CancelledError, Exception):
+            pass
+    _run_task = None
     _session = None
     _state = STATE_PREINIT  # Ready to accept a new /init
     return JSONResponse(content={"success": True, "status": _state})
