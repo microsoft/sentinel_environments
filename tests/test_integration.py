@@ -93,6 +93,7 @@ def build_init_body(scenario):
         "environment": scenario["environment"],
         "event_timeline_end": scenario["event_timeline_end"],
         "eval_sql": scenario.get("eval_sql", ""),
+        "condition_at": scenario.get("condition_at"),
         "events": scenario["events"],
     }
 
