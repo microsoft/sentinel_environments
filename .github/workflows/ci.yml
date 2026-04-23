@@ -79,6 +79,12 @@ jobs:
         # wiring PR fails fast without paying for the server boot.
         run: python tests/test_frontend_wiring.py
 
+      - name: Run catalog user-identity audit
+        # Static guard for canonical user IDs + copied identity fields in
+        # env-specific catalogs. Runs before server boot because it only
+        # reads source JSON/JSONL files.
+        run: pytest tests/test_catalog_user_identity.py -v
+
       - name: Start API server (background)
         # nohup + & detaches the process so the step can finish; the PID is
         # captured for the teardown step. Logs land in server.log for the
