@@ -8,12 +8,12 @@ import {
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { useHashTab } from "../hooks/useHashTab";
 
 import { useMicromailData } from "../hooks/useMicromailData";
 import {
   Archive,
   ArrowDown,
-  ArrowUp,
   AtSign,
   ChevronDown,
   CircleDot,
@@ -175,6 +175,7 @@ const Micromail = () => {
     moveEmail: apiMoveEmail,
     pinEmail: apiPinEmail,
     sendEmail: apiSendEmail,
+    deleteEmail: apiDeleteEmail,
   } = useMicromailData();
 
   // Transform API emails to the richer Email shape the UI expects
@@ -210,13 +211,16 @@ const Micromail = () => {
   const [isSignedOut, setIsSignedOut] = useState(false);
 
   // UI state
-  const [selectedFolder, setSelectedFolder] = useState<FolderKey>("inbox");
+  const [selectedFolder, setSelectedFolder] = useHashTab<FolderKey>(["inbox", "sent", "drafts", "archive", "junk", "deleted", "scheduled"] as const, "inbox");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   // Email pinned in a quick-filter view so it stays visible after being marked read/unflagged
   const [pinnedEmailId, setPinnedEmailId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmailId, setSelectedEmailId] = useState<string | null>(null);
+  const userClearedSelectionRef = useRef(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isComposeOpen, setIsComposeOpen] = useState(false);
+  const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [composeDraft, setComposeDraft] = useState({ to: "", cc: "", bcc: "", subject: "", body: "" });
   const [showCcBcc, setShowCcBcc] = useState(false);
   const [composeError, setComposeError] = useState<string | null>(null);
@@ -229,8 +233,8 @@ const Micromail = () => {
 
   // UI panel state
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [showAttachmentPreviewPanel, setShowAttachmentPreviewPanel] = useState(false);
   const [previewingAttachment, setPreviewingAttachment] = useState<Attachment | null>(null);
+  const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
 
   const currentUser = apiConfig?.selfUser;
   const userInitials = useMemo(
@@ -364,6 +368,9 @@ const Micromail = () => {
       if (current && filteredEmails.some((email) => email.id === current)) {
         return current;
       }
+      if (userClearedSelectionRef.current) {
+        return null;
+      }
       return filteredEmails[0]?.id ?? null;
     });
   }, [filteredEmails]);
@@ -389,6 +396,23 @@ const Micromail = () => {
   );
 
   const handleSelectEmail = useCallback((emailId: string) => {
+    const target = emails.find((e) => e.id === emailId);
+    if (target && target.folder === "drafts") {
+      setEditingDraftId(emailId);
+      setComposeDraft({
+        to: (target.recipients ?? []).join(", "),
+        cc: (target.cc ?? []).join(", "),
+        bcc: "",
+        subject: target.subject ?? "",
+        body: target.body ?? "",
+      });
+      setShowCcBcc(((target.cc ?? []).length > 0));
+      setComposeError(null);
+      setIsComposeOpen(true);
+      return;
+    }
+
+    userClearedSelectionRef.current = false;
     setSelectedEmailId(emailId);
 
     // Pin the email so it stays visible in the current quick-filter view
@@ -397,7 +421,7 @@ const Micromail = () => {
     }
 
     apiMarkRead(emailId);
-  }, [apiMarkRead, quickFilter]);
+  }, [apiMarkRead, emails, quickFilter]);
 
   const handleEmailKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>, emailId: string) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -444,20 +468,76 @@ const Micromail = () => {
     const targetId = emailId ?? selectedEmailId;
     if (!targetId) return;
 
-    apiMoveEmail(targetId, "deleted");
-    setSelectedEmailId((current) => (current === targetId ? null : current));
-    triggerToast("Moved to Deleted Items", "info");
-  }, [apiMoveEmail, selectedEmailId, triggerToast]);
+    const target = emails.find((e) => e.id === targetId);
+    const currentFolder = target?.folder;
+    if (currentFolder === "deleted" || currentFolder === "drafts") {
+      apiDeleteEmail(targetId);
+      setSelectedEmailId((current) => (current === targetId ? null : current));
+      triggerToast(currentFolder === "drafts" ? "Draft deleted" : "Permanently deleted", "info");
+    } else {
+      apiMoveEmail(targetId, "deleted");
+      setSelectedEmailId((current) => (current === targetId ? null : current));
+      triggerToast("Moved to Deleted Items", "info");
+    }
+  }, [apiMoveEmail, apiDeleteEmail, emails, selectedEmailId, triggerToast]);
 
-  const handleRowFlagToggle = useCallback((emailId: string) => {
-    apiFlagEmail(emailId);
-  }, [apiFlagEmail]);
+  const handleToggleRowSelection = useCallback((emailId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(emailId)) {
+        next.delete(emailId);
+      } else {
+        next.add(emailId);
+      }
+      return next;
+    });
+  }, []);
 
-  /** Task #3 Action: Open attachment preview */
-  const handleOpenAttachmentPreview = useCallback(() => {
-    setShowAttachmentPreviewPanel(true);
-    triggerToast("Showing attachment previews", "info");
-  }, [triggerToast]);
+  const handleClearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleBulkMarkRead = useCallback(() => {
+    selectedIds.forEach((id) => apiMarkRead(id));
+    triggerToast(`${selectedIds.size} marked as read`, "info");
+    setSelectedIds(new Set());
+  }, [apiMarkRead, selectedIds, triggerToast]);
+
+  const handleBulkMarkUnread = useCallback(() => {
+    selectedIds.forEach((id) => apiMarkUnread(id));
+    triggerToast(`${selectedIds.size} marked as unread`, "info");
+    setSelectedIds(new Set());
+  }, [apiMarkUnread, selectedIds, triggerToast]);
+
+  const handleBulkFlag = useCallback(() => {
+    selectedIds.forEach((id) => apiFlagEmail(id));
+    triggerToast(`${selectedIds.size} flag toggled`, "info");
+    setSelectedIds(new Set());
+  }, [apiFlagEmail, selectedIds, triggerToast]);
+
+  const handleBulkArchive = useCallback(() => {
+    const count = selectedIds.size;
+    selectedIds.forEach((id) => apiMoveEmail(id, "archive"));
+    setSelectedEmailId((current) => (current && selectedIds.has(current) ? null : current));
+    triggerToast(`${count} archived`, "info");
+    setSelectedIds(new Set());
+  }, [apiMoveEmail, selectedIds, triggerToast]);
+
+  const handleBulkDelete = useCallback(() => {
+    const count = selectedIds.size;
+    selectedIds.forEach((id) => {
+      const target = emails.find((e) => e.id === id);
+      const folder = target?.folder;
+      if (folder === "deleted" || folder === "drafts") {
+        apiDeleteEmail(id);
+      } else {
+        apiMoveEmail(id, "deleted");
+      }
+    });
+    setSelectedEmailId((current) => (current && selectedIds.has(current) ? null : current));
+    triggerToast(`${count} deleted`, "info");
+    setSelectedIds(new Set());
+  }, [apiDeleteEmail, apiMoveEmail, emails, selectedIds, triggerToast]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
@@ -465,6 +545,7 @@ const Micromail = () => {
 
   const handleComposeOpen = useCallback(() => {
     setIsComposeOpen(true);
+    setEditingDraftId(null);
     setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
     setComposeError(null);
     setIsMobileNavOpen(false);
@@ -476,14 +557,22 @@ const Micromail = () => {
       const toList = composeDraft.to.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
       const ccList = composeDraft.cc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
       const bccList = composeDraft.bcc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
-      apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body, "drafts").catch(() => {});
+      const priorDraftId = editingDraftId;
+      apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body, "drafts")
+        .then(() => {
+          if (priorDraftId) apiDeleteEmail(priorDraftId);
+        })
+        .catch(() => {});
       triggerToast("Draft saved", "info");
+    } else if (editingDraftId) {
+      apiDeleteEmail(editingDraftId);
     }
     setIsComposeOpen(false);
+    setEditingDraftId(null);
     setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
     setShowCcBcc(false);
     setComposeError(null);
-  }, [composeDraft, apiSendEmail, triggerToast]);
+  }, [composeDraft, editingDraftId, apiSendEmail, apiDeleteEmail, triggerToast]);
 
   const handleComposeFieldChange =
     (field: "to" | "cc" | "bcc" | "subject" | "body") =>
@@ -507,9 +596,20 @@ const Micromail = () => {
       const ccList = composeDraft.cc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
       const bccList = composeDraft.bcc.split(/[,;]/).map((s) => s.trim()).filter(Boolean);
 
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const invalid = [...toList, ...ccList, ...bccList].find((addr) => !emailRegex.test(addr));
+      if (invalid) {
+        setComposeError(`"${invalid}" is not a valid email address.`);
+        return;
+      }
+
       try {
         await apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body);
+        if (editingDraftId) {
+          await apiDeleteEmail(editingDraftId);
+        }
         setIsComposeOpen(false);
+        setEditingDraftId(null);
         setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
         setShowCcBcc(false);
         setComposeError(null);
@@ -518,7 +618,7 @@ const Micromail = () => {
         triggerToast("Failed to send message", "error");
       }
     },
-    [composeDraft, triggerToast, apiSendEmail],
+    [composeDraft, editingDraftId, triggerToast, apiSendEmail, apiDeleteEmail],
   );
 
   const handleSaveDraft = useCallback(async () => {
@@ -533,7 +633,11 @@ const Micromail = () => {
 
     try {
       await apiSendEmail(toList, ccList, bccList, composeDraft.subject, composeDraft.body, "drafts");
+      if (editingDraftId) {
+        await apiDeleteEmail(editingDraftId);
+      }
       setIsComposeOpen(false);
+      setEditingDraftId(null);
       setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
       setShowCcBcc(false);
       setComposeError(null);
@@ -541,27 +645,44 @@ const Micromail = () => {
     } catch {
       triggerToast("Failed to save draft", "error");
     }
-  }, [composeDraft, triggerToast, apiSendEmail]);
+  }, [composeDraft, editingDraftId, triggerToast, apiSendEmail, apiDeleteEmail]);
 
-  // Discard draft handler
+  // Discard draft handler — opens in-app confirmation modal when there's content
   const handleDiscardDraft = useCallback(() => {
     const hasContent = composeDraft.to.trim() || composeDraft.cc.trim() || composeDraft.bcc.trim() ||
                        composeDraft.subject.trim() || composeDraft.body.trim();
     if (hasContent) {
-      if (!window.confirm("Discard this draft?")) {
-        return;
-      }
+      setDiscardConfirmOpen(true);
+      return;
+    }
+    if (editingDraftId) {
+      apiDeleteEmail(editingDraftId);
     }
     setIsComposeOpen(false);
+    setEditingDraftId(null);
     setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
     setShowCcBcc(false);
     setComposeError(null);
     triggerToast("Draft discarded", "info");
-  }, [composeDraft, triggerToast]);
+  }, [composeDraft, editingDraftId, apiDeleteEmail, triggerToast]);
+
+  const handleConfirmDiscardDraft = useCallback(() => {
+    if (editingDraftId) {
+      apiDeleteEmail(editingDraftId);
+    }
+    setDiscardConfirmOpen(false);
+    setIsComposeOpen(false);
+    setEditingDraftId(null);
+    setComposeDraft({ to: "", cc: "", bcc: "", subject: "", body: "" });
+    setShowCcBcc(false);
+    setComposeError(null);
+    triggerToast("Draft discarded", "info");
+  }, [editingDraftId, apiDeleteEmail, triggerToast]);
 
   // Reply handler - opens compose with pre-filled recipient and subject
   const handleReply = useCallback(() => {
     if (!selectedEmail) return;
+    setEditingDraftId(null);
     setComposeDraft({
       to: selectedEmail.sender.email,
       cc: "",
@@ -577,6 +698,7 @@ const Micromail = () => {
   const handleReplyAll = useCallback(() => {
     if (!selectedEmail) return;
     const ccRecipients = selectedEmail.cc?.filter(email => email !== currentUser?.email).join(", ") || "";
+    setEditingDraftId(null);
     setComposeDraft({
       to: selectedEmail.sender.email,
       cc: ccRecipients,
@@ -591,6 +713,7 @@ const Micromail = () => {
   // Forward handler - opens compose with forwarded content
   const handleForward = useCallback(() => {
     if (!selectedEmail) return;
+    setEditingDraftId(null);
     setComposeDraft({
       to: "",
       cc: "",
@@ -683,7 +806,7 @@ const Micromail = () => {
     }
 
     return (
-      <div className="flex h-full flex-col bg-white">
+      <div className="flex h-full w-full flex-col bg-white">
         <div className="flex items-center justify-between px-4 pt-5 pb-3">
           <button
             onClick={handleComposeOpen}
@@ -735,8 +858,6 @@ const Micromail = () => {
           : "text-slate-500 hover:bg-white hover:text-[#0b65d7]"
         : "cursor-not-allowed text-slate-300",
     );
-
-  const handleHeaderAction = (message: string) => () => triggerToast(message, "info");
 
 
   // ---------------------------------------------------------------------------
@@ -895,8 +1016,13 @@ const Micromail = () => {
       <div className="flex h-[calc(100vh-72px)] flex-col lg:flex-row">
         <aside className="hidden w-72 flex-shrink-0 border-r border-slate-200 lg:flex">{renderSidebar()}</aside>
 
-        <div className="flex flex-1 flex-col xl:flex-row">
-          <section className="order-2 flex w-full flex-col bg-white shadow-sm xl:order-1 xl:w-[430px] xl:border-r xl:border-slate-200">
+        <div className="flex flex-1 flex-col lg:flex-row">
+          <section
+            className={classNames(
+              "order-2 w-full flex-col bg-white lg:order-1 lg:flex lg:w-[430px] lg:border-r lg:border-slate-200",
+              selectedEmailId ? "hidden lg:flex" : "flex",
+            )}
+          >
             <div className="border-b border-slate-200 px-4 py-3">
               <div className="flex items-center justify-between text-sm text-slate-500">
                 <div className="flex items-center gap-2 font-semibold text-slate-700">
@@ -942,57 +1068,103 @@ const Micromail = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-500">
-              <div className="flex items-center gap-3">
+            {selectedIds.size > 0 ? (
+              <div className="flex flex-wrap items-center gap-2 border-b border-[#0b65d7]/30 bg-[#e8f1fe] px-4 py-2 text-xs text-slate-700" data-testid="bulk-toolbar">
+                <span className="text-xs font-semibold text-[#0b65d7]">{selectedIds.size} selected</span>
                 <button
-                  onClick={() => handleToggleFlag()}
-                  className={actionButtonClass()}
-                  disabled={!selectedEmail}
-                  aria-label="Toggle flag for selected conversation"
+                  onClick={handleBulkMarkRead}
+                  className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
+                  aria-label="Mark selected as read"
+                  title="Mark as read"
                 >
-                  <Flag size={16} />
+                  <MailOpen size={14} />
                 </button>
                 <button
-                  onClick={() => {
-                    if (selectedEmail?.isRead) {
-                      handleMarkUnread();
-                    } else {
-                      handleMarkRead();
-                    }
-                  }}
-                  className={actionButtonClass()}
-                  disabled={!selectedEmail}
-                  aria-label={selectedEmail?.isRead ? "Mark selected conversation as unread" : "Mark selected conversation as read"}
+                  onClick={handleBulkMarkUnread}
+                  className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
+                  aria-label="Mark selected as unread"
+                  title="Mark as unread"
                 >
-                  {selectedEmail?.isRead ? <Mail size={16} /> : <MailOpen size={16} />}
+                  <Mail size={14} />
                 </button>
                 <button
-                  onClick={() => handleArchiveEmail()}
-                  className={actionButtonClass()}
-                  disabled={!selectedEmail}
-                  aria-label="Archive conversation"
+                  onClick={handleBulkFlag}
+                  className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:border-[#d97706] hover:text-[#d97706]"
+                  aria-label="Flag selected"
+                  title="Flag"
                 >
-                  <Archive size={16} />
+                  <Flag size={14} />
                 </button>
                 <button
-                  onClick={() => handleDeleteEmail()}
-                  className={actionButtonClass(true)}
-                  disabled={!selectedEmail}
-                  aria-label="Delete conversation"
+                  onClick={handleBulkArchive}
+                  className="rounded-md border border-slate-200 bg-white p-1.5 text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
+                  aria-label="Archive selected"
+                  title="Archive"
                 >
-                  <Trash2 size={16} />
+                  <Archive size={14} />
                 </button>
-
                 <button
-                  onClick={handleOpenAttachmentPreview}
-                  className="rounded-md p-2 text-slate-500 transition hover:bg-white hover:text-[#0b65d7]"
-                  aria-label="Preview attachments"
+                  onClick={handleBulkDelete}
+                  className="rounded-md border border-rose-200 bg-white p-1.5 text-rose-600 hover:border-rose-400 hover:bg-rose-50"
+                  aria-label="Delete selected"
+                  title="Delete"
                 >
-                  <Paperclip size={16} />
+                  <Trash2 size={14} />
+                </button>
+                <button
+                  onClick={handleClearSelection}
+                  className="ml-auto rounded-md px-2 py-1 text-xs font-medium text-slate-500 hover:bg-white hover:text-slate-700"
+                  aria-label="Clear selection"
+                >
+                  Cancel
                 </button>
               </div>
-              <span className="text-slate-500">{filteredEmails.length} items</span>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-2 text-xs text-slate-500">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => handleToggleFlag()}
+                    className={actionButtonClass()}
+                    disabled={!selectedEmail}
+                    aria-label="Toggle flag for selected conversation"
+                  >
+                    <Flag size={16} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (selectedEmail?.isRead) {
+                        handleMarkUnread();
+                      } else {
+                        handleMarkRead();
+                      }
+                    }}
+                    className={actionButtonClass()}
+                    disabled={!selectedEmail}
+                    aria-label={selectedEmail?.isRead ? "Mark selected conversation as unread" : "Mark selected conversation as read"}
+                  >
+                    {selectedEmail?.isRead ? <Mail size={16} /> : <MailOpen size={16} />}
+                  </button>
+                  <button
+                    onClick={() => handleArchiveEmail()}
+                    className={actionButtonClass()}
+                    disabled={!selectedEmail}
+                    aria-label="Archive conversation"
+                  >
+                    <Archive size={16} />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEmail()}
+                    className={actionButtonClass(true)}
+                    disabled={!selectedEmail}
+                    aria-label="Delete conversation"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+
+                </div>
+                <span className="text-slate-500">{filteredEmails.length} items</span>
+              </div>
+            )}
 
             <div role="list" className="flex-1 overflow-y-auto">
               {filteredEmails.length === 0 ? (
@@ -1019,20 +1191,21 @@ const Micromail = () => {
                       )}
                       aria-selected={isSelectedRow}
                     >
-                      <div className="flex flex-col items-center pt-1">
-                        <button
-                          onClick={(event) => {
+                      <div className="flex flex-col items-center pt-2">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(email.id)}
+                          onClick={(event) => event.stopPropagation()}
+                          onChange={(event) => {
                             event.stopPropagation();
-                            handleRowFlagToggle(email.id);
+                            handleToggleRowSelection(email.id);
                           }}
-                          className={classNames(
-                            "mt-2 rounded-full p-1 transition",
-                            email.isFlagged ? "text-[#d97706]" : "text-slate-400 hover:text-[#d97706]",
-                          )}
-                          aria-label={email.isFlagged ? "Remove flag" : "Flag for follow-up"}
-                        >
-                          <Flag size={14} fill={email.isFlagged ? "#d97706" : "transparent"} />
-                        </button>
+                          className="h-4 w-4 cursor-pointer rounded border-slate-300 text-[#0b65d7] focus:ring-[#0b65d7]"
+                          aria-label={selectedIds.has(email.id) ? "Deselect email" : "Select email"}
+                        />
+                        {email.isFlagged && (
+                          <Flag size={12} className="mt-2 text-[#d97706]" fill="#d97706" aria-label="Flagged" />
+                        )}
                       </div>
 
                       {/* Sender Avatar */}
@@ -1054,21 +1227,34 @@ const Micromail = () => {
                       </div>
 
                       <div className="flex min-w-0 flex-1 flex-col gap-1">
-                        <div className="flex items-center justify-between">
-                          <p
-                            className={classNames(
-                              "truncate text-sm",
-                              email.isRead ? "text-slate-600" : "font-semibold text-slate-900",
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <p
+                              className={classNames(
+                                "truncate text-sm",
+                                email.isRead ? "text-slate-600" : "font-semibold text-slate-900",
+                              )}
+                            >
+                              {email.sender.name}
+                            </p>
+                            {email.isExternal && (
+                              <span className="inline-flex flex-shrink-0 items-center gap-1 rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                                <Globe size={10} />
+                                External
+                              </span>
                             )}
-                          >
-                            {email.sender.name}
-                          </p>
-                          <div className="flex items-center gap-1">
+                          </div>
+                          <div className="flex flex-shrink-0 items-center gap-1">
                             {email.isPinned && (
                               <MapPin size={14} className="text-[#0b65d7]" aria-label="Pinned" />
                             )}
                             {email.importance === "high" && (
-                              <ArrowUp size={14} className="text-rose-500" aria-label="High importance" />
+                              <span
+                                className="inline-flex h-4 w-4 items-center justify-center text-sm font-bold leading-none text-rose-600"
+                                aria-label="High importance"
+                              >
+                                !
+                              </span>
                             )}
                             {email.importance === "low" && (
                               <ArrowDown size={14} className="text-blue-500" aria-label="Low importance" />
@@ -1086,22 +1272,9 @@ const Micromail = () => {
                           >
                             {email.subject}
                           </p>
-                          {email.isExternal && (
-                            <span className="inline-flex items-center gap-1 rounded border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
-                              <Globe size={10} />
-                              External
-                            </span>
-                          )}
-                          {email.hasAttachment && <Paperclip size={14} className="text-slate-400" />}
-                          {email.mentionsMe && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f1fe] px-2 py-0.5 text-[10px] font-semibold text-[#0b65d7]">
-                              <AtSign size={12} />
-                              {currentUser?.name?.split(" ")[0] ?? "You"}
-                            </span>
-                          )}
                         </div>
 
-                        <p className="truncate text-xs text-slate-500">{email.preview}</p>
+                        <p className="truncate text-xs text-slate-500">{email.preview?.replace(/@you\b/gi, `@${currentUser?.name ?? "You"}`)}</p>
                       </div>
                     </div>
                   );
@@ -1110,23 +1283,33 @@ const Micromail = () => {
             </div>
           </section>
 
-          <section className="order-3 flex flex-1 flex-col bg-white xl:order-2">
+          <section
+            className={classNames(
+              "order-3 flex-1 flex-col bg-white lg:order-2 lg:flex",
+              selectedEmailId ? "flex" : "hidden lg:flex",
+            )}
+          >
             {selectedEmail ? (
               <div className="flex h-full flex-col">
                 <div className="border-b border-slate-200 px-6 py-5">
+                  <button
+                    onClick={() => {
+                      userClearedSelectionRef.current = true;
+                      setSelectedEmailId(null);
+                    }}
+                    className="mb-3 inline-flex items-center gap-1 text-xs font-medium text-[#0b65d7] hover:underline lg:hidden"
+                    aria-label="Back to email list"
+                  >
+                    <ChevronDown size={14} className="rotate-90" />
+                    Back to list
+                  </button>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <h2 className="text-lg font-semibold text-slate-900">{selectedEmail.subject}</h2>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
-                        {selectedEmail.mentionsMe && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[#e8f1fe] px-2 py-0.5 text-xs font-medium text-[#0b65d7]">
-                            <AtSign size={12} />
-                            @{currentUser?.name ?? "You"} was mentioned
-                          </span>
-                        )}
                         {selectedEmail.importance === "high" && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
-                            <ArrowUp size={12} />
+                            <span className="inline-flex h-3 w-3 items-center justify-center text-xs font-bold leading-none text-rose-600" aria-hidden="true">!</span>
                             High importance
                           </span>
                         )}
@@ -1234,11 +1417,14 @@ const Micromail = () => {
                 </div>
 
                 <div className="flex-1 space-y-1 overflow-y-auto px-6 py-6 text-[15px] leading-relaxed text-slate-700">
-                  {selectedEmail.body.split("\n").map((paragraph, index) => (
-                    <p key={`${selectedEmail.id}-paragraph-${index}`}>
-                      {paragraph.trim().length ? paragraph : <span className="opacity-0">.</span>}
-                    </p>
-                  ))}
+                  {selectedEmail.body.split("\n").map((paragraph, index) => {
+                    const resolved = paragraph.replace(/@you\b/gi, `@${currentUser?.name ?? "You"}`);
+                    return (
+                      <p key={`${selectedEmail.id}-paragraph-${index}`}>
+                        {resolved.trim().length ? resolved : <span className="opacity-0">.</span>}
+                      </p>
+                    );
+                  })}
 
                   {selectedEmail.meetingDetails && (
                     <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
@@ -1325,62 +1511,26 @@ const Micromail = () => {
       </div>
 
       {/* Attachment Preview Panel */}
-      {showAttachmentPreviewPanel && (
+      {/* Discard draft confirmation */}
+      {discardConfirmOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b px-5 py-4">
-              <div className="flex items-center gap-3">
-                <Paperclip className="text-[#0b65d7]" size={20} />
-                <h3 className="text-lg font-semibold text-slate-900">Attachments</h3>
-              </div>
-              <button
-                onClick={() => setShowAttachmentPreviewPanel(false)}
-                className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                aria-label="Close attachment preview"
-              >
-                <X size={18} />
-              </button>
+          <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="px-5 py-4 border-b">
+              <h3 className="text-base font-semibold text-slate-900">Discard this draft?</h3>
+              <p className="mt-1 text-sm text-slate-500">Your changes will not be saved.</p>
             </div>
-            <div className="p-5">
-              {emails.filter(e => e.hasAttachment).length > 0 ? (
-                <div className="space-y-3">
-                  <p className="text-sm text-slate-600 mb-4">
-                    Found {emails.filter(e => e.hasAttachment).length} emails with attachments
-                  </p>
-                  {emails.filter(e => e.hasAttachment).slice(0, 5).map((email) => (
-                    <div key={email.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e8f1fe]">
-                        <Paperclip size={18} className="text-[#0b65d7]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-800 truncate">{email.subject}</p>
-                        <p className="text-xs text-slate-500">From: {email.sender.name}</p>
-                      </div>
-                      <button className="px-3 py-1 text-xs font-medium text-[#0b65d7] bg-white border border-slate-200 rounded hover:bg-slate-50">
-                        Preview
-                      </button>
-                    </div>
-                  ))}
-                  {emails.filter(e => e.hasAttachment).length > 5 && (
-                    <p className="text-xs text-slate-500 text-center">
-                      And {emails.filter(e => e.hasAttachment).length - 5} more...
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div className="py-8 text-center">
-                  <Paperclip size={32} className="mx-auto mb-3 text-slate-300" />
-                  <p className="text-slate-600">No attachments found</p>
-                  <p className="text-sm text-slate-400 mt-1">Emails with attachments will appear here</p>
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end gap-2 border-t px-5 py-4">
+            <div className="flex justify-end gap-2 px-5 py-4">
               <button
-                onClick={() => setShowAttachmentPreviewPanel(false)}
+                onClick={() => setDiscardConfirmOpen(false)}
                 className="rounded-full border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50"
               >
-                Close
+                Keep editing
+              </button>
+              <button
+                onClick={handleConfirmDiscardDraft}
+                className="rounded-full border border-rose-400 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-600 hover:bg-rose-100"
+              >
+                Discard
               </button>
             </div>
           </div>
@@ -1443,7 +1593,7 @@ const Micromail = () => {
           <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">New message</h3>
+                <h3 className="text-lg font-semibold text-slate-900">{editingDraftId ? "Edit draft" : "New message"}</h3>
                 <p className="text-xs text-slate-500">Message will be sent from {currentUser?.email}</p>
               </div>
               <button
@@ -1501,24 +1651,20 @@ const Micromail = () => {
                   </div>
                 </>
               )}
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Subject</label>
+              <div className="overflow-hidden rounded-lg border border-slate-200 bg-white focus-within:border-[#0b65d7] focus-within:ring-2 focus-within:ring-[#0b65d7]/20">
                 <input
                   type="text"
                   value={composeDraft.subject}
                   onChange={handleComposeFieldChange("subject")}
                   placeholder="Add a subject"
-                  className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#0b65d7] focus:ring-2 focus:ring-[#0b65d7]/20 focus:outline-none"
+                  className="w-full border-0 border-b border-slate-200 bg-transparent px-3 py-2 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-0"
                 />
-              </div>
-              <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">Message</label>
                 <textarea
                   value={composeDraft.body}
                   onChange={handleComposeFieldChange("body")}
                   placeholder="Type your message..."
-                  rows={8}
-                  className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 focus:border-[#0b65d7] focus:ring-2 focus:ring-[#0b65d7]/20 focus:outline-none"
+                  rows={10}
+                  className="w-full resize-none border-0 bg-transparent px-3 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-0"
                 />
               </div>
 
@@ -1546,23 +1692,11 @@ const Micromail = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={handleHeaderAction("Attach from OneDrive")}
-                    className="rounded-full border border-slate-200 px-4 py-2 text-xs font-medium text-slate-600 hover:border-[#0b65d7] hover:text-[#0b65d7]"
-                  >
-                    Attach
-                  </button>
-                  <button
-                    type="button"
                     onClick={handleDiscardDraft}
                     className="rounded-full border border-slate-200 px-4 py-2 text-xs font-medium text-rose-600 hover:border-rose-400 hover:bg-rose-50"
                   >
                     Discard
                   </button>
-                </div>
-                <div className="flex items-center gap-3 text-xs text-slate-400">
-                  <span>Formatting</span>
-                  <span>Insert</span>
-                  <span>More</span>
                 </div>
               </div>
             </form>
