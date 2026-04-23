@@ -188,13 +188,18 @@ export function useMicrotubeData() {
     });
   }, [rawVideos, likeOverrides, dislikeOverrides, saveOverrides]);
 
-  // Apply subscribe overrides to channels
+  // Apply subscribe overrides to channels (bump count optimistically)
   const channelsWithOverrides = useMemo<ApiTubeChannel[]>(() => {
     return channels.map((ch) => {
-      const isSubscribed = subscribeOverrides.has(ch.id)
-        ? (subscribeOverrides.get(ch.id) as boolean)
-        : ch.isSubscribed;
-      return { ...ch, isSubscribed };
+      if (!subscribeOverrides.has(ch.id)) return ch;
+      const target = subscribeOverrides.get(ch.id) as boolean;
+      if (target === ch.isSubscribed) return { ...ch, isSubscribed: target };
+      const delta = target ? 1 : -1;
+      return {
+        ...ch,
+        isSubscribed: target,
+        subscribers: Math.max(0, ch.subscribers + delta),
+      };
     });
   }, [channels, subscribeOverrides]);
 
@@ -302,10 +307,23 @@ export function useMicrotubeData() {
     }).catch(() => null);
     if (!res) return null;
     const data = await res.json();
-    return data.playlist ?? null;
+    const playlist = data.playlist ?? null;
+    if (playlist) {
+      setPlaylists((prev) =>
+        prev.some((p) => p.id === playlist.id) ? prev : [...prev, playlist]
+      );
+    }
+    return playlist;
   }, []);
 
   const addToPlaylist = useCallback(async (playlistId: string, videoId: string) => {
+    setPlaylists((prev) =>
+      prev.map((p) =>
+        p.id === playlistId && !p.video_ids.includes(videoId)
+          ? { ...p, video_ids: [...p.video_ids, videoId] }
+          : p
+      )
+    );
     await fetch(`/api/data/microtube-playlists/${playlistId}/add`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

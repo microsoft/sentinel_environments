@@ -636,6 +636,12 @@ export default function MicroTube() {
     return loadedComments.filter(c => c.videoId === videoId);
   }, [loadedComments]);
 
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "MicroTube";
+    return () => { document.title = prev; };
+  }, []);
+
   // Fetch comments when current video changes
   useEffect(() => {
     if (state.currentVideo) {
@@ -661,13 +667,19 @@ export default function MicroTube() {
 
     const result = await apiPostComment(state.currentVideo, content.trim());
     if (result) {
+      const selfName = selfChannel?.name || config?.selfUser?.name || "You";
+      const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+      const selfAvatarUrl = selfChannel?.avatarSrc
+        ? `/${selfChannel.avatarSrc}`
+        : config?.selfUser?.avatarUrl;
       // Add optimistically to local display
       const newCommentData: CommentData = {
         id: result.id || `user-comment-${Date.now()}`,
         videoId: state.currentVideo,
-        userId: "user000",
-        userName: "You",
-        userAvatar: "Y",
+        userId: config?.selfUser?.id || "user000",
+        userName: selfName,
+        userAvatar: selfInitials,
+        userAvatarUrl: selfAvatarUrl,
         content: content.trim(),
         likes: 0,
         timestamp: "Just now",
@@ -675,7 +687,7 @@ export default function MicroTube() {
       setLoadedComments(prev => [newCommentData, ...prev]);
     }
     setNewComment("");
-  }, [state.currentVideo, apiPostComment]);
+  }, [state.currentVideo, apiPostComment, selfChannel, config]);
 
   const saveVideo = useCallback((videoId: string) => {
     apiSaveVideo(videoId);
@@ -727,13 +739,14 @@ export default function MicroTube() {
     setShowCreatePlaylistModal(false);
   }, [state.currentVideo, apiCreatePlaylist, apiAddToPlaylist]);
 
-  // Like comment
+  // Like comment (mutually exclusive with dislike)
   const toggleCommentLike = useCallback((commentId: string) => {
     setState(prev => ({
       ...prev,
       likedComments: prev.likedComments.includes(commentId)
         ? prev.likedComments.filter(id => id !== commentId)
         : [...prev.likedComments, commentId],
+      dislikedComments: prev.dislikedComments.filter(id => id !== commentId),
     }));
   }, []);
 
@@ -1027,80 +1040,31 @@ export default function MicroTube() {
     setShowQualityMenu(false);
   }, []);
 
-  // Keyboard shortcuts
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (document.activeElement === searchInputRef.current) {
-        if (e.key === "Escape") {
-          searchInputRef.current?.blur();
-        }
+    if (videoRef.current) {
+      videoRef.current.playbackRate = state.playbackSpeed;
+    }
+  }, [state.playbackSpeed, state.currentVideo]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const active = document.activeElement as HTMLElement | null;
+      if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) {
         return;
       }
-
-      switch (e.key) {
-        case "k":
-        case " ":
-          e.preventDefault();
-          if (state.currentVideo) togglePlayPause();
-          break;
-        case "m":
-          e.preventDefault();
-          if (state.currentVideo) toggleMute();
-          break;
-        case "f":
-          e.preventDefault();
-          if (state.currentVideo) toggleFullscreen();
-          break;
-        case "t":
-          e.preventDefault();
-          if (state.currentVideo) toggleTheaterMode();
-          break;
-        case "ArrowRight":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.min(currentTime + 5, videoDuration));
-          break;
-        case "ArrowLeft":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.max(currentTime - 5, 0));
-          break;
-        case "j":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.max(currentTime - 10, 0));
-          break;
-        case "l":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.min(currentTime + 10, videoDuration));
-          break;
-        case "/":
-          e.preventDefault();
-          searchInputRef.current?.focus();
-          break;
-        case "Escape":
-          if (fullscreenState === "fullscreen") {
-            document.exitFullscreen();
-          }
-          setShowSettings(false);
-          setShowSearchSuggestions(false);
-          setShowVideoSettings(false);
-          setShowMoreMenu(false);
-          setShowShareModal(false);
-          break;
+      if (fullscreenState === "fullscreen") {
+        document.exitFullscreen();
       }
+      setShowSettings(false);
+      setShowSearchSuggestions(false);
+      setShowVideoSettings(false);
+      setShowMoreMenu(false);
+      setShowShareModal(false);
     };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [
-    togglePlayPause,
-    toggleMute,
-    toggleFullscreen,
-    toggleTheaterMode,
-    seekVideo,
-    currentTime,
-    videoDuration,
-    fullscreenState,
-    state.currentVideo,
-  ]);
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [fullscreenState]);
 
   // Format time for display
   const formatTime = (seconds: number) => {
@@ -1188,7 +1152,7 @@ export default function MicroTube() {
   }
 
   return (
-    <div style={{
+    <div className={`microtube-root ${state.darkMode ? 'dark' : 'light'}`} style={{
       ...styles.container,
       backgroundColor: colors.bg,
       color: colors.text,
@@ -1352,7 +1316,7 @@ export default function MicroTube() {
                 }}
                 aria-label="Notifications"
                 title="Notifications"
-                onClick={() => setShowNotificationsPanel(!showNotificationsPanel)}
+                onClick={() => { setShowNotificationsPanel(!showNotificationsPanel); setShowSettings(false); }}
               >
                 <NotificationsIcon size={24} />
                 {activeNotifications.filter(n => !n.read).length > 0 && (
@@ -1415,7 +1379,15 @@ export default function MicroTube() {
                           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.hover)}
                           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = !notif.read ? 'rgba(62,166,255,0.1)' : 'transparent')}
                         >
-                          <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: notif.avatar, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: 14, flexShrink: 0 }}>{notif.channel[0]}</div>
+                          {notif.avatar && notif.avatar.startsWith('/') ? (
+                            <img
+                              src={notif.avatar}
+                              alt={notif.channel}
+                              style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                            />
+                          ) : (
+                            <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: notif.avatar || '#666', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: 14, flexShrink: 0 }}>{notif.channel[0]}</div>
+                          )}
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 14 }}><strong>{notif.channel}</strong> {notif.message}</div>
                             <div style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>{notif.time}</div>
@@ -1452,7 +1424,7 @@ export default function MicroTube() {
             }}
             aria-label="Settings"
             title="Settings"
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => { setShowSettings(!showSettings); setShowNotificationsPanel(false); }}
           >
             <SettingsIcon size={24} />
           </button>
@@ -1505,62 +1477,6 @@ export default function MicroTube() {
               }}
             >
               Appearance: {state.darkMode ? 'Dark' : 'Light'}
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-language' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-language')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Language: English
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-location' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-location')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Location: United States
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-restricted' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-restricted')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Restricted Mode: Off
-            </div>
-            <hr style={{...styles.divider, borderColor: colors.border}} />
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-shortcuts' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-shortcuts')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Keyboard shortcuts
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-settings' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-settings')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Settings
             </div>
             <hr style={{...styles.divider, borderColor: colors.border}} />
             <div
@@ -2595,11 +2511,11 @@ export default function MicroTube() {
                     fontSize: 48,
                     fontWeight: 'bold',
                     color: '#fff',
-                  }}>{selfChannel?.name?.charAt(0) || "U"}</div>
+                  }}>{(selfChannel?.name || config?.selfUser?.name)?.charAt(0) || "U"}</div>
                 )}
                 <div style={{ flex: 1 }}>
-                  <h1 style={{ fontSize: 36, fontWeight: 'bold', marginBottom: 8 }}>{selfChannel?.name || "Your Channel"}</h1>
-                  <p style={{ color: '#aaa', marginBottom: 4 }}>@{selfChannel?.handle?.replace('@', '') || "yourchannel"} • {(selfChannel?.subscribers ?? 0).toLocaleString()} subscribers • {getVideosForChannel("ch-self").length} videos</p>
+                  <h1 style={{ fontSize: 36, fontWeight: 'bold', marginBottom: 8 }}>{config?.selfUser?.name || selfChannel?.name || ""}</h1>
+                  <p style={{ color: '#aaa', marginBottom: 4 }}>@{selfChannel?.handle?.replace('@', '') || config?.selfUser?.username || "yourchannel"} • {(selfChannel?.subscribers ?? 0).toLocaleString()} subscribers • {getVideosForChannel("ch-self").length} videos</p>
                   <p style={{ color: '#aaa', marginBottom: 16 }}>{selfChannel?.description || "Welcome to my channel!"}</p>
                   <div style={{ display: 'flex', gap: 12 }}>
                     <button
@@ -3567,7 +3483,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'shopping' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <ShoppingBagIcon size={28} />
                 Shopping
               </h2>
@@ -3580,7 +3496,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'music' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <MusicNoteIcon size={28} />
                 Music
               </h2>
@@ -3593,7 +3509,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'movies' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <MovieIcon size={28} />
                 Movies
               </h2>
@@ -3606,7 +3522,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'live' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <LiveTvIcon size={28} />
                 Live
               </h2>
@@ -3619,7 +3535,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'gaming' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <SportsEsportsIcon size={28} />
                 Gaming
               </h2>
@@ -3632,7 +3548,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'news' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <NewspaperIcon size={28} />
                 News
               </h2>
@@ -3645,7 +3561,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'sports' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <SportsIcon size={28} />
                 Sports
               </h2>
@@ -3658,7 +3574,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'courses' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <SchoolIcon size={28} />
                 Courses
               </h2>
@@ -3671,7 +3587,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'fashion' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <CheckroomIcon size={28} />
                 Fashion & Beauty
               </h2>
@@ -3684,7 +3600,7 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'podcasts' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
                 <PodcastsIcon size={28} />
                 Podcasts
               </h2>
@@ -4095,7 +4011,7 @@ export default function MicroTube() {
                 <label style={{ display: 'block', marginBottom: 8, color: '#aaa', fontSize: 12, textTransform: 'uppercase' }}>Channel name</label>
                 <input
                   type="text"
-                  defaultValue={selfChannel?.name || "Your Channel"}
+                  defaultValue={selfChannel?.name || config?.selfUser?.name || ""}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -4796,10 +4712,10 @@ export default function MicroTube() {
           <div className="rounded-lg shadow-2xl p-8 w-[360px] flex flex-col items-center" style={{ backgroundColor: "#282828" }}>
             <div className="text-2xl font-bold mb-6" style={{ color: "#FF0000" }}>MicroTube</div>
             <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#FF0000" }}>
-              {selfChannel?.name?.charAt(0) || "U"}
+              {(selfChannel?.name || config?.selfUser?.name)?.charAt(0) || "U"}
             </div>
-            <div className="text-lg font-semibold text-white mb-1">{selfChannel?.name || "Creator"}</div>
-            <div className="text-sm mb-6" style={{ color: "#aaa" }}>{selfChannel?.handle || "@user"}</div>
+            <div className="text-lg font-semibold text-white mb-1">{selfChannel?.name || config?.selfUser?.name || "Creator"}</div>
+            <div className="text-sm mb-6" style={{ color: "#aaa" }}>{selfChannel?.handle || (config?.selfUser?.username ? `@${config.selfUser.username}` : "@user")}</div>
             <input type="password" readOnly value="••••••••" className="w-full px-4 py-2 rounded mb-4 text-center" style={{ backgroundColor: "#3E3E3E", color: "#aaa", border: "none" }} />
             <button onClick={() => setIsSignedOut(false)} className="w-full py-2 text-white rounded font-semibold hover:opacity-90 transition-opacity" style={{ backgroundColor: "#FF0000" }}>
               Sign in
