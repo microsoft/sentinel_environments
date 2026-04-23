@@ -80,6 +80,40 @@ def _resolve_user(user_id: str) -> dict:
     }
 
 
+def _self_user_id() -> str:
+    """Return the catalog ID for the self user."""
+    for uid, user in USER_CATALOG.items():
+        if user.get("isSelf"):
+            return uid
+    return "user000"
+
+
+def _resolve_direct_counterparty(participant_ids: list[str]) -> dict | None:
+    """Resolve the non-self participant for a direct conversation."""
+    self_id = _self_user_id()
+    for uid in participant_ids:
+        if uid != self_id and uid in USER_CATALOG:
+            return {"id": uid, **_resolve_user(uid)}
+    return None
+
+
+def _build_conversation_row(conv_data: dict) -> dict:
+    """Build a conversation row, canonicalizing direct-message identity."""
+    row = dict(conv_data)
+    participant_ids = row.get("participantIds", [])
+    if participant_ids:
+        row["participants"] = [
+            {"id": uid, **_resolve_user(uid)} for uid in participant_ids
+        ]
+
+    if row.get("type") == "direct":
+        counterparty = _resolve_direct_counterparty(participant_ids)
+        if counterparty:
+            row["name"] = counterparty["name"]
+
+    return row
+
+
 def _build_call_row(call_id: str) -> dict:
     raw = MICROCHAT_CALL_CATALOG.get(call_id)
     if raw is None:
@@ -88,6 +122,7 @@ def _build_call_row(call_id: str) -> dict:
     uid = row.get("userId") or row.get("callerId") or ""
     if uid:
         resolved = _resolve_user(uid)
+        row["name"] = resolved["name"]
         row["userName"] = resolved["name"]
         row["userAvatarUrl"] = resolved["avatarUrl"]
     return row
@@ -157,12 +192,7 @@ def process_event(session: Session, event: dict) -> None:
         # Load all conversations and teams from catalogs
         if not session.microchat_conversations:
             for conv_data in MICROCHAT_CONVERSATION_CATALOG.values():
-                row = dict(conv_data)
-                # Resolve participantIds to participants with name/avatar
-                if "participantIds" in row:
-                    row["participants"] = [
-                        {"id": uid, **_resolve_user(uid)} for uid in row["participantIds"]
-                    ]
+                row = _build_conversation_row(conv_data)
                 session.microchat_conversations.append(row)
                 session.microchat_conversation_states[conv_data["id"]] = {
                     "isPinned": conv_data.get("isPinned", False),
