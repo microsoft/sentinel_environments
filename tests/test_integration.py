@@ -58,6 +58,12 @@ def post(path, json_body=None, **kwargs):
     return r.json()
 
 
+def touch_contact():
+    """Satisfy /evaluate's contact gate by visiting the form once."""
+    r = requests.get(f"{BASE}/contact", timeout=TIMEOUT)
+    r.raise_for_status()
+
+
 class IntegrationResult:
     def __init__(self, env_name):
         self.env_name = env_name
@@ -164,6 +170,7 @@ def test_micromail():
         t.check("All scenario emails delivered", full_count == expected_emails,
                 f"count={full_count}, expected={expected_emails}")
 
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("Evaluate success (unread threshold met)", eval_resp.get("success", False),
                 f"success={eval_resp.get('success')}, detail={eval_resp.get('detail')}")
@@ -272,6 +279,7 @@ def test_microchat():
         adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance to end", adv2["success"])
 
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate (unread threshold met)", eval_resp.get("success"),
                 f"success={eval_resp.get('success')}, detail={eval_resp.get('detail')}")
@@ -399,6 +407,7 @@ def test_microdin():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -500,6 +509,7 @@ def test_microfy():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -600,6 +610,7 @@ def test_microgram():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -702,6 +713,7 @@ def test_microhood():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -832,6 +844,7 @@ def test_microhub():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -924,6 +937,7 @@ def test_microlendar():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -1014,6 +1028,7 @@ def test_microscholar():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -1140,6 +1155,7 @@ def test_microtube():
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
