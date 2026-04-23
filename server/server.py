@@ -474,6 +474,7 @@ _CONTACT_THANKS_HTML = """<!doctype html>
 
 @app.get("/contact")
 async def contact_get() -> HTMLResponse:
+    global _state
     session = _require_session()
     # Allow the contact form to be reloaded or revisited after completion
     if _state not in (STATE_READY, STATE_RUNNING_AUTO, STATE_RUNNING_MANUAL, STATE_COMPLETED):
@@ -489,6 +490,7 @@ async def contact_get() -> HTMLResponse:
 
 @app.post("/contact")
 async def contact_post(message: str = Form("")) -> HTMLResponse:
+    global _state
     session = _require_session()
     # Allow the contact form to be reloaded or revisited after completion
     if _state not in (STATE_READY, STATE_RUNNING_AUTO, STATE_RUNNING_MANUAL, STATE_COMPLETED):
