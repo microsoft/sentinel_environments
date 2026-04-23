@@ -621,7 +621,11 @@ async def evaluate() -> EvaluateResponse:
         sql_pass = bool(row and row[0])
 
         return EvaluateResponse(
-            success=sql_pass,
+            # The SQL condition both needs to be met (sql_pass) AND the
+            # contact form needs to have been submitted (contact_post_time is not None)
+            success=session.contact_get_time is not None and \
+                    session.contact_get_time >= session.condition_at and \
+                    sql_pass,
             detail=f"eval_sql returned {row[0] if row else None}",
             evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
