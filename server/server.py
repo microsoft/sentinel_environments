@@ -578,7 +578,7 @@ async def evaluate() -> EvaluateResponse:
         return EvaluateResponse(
             success=False,
             detail="no eval_sql configured",
-            simulation_time=session.simulation_time,
+            evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
             contact_get_time=session.contact_get_time,
             contact_post_time=session.contact_post_time,
@@ -610,7 +610,7 @@ async def evaluate() -> EvaluateResponse:
             return EvaluateResponse(
                 success=False,
                 detail=f"eval_sql error: {e}\nQuery: {session.eval_sql}",
-                simulation_time=session.simulation_time,
+                evaluation_time=session.simulation_time,
                 condition_at=session.condition_at,
                 contact_get_time=session.contact_get_time,
                 contact_post_time=session.contact_post_time,
@@ -621,7 +621,7 @@ async def evaluate() -> EvaluateResponse:
         return EvaluateResponse(
             success=sql_pass,
             detail=f"eval_sql returned {row[0] if row else None}",
-            simulation_time=session.simulation_time,
+            evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
             contact_get_time=session.contact_get_time,
             contact_post_time=session.contact_post_time,
