@@ -17,9 +17,9 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, Form, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 from server.catalogs import (
     MICRODIN_COMPANY_CATALOG,
@@ -153,7 +153,7 @@ STATE_PREINIT = "preinit"
 STATE_READY = "ready"
 STATE_RUNNING_AUTO = "running_auto"
 STATE_RUNNING_MANUAL = "running_manual"
-STATE_STOPPING = "stopping"
+STATE_COMPLETED = "completed"  # terminal state after /evaluate, /contact, or no more events
 
 app = FastAPI(title="Sentinel API")
 
@@ -167,6 +167,7 @@ app.add_middleware(
 # Global simulation state -- one active session at a time, matching Docker protocol
 _state: str = STATE_STARTING
 _session: Optional[Session] = None
+_run_task: Optional[asyncio.Task] = None
 
 
 _ENV_NAMES = [
@@ -314,14 +315,21 @@ def _advance_session(session: Session, up_to_time: float) -> list[dict]:
 
 
 async def _run_auto(session: Session) -> None:
-    global _state
+    global _state, _run_task
     tick = min(1.0, session.speed_factor)
-    while session.next_event_index < len(session.events):
-        await asyncio.sleep(tick)
-        wall_elapsed = time.time() - (session.start_wall_time or time.time())
-        sim_time = wall_elapsed / session.speed_factor
-        _advance_session(session, sim_time)
-    _state = "completed"
+    try:
+        while session.next_event_index < len(session.events):
+            await asyncio.sleep(tick)
+            if _state == STATE_COMPLETED:
+                # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)
+                break
+            wall_elapsed = time.time() - (session.start_wall_time or time.time())
+            sim_time = wall_elapsed / session.speed_factor
+            _advance_session(session, sim_time)
+        _state = STATE_COMPLETED
+    finally:
+        if _run_task is asyncio.current_task():
+            _run_task = None
 
 
 # ---------------------------------------------------------------------------
@@ -403,7 +411,7 @@ async def advance(time: float) -> JSONResponse:
 
 @app.get("/play")
 async def play() -> JSONResponse:
-    global _state
+    global _state, _run_task
     session = _require_session()
 
     if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
@@ -414,7 +422,7 @@ async def play() -> JSONResponse:
 
     _state = STATE_RUNNING_AUTO
     session.start_wall_time = time.time()
-    asyncio.create_task(_run_auto(session))
+    _run_task = asyncio.create_task(_run_auto(session))
 
     return JSONResponse(content={
         "success": True,
@@ -429,7 +437,7 @@ async def redirect(
     request: Request,
     frontend_url: Optional[str] = Query(None),
 ) -> RedirectResponse:
-    global _state
+    global _state, _run_task
     session = _require_session()
 
     if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
@@ -440,17 +448,71 @@ async def redirect(
 
     _state = STATE_RUNNING_AUTO
     session.start_wall_time = time.time()
-    asyncio.create_task(_run_auto(session))
+    _run_task = asyncio.create_task(_run_auto(session))
 
     redirect_origin = frontend_url or f"{request.url.scheme}://{request.url.hostname}:5173"
     url = f"{redirect_origin}/{session.environment}"
     return RedirectResponse(url=url, status_code=302)
 
 
+_CONTACT_FORM_HTML = """<!doctype html>
+<html><head><meta charset="utf-8"><title>Contact</title></head>
+<body>
+<form method="post" action="/contact">
+  <label for="message">Submit your message here: </label><br>
+  <textarea id="message" name="message" rows="10" cols="60"></textarea><br>
+  <button type="submit">Submit</button>
+</form>
+</body></html>
+"""
+
+_CONTACT_THANKS_HTML = """<!doctype html>
+<html><head><meta charset="utf-8"><title>Thank you</title></head>
+<body><p>Thank you for your message. The task is now complete.</p></body></html>
+"""
+
+
+@app.get("/contact")
+async def contact_get() -> HTMLResponse:
+    session = _require_session()
+    # Allow the contact form to be reloaded or revisited after completion
+    if _state not in (STATE_READY, STATE_RUNNING_AUTO, STATE_RUNNING_MANUAL, STATE_COMPLETED):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Wrong state: /contact requires an active session. Current: '{_state}'.",
+        )
+    _state = STATE_COMPLETED
+    if session.contact_get_time is None:
+        session.contact_get_time = int(session.simulation_time)
+    return HTMLResponse(content=_CONTACT_FORM_HTML)
+
+
+@app.post("/contact")
+async def contact_post(message: str = Form("")) -> HTMLResponse:
+    session = _require_session()
+    # Allow the contact form to be reloaded or revisited after completion
+    if _state not in (STATE_READY, STATE_RUNNING_AUTO, STATE_RUNNING_MANUAL, STATE_COMPLETED):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Wrong state: /contact requires an active session. Current: '{_state}'.",
+        )
+    _state = STATE_COMPLETED
+    if session.contact_post_time is None:
+        session.contact_post_time = int(session.simulation_time)
+        session.contact_message = message
+    return HTMLResponse(content=_CONTACT_THANKS_HTML)
+
+
 @app.get("/close")
 async def close() -> JSONResponse:
-    global _state, _session
-    _state = STATE_STOPPING
+    global _state, _session, _run_task
+    if _run_task is not None and not _run_task.done():
+        _run_task.cancel()
+        try:
+            await _run_task
+        except (asyncio.CancelledError, Exception):
+            pass
+    _run_task = None
     _session = None
     _state = STATE_PREINIT  # Ready to accept a new /init
     return JSONResponse(content={"success": True, "status": _state})
@@ -508,14 +570,19 @@ def _dispatch_materialize(session: Session, conn: sqlite3.Connection) -> None:
 
 @app.post("/evaluate", response_model=EvaluateResponse)
 async def evaluate() -> EvaluateResponse:
+    global _state
     session = _require_session()
+    _state = STATE_COMPLETED # Stops the simulation
 
     if not session.eval_sql:
         return EvaluateResponse(
             success=False,
             detail="no eval_sql configured",
-            simulation_time=session.simulation_time,
+            evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
+            contact_get_time=session.contact_get_time,
+            contact_post_time=session.contact_post_time,
+            contact_message=session.contact_message,
         )
 
     conn = sqlite3.connect(":memory:")
@@ -543,16 +610,22 @@ async def evaluate() -> EvaluateResponse:
             return EvaluateResponse(
                 success=False,
                 detail=f"eval_sql error: {e}\nQuery: {session.eval_sql}",
-                simulation_time=session.simulation_time,
+                evaluation_time=session.simulation_time,
                 condition_at=session.condition_at,
+                contact_get_time=session.contact_get_time,
+                contact_post_time=session.contact_post_time,
+                contact_message=session.contact_message,
             )
         sql_pass = bool(row and row[0])
 
         return EvaluateResponse(
             success=sql_pass,
             detail=f"eval_sql returned {row[0] if row else None}",
-            simulation_time=session.simulation_time,
+            evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
+            contact_get_time=session.contact_get_time,
+            contact_post_time=session.contact_post_time,
+            contact_message=session.contact_message,
         )
     finally:
         conn.close()

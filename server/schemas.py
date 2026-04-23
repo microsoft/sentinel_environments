@@ -53,8 +53,11 @@ class UsersResponse(BaseModel):
 class EvaluateResponse(BaseModel):
     success: bool
     detail: str = ""
-    simulation_time: Optional[float] = None
+    evaluation_time: Optional[float] = None
     condition_at: Optional[float] = None
+    contact_get_time: Optional[int] = None
+    contact_post_time: Optional[int] = None
+    contact_message: Optional[str] = None
 
 
 # --- Shared POST response models ---

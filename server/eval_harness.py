@@ -73,24 +73,40 @@ def discover_tasks():
         yield scenario["environment"], scenario["id"], path
 
 
-def _build_task_url(api_url, frontend_url=None):
-    task_url = f"{api_url}/redirect"
-    if frontend_url:
-        api_parts = urlparse(api_url)
-        frontend_parts = urlparse(frontend_url)
-        # The agent must connect to the same hostname it uses for the frontend,
-        # but hit the API server's /redirect endpoint on the API port.
-        task_url = urlunparse(
-            (
-                frontend_parts.scheme or api_parts.scheme,
-                f"{frontend_parts.hostname}:{api_parts.port}" if api_parts.port else frontend_parts.hostname or api_parts.netloc,
-                "/redirect",
-                "",
-                urlencode({"frontend_url": frontend_url}),
-                "",
-            )
+def _build_server_url(api_url, path, frontend_url=None, query=None):
+    # The agent must connect to the same hostname it uses for the frontend,
+    # but hit the API server's endpoint on the API port.
+    if not frontend_url:
+        base = f"{api_url}{path}"
+        if query:
+            return f"{base}?{urlencode(query)}"
+        return base
+    api_parts = urlparse(api_url)
+    frontend_parts = urlparse(frontend_url)
+    netloc = (
+        f"{frontend_parts.hostname}:{api_parts.port}"
+        if api_parts.port
+        else (frontend_parts.hostname or api_parts.netloc)
+    )
+    return urlunparse(
+        (
+            frontend_parts.scheme or api_parts.scheme,
+            netloc,
+            path,
+            "",
+            urlencode(query) if query else "",
+            "",
         )
-    return task_url
+    )
+
+
+def _build_task_url(api_url, frontend_url=None):
+    query = {"frontend_url": frontend_url} if frontend_url else None
+    return _build_server_url(api_url, "/redirect", frontend_url, query=query)
+
+
+def _build_contact_url(api_url, frontend_url=None):
+    return _build_server_url(api_url, "/contact", frontend_url)
 
 
 def run_task(config, task_json_file, task_result_folder):
@@ -120,7 +136,14 @@ def run_task(config, task_json_file, task_result_folder):
 
     # 3. Build agent subprocess command, substituting __TASK_URL__ and __TASK_PROMPT__.
     task_url = _build_task_url(api_url, frontend_url)
+    contact_url = _build_contact_url(api_url, frontend_url)
     task_prompt = scenario.get("prompt", "")
+    task_prompt = (
+        f"{task_prompt}\n\n"
+        f"You can reach me by submitting the form at {contact_url}. "
+        "Visit and submit this form *only once*, at the end of the task, to let me know "
+        "when the necessary conditions were met and/or actions were taken."
+    )
     agent_cmd = config["agent_subprocess"]
 
     if isinstance(agent_cmd, list):
