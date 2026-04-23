@@ -235,7 +235,8 @@ def cmd_grade(args):
         with open(results_file) as f:
             data = json.load(f)
         success = bool(data.get("success"))
-        stop_time = data.get("simulation_time")
+        evaluation_time = data.get("evaluation_time")
+        stop_time = data.get("contact_get_time")
         condition_at = data.get("condition_at")
 
         if success and stop_time is not None and condition_at is not None:
@@ -251,6 +252,7 @@ def cmd_grade(args):
 
         rows.append({
             "name": name,
+            "evaluation_time": evaluation_time,
             "success": success,
             "stop_time": stop_time,
             "condition_at": condition_at,
@@ -260,7 +262,7 @@ def cmd_grade(args):
     def fmt(v):
         return "" if v is None else str(v)
 
-    headers = ["name", "success", "stop_time", "condition_at", "reaction_time"]
+    headers = ["name", "evaluation_time", "success", "stop_time", "condition_at", "reaction_time"]
     widths = {h: len(h) for h in headers}
     for r in rows:
         for h in headers:
