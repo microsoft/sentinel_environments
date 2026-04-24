@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrohoodData } from "../hooks/useMicrohoodData";
 import {
   Search,
@@ -147,7 +147,10 @@ const MicroHood = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderQuantity, setOrderQuantity] = useState("1");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useHashTab(["home", "search", "transfers", "profile"] as const, "home");
+  const [hoodRoute, setHoodRoute] = useHashRoute(["home", "search", "transfers", "profile"] as const, "home");
+  const activeTab = hoodRoute.view;
+  type HoodTab = "home" | "search" | "transfers" | "profile";
+  const setActiveTab = useCallback((tab: HoodTab) => setHoodRoute(tab), [setHoodRoute]);
 
   // UI Panel States
   const [showSearchModal, setShowSearchModal] = useState(false);

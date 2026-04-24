@@ -8,7 +8,7 @@ import {
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 
 import { useMicromailData } from "../hooks/useMicromailData";
 import {
@@ -211,7 +211,9 @@ const Micromail = () => {
   const [isSignedOut, setIsSignedOut] = useState(false);
 
   // UI state
-  const [selectedFolder, setSelectedFolder] = useHashTab<FolderKey>(["inbox", "sent", "drafts", "archive", "junk", "deleted", "scheduled"] as const, "inbox");
+  const [mailRoute, setMailRoute] = useHashRoute<FolderKey>(["inbox", "sent", "drafts", "archive", "junk", "deleted", "scheduled"] as const, "inbox");
+  const selectedFolder = mailRoute.view;
+  const setSelectedFolder = useCallback((folder: FolderKey) => setMailRoute(folder), [setMailRoute]);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   // Email pinned in a quick-filter view so it stays visible after being marked read/unflagged
   const [pinnedEmailId, setPinnedEmailId] = useState<string | null>(null);

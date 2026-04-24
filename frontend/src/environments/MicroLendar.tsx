@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicroLendarData, ApiCalendarEvent, ApiTask } from "../hooks/useMicroLendarData";
 import {
   ChevronLeft,
@@ -226,7 +226,9 @@ const MicroLendar = () => {
   const [calendarDropdown, setCalendarDropdown] = useState<{ id: string; x: number; y: number } | null>(null);
 
   // Calendar / navigation state
-  const [viewMode, setViewMode] = useHashTab<ViewMode>(['month', 'week', 'day', 'year', 'schedule', '4days'] as const, 'month');
+  const [lendarRoute, setLendarRoute] = useHashRoute<ViewMode>(['month', 'week', 'day', 'year', 'schedule', '4days'] as const, 'month');
+  const viewMode = lendarRoute.view;
+  const setViewMode = useCallback((mode: ViewMode) => setLendarRoute(mode), [setLendarRoute]);
   const [selectedDate, setSelectedDate] = useState(FALLBACK_INITIAL_DATE);
   const [currentMonth, setCurrentMonth] = useState(new Date(FALLBACK_INITIAL_DATE.getFullYear(), FALLBACK_INITIAL_DATE.getMonth(), 1));
   const [calendars, setCalendars] = useState<CalendarCategory[]>(generateInitialCalendars());
