@@ -774,7 +774,7 @@ const MicroFy = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
+    <div className="microfy-root min-h-screen bg-black text-white font-sans">
       {/* Hidden audio element for actual playback */}
       <audio ref={audioRef} preload="metadata" />
 
@@ -898,31 +898,6 @@ const MicroFy = () => {
                 >
                   Create playlist
                 </button>
-              </div>
-            )}
-
-            {/* Favorites */}
-            {favoriteSongs.length > 0 && (
-              <div className="bg-[#242424] rounded-lg p-4">
-                <h3 className="text-white font-semibold mb-4">Liked Songs</h3>
-                <div className="flex flex-col gap-3 max-h-64 overflow-y-auto">
-                  {favoriteSongs.map((songId) => {
-                    const song = songs.find(s => s.id === songId);
-                    return song ? (
-                      <div
-                        key={song.id}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-[#3e3e3e] p-2 rounded transition"
-                        onClick={() => handleSelectSong(song, false)}
-                      >
-                        <img src={song.coverUrl} alt={song.title} className="w-12 h-12 rounded" />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-white text-sm font-semibold truncate">{song.title}</h4>
-                          <p className="text-[#b3b3b3] text-xs truncate">{song.artist}</p>
-                        </div>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
               </div>
             )}
 
@@ -1084,11 +1059,19 @@ const MicroFy = () => {
             <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }}>
               <div className="rounded-lg shadow-2xl p-8 w-[360px] flex flex-col items-center" style={{ backgroundColor: "#282828" }}>
                 <div className="text-2xl font-bold mb-6" style={{ color: "#1DB954" }}>MicroFy</div>
-                <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#1DB954" }}>
-                  {selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
-                </div>
+                {selfUser?.avatarUrl ? (
+                  <img
+                    src={selfUser.avatarUrl}
+                    alt={selfUser?.name ?? "User"}
+                    className="w-20 h-20 rounded-full object-cover mb-4"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#1DB954" }}>
+                    {selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
+                  </div>
+                )}
                 <div className="text-lg font-semibold text-white mb-1">{selfUser?.name || "User"}</div>
-                <div className="text-sm mb-6" style={{ color: "#b3b3b3" }}>{email || "user@microfy.com"}</div>
+                <div className="text-sm mb-6" style={{ color: "#b3b3b3" }}>{selfUser?.email || "user@microfy.com"}</div>
                 <input type="password" readOnly value="••••••••" className="w-full px-4 py-2 rounded mb-4 text-center" style={{ backgroundColor: "#3E3E3E", color: "#b3b3b3", border: "none" }} />
                 <button onClick={() => setIsSignedOut(false)} className="w-full py-2 text-black rounded-full font-semibold hover:opacity-90 transition-opacity" style={{ backgroundColor: "#1DB954" }}>
                   Sign in
