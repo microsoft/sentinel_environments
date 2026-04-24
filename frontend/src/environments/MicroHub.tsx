@@ -460,12 +460,12 @@ const MicroHub = () => {
   const handleViewProfile = useCallback((username: string) => {
     setViewingProfileUsername(username);
     setCurrentView("profile");
-  }, []);
+  }, [setCurrentView]);
 
   const handleViewFile = useCallback((path: string) => {
     setSelectedFilePath(path);
     setCurrentView("file-view");
-  }, []);
+  }, [setCurrentView]);
 
   const toggleFolder = useCallback((path: string) => {
     setExpandedFolders(prev =>
@@ -2913,7 +2913,7 @@ npm run dev`}</code>
       setNameDraft(repository?.name || "");
       setDescriptionDraft(repository?.description || "");
       setVisibilityDraft(repository?.visibility || "public");
-    }, [repository?.name, repository?.description, repository?.visibility]);
+    }, []);
 
     const isDirty = nameDraft !== (repository?.name || "") || descriptionDraft !== (repository?.description || "") || visibilityDraft !== (repository?.visibility || "public");
 

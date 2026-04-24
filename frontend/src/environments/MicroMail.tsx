@@ -392,7 +392,7 @@ const Micromail = () => {
       setIsMobileNavOpen(false);
       setSearchQuery("");
     },
-    [],
+    [setSelectedFolder],
   );
 
   const handleSelectEmail = useCallback((emailId: string) => {
