@@ -374,7 +374,7 @@ const MicroGram = () => {
     setSelectedProfile(userId);
     setNavSection("profile");
     setProfileTab("posts");
-  }, []);
+  }, [setNavSection]);
 
   const openPostModal = useCallback((postId: string) => {
     setSelectedPost(postId);
