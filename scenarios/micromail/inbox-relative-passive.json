@@ -2,7 +2,7 @@
   "id": "micromail-inbox-relative-passive",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I already have a few emails. Let me know when 5 more show up in my inbox.",
+  "prompt": "Let me know when 5 new emails appear in my inbox (not counting any unread emails already there).",
   "condition_at": 130.85,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

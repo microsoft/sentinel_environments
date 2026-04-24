@@ -2,7 +2,7 @@
   "id": "microscholar-search-absolute-active",
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
-  "prompt": "Keep an eye on these search results. If 'Autonomous AI Agents for Complex Task Execution' shows up, cite it for me and let me know.",
+  "prompt": "I need to cite the paper 'Autonomous AI Agents for Complex Task Execution', but it may not have been indexed yet. Keep searching for it, and let me know as soon as you have the MLA citation.",
   "condition_at": 231.83,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

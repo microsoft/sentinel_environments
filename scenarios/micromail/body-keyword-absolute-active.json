@@ -2,7 +2,7 @@
   "id": "micromail-body-keyword-absolute-active",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I'm expecting an email about platform scalability \u2014 it might not be in the subject line, so you'll need to read through the emails.",
+  "prompt": "I'm expecting an email about platform scalability. Let me know as soon as it arrives. Note that 'platform scalability' might not be obvious from the subject, so you'll need to read through the emails.",
   "condition_at": 484.76,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

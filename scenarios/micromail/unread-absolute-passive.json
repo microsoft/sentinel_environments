@@ -2,7 +2,7 @@
   "id": "micromail-unread-absolute-passive",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "Tell me when I have 10 unread emails.",
+  "prompt": "Tell me when I have 10 or more unread emails.",
   "condition_at": 585.56,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

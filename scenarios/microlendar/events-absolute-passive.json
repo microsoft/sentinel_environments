@@ -2,7 +2,7 @@
   "id": "microlendar-events-absolute-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "Keep an eye on my calendar and tell me when it reaches 24 events.",
+  "prompt": "Keep an eye on my calendar and tell me when it reaches 24 or more events.",
   "condition_at": 20.59,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

@@ -2,7 +2,7 @@
   "id": "micromail-body-december-relative-active",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I got an email earlier mentioning a December deadline. Let me know if another one comes in that also mentions December \u2014 you'll need to read through the full emails to check.",
+  "prompt": "I got an email earlier mentioning a December deadline. Let me know if another one comes in that also mentions December. Note: December might only appear in the email body, so you should check there as well.",
   "condition_at": 370.68,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
