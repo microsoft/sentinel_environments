@@ -466,6 +466,14 @@ export function useMicrohubData() {
     await fetch("/api/data/microhub-repository/fork", { method: "POST" }).catch(() => {});
   }, []);
 
+  const updateRepo = useCallback(async (updates: { name?: string; description?: string; visibility?: string }) => {
+    await fetch("/api/data/microhub-repository", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updates),
+    }).catch(() => {});
+  }, []);
+
   const mergePR = useCallback(async (prId: string, strategy: string = "merge") => {
     const res = await fetch(`/api/data/microhub-pulls/${prId}/merge`, {
       method: "POST",
@@ -582,6 +590,7 @@ export function useMicrohubData() {
     starRepo,
     watchRepo,
     forkRepo,
+    updateRepo,
     mergePR,
     commentOnIssue,
     commentOnPR,

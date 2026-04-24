@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useHashTab } from "../hooks/useHashTab";
 import {
   GitBranch,
   GitCommit,
@@ -230,7 +231,7 @@ const MicroHub = () => {
     files, commits, workflows, wiki, insights, releases, labels, security,
     codeScanning, settings, deployments, packages, users, userCreatedRepos,
     config, isLoading, error,
-    starRepo, watchRepo, forkRepo, mergePR, commentOnIssue, commentOnPR,
+    starRepo, watchRepo, forkRepo, updateRepo, mergePR, commentOnIssue, commentOnPR,
     followUser, createRepo, createIssue,
   } = useMicrohubData();
 
@@ -302,7 +303,7 @@ const MicroHub = () => {
 
   // UI-only state
   const [startTime] = useState(Date.now());
-  const [currentView, setCurrentView] = useState<ViewType>("code");
+  const [currentView, setCurrentView] = useHashTab<ViewType>(["code", "issues", "pulls", "actions", "projects", "wiki", "security", "insights", "issue-detail", "pr-detail", "settings", "profile", "file-view", "commits"] as const, "code");
   const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
   const [selectedPRId, setSelectedPRId] = useState<string | null>(null);
   const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
@@ -2903,6 +2904,25 @@ npm run dev`}</code>
   const SettingsView = () => {
     const repoSettings = settings as { general: { name: string; description: string; visibility: string; features: Record<string, boolean> }; branches: { protectionRules: { id: string; pattern: string; requirePullRequest: boolean; requiredApprovals: number; requireStatusChecks: boolean; requiredChecks: string[]; includeAdmins: boolean }[] }; collaborators: { userId: string; username: string; role: string }[] } | null;
 
+    const [nameDraft, setNameDraft] = useState(repository?.name || "");
+    const [descriptionDraft, setDescriptionDraft] = useState(repository?.description || "");
+    const [visibilityDraft, setVisibilityDraft] = useState(repository?.visibility || "public");
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+      setNameDraft(repository?.name || "");
+      setDescriptionDraft(repository?.description || "");
+      setVisibilityDraft(repository?.visibility || "public");
+    }, [repository?.name, repository?.description, repository?.visibility]);
+
+    const isDirty = nameDraft !== (repository?.name || "") || descriptionDraft !== (repository?.description || "") || visibilityDraft !== (repository?.visibility || "public");
+
+    const handleSaveRepoSettings = async () => {
+      setSaving(true);
+      await updateRepo({ name: nameDraft, description: descriptionDraft, visibility: visibilityDraft });
+      setSaving(false);
+    };
+
     return (
       <div className={classNames("max-w-3xl mx-auto p-6", theme.text)}>
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
@@ -2960,16 +2980,16 @@ npm run dev`}</code>
                   <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Repository name</label>
                   <input
                     type="text"
-                    value={repoSettings.general.name}
-                    readOnly
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
                     className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
                   />
                 </div>
                 <div>
                   <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Description</label>
                   <textarea
-                    value={repoSettings.general.description}
-                    readOnly
+                    value={descriptionDraft}
+                    onChange={(e) => setDescriptionDraft(e.target.value)}
                     rows={2}
                     className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
                   />
@@ -2978,12 +2998,29 @@ npm run dev`}</code>
                   <div>
                     <p className="font-medium">Visibility</p>
                     <p className={classNames("text-sm", theme.textSecondary)}>
-                      {repoSettings.general.visibility === "public" ? "Anyone can see this repository" : "Only collaborators can access"}
+                      {visibilityDraft === "public" ? "Anyone can see this repository" : "Only collaborators can access"}
                     </p>
                   </div>
-                  <span className={classNames("px-3 py-1 text-sm rounded-full", repoSettings.general.visibility === "public" ? "bg-green-900/30 text-green-400" : "bg-yellow-900/30 text-yellow-400")}>
-                    {repoSettings.general.visibility}
-                  </span>
+                  <select
+                    value={visibilityDraft}
+                    onChange={(e) => setVisibilityDraft(e.target.value === "private" ? "private" : "public")}
+                    className={classNames("px-3 py-1 text-sm rounded-md border", theme.inputBg, theme.border)}
+                  >
+                    <option value="public">public</option>
+                    <option value="private">private</option>
+                  </select>
+                </div>
+                <div className="flex justify-end pt-2">
+                  <button
+                    onClick={handleSaveRepoSettings}
+                    disabled={!isDirty || saving}
+                    className={classNames(
+                      "px-4 py-2 text-sm font-medium rounded-md",
+                      isDirty && !saving ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    )}
+                  >
+                    {saving ? "Saving..." : "Save changes"}
+                  </button>
                 </div>
                 <div className="pt-4 border-t" style={{ borderColor: darkMode ? "#374151" : "#e5e7eb" }}>
                   <p className="font-medium mb-2">Features</p>
