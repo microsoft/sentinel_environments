@@ -2,7 +2,7 @@
   "id": "microlendar-tasks-absolute-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "Keep an eye on my tasks and tell me when the list reaches 10 items.",
+  "prompt": "Keep an eye on my tasks and tell me when the list reaches at least 10 items.",
   "condition_at": 221.51,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

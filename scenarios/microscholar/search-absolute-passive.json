@@ -2,7 +2,7 @@
   "id": "microscholar-search-absolute-passive",
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
-  "prompt": "Keep an eye on these search results and tell me if 'Autonomous AI Agents for Complex Task Execution' shows up.",
+  "prompt": "I'm expecting the paper 'Autonomous AI Agents for Complex Task Execution' to be indexed soon. Please let me know as soon as it shows up in the search results.",
   "condition_at": 154.6,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

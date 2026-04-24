@@ -2,7 +2,7 @@
   "id": "microgram-likes-absolute-passive",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "Keep an eye on my feed and like the first 3 new posts that show up.",
+  "prompt": "Keep an eye on my feed and like the next 3 new posts that show up.",
   "condition_at": 56.26,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

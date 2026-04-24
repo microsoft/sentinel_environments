@@ -2,7 +2,7 @@
   "id": "microdin-jobs-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "Keep an eye on the jobs page and tell me when there are 8 job listings.",
+  "prompt": "Keep an eye on the jobs page and tell me when there are 8 or more job listings.",
   "condition_at": 68.4,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
