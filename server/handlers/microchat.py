@@ -110,6 +110,8 @@ def _build_conversation_row(conv_data: dict) -> dict:
         counterparty = _resolve_direct_counterparty(participant_ids)
         if counterparty:
             row["name"] = counterparty["name"]
+            if counterparty.get("avatarUrl"):
+                row["avatarUrl"] = counterparty["avatarUrl"]
 
     return row
 
