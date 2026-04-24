@@ -1586,6 +1586,7 @@ CREATE TABLE IF NOT EXISTS papers (
     year INTEGER NOT NULL DEFAULT 0,
     snippet TEXT NOT NULL DEFAULT '',
     cited_by INTEGER NOT NULL DEFAULT 0,
+    versions INTEGER NOT NULL DEFAULT 0,
     pdf_link TEXT NOT NULL DEFAULT '',
     pdf_source TEXT NOT NULL DEFAULT '',
     is_book INTEGER NOT NULL DEFAULT 0,
@@ -1635,9 +1636,9 @@ def build_microscholar_db() -> None:
         conn.execute(
             """INSERT INTO papers
                (id, title, title_html, author_ids, authors, source, year,
-                snippet, cited_by, pdf_link, pdf_source, is_book,
+                snippet, cited_by, versions, pdf_link, pdf_source, is_book,
                 is_target_paper, task_type, "order")
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 p["id"],
                 p.get("title", ""),
@@ -1648,6 +1649,7 @@ def build_microscholar_db() -> None:
                 p.get("year", 0),
                 p.get("snippet", ""),
                 p.get("citedBy", 0),
+                p.get("versions", p.get("citedBy", 0) // 100 + 2),
                 p.get("pdfLink", ""),
                 p.get("pdfSource", ""),
                 int(p.get("isBook", False)),

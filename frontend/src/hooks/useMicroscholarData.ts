@@ -12,6 +12,7 @@ export interface ApiPaper {
   year: number;
   snippet: string;
   citedBy: number;
+  versions: number;
   pdfLink: string;
   pdfSource: string;
   isBook: boolean;

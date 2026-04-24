@@ -63,6 +63,7 @@ def _build_paper_row(paper_id: str) -> dict:
         "year": raw["year"],
         "snippet": raw["snippet"],
         "citedBy": raw["cited_by"],
+        "versions": raw["versions"],
         "pdfLink": raw["pdf_link"],
         "pdfSource": raw["pdf_source"],
         "isBook": bool(raw["is_book"]),
