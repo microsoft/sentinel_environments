@@ -2,7 +2,7 @@
   "id": "microfy-followers-absolute-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "As new artists show up in the release feed, open their artist pages and follow the first 4 for me.",
+  "prompt": "Follow the next 4 artists to appear in the release feed. To follow an artist, you must open their Artist page.",
   "condition_at": 396.19,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

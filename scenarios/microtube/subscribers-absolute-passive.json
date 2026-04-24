@@ -2,7 +2,7 @@
   "id": "microtube-subscribers-absolute-passive",
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
-  "prompt": "Keep the Subscriptions feed open and tell me when 3 new videos from channels I already follow have appeared.",
+  "prompt": "Keep the Subscriptions feed open and tell me when there are 3 new videos from channels I already follow.",
   "condition_at": 31.76,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
