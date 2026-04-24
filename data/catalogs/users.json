@@ -32,8 +32,8 @@
       "storyId": "story-self"
     },
     "microscholar": {
-      "email": "ctaylor@stanford.edu",
-      "affiliation": "Stanford University",
+      "email": "ctaylor@redwood.edu",
+      "affiliation": "Redwood University",
       "department": "Computer Science",
       "title": "PhD Candidate",
       "interests": [
@@ -48,7 +48,7 @@
       "citationsSince2020": 941,
       "hIndexSince2020": 4,
       "isVerified": true,
-      "homepage": "https://cs.stanford.edu/~ctaylor",
+      "homepage": "https://cs.redwood.edu/~ctaylor",
       "orcid": "0000-0001-2345-6789"
     },
     "microfy": {
@@ -99,14 +99,14 @@
         {
           "id": "a1",
           "name": "Pull Shark",
-          "icon": "\ud83e\udd88",
+          "icon": "🦈",
           "description": "Opened pull requests that have been merged",
           "earnedDate": "2024"
         },
         {
           "id": "a2",
           "name": "YOLO",
-          "icon": "\ud83c\udfaf",
+          "icon": "🎯",
           "description": "Merged a PR without code review",
           "earnedDate": "2024"
         }
@@ -198,8 +198,8 @@
       "hiking"
     ],
     "microscholar": {
-      "email": "achen@berkeley.edu",
-      "affiliation": "UC Berkeley",
+      "email": "achen@bayview.edu",
+      "affiliation": "Bayview State University",
       "department": "EECS",
       "title": "Associate Professor",
       "interests": [
@@ -214,7 +214,7 @@
       "citationsSince2020": 5806,
       "hIndexSince2020": 2,
       "isVerified": true,
-      "homepage": "https://eecs.berkeley.edu/~achen"
+      "homepage": "https://eecs.bayview.edu/~achen"
     },
     "bannerUrl": "images/banners/user001.webp",
     "microhub": {
@@ -228,21 +228,21 @@
         {
           "id": "a1",
           "name": "Arctic Code Vault",
-          "icon": "\ud83c\udfd4\ufe0f",
+          "icon": "🏔️",
           "description": "Contributed code to the Arctic Code Vault",
           "earnedDate": "2024"
         },
         {
           "id": "a2",
           "name": "Pull Shark x3",
-          "icon": "\ud83e\udd88",
+          "icon": "🦈",
           "description": "Opened many pull requests",
           "earnedDate": "2024"
         },
         {
           "id": "a3",
           "name": "Starstruck",
-          "icon": "\u2b50",
+          "icon": "⭐",
           "description": "Created a repo with 100+ stars",
           "earnedDate": "2023"
         }
@@ -344,8 +344,8 @@
     },
     "bannerUrl": "images/banners/user002.webp",
     "microscholar": {
-      "email": "brodriguez@gatech.edu",
-      "affiliation": "Georgia Institute of Technology",
+      "email": "brodriguez@peachtech.edu",
+      "affiliation": "Peach State Institute of Technology",
       "department": "Interactive Computing",
       "title": "Assistant Professor",
       "interests": [
@@ -400,8 +400,8 @@
       "hasStory": false
     },
     "microscholar": {
-      "email": "cdavis@utexas.edu",
-      "affiliation": "University of Texas at Austin",
+      "email": "cdavis@ctu.edu",
+      "affiliation": "Central Texas University",
       "department": "Statistics and Data Science",
       "title": "Assistant Professor",
       "interests": [
@@ -416,7 +416,7 @@
       "citationsSince2020": 525,
       "hIndexSince2020": 1,
       "isVerified": true,
-      "homepage": "https://stat.utexas.edu/cdavis"
+      "homepage": "https://stat.ctu.edu/cdavis"
     },
     "bannerUrl": "images/banners/user003.webp",
     "microhub": {
@@ -430,7 +430,7 @@
         {
           "id": "a1",
           "name": "Quickdraw",
-          "icon": "\ud83e\udd20",
+          "icon": "🤠",
           "description": "First to review a PR",
           "earnedDate": "2024"
         }
@@ -564,8 +564,8 @@
     },
     "bannerUrl": "images/banners/user005.webp",
     "microscholar": {
-      "email": "ewilson@ox.ac.uk",
-      "affiliation": "University of Oxford",
+      "email": "ewilson@ashford.ac.uk",
+      "affiliation": "Ashford University",
       "department": "Computer Science",
       "title": "Professor",
       "interests": [
@@ -646,8 +646,8 @@
     ],
     "bannerUrl": "images/banners/user007.webp",
     "microscholar": {
-      "email": "gthompson@princeton.edu",
-      "affiliation": "Princeton University",
+      "email": "gthompson@ellington.edu",
+      "affiliation": "Ellington University",
       "department": "Computer Science",
       "title": "Associate Professor",
       "interests": [
@@ -746,14 +746,14 @@
         {
           "id": "a1",
           "name": "Galaxy Brain",
-          "icon": "\ud83e\udde0",
+          "icon": "🧠",
           "description": "Answered a discussion that was marked as answer",
           "earnedDate": "2024"
         },
         {
           "id": "a2",
           "name": "Pull Shark x2",
-          "icon": "\ud83e\udd88",
+          "icon": "🦈",
           "description": "Opened many pull requests",
           "earnedDate": "2024"
         }
@@ -814,8 +814,8 @@
       ]
     },
     "microscholar": {
-      "email": "imartinez@ucla.edu",
-      "affiliation": "UCLA",
+      "email": "imartinez@pcu.edu",
+      "affiliation": "Pacific Coast University",
       "department": "Computer Science",
       "title": "Research Scientist",
       "interests": [
@@ -872,8 +872,8 @@
     },
     "bannerUrl": "images/banners/user010.webp",
     "microscholar": {
-      "email": "jnguyen@uiuc.edu",
-      "affiliation": "University of Illinois Urbana-Champaign",
+      "email": "jnguyen@heartland.edu",
+      "affiliation": "Heartland State University",
       "department": "Computer Science",
       "title": "Assistant Professor",
       "interests": [
@@ -964,7 +964,7 @@
         {
           "id": "a1",
           "name": "Pair Extraordinaire",
-          "icon": "\ud83d\udc6f",
+          "icon": "👯",
           "description": "Co-authored commits",
           "earnedDate": "2024"
         }
@@ -1025,8 +1025,8 @@
       ]
     },
     "microscholar": {
-      "email": "lscott@washington.edu",
-      "affiliation": "University of Washington",
+      "email": "lscott@pugetsound.edu",
+      "affiliation": "Puget Sound University",
       "department": "Computer Science & Engineering",
       "title": "Senior Lecturer",
       "interests": [
@@ -1074,8 +1074,8 @@
       "golf"
     ],
     "microscholar": {
-      "email": "mbrown@mit.edu",
-      "affiliation": "Massachusetts Institute of Technology",
+      "email": "mbrown@nbit.edu",
+      "affiliation": "North Bay Institute of Technology",
       "department": "EECS",
       "title": "Professor",
       "interests": [
@@ -1090,7 +1090,7 @@
       "citationsSince2020": 3554,
       "hIndexSince2020": 2,
       "isVerified": true,
-      "homepage": "https://people.csail.mit.edu/mbrown"
+      "homepage": "https://people.csail.nbit.edu/mbrown"
     },
     "bannerUrl": "images/banners/user013.webp",
     "microhub": {
@@ -1104,14 +1104,14 @@
         {
           "id": "a1",
           "name": "Starstruck",
-          "icon": "\u2b50",
+          "icon": "⭐",
           "description": "Created a repo with 100+ stars",
           "earnedDate": "2023"
         },
         {
           "id": "a2",
           "name": "Sponsor",
-          "icon": "\ud83d\udc96",
+          "icon": "💖",
           "description": "Sponsored open source",
           "earnedDate": "2024"
         }
@@ -1203,8 +1203,8 @@
       "podcasts"
     ],
     "microscholar": {
-      "email": "nadams@cmu.edu",
-      "affiliation": "Carnegie Mellon University",
+      "email": "nadams@ironhill.edu",
+      "affiliation": "Iron Hill University",
       "department": "Machine Learning Department",
       "title": "Postdoctoral Researcher",
       "interests": [
@@ -1327,8 +1327,8 @@
     ],
     "bannerUrl": "images/banners/user017.webp",
     "microscholar": {
-      "email": "qharris@cornell.edu",
-      "affiliation": "Cornell University",
+      "email": "qharris@fingerlakes.edu",
+      "affiliation": "Finger Lakes University",
       "department": "Computer Science",
       "title": "Research Associate",
       "interests": [
@@ -1427,7 +1427,7 @@
         {
           "id": "a1",
           "name": "YOLO",
-          "icon": "\ud83c\udfaf",
+          "icon": "🎯",
           "description": "Merged a PR without code review",
           "earnedDate": "2024"
         }
@@ -1488,8 +1488,8 @@
       ]
     },
     "microscholar": {
-      "email": "syoung@cam.ac.uk",
-      "affiliation": "University of Cambridge",
+      "email": "syoung@thameside.ac.uk",
+      "affiliation": "Thameside University",
       "department": "Computer Science and Technology",
       "title": "University Lecturer",
       "interests": [
@@ -1569,8 +1569,8 @@
       "cricket"
     ],
     "microscholar": {
-      "email": "ukhan@eth.ch",
-      "affiliation": "ETH Zurich",
+      "email": "ukhan@alpinepoly.ch",
+      "affiliation": "Alpine Polytechnic",
       "department": "Computer Science",
       "title": "Senior Researcher",
       "interests": [
@@ -1661,8 +1661,8 @@
     ],
     "bannerUrl": "images/banners/user023.webp",
     "microscholar": {
-      "email": "jpark@snu.ac.kr",
-      "affiliation": "Seoul National University",
+      "email": "jpark@hanbit.ac.kr",
+      "affiliation": "Hanbit National University",
       "department": "Computer Science and Engineering",
       "title": "Associate Professor",
       "interests": [
@@ -1720,8 +1720,8 @@
     },
     "bannerUrl": "images/banners/user024.webp",
     "microscholar": {
-      "email": "xmorales@unam.mx",
-      "affiliation": "UNAM",
+      "email": "xmorales@univalle.mx",
+      "affiliation": "Universidad Nacional del Valle",
       "department": "Computer Science",
       "title": "Associate Professor",
       "interests": [
@@ -1777,8 +1777,8 @@
       "storyId": "story-yusuf"
     },
     "microscholar": {
-      "email": "yahmed@nyu.edu",
-      "affiliation": "New York University",
+      "email": "yahmed@hudsonmet.edu",
+      "affiliation": "Hudson Metropolitan University",
       "department": "Center for Data Science",
       "title": "Research Scientist",
       "interests": [
@@ -1965,8 +1965,8 @@
       "classical music"
     ],
     "microscholar": {
-      "email": "djackson@utoronto.ca",
-      "affiliation": "University of Toronto",
+      "email": "djackson@mapleridge.ca",
+      "affiliation": "Maple Ridge University",
       "department": "Computer Science",
       "title": "Distinguished Professor",
       "interests": [
@@ -1981,7 +1981,7 @@
       "citationsSince2020": 6273,
       "hIndexSince2020": 2,
       "isVerified": true,
-      "homepage": "https://cs.toronto.edu/~djackson",
+      "homepage": "https://cs.mapleridge.ca/~djackson",
       "orcid": "0000-0002-3456-7890"
     },
     "bannerUrl": "images/banners/user030.webp",
@@ -2065,8 +2065,8 @@
       "storyId": "story-fatima"
     },
     "microscholar": {
-      "email": "falfassi@kaust.edu.sa",
-      "affiliation": "King Abdullah University of Science and Technology",
+      "email": "falfassi@dhu.edu.sa",
+      "affiliation": "Desert Horizon University",
       "department": "Electrical and Computer Engineering",
       "title": "Associate Professor",
       "interests": [
@@ -2081,7 +2081,7 @@
       "citationsSince2020": 2161,
       "hIndexSince2020": 3,
       "isVerified": true,
-      "homepage": "https://cemse.kaust.edu.sa/falfassi",
+      "homepage": "https://cemse.dhu.edu.sa/falfassi",
       "orcid": "0000-0003-4567-8901"
     },
     "bannerUrl": "images/banners/user032.webp",
@@ -2117,8 +2117,8 @@
       "brewing beer"
     ],
     "microscholar": {
-      "email": "grobinson@tcd.ie",
-      "affiliation": "Trinity College Dublin",
+      "email": "grobinson@liffey.ie",
+      "affiliation": "Liffey College Dublin",
       "department": "Computer Science and Statistics",
       "title": "Lecturer",
       "interests": [
@@ -2200,8 +2200,8 @@
     ],
     "bannerUrl": "images/banners/user035.webp",
     "microscholar": {
-      "email": "kjohnson@stanford.edu",
-      "affiliation": "Stanford University",
+      "email": "kjohnson@redwood.edu",
+      "affiliation": "Redwood University",
       "department": "Computer Science",
       "title": "Postdoctoral Fellow",
       "interests": [
@@ -2452,14 +2452,14 @@
         {
           "id": "a1",
           "name": "Pull Shark",
-          "icon": "\ud83e\udd88",
+          "icon": "🦈",
           "description": "Opened pull requests that have been merged",
           "earnedDate": "2024"
         },
         {
           "id": "a2",
           "name": "Quickdraw",
-          "icon": "\ud83e\udd20",
+          "icon": "🤠",
           "description": "First to review a PR",
           "earnedDate": "2024"
         }
@@ -2520,8 +2520,8 @@
       ]
     },
     "microscholar": {
-      "email": "palves@tecnico.pt",
-      "affiliation": "Instituto Superior T\u00e9cnico",
+      "email": "palves@itlisboa.pt",
+      "affiliation": "Instituto Técnico de Lisboa",
       "department": "Computer Science",
       "title": "Assistant Professor",
       "interests": [
@@ -2569,8 +2569,8 @@
       "whisky tasting"
     ],
     "microscholar": {
-      "email": "rfoster@deepmind.com",
-      "affiliation": "Turing Research Labs",
+      "email": "rfoster@meridianlabs.ai",
+      "affiliation": "Meridian Research Labs",
       "department": "Research",
       "title": "Principal Research Scientist",
       "interests": [
@@ -2585,7 +2585,7 @@
       "citationsSince2020": 4420,
       "hIndexSince2020": 2,
       "isVerified": true,
-      "homepage": "https://deepmind.com/team/rfoster"
+      "homepage": "https://meridianlabs.ai/team/rfoster"
     },
     "bannerUrl": "images/banners/user043.webp",
     "microdin": {
@@ -2660,8 +2660,8 @@
       "classical dance"
     ],
     "microscholar": {
-      "email": "tsharma@iisc.ac.in",
-      "affiliation": "Indian Institute of Science",
+      "email": "tsharma@bis.ac.in",
+      "affiliation": "Bharat Institute of Science",
       "department": "Computational and Data Sciences",
       "title": "Assistant Professor",
       "interests": [
@@ -2838,8 +2838,8 @@
       "esports"
     ],
     "microscholar": {
-      "email": "akim@kaist.ac.kr",
-      "affiliation": "KAIST",
+      "email": "akim@kiat.ac.kr",
+      "affiliation": "Korean Institute of Advanced Technology",
       "department": "School of Computing",
       "title": "PhD Student",
       "interests": [
@@ -2994,7 +2994,7 @@
   },
   {
     "id": "user055",
-    "name": "Lucas M\u00fcller",
+    "name": "Lucas Müller",
     "username": "lmuller",
     "email": "lmuller@mymicromail.com",
     "age": 36,
@@ -3159,7 +3159,7 @@
     "email": "isantos@mymicromail.com",
     "age": 26,
     "race": "Hispanic",
-    "location": "S\u00e3o Paulo, BR",
+    "location": "São Paulo, BR",
     "personality_tags": [
       "energetic",
       "creative",
