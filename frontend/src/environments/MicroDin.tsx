@@ -2585,7 +2585,7 @@ const MicroDin = () => {
       )}
 
       {/* Jobs View */}
-      {currentView === 'jobs' && (
+      {(currentView === 'jobs' || currentView === 'job-detail') && (
         <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
           {/* Left Sidebar */}
           <div className="w-64 flex-shrink-0 space-y-4">
@@ -2643,7 +2643,7 @@ const MicroDin = () => {
             </div>
 
             {/* Job Listings */}
-            {!currentViewSubPage && allJobListings.length === 0 && (
+            {currentView === 'jobs' && allJobListings.length === 0 && (
               <div className="bg-white rounded-lg border border-gray-200 p-10 text-center">
                 <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -2652,7 +2652,7 @@ const MicroDin = () => {
                 <p className="text-sm text-gray-500">New opportunities matching your profile will appear here.</p>
               </div>
             )}
-            {!currentViewSubPage && allJobListings.length > 0 && (
+            {currentView === 'jobs' && allJobListings.length > 0 && (
               <div className="space-y-2">
                 {(showAllJobListings ? allJobListings : allJobListings.slice(0, 5)).map((job) => {
                   const company = allCompanies.find(c => c.id === job.companyId);
