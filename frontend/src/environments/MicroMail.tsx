@@ -9,6 +9,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 
+import { useHashTab } from "../hooks/useHashTab";
 import { useMicromailData } from "../hooks/useMicromailData";
 import {
   Archive,
@@ -210,7 +211,7 @@ const Micromail = () => {
   const [isSignedOut, setIsSignedOut] = useState(false);
 
   // UI state
-  const [selectedFolder, setSelectedFolder] = useState<FolderKey>("inbox");
+  const [selectedFolder, setSelectedFolder] = useHashTab<FolderKey>(["inbox", "sent", "drafts", "archive", "junk", "deleted", "scheduled"] as const, "inbox");
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   // Email pinned in a quick-filter view so it stays visible after being marked read/unflagged
   const [pinnedEmailId, setPinnedEmailId] = useState<string | null>(null);

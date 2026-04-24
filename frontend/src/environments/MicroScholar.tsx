@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
+import { useHashTab } from "../hooks/useHashTab";
 import { useMicroscholarData, type ApiPaper, type ApiCoauthor, type ApiScholarUser } from "../hooks/useMicroscholarData";
 import {
   Menu,
@@ -186,7 +187,7 @@ const MicroScholar = () => {
   const [searchType, setSearchType] = useState<"articles" | "caselaw">("articles");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [currentView, setCurrentView] = useState<ViewType>("home");
+  const [currentView, setCurrentView] = useHashTab<ViewType>(["home", "profile", "library", "labs", "settings", "help", "alerts", "metrics", "ai-search"] as const, "home");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [libraryView, setLibraryView] = useState<"list" | "grid">("list");
   const [settingsSection, setSettingsSection] = useState<"search" | "languages" | "library" | "account">("search");
