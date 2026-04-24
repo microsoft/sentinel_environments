@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useHashTab } from "../hooks/useHashTab";
 import { useMicrohoodData } from "../hooks/useMicrohoodData";
 import {
   Search,
@@ -146,7 +147,7 @@ const MicroHood = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderQuantity, setOrderQuantity] = useState("1");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"home" | "search" | "transfers" | "profile">("home");
+  const [activeTab, setActiveTab] = useHashTab(["home", "search", "transfers", "profile"] as const, "home");
 
   // UI Panel States
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -502,12 +503,6 @@ const MicroHood = () => {
                   className={`${activeNavSection === "retirement" ? `${themeClasses.navActive} font-medium` : themeClasses.textSecondary} hover:text-[#00C805] transition-colors`}
                 >
                   Retirement
-                </button>
-                <button
-                  onClick={() => setShowNotificationsPanel(!showNotificationsPanel)}
-                  className={`${themeClasses.textSecondary} hover:text-[#00C805] transition-colors`}
-                >
-                  Notifications
                 </button>
               </nav>
             </div>
@@ -1505,10 +1500,18 @@ const MicroHood = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
           <div className="bg-white rounded-lg shadow-2xl p-8 w-[360px] flex flex-col items-center">
             <div className="text-2xl font-bold mb-6" style={{ color: "#00C805" }}>MicroHood</div>
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#00C805" }}>
-              U
-            </div>
-            <div className="text-lg font-semibold text-gray-900 mb-1">Investor</div>
+            {currentUser.avatarUrl ? (
+              <img
+                src={currentUser.avatarUrl}
+                alt={currentUser.name}
+                className="w-20 h-20 rounded-full object-cover mb-4"
+              />
+            ) : (
+              <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#00C805" }}>
+                {currentUser.name.split(" ").map((n: string) => n[0]).join("")}
+              </div>
+            )}
+            <div className="text-lg font-semibold text-gray-900 mb-1">{currentUser.name}</div>
             <div className="text-sm text-gray-500 mb-6">Portfolio Account</div>
             <input type="password" readOnly value="••••••••" className="w-full px-4 py-2 border border-gray-300 rounded mb-4 text-center text-gray-400 bg-gray-50" />
             <button onClick={() => setIsSignedOut(false)} className="w-full py-2 text-white rounded-full font-semibold hover:opacity-90 transition-opacity" style={{ backgroundColor: "#00C805" }}>
