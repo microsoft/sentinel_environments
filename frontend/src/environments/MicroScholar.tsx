@@ -784,7 +784,6 @@ const MicroScholar = () => {
               <ArrowLeft className="w-4 h-4" />
               <span>Back to my profile</span>
             </button>
-            <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
             <div className="w-32"></div>
           </div>
         </header>
