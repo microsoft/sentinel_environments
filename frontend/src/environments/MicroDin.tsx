@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrodinData } from "../hooks/useMicrodinData";
 import type { ApiDinCompany, ApiDinUser } from "../hooks/useMicrodinData";
 
@@ -426,10 +426,18 @@ const MicroDin = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [postVisibility, setPostVisibility] = useState<'anyone' | 'connections' | 'group'>('anyone');
   const [visibilityDropdownOpen, setVisibilityDropdownOpen] = useState(false);
-  const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messageInputs, setMessageInputs] = useState<{[key: string]: string}>({});
   const [mainChatInput, setMainChatInput] = useState('');
-  const [currentView, setCurrentView] = useHashTab(['feed', 'my-network', 'jobs', 'profile', 'messaging'] as const, 'feed');
+  const [route, setRoute] = useHashRoute(
+    ['feed', 'my-network', 'jobs', 'job-detail', 'profile', 'connections', 'company', 'messaging'] as const,
+    'feed',
+  );
+  const currentView = route.view;
+  const viewedPersonId = (currentView === 'profile' || currentView === 'connections') ? (route.id ?? 'self') : 'self';
+  const viewedCompanyId = currentView === 'company' ? route.id : null;
+  const selectedJobId = currentView === 'job-detail' ? route.id : null;
+  const activeChat = currentView === 'messaging' ? route.id : null;
+  const setActiveChat = useCallback((id: string | null) => setRoute('messaging', id), [setRoute]);
   const [pageNotificationsOpen, setPageNotificationsOpen] = useState(false);
   const [pageVisitorsOpen, setPageVisitorsOpen] = useState(false);
   const [profileViewersOpen, setProfileViewersOpen] = useState(false);
@@ -456,11 +464,7 @@ const MicroDin = () => {
   const [savedPosts, setSavedPosts] = useState<string[]>([]);
   const [hiddenPosts, setHiddenPosts] = useState<string[]>([]);
 
-  // Profile and company navigation state
-  const [viewedPersonId, setViewedPersonId] = useState<string>('self'); // Default to current user
-  const [viewedCompanyId, setViewedCompanyId] = useState<string | null>(null);
-  const [currentViewSubPage, setCurrentViewSubPage] = useState<'company' | 'job-detail' | 'connections' | null>(null);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  // Profile / company navigation state is derived from `route` above.
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [manageJobsModalOpen, setManageJobsModalOpen] = useState(false);
@@ -704,23 +708,20 @@ const MicroDin = () => {
 
   // Navigation helper functions
   const handleViewProfile = (personId: string) => {
-    setViewedPersonId(personId);
-    setCurrentView('profile');
-    setCurrentViewSubPage(null);
+    setRoute('profile', personId === 'self' ? null : personId);
     setProfileDropdownOpen(false);
     setShowSearchResults(false);
   };
 
   const handleViewCompany = (companyId: string) => {
-    setViewedCompanyId(companyId);
-    setCurrentViewSubPage('company');
+    setRoute('company', companyId);
     setProfileDropdownOpen(false);
     setShowSearchResults(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleMessagePerson = async (personName: string) => {
-    setCurrentView('messaging');
+    setRoute('messaging');
     const existingContact = contacts.find(c => c.name === personName);
     if (existingContact) {
       setActiveChat(existingContact.id);
@@ -733,9 +734,7 @@ const MicroDin = () => {
   };
 
   const handleViewJobDetail = (jobId: string) => {
-    setSelectedJobId(jobId);
-    setCurrentView('jobs');
-    setCurrentViewSubPage('job-detail');
+    setRoute('job-detail', jobId);
   };
 
   const handleApplyJob = (jobId: string) => {
@@ -746,7 +745,7 @@ const MicroDin = () => {
   };
 
   const handleViewConnections = () => {
-    setCurrentViewSubPage('connections');
+    setRoute('connections', viewedPersonId === 'self' ? null : viewedPersonId);
   };
 
   const handleConnect = (personId: string) => {
@@ -811,9 +810,7 @@ const MicroDin = () => {
   };
 
   const handleBackFromSubPage = () => {
-    setCurrentViewSubPage(null);
-    setSelectedJobId(null);
-    setViewedCompanyId(null);
+    window.history.back();
   };
 
 
@@ -877,8 +874,7 @@ const MicroDin = () => {
               <div
                 className="w-9 h-9 rounded flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => {
-                  setCurrentView('feed');
-                  setCurrentViewSubPage(null);
+                  setRoute('feed');
                 }}
               >
                 <img
@@ -991,7 +987,7 @@ const MicroDin = () => {
             {/* Navigation */}
             <nav className="flex items-center space-x-8">
               <button
-                onClick={() => { setCurrentView('feed'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('feed'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'feed' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -1005,7 +1001,7 @@ const MicroDin = () => {
                 )}
               </button>
               <button
-                onClick={() => { setCurrentView('my-network'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('my-network'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'my-network' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -1019,7 +1015,7 @@ const MicroDin = () => {
                 )}
               </button>
               <button
-                onClick={() => { setCurrentView('jobs'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('jobs'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'jobs' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -1034,7 +1030,7 @@ const MicroDin = () => {
                 )}
               </button>
               <button
-                onClick={() => { setCurrentView('messaging'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('messaging'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'messaging' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -1088,8 +1084,7 @@ const MicroDin = () => {
                             setNotificationsDropdownOpen(false);
                             // Navigate based on notification type
                             if (notif.type === 'like' || notif.type === 'comment') {
-                              setCurrentView('feed');
-                              setCurrentViewSubPage(null);
+                              setRoute('feed');
                               if (notif.targetPostId) {
                                 if (notif.type === 'comment') {
                                   setSelectedPostId(notif.targetPostId);
@@ -1100,14 +1095,11 @@ const MicroDin = () => {
                                 }
                               }
                             } else if (notif.type === 'connection') {
-                              setCurrentView('my-network');
-                              setCurrentViewSubPage(null);
+                              setRoute('my-network');
                             } else if (notif.type === 'message') {
-                              setCurrentView('messaging');
-                              setCurrentViewSubPage(null);
+                              setRoute('messaging');
                             } else if (notif.type === 'job') {
-                              setCurrentView('jobs');
-                              setCurrentViewSubPage(null);
+                              setRoute('jobs');
                             }
                           }}
                           className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${!notif.read ? 'bg-blue-50' : ''}`}
@@ -1217,7 +1209,7 @@ const MicroDin = () => {
       )}
 
       {/* Main Content */}
-      {currentView === 'feed' && !currentViewSubPage && (
+      {currentView === 'feed' && (
       <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
         {/* Left Sidebar */}
         <div className="w-56 flex-shrink-0 space-y-2">
@@ -1613,7 +1605,7 @@ const MicroDin = () => {
               ))}
             </div>
             <button
-              onClick={() => { setCurrentView('my-network'); setCurrentViewSubPage(null); }}
+              onClick={() => { setRoute('my-network'); }}
               className="mt-3 text-sm text-gray-600 hover:bg-gray-100 w-full text-left px-2 py-1 rounded font-medium flex items-center"
             >
               View all recommendations
@@ -1627,7 +1619,7 @@ const MicroDin = () => {
       )}
 
       {/* My Network View */}
-      {currentView === 'my-network' && currentViewSubPage !== 'company' && (
+      {currentView === 'my-network' && (
         <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
           {/* Left Sidebar - Manage my network */}
           <div className="w-64 flex-shrink-0">
@@ -2095,7 +2087,7 @@ const MicroDin = () => {
       )}
 
       {/* Profile View */}
-      {currentView === 'profile' && !currentViewSubPage && (
+      {currentView === 'profile' && (
         <div className="max-w-5xl mx-auto py-6 px-4">
           {/* Profile Header Card */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
@@ -2292,7 +2284,7 @@ const MicroDin = () => {
       )}
 
       {/* Connections List View */}
-      {currentView === 'profile' && currentViewSubPage === 'connections' && (
+      {currentView === 'connections' && (
         <div className="max-w-5xl mx-auto py-6 px-4">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <button
@@ -2339,7 +2331,7 @@ const MicroDin = () => {
       )}
 
       {/* Company Profile View */}
-      {currentViewSubPage === 'company' && viewedCompany && (
+      {currentView === 'company' && viewedCompany && (
         <div className="max-w-5xl mx-auto py-6 px-4">
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
             <button
@@ -2554,8 +2546,7 @@ const MicroDin = () => {
                 key={contact.id}
                 onClick={() => {
                   setActiveChat(contact.id);
-                  setCurrentView('messaging');
-                  setCurrentViewSubPage(null);
+                  setRoute('messaging');
                   setMessagingPanelOpen(false);
                   // Mark messages as read
                   readConversation(contact.id);
@@ -2594,7 +2585,7 @@ const MicroDin = () => {
       )}
 
       {/* Jobs View */}
-      {currentView === 'jobs' && currentViewSubPage !== 'company' && (
+      {currentView === 'jobs' && (
         <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
           {/* Left Sidebar */}
           <div className="w-64 flex-shrink-0 space-y-4">
@@ -2825,7 +2816,7 @@ const MicroDin = () => {
             )}
 
             {/* Job Detail View */}
-            {currentViewSubPage === 'job-detail' && selectedJob && (
+            {currentView === 'job-detail' && selectedJob && (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <button
                   onClick={handleBackFromSubPage}
@@ -2960,7 +2951,7 @@ const MicroDin = () => {
       )}
 
       {/* Messaging View */}
-      {currentView === 'messaging' && !currentViewSubPage && (
+      {currentView === 'messaging' && (
         <div className="max-w-7xl mx-auto py-6 px-4">
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 150px)' }}>
             <div className="flex h-full">
@@ -3738,7 +3729,7 @@ const MicroDin = () => {
                   <button
                     onClick={() => {
                       setManageJobsModalOpen(false);
-                      setCurrentView('jobs');
+                      setRoute('jobs');
                     }}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
                   >
@@ -3808,7 +3799,7 @@ const MicroDin = () => {
                   <button
                     onClick={() => {
                       setManageJobsModalOpen(false);
-                      setCurrentView('jobs');
+                      setRoute('jobs');
                     }}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
                   >

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 import {
   GitBranch,
   GitCommit,
@@ -303,11 +303,12 @@ const MicroHub = () => {
 
   // UI-only state
   const [startTime] = useState(Date.now());
-  const [currentView, setCurrentView] = useHashTab<ViewType>(["code", "issues", "pulls", "actions", "projects", "wiki", "security", "insights", "issue-detail", "pr-detail", "settings", "profile", "file-view", "commits"] as const, "code");
-  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
-  const [selectedPRId, setSelectedPRId] = useState<string | null>(null);
-  const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
-  const [viewingProfileUsername, setViewingProfileUsername] = useState<string | null>(null);
+  const [route, setRoute] = useHashRoute<ViewType>(["code", "issues", "pulls", "actions", "projects", "wiki", "security", "insights", "issue-detail", "pr-detail", "settings", "profile", "file-view", "commits"] as const, "code");
+  const currentView = route.view;
+  const selectedIssueId = currentView === "issue-detail" ? route.id : null;
+  const selectedPRId = currentView === "pr-detail" ? route.id : null;
+  const selectedFilePath = currentView === "file-view" ? route.id : null;
+  const viewingProfileUsername = currentView === "profile" ? route.id : null;
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [issueFilter, setIssueFilter] = useState<IssueState>("open");
@@ -400,11 +401,9 @@ const MicroHub = () => {
 
     // Navigate based on type
     if (notification.type === "pr" && notification.targetId) {
-      setCurrentView("pr-detail");
-      setSelectedPRId(notification.targetId);
+      setRoute("pr-detail", notification.targetId);
     } else if (notification.type === "issue" && notification.targetId) {
-      setCurrentView("issue-detail");
-      setSelectedIssueId(notification.targetId);
+      setRoute("issue-detail", notification.targetId);
     }
   };
 
@@ -458,14 +457,12 @@ const MicroHub = () => {
   }, [forkRepo]);
 
   const handleViewProfile = useCallback((username: string) => {
-    setViewingProfileUsername(username);
-    setCurrentView("profile");
-  }, [setCurrentView]);
+    setRoute("profile", username);
+  }, [setRoute]);
 
   const handleViewFile = useCallback((path: string) => {
-    setSelectedFilePath(path);
-    setCurrentView("file-view");
-  }, [setCurrentView]);
+    setRoute("file-view", path);
+  }, [setRoute]);
 
   const toggleFolder = useCallback((path: string) => {
     setExpandedFolders(prev =>
@@ -699,7 +696,7 @@ const MicroHub = () => {
         </button>
 
         {/* MicroHub logo */}
-        <a href="#" className="text-white hover:text-gray-300" onClick={(e) => { e.preventDefault(); setCurrentView("code"); setSelectedIssueId(null); setSelectedPRId(null); setSelectedFilePath(null); setViewingProfileUsername(null); }}>
+        <a href="#" className="text-white hover:text-gray-300" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
           <img src="desktop/github-icon.png" alt="MicroHub" className="w-8 h-8 object-contain" />
         </a>
 
@@ -709,7 +706,7 @@ const MicroHub = () => {
             {repository!.owner}
           </a>
           <span className="mx-1 text-gray-500">/</span>
-          <a href="#" className="text-white font-semibold hover:underline" onClick={(e) => { e.preventDefault(); setCurrentView("code"); }}>
+          <a href="#" className="text-white font-semibold hover:underline" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
             {repository!.name}
           </a>
           {repository!.isPrivate ? (
@@ -778,12 +775,12 @@ const MicroHub = () => {
               </div>
 
               {/* Issues icon */}
-              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setCurrentView("issues"); setSelectedIssueId(null); }}>
+              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setRoute("issues"); }}>
                 <CircleDot className="w-5 h-5" />
               </button>
 
               {/* PRs icon */}
-              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setCurrentView("pulls"); setSelectedPRId(null); }}>
+              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setRoute("pulls"); }}>
                 <GitPullRequest className="w-5 h-5" />
               </button>
 
@@ -874,7 +871,7 @@ const MicroHub = () => {
                     <Star className="w-4 h-4 mr-3" />Your stars
                   </button>
                   <div className="border-t border-gray-700 my-1" />
-                  <button onClick={() => { setCurrentView("settings"); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
+                  <button onClick={() => { setRoute("settings"); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
                     <Settings className="w-4 h-4 mr-3" />Settings
                   </button>
                   <button
@@ -906,7 +903,7 @@ const MicroHub = () => {
           {repository!.owner}
         </a>
         <span className={theme.textMuted}>/</span>
-        <a href="#" className="text-blue-500 hover:underline font-semibold" onClick={(e) => { e.preventDefault(); setCurrentView("code"); }}>
+        <a href="#" className="text-blue-500 hover:underline font-semibold" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
           {repository!.name}
         </a>
         <span className={classNames("px-2 py-0.5 text-xs border rounded-full", theme.border, theme.textSecondary)}>
@@ -988,7 +985,7 @@ const MicroHub = () => {
         ].map((tab) => (
           <button
             key={tab.key}
-            onClick={() => { setCurrentView(tab.key as ViewType); setSelectedIssueId(null); setSelectedPRId(null); setSelectedFilePath(null); }}
+            onClick={() => { setRoute(tab.key as ViewType); }}
             className={classNames(
               "flex items-center space-x-1 px-3 py-2 text-sm rounded-md whitespace-nowrap",
               currentView === tab.key || (tab.key === "code" && currentView === "file-view") || (tab.key === "issues" && currentView === "issue-detail") || (tab.key === "pulls" && currentView === "pr-detail")
@@ -1146,7 +1143,7 @@ const MicroHub = () => {
           <div className={classNames("flex items-center space-x-3 text-sm", theme.textSecondary)}>
             <span className="font-mono text-blue-400">{commits[0].sha}</span>
             <span>{computeRelativeTimestamp(commits[0].order, startTime)}</span>
-            <button onClick={() => setCurrentView("commits")} className="flex items-center hover:text-blue-400">
+            <button onClick={() => setRoute("commits")} className="flex items-center hover:text-blue-400">
               <History className="w-4 h-4 mr-1" />
               {repository!.commits.toLocaleString()} commits
             </button>
@@ -1341,7 +1338,7 @@ npm run dev`}</code>
     return (
       <div className="p-4">
         <div className={classNames("flex items-center space-x-2 text-sm mb-4", theme.textSecondary)}>
-          <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView("code"); setSelectedFilePath(null); }} className="text-blue-400 hover:underline">
+          <a href="#" onClick={(e) => { e.preventDefault(); setRoute("code"); }} className="text-blue-400 hover:underline">
             {repository!.name}
           </a>
           {selectedFile.path.split("/").map((part, i, arr) => {
@@ -1358,8 +1355,7 @@ npm run dev`}</code>
                 foldersToExpand.push(pathParts.slice(0, j).join("/"));
               }
               setExpandedFolders(prev => [...new Set([...prev, ...foldersToExpand])]);
-              setSelectedFilePath(null);
-              setCurrentView("code");
+              setRoute("code");
             };
 
             return (
@@ -1702,7 +1698,7 @@ npm run dev`}</code>
                 <div className={classNames("border rounded-md p-4", theme.border)}>
                   <div className="flex items-center space-x-2 mb-2">
                     <BookOpen className={classNames("w-4 h-4", theme.textSecondary)} />
-                    <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView("code"); setViewingProfileUsername(null); }} className="text-blue-400 hover:underline font-semibold">
+                    <a href="#" onClick={(e) => { e.preventDefault(); setRoute("code"); }} className="text-blue-400 hover:underline font-semibold">
                       {repository!.fullName}
                     </a>
                     <span className={classNames("text-xs border rounded-full px-2 py-0.5", theme.border, theme.textSecondary)}>Public</span>
@@ -1958,7 +1954,7 @@ npm run dev`}</code>
           </div>
         ) : (
           filteredIssues.map((issue, index) => (
-            <div key={issue.id} onClick={() => { setSelectedIssueId(issue.id); setCurrentView("issue-detail"); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredIssues.length - 1 && classNames("border-b", theme.borderLight))}>
+            <div key={issue.id} onClick={() => { setRoute("issue-detail", issue.id); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredIssues.length - 1 && classNames("border-b", theme.borderLight))}>
               <div className="mr-3 mt-1">
                 {issue.state === "open" ? <CircleDot className="w-4 h-4 text-green-500" /> : <CheckCircle2 className="w-4 h-4 text-purple-500" />}
               </div>
@@ -2157,7 +2153,7 @@ npm run dev`}</code>
 
       <div className={classNames("border rounded-md", theme.border)}>
         {filteredPRs.map((pr, index) => (
-          <div key={pr.id} onClick={() => { setSelectedPRId(pr.id); setCurrentView("pr-detail"); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredPRs.length - 1 && classNames("border-b", theme.borderLight))}>
+          <div key={pr.id} onClick={() => { setRoute("pr-detail", pr.id); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredPRs.length - 1 && classNames("border-b", theme.borderLight))}>
             <div className="mr-3 mt-1">
               {pr.state === "open" ? <GitPullRequest className="w-4 h-4 text-green-500" /> : pr.state === "merged" ? <GitMerge className="w-4 h-4 text-purple-500" /> : <GitPullRequest className="w-4 h-4 text-red-500" />}
             </div>
@@ -3093,7 +3089,7 @@ npm run dev`}</code>
         </div>
 
         <button
-          onClick={() => setCurrentView("code")}
+          onClick={() => setRoute("code")}
           className="mt-6 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md"
         >
           Back to repository
@@ -3126,7 +3122,7 @@ npm run dev`}</code>
             ].map(item => (
               <button
                 key={item.view}
-                onClick={() => { if (item.extra) item.extra(); else setCurrentView(item.view as ViewType); setCommandPaletteOpen(false); }}
+                onClick={() => { if (item.extra) item.extra(); else setRoute(item.view as ViewType); setCommandPaletteOpen(false); }}
                 className={classNames("w-full flex items-center space-x-3 px-3 py-2 rounded", theme.hover)}
               >
                 <item.icon className={classNames("w-4 h-4", theme.textSecondary)} />
@@ -3240,7 +3236,7 @@ npm run dev`}</code>
                 ].map((item) => (
                   <button
                     key={item.key}
-                    onClick={() => { setCurrentView(item.key as ViewType); setSideMenuOpen(false); }}
+                    onClick={() => { setRoute(item.key as ViewType); setSideMenuOpen(false); }}
                     className={classNames(
                       "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm",
                       currentView === item.key ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-800"
@@ -3346,7 +3342,7 @@ npm run dev`}</code>
                   setNewIssueTitle("");
                   setNewIssueBody("");
                   setNewIssueModalOpen(false);
-                  setCurrentView("issues");
+                  setRoute("issues");
                 }}
                 disabled={!newIssueTitle.trim()}
                 className={classNames(
@@ -3450,7 +3446,7 @@ npm run dev`}</code>
                   setNewPRBody("");
                   setNewPRSourceBranch("");
                   setNewPRModalOpen(false);
-                  setCurrentView("pulls");
+                  setRoute("pulls");
                 }}
                 disabled={!newPRTitle.trim() || !newPRSourceBranch}
                 className={classNames(

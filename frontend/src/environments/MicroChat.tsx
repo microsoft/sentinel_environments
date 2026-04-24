@@ -6,7 +6,7 @@ import {
   useCallback,
   type FormEvent,
 } from "react";
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrochatData } from "../hooks/useMicrochatData";
 import {
   Search,
@@ -692,9 +692,16 @@ const MicroChat = () => {
   }, [apiTeams, selfUser.id]);
 
   // ---- UI state ----
-  const [currentView, setCurrentView] = useHashTab<ViewType>(["chat", "teams", "calendar", "calls"] as const, "chat");
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [route, setRoute] = useHashRoute<ViewType>(["chat", "teams", "calendar", "calls"] as const, "chat");
+  const currentView = route.view;
+  const setCurrentView = useCallback((view: ViewType) => setRoute(view), [setRoute]);
+  const selectedConversationId = currentView === "chat" ? route.id : null;
+  const setSelectedConversationId = useCallback(
+    (id: string | null) => setRoute("chat", id),
+    [setRoute],
+  );
+  const teamsCompositeId = currentView === "teams" ? route.id : null;
+  const selectedTeamId = teamsCompositeId ? teamsCompositeId.split(":")[0] || null : null;
   const [chatFilter, setChatFilter] = useState<ChatFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSignedOut, setIsSignedOut] = useState(false);
@@ -726,7 +733,17 @@ const MicroChat = () => {
 
   // Translation helper
   const t = useCallback((key: string) => TRANSLATIONS[language][key] || TRANSLATIONS.en[key] || key, [language]);
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const selectedChannelId = teamsCompositeId && teamsCompositeId.includes(":")
+    ? teamsCompositeId.split(":")[1] || null
+    : null;
+  const setSelectedChannelId = useCallback(
+    (id: string | null) => {
+      const team = teamsCompositeId ? teamsCompositeId.split(":")[0] : null;
+      if (!team) return;
+      setRoute("teams", id ? `${team}:${id}` : team);
+    },
+    [setRoute, teamsCompositeId],
+  );
   const [channelMessages, setChannelMessages] = useState<Record<string, { id: string; senderId: string; content: string; timestamp: number }[]>>({});
   const [showChannelMembers, setShowChannelMembers] = useState(false);
   const [showNewMeetingModal, setShowNewMeetingModal] = useState(false);
@@ -935,7 +952,7 @@ const MicroChat = () => {
     for (const msg of convMsgs) {
       markRead(msg.id);
     }
-  }, [apiMessages, markRead]);
+  }, [apiMessages, markRead, setSelectedConversationId]);
 
   const handleSendMessage = useCallback(
     (e: FormEvent) => {
@@ -1423,7 +1440,7 @@ const MicroChat = () => {
         {selectedTeamId ? (
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setSelectedTeamId(null); setSelectedChannelId(null); }}
+              onClick={() => setRoute("teams")}
               className={classNames("rounded-md p-1", darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100")}
             >
               <ChevronLeft size={20} />
@@ -1751,10 +1768,7 @@ const MicroChat = () => {
                     key={team.id}
                     team={team}
                     darkMode={darkMode}
-                    onClick={() => {
-                      setSelectedTeamId(team.id);
-                      setSelectedChannelId(null);
-                    }}
+                    onClick={() => setRoute("teams", team.id)}
                   />
                 ))}
               </div>

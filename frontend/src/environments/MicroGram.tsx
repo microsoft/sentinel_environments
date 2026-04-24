@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
-import { useHashTab } from "../hooks/useHashTab";
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrogramData, type ApiGramPost, type ApiGramUser, type ApiGramMessage } from "../hooks/useMicrogramData";
 import {
   Home,
@@ -226,8 +226,9 @@ const MicroGram = () => {
   const [isSignedOut, setIsSignedOut] = useState(false);
 
   // Navigation
-  const [navSection, setNavSection] = useHashTab<NavSection>(["home", "explore", "create", "activity", "profile", "direct", "search"] as const, "home");
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [route, setRoute] = useHashRoute<NavSection>(["home", "explore", "create", "activity", "profile", "direct", "search"] as const, "home");
+  const navSection = route.view;
+  const selectedProfile = navSection === "profile" ? route.id : null;
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState<number | null>(null);
@@ -371,10 +372,9 @@ const MicroGram = () => {
   }, [commentText, replyToComment, commentOnPost]);
 
   const navigateToProfile = useCallback((userId: string) => {
-    setSelectedProfile(userId);
-    setNavSection("profile");
+    setRoute("profile", userId);
     setProfileTab("posts");
-  }, [setNavSection]);
+  }, [setRoute]);
 
   const openPostModal = useCallback((postId: string) => {
     setSelectedPost(postId);
@@ -1492,29 +1492,29 @@ const MicroGram = () => {
       <header className="fixed left-0 right-0 bg-white border-b border-gray-200 z-40 top-0">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <button
-            onClick={() => { setNavSection("home"); setSelectedProfile(null); }}
+            onClick={() => { setRoute("home"); }}
             className="flex items-center gap-2 hover:opacity-70 transition-opacity"
           >
             <img src="desktop/microgram-icon.png" alt="MicroGram" className="w-7 h-7 object-contain" />
             <h1 className="text-xl font-semibold italic">MicroGram</h1>
           </button>
           <nav className="flex items-center gap-6">
-            <button onClick={() => { setNavSection("home"); setSelectedProfile(null); }}>
+            <button onClick={() => { setRoute("home"); }}>
               <Home size={24} className={navSection === "home" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("search")}>
+            <button onClick={() => setRoute("search")}>
               <Search size={24} className={navSection === "search" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("explore")}>
+            <button onClick={() => setRoute("explore")}>
               <Compass size={24} className={navSection === "explore" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("direct")}>
+            <button onClick={() => setRoute("direct")}>
               <Send size={24} className={navSection === "direct" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("activity")}>
+            <button onClick={() => setRoute("activity")}>
               <Heart size={24} className={navSection === "activity" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => { setNavSection("profile"); setSelectedProfile(null); }}>
+            <button onClick={() => { setRoute("profile"); }}>
               <User size={24} className={navSection === "profile" ? "fill-gray-900" : ""} />
             </button>
           </nav>
