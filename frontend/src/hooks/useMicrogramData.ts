@@ -98,6 +98,7 @@ export function useMicrogramData() {
   const [likeOverrides, setLikeOverrides] = useState<Map<string, boolean>>(new Map());
   const [saveOverrides, setSaveOverrides] = useState<Map<string, boolean>>(new Map());
   const [messageReadOverrides, setMessageReadOverrides] = useState<Map<string, boolean>>(new Map());
+  const [followOverrides, setFollowOverrides] = useState<Map<string, boolean>>(new Map());
 
   const configLoaded = useRef(false);
   const usersLoaded = useRef(false);
@@ -208,6 +209,15 @@ export function useMicrogramData() {
     });
   }, [posts, likeOverrides, saveOverrides]);
 
+  const followedUserIdsWithOverrides = useMemo<string[]>(() => {
+    const set = new Set(followedUserIds);
+    followOverrides.forEach((isFollowed, userId) => {
+      if (isFollowed) set.add(userId);
+      else set.delete(userId);
+    });
+    return Array.from(set);
+  }, [followedUserIds, followOverrides]);
+
   const messages = useMemo<ApiGramMessage[]>(() => {
     return rawMessages.map((conversation) => {
       let unreadCount = 0;
@@ -273,10 +283,14 @@ export function useMicrogramData() {
   }, []);
 
   const followUser = useCallback(async (userId: string) => {
+    const currentlyFollowed = followOverrides.has(userId)
+      ? (followOverrides.get(userId) as boolean)
+      : followedUserIds.includes(userId);
+    setFollowOverrides((prev) => new Map(prev).set(userId, !currentlyFollowed));
     await fetch(`/api/data/microgram-users/${userId}/follow`, {
       method: "POST",
     }).catch(() => {});
-  }, []);
+  }, [followOverrides, followedUserIds]);
 
   const readConversation = useCallback(async (conversationId: string) => {
     const conversation = rawMessages.find((item) => item.id === conversationId);
@@ -309,7 +323,7 @@ export function useMicrogramData() {
     stories,
     messages,
     activity,
-    followedUserIds,
+    followedUserIds: followedUserIdsWithOverrides,
     users,
     config,
     isLoading,
