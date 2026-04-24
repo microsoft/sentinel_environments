@@ -1513,7 +1513,7 @@ const Micromail = () => {
       {/* Attachment Preview Panel */}
       {/* Discard draft confirmation */}
       {discardConfirmOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-2xl">
             <div className="px-5 py-4 border-b">
               <h3 className="text-base font-semibold text-slate-900">Discard this draft?</h3>
