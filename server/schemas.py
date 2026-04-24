@@ -453,6 +453,33 @@ class MicrohubMergeRequest(BaseModel):
     strategy: str = "merge"  # "merge" | "squash" | "rebase"
 
 
+class MicrohubCreateRepoRequest(BaseModel):
+    name: str
+    description: str = ""
+    visibility: str = "public"  # "public" | "private"
+    addReadme: bool = False
+    addGitignore: bool = False
+
+
+class MicrohubCreateIssueRequest(BaseModel):
+    title: str
+    body: str = ""
+
+
+class MicrohubUserCreatedReposResponse(BaseModel):
+    repositories: list[dict]
+
+
+class MicrohubCreateRepoResponse(BaseModel):
+    success: bool
+    repository: dict
+
+
+class MicrohubCreateIssueResponse(BaseModel):
+    success: bool
+    issue: dict
+
+
 # ---------------------------------------------------------------------------
 # Microscholar
 # ---------------------------------------------------------------------------

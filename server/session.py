@@ -128,6 +128,9 @@ class Session:
     microhub_following_users: set[str] = field(default_factory=set)        # usernames followed by user
     microhub_user_created_issues: list[dict] = field(default_factory=list)
     microhub_user_created_prs: list[dict] = field(default_factory=list)
+    microhub_user_created_repos: list[dict] = field(default_factory=list)
+    microhub_star_waypoints: list[list[float]] = field(default_factory=list)  # [[time, stars], ...]
+    microhub_star_offset: int = 0                                             # user star bump, added on top of interpolated value
 
     # MicroScholar
     microscholar_papers: list[dict] = field(default_factory=list)

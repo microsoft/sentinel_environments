@@ -41,6 +41,7 @@ export interface ApiRepository {
   fullName: string;
   description: string;
   isPrivate: boolean;
+  visibility?: "public" | "private";
   isFork: boolean;
   stars: number;
   forks: number;
@@ -59,6 +60,8 @@ export interface ApiRepository {
   isStarred: boolean;
   isWatched: boolean;
   isForked: boolean;
+  hasReadme?: boolean;
+  hasGitignore?: boolean;
 }
 
 export interface ApiFile {
@@ -300,6 +303,7 @@ export function useMicrohubData() {
   const [deployments, setDeployments] = useState<ApiDeployment[]>([]);
   const [packages, setPackages] = useState<ApiPackage[]>([]);
   const [users, setUsers] = useState<Record<string, ApiHubUser>>({});
+  const [userCreatedRepos, setUserCreatedRepos] = useState<ApiRepository[]>([]);
 
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -412,8 +416,12 @@ export function useMicrohubData() {
         if (!r.ok) throw new Error(`Following fetch failed: ${r.status}`);
         return r.json();
       }),
+      fetch("/api/data/microhub-user-created-repos").then((r) => {
+        if (!r.ok) throw new Error(`User-created repos fetch failed: ${r.status}`);
+        return r.json();
+      }),
     ])
-      .then(([repoData, issuesData, pullsData, runsData, activityData, projectsData, followingData]) => {
+      .then(([repoData, issuesData, pullsData, runsData, activityData, projectsData, followingData, userReposData]) => {
         setRepository(repoData.repository ?? null);
         setIssues(issuesData.issues ?? []);
         setPulls(pullsData.prs ?? []);
@@ -421,6 +429,13 @@ export function useMicrohubData() {
         setActivity(activityData.activity ?? []);
         setProjects(projectsData.projects ?? []);
         setFollowingUsernames(followingData.following ?? []);
+        setUserCreatedRepos((prev) => {
+          const fetched: ApiRepository[] = userReposData.repositories ?? [];
+          // Merge: keep optimistic locals that the server hasn't echoed yet (by id).
+          const known = new Set(fetched.map((r) => r.id));
+          const optimistic = prev.filter((r) => !known.has(r.id));
+          return [...fetched, ...optimistic];
+        });
         setError(null);
         setIsLoading(false);
       })
@@ -489,6 +504,46 @@ export function useMicrohubData() {
     return res.json();
   }, []);
 
+  const createRepo = useCallback(async (payload: {
+    name: string;
+    description?: string;
+    visibility?: "public" | "private";
+    addReadme?: boolean;
+    addGitignore?: boolean;
+  }) => {
+    const res = await fetch("/api/data/microhub-repos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: payload.name,
+        description: payload.description ?? "",
+        visibility: payload.visibility ?? "public",
+        addReadme: payload.addReadme ?? false,
+        addGitignore: payload.addGitignore ?? false,
+      }),
+    }).catch(() => null);
+    if (!res || !res.ok) return null;
+    const data = await res.json();
+    const repo = data.repository ?? null;
+    if (repo) {
+      setUserCreatedRepos((prev) =>
+        prev.some((r) => r.id === repo.id) ? prev : [...prev, repo]
+      );
+    }
+    return repo as ApiRepository | null;
+  }, []);
+
+  const createIssue = useCallback(async (title: string, body: string) => {
+    const res = await fetch("/api/data/microhub-issues", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, body }),
+    }).catch(() => null);
+    if (!res || !res.ok) return null;
+    const data = await res.json();
+    return (data.issue ?? null) as ApiIssue | null;
+  }, []);
+
   const followUser = useCallback(async (username: string) => {
     await fetch(`/api/data/microhub-users/${username}/follow`, {
       method: "POST",
@@ -518,6 +573,7 @@ export function useMicrohubData() {
     deployments,
     packages,
     users,
+    userCreatedRepos,
     // Meta
     config,
     isLoading,
@@ -531,5 +587,7 @@ export function useMicrohubData() {
     commentOnPR,
     closeIssue,
     followUser,
+    createRepo,
+    createIssue,
   };
 }

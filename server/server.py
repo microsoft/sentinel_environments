@@ -88,6 +88,11 @@ from server.schemas import (
     MicrohubCodeScanningResponse,
     MicrohubCommentRequest,
     MicrohubCommitsResponse,
+    MicrohubCreateIssueRequest,
+    MicrohubCreateIssueResponse,
+    MicrohubCreateRepoRequest,
+    MicrohubCreateRepoResponse,
+    MicrohubUserCreatedReposResponse,
     MicrohubDeploymentsResponse,
     MicrohubFilesResponse,
     MicrohubFollowingResponse,
@@ -1512,14 +1517,18 @@ async def data_hood_toggle_watchlist(symbol: str) -> dict:
 
 @app.get("/data/microhub-repository", response_model=MicrohubRepositoryResponse)
 async def data_hub_repository() -> MicrohubRepositoryResponse:
+    from server.handlers.microhub import _current_star_count
     session = _require_session()
     repo = dict(session.microhub_repository)
-    repo["stars"] = session.microhub_star_count
+    repo["stars"] = _current_star_count(session)
     repo["forks"] = session.microhub_fork_count
     repo["watchers"] = session.microhub_watch_count
     repo["isStarred"] = session.microhub_starred
     repo["isWatched"] = session.microhub_watched
     repo["isForked"] = session.microhub_forked
+    # Derive `visibility` from `isPrivate` unless explicitly set by a PATCH.
+    if "visibility" not in repo:
+        repo["visibility"] = "private" if repo.get("isPrivate") else "public"
     return MicrohubRepositoryResponse(repository=repo)
 
 
@@ -1541,8 +1550,11 @@ async def data_hub_issues() -> MicrohubIssuesResponse:
         if user_comments:
             merged["comments"] = list(merged.get("comments", [])) + user_comments
         result.append(merged)
-    # Append user-created issues
+    # Append user-created issues (also merge in user comments on them)
     for issue in session.microhub_user_created_issues:
+        user_comments = [c for c in session.microhub_user_created_comments if c.get("targetId") == issue["id"]]
+        if user_comments:
+            issue = {**issue, "comments": list(issue.get("comments", [])) + user_comments}
         result.append(issue)
     return MicrohubIssuesResponse(issues=result)
 
@@ -1652,16 +1664,68 @@ async def data_hub_packages() -> MicrohubPackagesResponse:
     return MicrohubPackagesResponse(packages=session.microhub_packages)
 
 
+@app.get("/data/microhub-user-created-repos", response_model=MicrohubUserCreatedReposResponse)
+async def data_hub_user_created_repos() -> MicrohubUserCreatedReposResponse:
+    session = _require_session()
+    return MicrohubUserCreatedReposResponse(repositories=list(session.microhub_user_created_repos))
+
+
+@app.post("/data/microhub-repos", response_model=MicrohubCreateRepoResponse)
+async def data_hub_create_repo(body: MicrohubCreateRepoRequest) -> dict:
+    session = _require_session()
+    if body.visibility not in ("public", "private"):
+        raise HTTPException(status_code=400, detail="visibility must be 'public' or 'private'")
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Repository name is required")
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    owner = self_user.get("username") or "you"
+    repo = {
+        "id": f"user-repo-{len(session.microhub_user_created_repos) + 1}",
+        "owner": owner,
+        "ownerType": "user",
+        "name": name,
+        "fullName": f"{owner}/{name}",
+        "description": body.description,
+        "isPrivate": body.visibility == "private",
+        "visibility": body.visibility,
+        "isFork": False,
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "",
+        "languageColor": "",
+        "languages": [],
+        "license": "",
+        "defaultBranch": "main",
+        "branches": ["main"],
+        "tags": [],
+        "topics": [],
+        "commits": 1 if body.addReadme else 0,
+        "isStarred": False,
+        "isWatched": False,
+        "isForked": False,
+        "hasReadme": body.addReadme,
+        "hasGitignore": body.addGitignore,
+    }
+    session.microhub_user_created_repos.append(repo)
+    return {"success": True, "repository": repo}
+
+
 @app.post("/data/microhub-repository/star", response_model=StarResponse)
 async def data_hub_star() -> dict:
+    from server.handlers.microhub import _current_star_count
     session = _require_session()
+    # Adjust a user-driven offset that rides on top of the scenario's interpolated
+    # baseline so the user's star doesn't disturb the scheduled star curve.
     if session.microhub_starred:
         session.microhub_starred = False
-        session.microhub_star_count -= 1
+        session.microhub_star_offset -= 1
     else:
         session.microhub_starred = True
-        session.microhub_star_count += 1
-    return {"success": True, "isStarred": session.microhub_starred, "starCount": session.microhub_star_count}
+        session.microhub_star_offset += 1
+    return {"success": True, "isStarred": session.microhub_starred, "starCount": _current_star_count(session)}
 
 
 @app.post("/data/microhub-repository/watch", response_model=WatchResponse)
@@ -1683,6 +1747,34 @@ async def data_hub_fork() -> dict:
         session.microhub_forked = True
         session.microhub_fork_count += 1
     return {"success": True, "isForked": session.microhub_forked, "forkCount": session.microhub_fork_count}
+
+
+@app.post("/data/microhub-issues", response_model=MicrohubCreateIssueResponse)
+async def data_hub_create_issue(body: MicrohubCreateIssueRequest) -> dict:
+    session = _require_session()
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Issue title is required")
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    # Issue numbers continue from the highest existing number (seeded + user-created).
+    existing_numbers = [i.get("number", 0) for i in session.microhub_issues]
+    existing_numbers += [i.get("number", 0) for i in session.microhub_user_created_issues]
+    next_number = (max(existing_numbers) if existing_numbers else 0) + 1
+    issue = {
+        "id": f"user-issue-{len(session.microhub_user_created_issues) + 1}",
+        "number": next_number,
+        "title": title,
+        "body": body.body,
+        "state": "open",
+        "author": self_user.get("username", "you"),
+        "authorId": self_user.get("id", "self"),
+        "assignees": [],
+        "labelIds": [],
+        "comments": [],
+        "order": -1,
+    }
+    session.microhub_user_created_issues.append(issue)
+    return {"success": True, "issue": issue}
 
 
 @app.post("/data/microhub-issues/{issue_id}/comment", response_model=CommentResponse)
