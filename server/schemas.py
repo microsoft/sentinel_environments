@@ -44,6 +44,7 @@ class ConfigResponse(BaseModel):
     event_timeline_end: float
     speed_factor: float = 1.0
     selfUser: Optional[dict] = None
+    initial_date: Optional[str] = None
 
 
 class UsersResponse(BaseModel):

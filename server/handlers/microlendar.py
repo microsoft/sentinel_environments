@@ -155,6 +155,9 @@ def process_event(session: Session, event: dict) -> None:
         payload = event.get("payload", {})
         event_ids = payload.get("event_ids", [])
         task_ids = payload.get("task_ids", [])
+        initial_date = payload.get("initial_date")
+        if initial_date:
+            session.microlendar_initial_date = initial_date
 
         # Load calendar events -- "*" means all non-task events
         if event_ids == ["*"]:

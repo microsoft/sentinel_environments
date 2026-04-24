@@ -540,11 +540,13 @@ async def data_config(request: Request) -> ConfigResponse:
                 env = name
                 break
     self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), None)
+    initial_date = session.microlendar_initial_date if env == "microlendar" else None
     return ConfigResponse(
         environment=env,
         event_timeline_end=session.event_timeline_end,
         speed_factor=session.speed_factor,
         selfUser=self_user,
+        initial_date=initial_date,
     )
 
 

@@ -143,6 +143,7 @@ class Session:
     microlendar_task_states: dict[str, dict] = field(default_factory=dict)
     microlendar_user_created_events: list[dict] = field(default_factory=list)
     microlendar_user_created_tasks: list[dict] = field(default_factory=list)
+    microlendar_initial_date: Optional[str] = None
 
     # MicroTube
     microtube_videos: list[dict] = field(default_factory=list)
