@@ -60,6 +60,11 @@ class Session:
     microdin_notification_states: dict[str, dict] = field(default_factory=dict)
     microdin_jobs: list[dict] = field(default_factory=list)
     microdin_job_states: dict[str, dict] = field(default_factory=dict)
+    microdin_profile_view_count: int = 52
+    microdin_page_visitor_count: int = 276
+    microdin_connections_count: int = 0
+    microdin_initial_connection_ids: list[str] = field(default_factory=list)
+    microdin_profile_sections: list[dict] = field(default_factory=list)
 
     # MicroFy
     microfy_tracks: list[dict] = field(default_factory=list)

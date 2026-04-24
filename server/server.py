@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
 import json
 import os
 import sqlite3
@@ -57,10 +58,13 @@ from server.schemas import (
     MicrodinCompaniesResponse,
     MicrodinConnectionsResponse,
     MicrodinConversationsResponse,
+    MicrodinCreateConversationResponse,
     MicrodinJobsResponse,
     MicrodinNotificationsResponse,
     MicrodinPostsResponse,
     MicrodinNetworkResponse,
+    MicrodinProfileSectionResponse,
+    MicrodinProfileSectionsResponse,
     MicrofyAddToPlaylistRequest,
     MicrofyArtistsResponse,
     MicrofyCreatePlaylistRequest,
@@ -920,6 +924,31 @@ async def data_jobs() -> MicrodinJobsResponse:
     return MicrodinJobsResponse(jobs=result)
 
 
+@app.post("/data/microdin-posts/{post_id}/comments", response_model=SuccessResponse)
+async def data_din_post_comment(post_id: str, payload: dict) -> dict:
+    session = _require_session()
+    target = next((p for p in session.microdin_posts if p["id"] == post_id), None)
+    if target is None:
+        raise HTTPException(status_code=404, detail=f"Post not found: {post_id}")
+
+    text = (payload or {}).get("text", "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Comment text is required")
+
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    comment_id = f"user-comment-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    comment = {
+        "id": comment_id,
+        "authorId": self_user.get("id", "self"),
+        "authorName": self_user.get("name", "You"),
+        "authorAvatarUrl": self_user.get("avatarUrl", ""),
+        "text": text,
+        "likes": 0,
+    }
+    target.setdefault("comments", []).append(comment)
+    return {"success": True}
+
+
 @app.post("/data/microdin-posts/{post_id}/like", response_model=ToggleLikeResponse)
 async def data_like_post(post_id: str) -> dict:
     session = _require_session()
@@ -963,6 +992,67 @@ async def data_din_read_conversation(conversation_id: str) -> dict:
     return {"success": True}
 
 
+@app.post("/data/microdin-conversations", response_model=MicrodinCreateConversationResponse)
+async def data_din_create_conversation(payload: dict) -> dict:
+    """Create a conversation with a target user. Returns the existing one if a
+    1:1 conversation between self and that user already exists."""
+    session = _require_session()
+    target_user_id = (payload or {}).get("userId", "").strip()
+    if not target_user_id:
+        raise HTTPException(status_code=400, detail="userId is required")
+
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    self_id = self_user.get("id", "self")
+
+    for conv in session.microdin_conversations:
+        participants = conv.get("participantIds") or [p.get("id") for p in conv.get("participants", [])]
+        if participants and set(participants) == {self_id, target_user_id}:
+            return {"conversationId": conv["id"], "created": False}
+
+    target_user = USER_CATALOG.get(target_user_id, {})
+    conv_id = f"user-conv-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    conv_row = {
+        "id": conv_id,
+        "participantIds": [self_id, target_user_id],
+        "participants": [
+            {"id": self_id, "name": self_user.get("name", "You"), "avatarUrl": self_user.get("avatarUrl", "")},
+            {"id": target_user_id, "name": target_user.get("name", "Unknown"), "avatarUrl": target_user.get("avatarUrl", "")},
+        ],
+    }
+    session.microdin_conversations.append(conv_row)
+    return {"conversationId": conv_id, "created": True}
+
+
+@app.post("/data/microdin-conversations/{conversation_id}/messages", response_model=SuccessResponse)
+async def data_din_send_message(conversation_id: str, payload: dict) -> dict:
+    session = _require_session()
+    if not any(c["id"] == conversation_id for c in session.microdin_conversations):
+        raise HTTPException(status_code=404, detail=f"Conversation not found: {conversation_id}")
+
+    content = (payload or {}).get("content", "").strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="Message content is required")
+
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    sender_id = self_user.get("id", "self")
+    msg_id = f"user-msg-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    ts = datetime.datetime.utcnow().isoformat() + "Z"
+    order = max((m.get("order", 0) for m in session.microdin_messages if m.get("conversationId") == conversation_id), default=0) + 1
+
+    row = {
+        "id": msg_id,
+        "conversationId": conversation_id,
+        "senderId": sender_id,
+        "senderName": self_user.get("name", "You"),
+        "content": content,
+        "timestamp": ts,
+        "order": order,
+    }
+    session.microdin_messages.append(row)
+    session.microdin_message_states[msg_id] = {"isRead": True}
+    return {"success": True}
+
+
 @app.post("/data/microdin-notifications/{notification_id}/read", response_model=SuccessResponse)
 async def data_mark_notification_read(notification_id: str) -> dict:
     session = _require_session()
@@ -990,6 +1080,47 @@ async def data_din_companies() -> MicrodinCompaniesResponse:
 async def data_din_network() -> MicrodinNetworkResponse:
     users = [u for u in USER_CATALOG.values() if u.get("microdin")]
     return MicrodinNetworkResponse(users=users)
+
+
+@app.get("/data/microdin-profile-stats")
+async def data_din_profile_stats() -> dict:
+    session = _require_session()
+    return {
+        "profileViewCount": session.microdin_profile_view_count,
+        "pageVisitorCount": session.microdin_page_visitor_count,
+        "connectionsCount": session.microdin_connections_count,
+        "initialConnectionIds": session.microdin_initial_connection_ids,
+    }
+
+
+@app.get("/data/microdin-profile-sections", response_model=MicrodinProfileSectionsResponse)
+async def data_din_profile_sections() -> MicrodinProfileSectionsResponse:
+    session = _require_session()
+    return MicrodinProfileSectionsResponse(sections=list(session.microdin_profile_sections))
+
+
+@app.post("/data/microdin-profile-sections", response_model=MicrodinProfileSectionResponse)
+async def data_din_add_profile_section(payload: dict) -> dict:
+    session = _require_session()
+    section_type = (payload or {}).get("type", "").strip()
+    if not section_type:
+        raise HTTPException(status_code=400, detail="type is required")
+    title = (payload or {}).get("title", "").strip()
+    subtitle = (payload or {}).get("subtitle", "").strip()
+    content = (payload or {}).get("content", "").strip()
+    if not title and not content:
+        raise HTTPException(status_code=400, detail="title or content is required")
+    section_id = f"user-section-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    row = {
+        "id": section_id,
+        "type": section_type,
+        "title": title,
+        "subtitle": subtitle,
+        "content": content,
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+    }
+    session.microdin_profile_sections.append(row)
+    return {"section": row}
 
 
 # ---------------------------------------------------------------------------

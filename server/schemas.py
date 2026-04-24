@@ -238,6 +238,11 @@ class MicrodinConversationsResponse(BaseModel):
     conversations: list[dict]
 
 
+class MicrodinCreateConversationResponse(BaseModel):
+    conversationId: str
+    created: bool
+
+
 class MicrodinNotificationsResponse(BaseModel):
     notifications: list[dict]
 
@@ -252,6 +257,14 @@ class MicrodinCompaniesResponse(BaseModel):
 
 class MicrodinNetworkResponse(BaseModel):
     users: list[dict]
+
+
+class MicrodinProfileSectionsResponse(BaseModel):
+    sections: list[dict]
+
+
+class MicrodinProfileSectionResponse(BaseModel):
+    section: dict
 
 
 # ---------------------------------------------------------------------------
