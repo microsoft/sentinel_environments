@@ -59,12 +59,12 @@ from server.schemas import (
     MicrodinConnectionsResponse,
     MicrodinConversationsResponse,
     MicrodinCreateConversationResponse,
+    MicrodinProfileSectionResponse,
+    MicrodinProfileSectionsResponse,
     MicrodinJobsResponse,
     MicrodinNotificationsResponse,
     MicrodinPostsResponse,
     MicrodinNetworkResponse,
-    MicrodinProfileSectionResponse,
-    MicrodinProfileSectionsResponse,
     MicrofyAddToPlaylistRequest,
     MicrofyArtistsResponse,
     MicrofyCreatePlaylistRequest,
@@ -325,16 +325,14 @@ def _advance_session(session: Session, up_to_time: float) -> list[dict]:
 
 async def _run_auto(session: Session) -> None:
     global _state, _run_task
-    tick = min(1.0, session.speed_factor)
     try:
         while session.next_event_index < len(session.events):
-            await asyncio.sleep(tick)
+            await asyncio.sleep(0.25)
             if _state == STATE_COMPLETED:
                 # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)
                 break
             wall_elapsed = time.time() - (session.start_wall_time or time.time())
-            sim_time = wall_elapsed / session.speed_factor
-            _advance_session(session, sim_time)
+            _advance_session(session, wall_elapsed)
         _state = STATE_COMPLETED
     finally:
         if _run_task is asyncio.current_task():
@@ -369,6 +367,17 @@ async def init(payload: InitPayload) -> JSONResponse:
 
     events = build_event_timeline([e.model_dump() for e in payload.events])
 
+    # speed_factor is applied once, at load time: authored event times (and
+    # anything measured on the same clock) are divided by speed_factor so the
+    # whole timeline compresses or expands. After this, wall-clock == sim-clock.
+    sf = payload.speed_factor
+    for event in events:
+        event["time"] = event["time"] / sf
+    scaled_condition_at = (
+        payload.condition_at / sf if payload.condition_at is not None else None
+    )
+    scaled_timeline_end = payload.event_timeline_end / sf
+
     _session = Session(
         status=STATE_READY,
         simulation_time=0,
@@ -376,10 +385,10 @@ async def init(payload: InitPayload) -> JSONResponse:
         events=events,
         next_event_index=0,
         environment=payload.environment,
-        event_timeline_end=payload.event_timeline_end,
+        event_timeline_end=scaled_timeline_end,
         eval_sql=payload.eval_sql,
-        condition_at=payload.condition_at,
-        speed_factor=payload.speed_factor,
+        condition_at=scaled_condition_at,
+        speed_factor=sf,
         baseline_metrics={},
     )
 
@@ -717,6 +726,16 @@ async def data_pin_email(email_id: str) -> dict:
     current = session.micromail_email_states[email_id].get("isPinned", False)
     session.micromail_email_states[email_id]["isPinned"] = not current
     return {"success": True, "isPinned": not current}
+
+
+@app.delete("/data/micromail-emails/{email_id}", response_model=SuccessResponse)
+async def data_delete_email(email_id: str) -> dict:
+    session = _require_session()
+    if email_id not in session.micromail_email_states:
+        raise HTTPException(status_code=404, detail=f"Email not found: {email_id}")
+    session.micromail_emails = [e for e in session.micromail_emails if e["id"] != email_id]
+    session.micromail_email_states.pop(email_id, None)
+    return {"success": True}
 
 
 @app.post("/data/micromail-emails/send", response_model=MicromailSendEmailResponse)
@@ -1574,8 +1593,11 @@ async def data_hub_pulls() -> MicrohubPrsResponse:
         if pr["id"] in session.microhub_merged_prs:
             merged["state"] = "merged"
         result.append(merged)
-    # Append user-created PRs
+    # Append user-created PRs (also merge in user comments on them)
     for pr in session.microhub_user_created_prs:
+        user_comments = [c for c in session.microhub_user_created_comments if c.get("targetId") == pr["id"]]
+        if user_comments:
+            pr = {**pr, "comments": list(pr.get("comments", [])) + user_comments}
         result.append(pr)
     return MicrohubPrsResponse(prs=result)
 
@@ -1711,6 +1733,23 @@ async def data_hub_create_repo(body: MicrohubCreateRepoRequest) -> dict:
     }
     session.microhub_user_created_repos.append(repo)
     return {"success": True, "repository": repo}
+
+
+@app.patch("/data/microhub-repository", response_model=SuccessResponse)
+async def data_hub_patch_repository(payload: dict) -> dict:
+    session = _require_session()
+    if not session.microhub_repository:
+        raise HTTPException(status_code=404, detail="Repository not initialized")
+    allowed_fields = {"name", "description", "visibility"}
+    updates = {k: v for k, v in (payload or {}).items() if k in allowed_fields}
+    if not updates:
+        raise HTTPException(status_code=400, detail="No updatable fields provided")
+    if "visibility" in updates and updates["visibility"] not in ("public", "private"):
+        raise HTTPException(status_code=400, detail="visibility must be 'public' or 'private'")
+    session.microhub_repository.update(updates)
+    if "visibility" in updates:
+        session.microhub_repository["isPrivate"] = updates["visibility"] == "private"
+    return {"success": True}
 
 
 @app.post("/data/microhub-repository/star", response_model=StarResponse)
@@ -2354,6 +2393,10 @@ async def data_tube_subscribe_channel(channel_id: str) -> dict:
     st = session.microtube_channel_states[channel_id]
     current = st.get("isSubscribed", False)
     st["isSubscribed"] = not current
+    base = next((c["subscribers"] for c in session.microtube_channels if c["id"] == channel_id), 0)
+    effective = st.get("subscribers", base)
+    effective = effective + 1 if st["isSubscribed"] else max(0, effective - 1)
+    st["subscribers"] = effective
     return {"success": True, "isSubscribed": st["isSubscribed"]}
 
 
