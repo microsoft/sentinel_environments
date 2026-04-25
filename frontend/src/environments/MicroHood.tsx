@@ -147,9 +147,12 @@ const MicroHood = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderQuantity, setOrderQuantity] = useState("1");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [hoodRoute, setHoodRoute] = useHashRoute(["home", "search", "transfers", "profile"] as const, "home");
+  const [hoodRoute, setHoodRoute] = useHashRoute(
+    ["home", "search", "transfers", "profile", "crypto", "spending", "retirement"] as const,
+    "home",
+  );
   const activeTab = hoodRoute.view;
-  type HoodTab = "home" | "search" | "transfers" | "profile";
+  type HoodTab = "home" | "search" | "transfers" | "profile" | "crypto" | "spending" | "retirement";
   const setActiveTab = useCallback((tab: HoodTab) => setHoodRoute(tab), [setHoodRoute]);
 
   // UI Panel States
@@ -161,7 +164,18 @@ const MicroHood = () => {
   const [showCardModal, setShowCardModal] = useState(false);
   const [buyingPowerExpanded, setBuyingPowerExpanded] = useState(false);
   const [showAllStocks, setShowAllStocks] = useState(false);
-  const [activeNavSection, setActiveNavSection] = useState<"investing" | "crypto" | "spending" | "retirement">("investing");
+  // Derived from the route so the desktop top nav (Investing/Crypto/Spending/
+  // Retirement) survives refresh and shareable URLs. "home" maps to investing.
+  const activeNavSection: "investing" | "crypto" | "spending" | "retirement" =
+    activeTab === "crypto" || activeTab === "spending" || activeTab === "retirement"
+      ? activeTab
+      : "investing";
+  const setActiveNavSection = useCallback(
+    (section: "investing" | "crypto" | "spending" | "retirement") => {
+      setHoodRoute(section === "investing" ? "home" : section);
+    },
+    [setHoodRoute],
+  );
   const [editingWatchlist, setEditingWatchlist] = useState(false);
 
   // Selected stock for detail view
