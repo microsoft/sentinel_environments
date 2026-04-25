@@ -164,27 +164,33 @@ def run_task(config, task_json_file, task_result_folder):
             file.write(line)
             file.flush()
 
-    output_file = task_result_folder / "output.txt"
+    task_result_folder_abs = Path(task_result_folder).resolve()
+    output_file = task_result_folder_abs / "output.txt"
     print(f"Prompt:\n{task_prompt}\n", flush=True)
-    with open(output_file, "w") as out:
-        with subprocess.Popen(
-            agent_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            shell=shell,
-            text=True,
-            start_new_session=True,
-        ) as proc:
-            t = threading.Thread(target=_tee, args=(proc.stdout, out))
-            t.start()
-            try:
-                proc.wait(timeout=kill_at_wall(speed_factor))
-            except subprocess.TimeoutExpired:
-                print("Agent subprocess timed out, killing process group...", flush=True)
-                os.killpg(proc.pid, signal.SIGKILL)
-                proc.wait()
-            finally:
-                t.join()
+    prev_cwd = os.getcwd()
+    try:
+        os.chdir(task_result_folder_abs)
+        with open(output_file, "w") as out:
+            with subprocess.Popen(
+                agent_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                shell=shell,
+                text=True,
+                start_new_session=True,
+            ) as proc:
+                t = threading.Thread(target=_tee, args=(proc.stdout, out))
+                t.start()
+                try:
+                    proc.wait(timeout=kill_at_wall(speed_factor))
+                except subprocess.TimeoutExpired:
+                    print("Agent subprocess timed out, killing process group...", flush=True)
+                    os.killpg(proc.pid, signal.SIGKILL)
+                    proc.wait()
+                finally:
+                    t.join()
+    finally:
+        os.chdir(prev_cwd)
 
     # 4. Evaluate and write results as JSON
     resp = requests.post(f"{api_url}/evaluate")

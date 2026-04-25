@@ -113,7 +113,7 @@
 {"id": "mtg-23", "sender_id": "user023", "conversation_id": "meeting-incident-response", "content": "Root cause was a memory leak in the cache layer, patched now", "isRead": true}
 {"id": "mtg-24", "sender_id": "user015", "conversation_id": "meeting-budget-planning", "content": "We have 15% more budget for tooling this quarter"}
 {"id": "mtg-25", "sender_id": "user018", "conversation_id": "meeting-budget-planning", "content": "Let's allocate a portion to the observability stack upgrade", "isRead": true}
-{"id": "urg-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Production is throwing 500 errors on the checkout endpoint, need to look at this now", "isUrgent": true}
+{"id": "urg-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Production is throwing 500 errors. Please look at this now.", "isUrgent": true}
 {"id": "urg-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "The client demo is in 30 minutes and the staging server is down", "isUrgent": true}
 {"id": "urg-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "We need to roll back the last deploy immediately, it broke the login flow", "isUrgent": true}
 {"id": "urg-dm-04", "sender_id": "user005", "conversation_id": "direct-edward", "content": "The design assets for tomorrow's launch are still missing, need them ASAP", "isUrgent": true}
