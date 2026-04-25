@@ -667,11 +667,10 @@ export default function MicroTube() {
 
     const result = await apiPostComment(state.currentVideo, content.trim());
     if (result) {
-      const selfName = selfChannel?.name || config?.selfUser?.name || "You";
+      const selfName = config?.selfUser?.name || selfChannel?.name || "You";
       const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-      const selfAvatarUrl = selfChannel?.avatarSrc
-        ? `/${selfChannel.avatarSrc}`
-        : config?.selfUser?.avatarUrl;
+      const selfAvatarUrl = config?.selfUser?.avatarUrl
+        || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined);
       // Add optimistically to local display
       const newCommentData: CommentData = {
         id: result.id || `user-comment-${Date.now()}`,
@@ -754,12 +753,16 @@ export default function MicroTube() {
   const addShortsComment = useCallback(async (shortId: string, content: string) => {
     if (!content.trim()) return;
     await apiPostComment(shortId, content.trim());
+    const selfName = config?.selfUser?.name || selfChannel?.name || "You";
+    const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
     const newCommentData: CommentData = {
       id: `shorts-comment-${Date.now()}`,
       videoId: shortId,
-      userId: "user000",
-      userName: "You",
-      userAvatar: "Y",
+      userId: config?.selfUser?.id || "user000",
+      userName: selfName,
+      userAvatar: selfInitials,
+      userAvatarUrl: config?.selfUser?.avatarUrl
+        || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined),
       content: content.trim(),
       likes: 0,
       timestamp: "Just now",
@@ -772,7 +775,7 @@ export default function MicroTube() {
       },
     }));
     setNewShortsComment("");
-  }, [apiPostComment]);
+  }, [apiPostComment, config, selfChannel]);
 
   // Navigate shorts with animation
   const navigateShort = useCallback((direction: 'up' | 'down', currentIndex: number, shortsList: VideoData[]) => {
@@ -819,12 +822,16 @@ export default function MicroTube() {
     if (state.currentVideo) {
       await apiPostComment(state.currentVideo, content.trim());
     }
+    const selfName = config?.selfUser?.name || selfChannel?.name || "You";
+    const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
     const newReply: CommentData = {
       id: `reply-${Date.now()}`,
       videoId: state.currentVideo || "",
-      userId: "user000",
-      userName: "You",
-      userAvatar: "Y",
+      userId: config?.selfUser?.id || "user000",
+      userName: selfName,
+      userAvatar: selfInitials,
+      userAvatarUrl: config?.selfUser?.avatarUrl
+        || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined),
       content: content.trim(),
       likes: 0,
       timestamp: "Just now",
@@ -838,7 +845,7 @@ export default function MicroTube() {
     }));
     setReplyingToCommentId(null);
     setReplyText("");
-  }, [state.currentVideo, apiPostComment]);
+  }, [state.currentVideo, apiPostComment, config, selfChannel]);
 
   // Toggle post like
   const togglePostLike = useCallback((postId: string) => {
