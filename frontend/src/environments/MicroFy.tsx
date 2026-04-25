@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useMicrofyData } from "../hooks/useMicrofyData";
 import type { ApiTrack, ApiPlaylist } from "../hooks/useMicrofyData";
+import { useHashRoute } from "../hooks/useHashRoute";
+
+type ViewType = "home" | "artist" | "playlist";
+const VIEWS: readonly ViewType[] = ["home", "artist", "playlist"] as const;
+interface HistoryEntry { view: ViewType; id: string | null }
 import {
   Monitor,
   Laptop,
@@ -206,12 +211,23 @@ const MicroFy = () => {
   // Additional functionality states
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [email, setEmail] = useState(selfUser?.email ?? "");
-  const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
 
-  // Navigation history for back/forward
-  const [navigationHistory, setNavigationHistory] = useState<Array<{type: 'home' | 'song' | 'artist' | 'playlist', id: string | null}>>([{type: 'home', id: null}]);
+  // URL-driven navigation. Refresh, browser Back/Forward, and shareable
+  // links (#artist/{id}, #playlist/{id}) all flow through `route`.
+  const [route, setRoute] = useHashRoute<ViewType>(VIEWS, "home");
+  const currentView = route.view;
+  const selectedArtistId = currentView === "artist" ? route.id : null;
+  const selectedPlaylistId = currentView === "playlist" ? route.id : null;
+
+  // In-app ‹/› chrome stack. Source of truth for the current view is `route`;
+  // this stack only powers the disabled-state and target lookup of the chrome
+  // back/forward buttons. Reset whenever the route changes from outside the
+  // app (refresh, browser Back, shareable URL paste).
+  const [navigationHistory, setNavigationHistory] = useState<HistoryEntry[]>(
+    () => [{ view: route.view, id: route.id }]
+  );
   const [historyIndex, setHistoryIndex] = useState(0);
+  const internalNavRef = useRef(false);
 
   // Playback settings
   const [volume, setVolume] = useState(70);
@@ -443,82 +459,56 @@ const MicroFy = () => {
     setSearchQuery(event.target.value);
   }, []);
 
-  // Navigation helpers
-  const navigateTo = useCallback((type: 'home' | 'song' | 'artist' | 'playlist', id: string | null) => {
-    // Clear other selections based on navigation type
-    if (type === 'home') {
+  // Navigation helpers — single entry point that updates both the URL
+  // (so refresh/browser-Back/share work) and the in-app ‹/› chrome stack.
+  const navigateTo = useCallback((view: ViewType, id: string | null = null) => {
+    if (view !== "playlist") {
       setSelectedSongId(null);
-      setSelectedArtistId(null);
-      setSelectedPlaylistId(null);
-    } else if (type === 'song') {
-      setSelectedArtistId(null);
-      setSelectedPlaylistId(null);
-    } else if (type === 'artist') {
-      setSelectedSongId(null);
-      setSelectedPlaylistId(null);
-      setSelectedArtistId(id);
-    } else if (type === 'playlist') {
-      setSelectedSongId(null);
-      setSelectedArtistId(null);
-      setSelectedPlaylistId(id);
     }
-
-    // Add to navigation history
-    const newHistory = navigationHistory.slice(0, historyIndex + 1);
-    newHistory.push({ type, id });
-    setNavigationHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  }, [navigationHistory, historyIndex]);
+    internalNavRef.current = true;
+    setRoute(view, id);
+    setNavigationHistory(prev => {
+      const truncated = prev.slice(0, historyIndex + 1);
+      return [...truncated, { view, id }];
+    });
+    setHistoryIndex(prev => prev + 1);
+  }, [setRoute, historyIndex]);
 
   const handleNavigateBack = useCallback(() => {
     if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
-      const prev = navigationHistory[newIndex];
-      if (prev.type === 'home') {
+      const target = navigationHistory[historyIndex - 1];
+      internalNavRef.current = true;
+      setRoute(target.view, target.id);
+      setHistoryIndex(historyIndex - 1);
+      if (target.view !== "playlist") {
         setSelectedSongId(null);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (prev.type === 'song') {
-        setSelectedSongId(prev.id);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (prev.type === 'artist') {
-        setSelectedArtistId(prev.id);
-        setSelectedSongId(null);
-        setSelectedPlaylistId(null);
-      } else if (prev.type === 'playlist') {
-        setSelectedPlaylistId(prev.id);
-        setSelectedSongId(null);
-        setSelectedArtistId(null);
       }
     }
-  }, [historyIndex, navigationHistory]);
+  }, [historyIndex, navigationHistory, setRoute]);
 
   const handleNavigateForward = useCallback(() => {
     if (historyIndex < navigationHistory.length - 1) {
-      const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
-      const next = navigationHistory[newIndex];
-      if (next.type === 'home') {
+      const target = navigationHistory[historyIndex + 1];
+      internalNavRef.current = true;
+      setRoute(target.view, target.id);
+      setHistoryIndex(historyIndex + 1);
+      if (target.view !== "playlist") {
         setSelectedSongId(null);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (next.type === 'song') {
-        setSelectedSongId(next.id);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (next.type === 'artist') {
-        setSelectedArtistId(next.id);
-        setSelectedSongId(null);
-        setSelectedPlaylistId(null);
-      } else if (next.type === 'playlist') {
-        setSelectedPlaylistId(next.id);
-        setSelectedSongId(null);
-        setSelectedArtistId(null);
       }
     }
-  }, [historyIndex, navigationHistory]);
+  }, [historyIndex, navigationHistory, setRoute]);
+
+  // External URL changes (refresh, browser Back/Forward, paste) rebase the
+  // in-app stack at the new route. The internal ref short-circuits this for
+  // navigations we initiated ourselves.
+  useEffect(() => {
+    if (internalNavRef.current) {
+      internalNavRef.current = false;
+      return;
+    }
+    setNavigationHistory([{ view: route.view, id: route.id }]);
+    setHistoryIndex(0);
+  }, [route.view, route.id]);
 
   const handleSelectPlaylist = useCallback((playlistId: string) => {
     navigateTo('playlist', playlistId);
@@ -563,22 +553,19 @@ const MicroFy = () => {
   }, []);
 
   const handleHome = useCallback(() => {
-    setSelectedSongId(null);
-    setSelectedArtistId(null);
-    setSelectedPlaylistId(null);
+    navigateTo("home", null);
     setLyricsExpanded(false);
     setPendingAutoplay(false);
     setPlaybarVisible(false);
     stopPlayback();
-  }, [stopPlayback]);
+  }, [navigateTo, stopPlayback]);
 
   const handleSelectArtist = useCallback((artistId: string) => {
-    setSelectedArtistId(artistId);
-    setSelectedSongId(null);
+    navigateTo("artist", artistId);
     setLyricsExpanded(false);
     setPendingAutoplay(false);
     stopPlayback();
-  }, [stopPlayback]);
+  }, [navigateTo, stopPlayback]);
 
   const scrollContainer = useCallback(
     (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
@@ -1788,11 +1775,7 @@ const MicroFy = () => {
                       <div
                         key={relatedArtist.id}
                         className="bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition cursor-pointer group"
-                        onClick={() => {
-                          setSelectedArtistId(relatedArtist.id);
-                          setSelectedSongId(null);
-                          setSelectedPlaylistId(null);
-                        }}
+                        onClick={() => handleSelectArtist(relatedArtist.id)}
                       >
                         <div className="relative mb-4">
                           <img
