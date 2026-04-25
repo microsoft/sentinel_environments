@@ -344,6 +344,20 @@ const MicroHood = () => {
     const chartWidth = width - padding.left - padding.right;
     const chartHeight = height - padding.top - padding.bottom;
 
+    // Need at least two points for a polyline; otherwise the x denominator
+    // (length - 1) is 0 and Math.min(...[]) is Infinity, both of which
+    // produce NaN coordinates and SVG warnings.
+    if (priceHistory.length < 2) {
+      return (
+        <svg
+          width="100%"
+          height={height}
+          viewBox={`0 0 ${width} ${height}`}
+          preserveAspectRatio="xMidYMid meet"
+        />
+      );
+    }
+
     const minPrice = Math.min(...priceHistory) - 5;
     const maxPrice = Math.max(...priceHistory) + 5;
     const priceRange = maxPrice - minPrice;
