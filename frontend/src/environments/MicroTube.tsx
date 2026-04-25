@@ -2627,7 +2627,9 @@ export default function MicroTube() {
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
-                      <LibraryIcon size={64} />
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <LibraryIcon size={64} />
+                      </div>
                       <h3 style={{ marginTop: 16, marginBottom: 8, color: '#fff' }}>No playlists yet</h3>
                       <p>Create playlists to organize your favorite videos</p>
                       <button
@@ -2943,7 +2945,9 @@ export default function MicroTube() {
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
-                  <SearchIcon size={64} />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <SearchIcon size={64} />
+                  </div>
                   <p style={{ marginTop: 16 }}>Try different keywords or check your spelling</p>
                 </div>
               )}
@@ -3355,7 +3359,9 @@ export default function MicroTube() {
                 </>
               ) : (
                 <div style={{ textAlign: 'center', padding: 48, color: colors.textSecondary }}>
-                  <SubscriptionsIcon size={64} />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <SubscriptionsIcon size={64} />
+                  </div>
                   <p style={{ marginTop: 16, fontSize: 18 }}>No subscriptions yet</p>
                   <p style={{ marginTop: 8, color: colors.textSecondary }}>Subscribe to channels to see their latest videos here</p>
                 </div>
@@ -3482,7 +3488,9 @@ export default function MicroTube() {
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
-                  <HistoryIcon size={64} />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <HistoryIcon size={64} />
+                  </div>
                   <p style={{ marginTop: 16, fontSize: 18 }}>No watch history</p>
                   <p style={{ marginTop: 8, color: '#717171' }}>Videos you watch will appear here</p>
                 </div>
@@ -3490,138 +3498,130 @@ export default function MicroTube() {
             </div>
           ) : state.navSection === 'shopping' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <ShoppingBagIcon size={28} />
-                Shopping
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Browse products from your favorite creators</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <ShoppingBagIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Shopping is coming soon</p>
-                <p style={{ marginTop: 8 }}>Discover products featured in videos from channels you love</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <ShoppingBagIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Shopping</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Browse products from your favorite creators</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Shopping is coming soon</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Discover products featured in videos from channels you love</p>
               </div>
             </div>
           ) : state.navSection === 'music' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <MusicNoteIcon size={28} />
-                Music
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Discover music videos, live performances, and more</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <MusicNoteIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Explore Music content</p>
-                <p style={{ marginTop: 8 }}>Music videos, live concerts, artist channels, and playlists</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <MusicNoteIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Music</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Discover music videos, live performances, and more</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Explore Music content</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Music videos, live concerts, artist channels, and playlists</p>
               </div>
             </div>
           ) : state.navSection === 'movies' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <MovieIcon size={28} />
-                Movies
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch movies, documentaries, and TV shows</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <MovieIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Browse Movies & TV</p>
-                <p style={{ marginTop: 8 }}>Rent, buy, or watch free movies and shows</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <MovieIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Movies</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch movies, documentaries, and TV shows</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Browse Movies & TV</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Rent, buy, or watch free movies and shows</p>
               </div>
             </div>
           ) : state.navSection === 'live' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <LiveTvIcon size={28} />
-                Live
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch live streams from around the world</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <LiveTvIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>No live streams right now</p>
-                <p style={{ marginTop: 8 }}>Check back later for live content from your favorite creators</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <LiveTvIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Live</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch live streams from around the world</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>No live streams right now</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Check back later for live content from your favorite creators</p>
               </div>
             </div>
           ) : state.navSection === 'gaming' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <SportsEsportsIcon size={28} />
-                Gaming
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch gaming videos, live streams, and esports</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <SportsEsportsIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Explore Gaming content</p>
-                <p style={{ marginTop: 8 }}>Let's plays, walkthroughs, esports, and gaming news</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <SportsEsportsIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Gaming</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch gaming videos, live streams, and esports</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Explore Gaming content</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Let's plays, walkthroughs, esports, and gaming news</p>
               </div>
             </div>
           ) : state.navSection === 'news' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <NewspaperIcon size={28} />
-                News
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Stay informed with the latest news</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <NewspaperIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>News & Current Events</p>
-                <p style={{ marginTop: 8 }}>Breaking news, analysis, and coverage from trusted sources</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <NewspaperIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>News</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Stay informed with the latest news</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>News & Current Events</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Breaking news, analysis, and coverage from trusted sources</p>
               </div>
             </div>
           ) : state.navSection === 'sports' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <SportsIcon size={28} />
-                Sports
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch highlights, live games, and sports content</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <SportsIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Sports Hub</p>
-                <p style={{ marginTop: 8 }}>Highlights, live sports, analysis, and athlete channels</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <SportsIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Sports</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch highlights, live games, and sports content</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Sports Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Highlights, live sports, analysis, and athlete channels</p>
               </div>
             </div>
           ) : state.navSection === 'courses' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <SchoolIcon size={28} />
-                Courses
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Learn new skills with educational content</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <SchoolIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Learning Hub</p>
-                <p style={{ marginTop: 8 }}>Tutorials, courses, and educational content from expert creators</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <SchoolIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Courses</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Learn new skills with educational content</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Learning Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Tutorials, courses, and educational content from expert creators</p>
               </div>
             </div>
           ) : state.navSection === 'fashion' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <CheckroomIcon size={28} />
-                Fashion & Beauty
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Discover style tips, tutorials, and trends</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <CheckroomIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Fashion & Beauty Hub</p>
-                <p style={{ marginTop: 8 }}>Style guides, makeup tutorials, and fashion trends</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <CheckroomIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Fashion & Beauty</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Discover style tips, tutorials, and trends</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Fashion & Beauty Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Style guides, makeup tutorials, and fashion trends</p>
               </div>
             </div>
           ) : state.navSection === 'podcasts' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-                <PodcastsIcon size={28} />
-                Podcasts
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Listen to podcasts from your favorite creators</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <PodcastsIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Podcast Hub</p>
-                <p style={{ marginTop: 8 }}>Discover video podcasts, interviews, and discussions</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <PodcastsIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Podcasts</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Listen to podcasts from your favorite creators</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Podcast Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Discover video podcasts, interviews, and discussions</p>
               </div>
             </div>
           ) : state.navSection === 'premium' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', padding: 48, backgroundColor: '#1a1a1a', borderRadius: 16 }}>
-                <TrendingIcon size={64} />
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <TrendingIcon size={64} />
+                </div>
                 <h2 style={{ fontSize: 28, fontWeight: 600, marginTop: 24, marginBottom: 16 }}>MicroTube Premium</h2>
                 <p style={{ color: '#aaa', marginBottom: 32, fontSize: 16 }}>
                   Ad-free videos, background play, downloads, and more
@@ -3643,7 +3643,9 @@ export default function MicroTube() {
           ) : state.navSection === 'yt-music' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', padding: 48, backgroundColor: '#1a1a1a', borderRadius: 16 }}>
-                <MusicNoteIcon size={64} />
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <MusicNoteIcon size={64} />
+                </div>
                 <h2 style={{ fontSize: 28, fontWeight: 600, marginTop: 24, marginBottom: 16 }}>MicroTube Music</h2>
                 <p style={{ color: '#aaa', marginBottom: 32, fontSize: 16 }}>
                   A new music service with official albums, playlists, and more
@@ -4230,6 +4232,34 @@ export default function MicroTube() {
                 />
                 <span>Watch later</span>
               </div>
+              {apiPlaylists.map(pl => {
+                const inPlaylist = pl.video_ids.includes(state.currentVideo!);
+                return (
+                  <div
+                    key={pl.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 8px',
+                      cursor: inPlaylist ? 'default' : 'pointer',
+                      borderRadius: 4,
+                      backgroundColor: inPlaylist ? '#272727' : 'transparent',
+                    }}
+                    onClick={() => {
+                      if (!inPlaylist) apiAddToPlaylist(pl.id, state.currentVideo!);
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={inPlaylist}
+                      readOnly
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span>{pl.name}</span>
+                  </div>
+                );
+              })}
               <div
                 style={{
                   display: 'flex',
