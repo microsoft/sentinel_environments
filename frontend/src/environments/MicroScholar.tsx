@@ -419,21 +419,126 @@ const MicroScholar = () => {
 
 
   // ---------------------------------------------------------------------------
+  // Cite modal — declared once so every view can render it. Without this, the
+  // modal JSX only lived inside the home/search return, so clicking Cite on
+  // paper-detail/library/ai-search set state but showed nothing until the
+  // user navigated back to home.
+  // ---------------------------------------------------------------------------
+  const citeModal = showCiteModal && selectedPaper ? (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={() => setShowCiteModal(false)}
+    >
+      <div
+        className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-medium">Cite</h2>
+          <button
+            onClick={() => setShowCiteModal(false)}
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+          >
+            ×
+          </button>
+        </div>
+        <div className="p-4 space-y-4">
+          {getCitationFormats(selectedPaper).map((format) => (
+            <div key={format.name}>
+              <div className="font-medium text-sm text-gray-700 mb-1">{format.name}</div>
+              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded border select-all">
+                {format.citation}
+              </div>
+            </div>
+          ))}
+
+          <div className="pt-4 border-t">
+            <div className="text-sm text-gray-500 mb-2">Export to:</div>
+            <div className="flex space-x-3 text-sm">
+              <button
+                onClick={() => {
+                  const bibtex = `@article{${selectedPaper.id},
+  title={${selectedPaper.title}},
+  author={${selectedPaper.authors}},
+  year={${selectedPaper.year}},
+  journal={${selectedPaper.source}}
+}`;
+                  navigator.clipboard.writeText(bibtex);
+                  showToast("BibTeX copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                BibTeX
+              </button>
+              <button
+                onClick={() => {
+                  const endnote = `%0 Journal Article
+%T ${selectedPaper.title}
+%A ${selectedPaper.authors}
+%D ${selectedPaper.year}
+%J ${selectedPaper.source}`;
+                  navigator.clipboard.writeText(endnote);
+                  showToast("EndNote format copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                EndNote
+              </button>
+              <button
+                onClick={() => {
+                  const refman = `TY  - JOUR
+TI  - ${selectedPaper.title}
+AU  - ${selectedPaper.authors}
+PY  - ${selectedPaper.year}
+JO  - ${selectedPaper.source}
+ER  -`;
+                  navigator.clipboard.writeText(refman);
+                  showToast("RefMan format copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                RefMan
+              </button>
+              <button
+                onClick={() => {
+                  const refworks = `RT Journal
+T1 ${selectedPaper.title}
+A1 ${selectedPaper.authors}
+YR ${selectedPaper.year}
+JF ${selectedPaper.source}`;
+                  navigator.clipboard.writeText(refworks);
+                  showToast("RefWorks format copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                RefWorks
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  // ---------------------------------------------------------------------------
   // Back Header Component (reused across views)
   // ---------------------------------------------------------------------------
   const BackHeader = () => (
-    <header className="border-b border-gray-200 bg-white">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <button
-          onClick={() => setRoute("home")}
-          className="text-[#1a73e8] hover:underline text-sm flex items-center space-x-1"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Scholar</span>
-        </button>
-        <div className="w-32"></div>
-      </div>
-    </header>
+    <>
+      <header className="border-b border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <button
+            onClick={() => setRoute("home")}
+            className="text-[#1a73e8] hover:underline text-sm flex items-center space-x-1"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Scholar</span>
+          </button>
+          <div className="w-32"></div>
+        </div>
+      </header>
+      {citeModal}
+    </>
   );
 
   // ---------------------------------------------------------------------------
@@ -2999,105 +3104,7 @@ const MicroScholar = () => {
 
 
 
-      {/* ===================================================================== */}
-      {/* CITE MODAL                                                           */}
-      {/* ===================================================================== */}
-      {showCiteModal && selectedPaper && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setShowCiteModal(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-medium">Cite</h2>
-              <button
-                onClick={() => setShowCiteModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-              >
-                ×
-              </button>
-            </div>
-            <div className="p-4 space-y-4">
-              {getCitationFormats(selectedPaper).map((format) => (
-                <div key={format.name}>
-                  <div className="font-medium text-sm text-gray-700 mb-1">{format.name}</div>
-                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded border select-all">
-                    {format.citation}
-                  </div>
-                </div>
-              ))}
-
-              {/* Export options */}
-              <div className="pt-4 border-t">
-                <div className="text-sm text-gray-500 mb-2">Export to:</div>
-                <div className="flex space-x-3 text-sm">
-                  <button
-                    onClick={() => {
-                      const bibtex = `@article{${selectedPaper.id},
-  title={${selectedPaper.title}},
-  author={${selectedPaper.authors}},
-  year={${selectedPaper.year}},
-  journal={${selectedPaper.source}}
-}`;
-                      navigator.clipboard.writeText(bibtex);
-                      showToast("BibTeX copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    BibTeX
-                  </button>
-                  <button
-                    onClick={() => {
-                      const endnote = `%0 Journal Article
-%T ${selectedPaper.title}
-%A ${selectedPaper.authors}
-%D ${selectedPaper.year}
-%J ${selectedPaper.source}`;
-                      navigator.clipboard.writeText(endnote);
-                      showToast("EndNote format copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    EndNote
-                  </button>
-                  <button
-                    onClick={() => {
-                      const refman = `TY  - JOUR
-TI  - ${selectedPaper.title}
-AU  - ${selectedPaper.authors}
-PY  - ${selectedPaper.year}
-JO  - ${selectedPaper.source}
-ER  -`;
-                      navigator.clipboard.writeText(refman);
-                      showToast("RefMan format copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    RefMan
-                  </button>
-                  <button
-                    onClick={() => {
-                      const refworks = `RT Journal
-T1 ${selectedPaper.title}
-A1 ${selectedPaper.authors}
-YR ${selectedPaper.year}
-JF ${selectedPaper.source}`;
-                      navigator.clipboard.writeText(refworks);
-                      showToast("RefWorks format copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    RefWorks
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {citeModal}
 
       {/* ===================================================================== */}
       {/* EDIT COAUTHORS MODAL                                                 */}
