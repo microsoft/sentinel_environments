@@ -81,11 +81,12 @@ const formatNumber = (num: number): string => {
 
 /**
  * Compute a relative timestamp string based on order and session start time.
- * Lower order items appear earlier (newer), higher order items are older.
+ * Higher order items are newer, lower order items are older.
  * Each order step = 10 minutes in simulated time.
+ * maxOrder is the highest order seen so far — that item is the most recent.
  */
-const computeRelativeTimestamp = (order: number, sessionStartTime: number): string => {
-  const simulatedMinutesAgo = order * 10;
+const computeRelativeTimestamp = (order: number, sessionStartTime: number, maxOrder: number): string => {
+  const simulatedMinutesAgo = (maxOrder - order) * 10;
   const realElapsedMs = Date.now() - sessionStartTime;
   const realElapsedMinutes = Math.floor(realElapsedMs / 60000);
 
@@ -536,9 +537,17 @@ const MicroGram = () => {
   // ---------------------------------------------------------------------------
 
   const feedPosts = useMemo(() =>
-    posts.slice().sort((a, b) => a.order - b.order),
+    posts.slice().sort((a, b) => b.order - a.order),
     [posts]
   );
+
+  const maxOrder = useMemo(() => {
+    let max = 0;
+    for (const p of posts) max = Math.max(max, p.order);
+    for (const s of stories) max = Math.max(max, s.order);
+    for (const a of activity) max = Math.max(max, a.order);
+    return max;
+  }, [posts, stories, activity]);
 
   // Merge server-backed conversations with locally-started ones for display.
   const allConversations = useMemo<ApiGramMessage[]>(
@@ -737,7 +746,7 @@ const MicroGram = () => {
               View all {post.comments.length} comments
             </button>
           )}
-          <p className="text-xs text-gray-400 mt-1 uppercase">{computeRelativeTimestamp(post.order, startTime)}</p>
+          <p className="text-xs text-gray-400 mt-1 uppercase">{computeRelativeTimestamp(post.order, startTime, maxOrder)}</p>
         </div>
       </article>
     );
@@ -850,7 +859,7 @@ const MicroGram = () => {
                   {entry.type === "follow" && "started following you."}
                   {entry.type === "comment" && `commented: "${entry.text}"`}
                   {entry.type === "mention" && entry.text}
-                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime)}</span>
+                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime, maxOrder)}</span>
                 </p>
               </div>
               {entry.type === "follow" && !followedUserIds.includes(entry.actorId) && (
@@ -1309,7 +1318,7 @@ const MicroGram = () => {
           <div className="absolute top-6 left-4 flex items-center gap-2 z-20">
             {renderAvatar(author, "sm")}
             <span className="text-white font-semibold text-sm">{author?.username}</span>
-            <span className="text-gray-300 text-xs">{story ? computeRelativeTimestamp(story.order, startTime) : ''}</span>
+            <span className="text-gray-300 text-xs">{story ? computeRelativeTimestamp(story.order, startTime, maxOrder) : ''}</span>
           </div>
 
           {/* Story content */}
@@ -1382,7 +1391,7 @@ const MicroGram = () => {
                     <span className="font-semibold">{author?.username}</span>{" "}
                     {post.caption}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">{computeRelativeTimestamp(post.order, startTime)}</p>
+                  <p className="text-xs text-gray-400 mt-1">{computeRelativeTimestamp(post.order, startTime, maxOrder)}</p>
                 </div>
               </div>
               {post.comments.map((comment, commentIndex) => {
@@ -1397,7 +1406,7 @@ const MicroGram = () => {
                         {comment.text}
                       </p>
                       <div className="flex items-center gap-3 mt-1">
-                        <p className="text-xs text-gray-400">{computeRelativeTimestamp(commentOrder, startTime)}</p>
+                        <p className="text-xs text-gray-400">{computeRelativeTimestamp(commentOrder, startTime, maxOrder)}</p>
                         <button
                           onClick={() => setReplyToComment({ id: comment.id, authorUsername: commenter?.username || "" })}
                           className="text-xs text-gray-500 font-semibold hover:text-gray-700"
