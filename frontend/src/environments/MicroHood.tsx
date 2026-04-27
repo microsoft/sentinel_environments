@@ -291,7 +291,8 @@ const MicroHood = () => {
   const handleConfirmOrder = useCallback(async () => {
     const qty = parseInt(orderQuantity) || 1;
     const tradingSymbol = selectedStock?.symbol || "MCRO";
-    const effectivePrice = orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : currentPrice;
+    const stockPrice = selectedStock?.price || currentPrice;
+    const effectivePrice = orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : stockPrice;
     const orderCost = effectivePrice * qty;
 
     if (!orderType) return;
@@ -887,7 +888,6 @@ const MicroHood = () => {
                           shares: stock.shares,
                           avgCost: stock.avgCost,
                         });
-                        handlePlaceOrder("buy");
                       }}
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-900 rounded-xl transition-colors group"
                     >
@@ -1032,9 +1032,9 @@ const MicroHood = () => {
                 <div className="grid grid-cols-2 gap-3 mt-5">
                   <button
                     onClick={() => handlePlaceOrder("buy")}
-                    disabled={hasPlacedOrder || !!selectedStock}
+                    disabled={hasPlacedOrder}
                     className={`py-3 rounded-full font-bold text-sm transition-all ${
-                      hasPlacedOrder || selectedStock
+                      hasPlacedOrder
                         ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                         : "bg-[#00C805] text-black hover:bg-[#00B504] active:scale-[0.98]"
                     }`}
@@ -1043,9 +1043,9 @@ const MicroHood = () => {
                   </button>
                   <button
                     onClick={() => handlePlaceOrder("sell")}
-                    disabled={hasPlacedOrder || !!selectedStock}
+                    disabled={hasPlacedOrder}
                     className={`py-3 rounded-full font-bold text-sm transition-all ${
-                      hasPlacedOrder || selectedStock
+                      hasPlacedOrder
                         ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                         : "bg-gray-800 text-white hover:bg-gray-700 active:scale-[0.98]"
                     }`}
@@ -1333,7 +1333,7 @@ const MicroHood = () => {
                 )}
                 <h3 className="text-xl font-bold">
                   {orderStep === "quantity"
-                    ? `${orderType === "buy" ? "Buy" : "Sell"} MCRO`
+                    ? `${orderType === "buy" ? "Buy" : "Sell"} ${selectedStock?.symbol || "MCRO"}`
                     : "Review Order"}
                 </h3>
               </div>
@@ -1387,7 +1387,7 @@ const MicroHood = () => {
                         type="number"
                         value={limitPrice}
                         onChange={(e) => setLimitPrice(e.target.value)}
-                        placeholder={currentPrice.toFixed(2)}
+                        placeholder={(selectedStock?.price || currentPrice).toFixed(2)}
                         className={`w-full ${themeClasses.bgInput} border ${themeClasses.borderSecondary} rounded-lg pl-8 pr-4 py-3 text-lg font-medium focus:border-[#00C805] focus:outline-none ${themeClasses.text}`}
                         step="0.01"
                       />
@@ -1414,14 +1414,14 @@ const MicroHood = () => {
                       {orderTypeSelection === "market" ? "Market Price" : "Limit Price"}
                     </span>
                     <span>
-                      {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : currentPrice)}
+                      {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice))}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className={themeClasses.textSecondary}>Estimated {orderType === "buy" ? "Cost" : "Credit"}</span>
                     <span className="font-medium">
                       {formatCurrency(
-                        (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : currentPrice) *
+                        (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice)) *
                         parseInt(orderQuantity || "0")
                       )}
                     </span>
@@ -1478,7 +1478,7 @@ const MicroHood = () => {
                         {orderTypeSelection === "market" ? "Market Price" : "Limit Price"}
                       </span>
                       <span>
-                        {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : currentPrice)}
+                        {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice))}
                       </span>
                     </div>
                     <div className={`flex justify-between text-sm pt-2 border-t ${themeClasses.borderSecondary}`}>
@@ -1487,7 +1487,7 @@ const MicroHood = () => {
                       </span>
                       <span className="font-bold text-lg">
                         {formatCurrency(
-                          (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : currentPrice) *
+                          (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice)) *
                           parseInt(orderQuantity || "0")
                         )}
                       </span>
