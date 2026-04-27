@@ -2377,6 +2377,12 @@
       "afrobeats"
     ],
     "bannerUrl": "images/banners/user040.webp",
+    "microgram": {
+      "followers": 1240,
+      "following": 385,
+      "postsCount": 67,
+      "isVerified": false
+    },
     "microdin": {
       "company": "MediaWorks",
       "companyId": "company-mediaworks",
@@ -2409,6 +2415,12 @@
       "baking"
     ],
     "bannerUrl": "images/banners/user041.webp",
+    "microgram": {
+      "followers": 892,
+      "following": 210,
+      "postsCount": 43,
+      "isVerified": false
+    },
     "microdin": {
       "company": "Innovate Ltd",
       "companyId": "company-innovate",
@@ -2441,6 +2453,12 @@
       "fado music"
     ],
     "bannerUrl": "images/banners/user042.webp",
+    "microgram": {
+      "followers": 1560,
+      "following": 430,
+      "postsCount": 89,
+      "isVerified": false
+    },
     "microhub": {
       "followers": 78,
       "following": 52,
@@ -2568,6 +2586,12 @@
       "mentorship",
       "whisky tasting"
     ],
+    "microgram": {
+      "followers": 2340,
+      "following": 178,
+      "postsCount": 112,
+      "isVerified": false
+    },
     "microscholar": {
       "email": "rfoster@meridianlabs.ai",
       "affiliation": "Meridian Research Labs",
