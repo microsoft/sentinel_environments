@@ -160,7 +160,23 @@ const MicroFy = () => {
     [apiMoods]
   );
 
-  const songOrder = useMemo<Song[]>(() => shuffle(songs), [songs]);
+  const songOrderRef = useRef<Song[]>([]);
+  const songOrderIdsRef = useRef<Set<string>>(new Set());
+  const songOrder = useMemo<Song[]>(() => {
+    const newSongs = songs.filter(s => !songOrderIdsRef.current.has(s.id));
+    if (songOrderRef.current.length === 0) {
+      songOrderRef.current = shuffle(songs);
+    } else if (newSongs.length > 0) {
+      songOrderRef.current = [...newSongs, ...songOrderRef.current];
+    }
+    songOrderIdsRef.current = new Set(songOrderRef.current.map(s => s.id));
+    // Update song data (e.g. isLiked) while preserving order
+    const songMap = new Map(songs.map(s => [s.id, s]));
+    songOrderRef.current = songOrderRef.current
+      .map(s => songMap.get(s.id) ?? s)
+      .filter(s => songMap.has(s.id));
+    return songOrderRef.current;
+  }, [songs]);
 
   // Derive favoriteSongs from API track states
   const favoriteSongs = useMemo<string[]>(

@@ -2,7 +2,7 @@
   "id": "microfy-plays-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "Keep checking for new songs. Play the next 3 new songs to appear.",
+  "prompt": "Keep checking for new songs in trending. Play the next 3 new songs to appear.",
   "condition_at": 187.58,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
