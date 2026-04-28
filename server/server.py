@@ -331,7 +331,8 @@ async def _run_auto(session: Session) -> None:
             if _state == STATE_COMPLETED:
                 # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)
                 break
-            wall_elapsed = time.time() - (session.start_wall_time or time.time())
+            assert session.start_wall_time is not None and session.start_wall_time > 0
+            wall_elapsed = time.time() - session.start_wall_time
             _advance_session(session, wall_elapsed)
         _state = STATE_COMPLETED
     finally:
