@@ -189,6 +189,20 @@ const MicroHood = () => {
     shares?: number;
     avgCost?: number;
   } | null>(null);
+  const liveSelectedStock = useMemo(() => {
+    if (!selectedStock) return null;
+    const live = allStocksWithCurrentPrices.find(s => s.symbol === selectedStock.symbol);
+    if (!live) return selectedStock;
+    return {
+      ...selectedStock,
+      price: live.currentPrice,
+      change: live.change,
+      changePercent: live.changePercent,
+      shares: live.shares,
+      avgCost: live.avgCost,
+    };
+  }, [selectedStock, allStocksWithCurrentPrices]);
+
   const [orderStep, setOrderStep] = useState<"quantity" | "review">("quantity");
   const [orderTypeSelection, setOrderTypeSelection] = useState<"market" | "limit">("market");
   const [limitPrice, setLimitPrice] = useState("");
@@ -290,8 +304,8 @@ const MicroHood = () => {
 
   const handleConfirmOrder = useCallback(async () => {
     const qty = parseInt(orderQuantity) || 1;
-    const tradingSymbol = selectedStock?.symbol || "MCRO";
-    const stockPrice = selectedStock?.price || currentPrice;
+    const tradingSymbol = liveSelectedStock?.symbol || "MCRO";
+    const stockPrice = liveSelectedStock?.price || currentPrice;
     const effectivePrice = orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : stockPrice;
     const orderCost = effectivePrice * qty;
 
@@ -321,7 +335,7 @@ const MicroHood = () => {
 
     setHasPlacedOrder(true);
     setShowOrderModal(false);
-  }, [orderType, orderQuantity, currentPrice, selectedStock, showToast, orderTypeSelection, limitPrice, placeOrder]);
+  }, [orderType, orderQuantity, currentPrice, liveSelectedStock, showToast, orderTypeSelection, limitPrice, placeOrder]);
 
   const handleTimeframeChange = useCallback((tf: string) => {
     setSelectedTimeframe(tf);
@@ -925,33 +939,33 @@ const MicroHood = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: selectedStock?.color || "#00A4EF" }}
+                      style={{ backgroundColor: liveSelectedStock?.color || "#00A4EF" }}
                     >
                       <span className="text-white font-bold text-lg">
-                        {selectedStock?.symbol?.[0] || "M"}
+                        {liveSelectedStock?.symbol?.[0] || "M"}
                       </span>
                     </div>
                     <div>
-                      <p className="font-bold text-lg">{selectedStock?.symbol || "MCRO"}</p>
-                      <p className={`text-sm ${themeClasses.textSecondary}`}>{selectedStock?.name || "MicroSystems Corp"}</p>
+                      <p className="font-bold text-lg">{liveSelectedStock?.symbol || "MCRO"}</p>
+                      <p className={`text-sm ${themeClasses.textSecondary}`}>{liveSelectedStock?.name || "MicroSystems Corp"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {/* Watchlist Toggle Button */}
                     <button
                       onClick={() => {
-                        handleToggleWatchlist(selectedStock?.symbol || "MCRO");
+                        handleToggleWatchlist(liveSelectedStock?.symbol || "MCRO");
                       }}
                       className={`p-2 rounded-full transition-all ${
-                        isInWatchlist(selectedStock?.symbol || "MCRO")
+                        isInWatchlist(liveSelectedStock?.symbol || "MCRO")
                           ? "bg-[#00C805]/20 text-[#00C805]"
                           : `${themeClasses.bgHoverSecondary} ${themeClasses.textMuted}`
                       }`}
-                      title={isInWatchlist(selectedStock?.symbol || "MCRO") ? "Remove from watchlist" : "Add to watchlist"}
+                      title={isInWatchlist(liveSelectedStock?.symbol || "MCRO") ? "Remove from watchlist" : "Add to watchlist"}
                     >
                       <Star
                         size={20}
-                        fill={isInWatchlist(selectedStock?.symbol || "MCRO") ? "#00C805" : "none"}
+                        fill={isInWatchlist(liveSelectedStock?.symbol || "MCRO") ? "#00C805" : "none"}
                       />
                     </button>
                     <div className="relative">
@@ -965,7 +979,7 @@ const MicroHood = () => {
                         <div className={`absolute right-0 top-full mt-2 w-48 ${themeClasses.bgTertiary} rounded-xl shadow-xl border ${themeClasses.borderSecondary} overflow-hidden z-50`}>
                           <button
                             onClick={() => {
-                              handleToggleWatchlist(selectedStock?.symbol || "MCRO");
+                              handleToggleWatchlist(liveSelectedStock?.symbol || "MCRO");
                               setShowMoreOptionsDropdown(false);
                             }}
                             className={`w-full flex items-center gap-3 px-4 py-3 ${themeClasses.bgHover} text-left`}
@@ -975,7 +989,7 @@ const MicroHood = () => {
                           </button>
                           <button
                             onClick={() => {
-                              const symbol = selectedStock?.symbol || "MCRO";
+                              const symbol = liveSelectedStock?.symbol || "MCRO";
                               showToast(`Price alert set for ${symbol}`);
                               setShowMoreOptionsDropdown(false);
                             }}
@@ -986,7 +1000,7 @@ const MicroHood = () => {
                           </button>
                           <button
                             onClick={() => {
-                              const symbol = selectedStock?.symbol || "MCRO";
+                              const symbol = liveSelectedStock?.symbol || "MCRO";
                               navigator.clipboard.writeText(`https://microhood.app/stock/${symbol}`);
                               showToast("Link copied to clipboard!");
                               setShowMoreOptionsDropdown(false);
@@ -1014,17 +1028,17 @@ const MicroHood = () => {
 
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-3xl font-bold">
-                    {formatCurrency(selectedStock?.price || currentPrice)}
+                    {formatCurrency(liveSelectedStock?.price || currentPrice)}
                   </span>
                 </div>
                 <div className={`flex items-center gap-1 ${
-                  (selectedStock?.change ?? priceChange) >= 0 ? "text-[#00C805]" : "text-[#FF5000]"
+                  (liveSelectedStock?.change ?? priceChange) >= 0 ? "text-[#00C805]" : "text-[#FF5000]"
                 }`}>
-                  {(selectedStock?.change ?? priceChange) >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                  {(liveSelectedStock?.change ?? priceChange) >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                   <span className="font-medium">
                     {formatChange(
-                      selectedStock?.change ?? priceChange,
-                      selectedStock?.changePercent ?? priceChangePercent
+                      liveSelectedStock?.change ?? priceChange,
+                      liveSelectedStock?.changePercent ?? priceChangePercent
                     )}
                   </span>
                 </div>
@@ -1053,7 +1067,7 @@ const MicroHood = () => {
                     {hasPlacedOrder && orderType === "sell" ? "Sold" : "Sell"}
                   </button>
                 </div>
-                {selectedStock && (
+                {liveSelectedStock && (
                   <button
                     onClick={() => setSelectedStock(null)}
                     className="w-full mt-3 py-2 text-sm text-[#00C805] hover:underline"
@@ -1069,24 +1083,24 @@ const MicroHood = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-500">Shares</p>
-                    <p className="font-medium">{selectedStock?.shares ?? ownedShares}</p>
+                    <p className="font-medium">{liveSelectedStock?.shares ?? ownedShares}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Market Value</p>
                     <p className="font-medium">
-                      {formatCurrency((selectedStock?.price || currentPrice) * (selectedStock?.shares ?? ownedShares))}
+                      {formatCurrency((liveSelectedStock?.price || currentPrice) * (liveSelectedStock?.shares ?? ownedShares))}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-500">Avg Cost</p>
-                    <p className="font-medium">{selectedStock?.avgCost ? formatCurrency(selectedStock.avgCost) : "$380.50"}</p>
+                    <p className="font-medium">{liveSelectedStock?.avgCost ? formatCurrency(liveSelectedStock.avgCost) : "$380.50"}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Total Return</p>
                     {(() => {
-                      const avgCost = selectedStock?.avgCost || 380.50;
-                      const price = selectedStock?.price || currentPrice;
-                      const shares = selectedStock?.shares ?? ownedShares;
+                      const avgCost = liveSelectedStock?.avgCost || 380.50;
+                      const price = liveSelectedStock?.price || currentPrice;
+                      const shares = liveSelectedStock?.shares ?? ownedShares;
                       const returnValue = (price - avgCost) * shares;
                       const returnPercent = ((price - avgCost) / avgCost) * 100;
                       return (
@@ -1333,7 +1347,7 @@ const MicroHood = () => {
                 )}
                 <h3 className="text-xl font-bold">
                   {orderStep === "quantity"
-                    ? `${orderType === "buy" ? "Buy" : "Sell"} ${selectedStock?.symbol || "MCRO"}`
+                    ? `${orderType === "buy" ? "Buy" : "Sell"} ${liveSelectedStock?.symbol || "MCRO"}`
                     : "Review Order"}
                 </h3>
               </div>
@@ -1387,7 +1401,7 @@ const MicroHood = () => {
                         type="number"
                         value={limitPrice}
                         onChange={(e) => setLimitPrice(e.target.value)}
-                        placeholder={(selectedStock?.price || currentPrice).toFixed(2)}
+                        placeholder={(liveSelectedStock?.price || currentPrice).toFixed(2)}
                         className={`w-full ${themeClasses.bgInput} border ${themeClasses.borderSecondary} rounded-lg pl-8 pr-4 py-3 text-lg font-medium focus:border-[#00C805] focus:outline-none ${themeClasses.text}`}
                         step="0.01"
                       />
@@ -1414,14 +1428,14 @@ const MicroHood = () => {
                       {orderTypeSelection === "market" ? "Market Price" : "Limit Price"}
                     </span>
                     <span>
-                      {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice))}
+                      {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice))}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className={themeClasses.textSecondary}>Estimated {orderType === "buy" ? "Cost" : "Credit"}</span>
                     <span className="font-medium">
                       {formatCurrency(
-                        (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice)) *
+                        (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice)) *
                         parseInt(orderQuantity || "0")
                       )}
                     </span>
@@ -1478,7 +1492,7 @@ const MicroHood = () => {
                         {orderTypeSelection === "market" ? "Market Price" : "Limit Price"}
                       </span>
                       <span>
-                        {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice))}
+                        {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice))}
                       </span>
                     </div>
                     <div className={`flex justify-between text-sm pt-2 border-t ${themeClasses.borderSecondary}`}>
@@ -1487,7 +1501,7 @@ const MicroHood = () => {
                       </span>
                       <span className="font-bold text-lg">
                         {formatCurrency(
-                          (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice)) *
+                          (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice)) *
                           parseInt(orderQuantity || "0")
                         )}
                       </span>
