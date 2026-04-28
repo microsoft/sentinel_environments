@@ -302,7 +302,12 @@ const MicroGram = () => {
   // Story auto-advance
   // ---------------------------------------------------------------------------
   const activeStories = useMemo(() =>
-    stories.slice().sort((a, b) => (a.order || 0) - (b.order || 0)),
+    stories.slice().sort((a, b) => {
+      const aViewed = a.isViewed ? 1 : 0;
+      const bViewed = b.isViewed ? 1 : 0;
+      if (aViewed !== bViewed) return aViewed - bViewed;
+      return (b.order || 0) - (a.order || 0);
+    }),
     [stories]
   );
 
