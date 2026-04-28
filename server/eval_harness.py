@@ -184,6 +184,20 @@ def run_task(config, task_json_file, task_result_folder):
                 try:
                     proc.wait(timeout=kill_at_wall(speed_factor))
                 except subprocess.TimeoutExpired:
+                    try:
+                        resp = requests.get(f"{api_url}/status", timeout=5)
+                        server_state = resp.json().get("status") if resp.ok else None
+                    except requests.RequestException:
+                        server_state = None
+
+                    if server_state == "completed":
+                        print(
+                            "Agent subprocess timed out but server is in 'completed' state; "
+                            "granting 90s grace before kill...",
+                            flush=True,
+                        )
+                        time.sleep(90)
+
                     print("Agent subprocess timed out, killing process group...", flush=True)
                     os.killpg(proc.pid, signal.SIGKILL)
                     proc.wait()
