@@ -2389,6 +2389,12 @@
       "industry": "Digital Media",
       "connections": 50,
       "profileViews": 70
+    },
+    "microgram": {
+      "followers": 3986,
+      "following": 488,
+      "postsCount": 79,
+      "isVerified": false
     }
   },
   {
@@ -2427,6 +2433,12 @@
       "industry": "Technology",
       "connections": 50,
       "profileViews": 225
+    },
+    "microgram": {
+      "followers": 4762,
+      "following": 324,
+      "postsCount": 93,
+      "isVerified": false
     }
   },
   {
@@ -2561,6 +2573,12 @@
       "industry": "Consumer Electronics",
       "connections": 50,
       "profileViews": 131
+    },
+    "microgram": {
+      "followers": 658,
+      "following": 334,
+      "postsCount": 18,
+      "isVerified": false
     }
   },
   {
@@ -2618,6 +2636,12 @@
       "industry": "Aerospace",
       "connections": 50,
       "profileViews": 137
+    },
+    "microgram": {
+      "followers": 2784,
+      "following": 510,
+      "postsCount": 78,
+      "isVerified": false
     }
   },
   {
@@ -4390,6 +4414,12 @@
       "industry": "Cloud Computing",
       "connections": 50,
       "profileViews": 133
+    },
+    "microgram": {
+      "followers": 4708,
+      "following": 200,
+      "postsCount": 22,
+      "isVerified": false
     }
   },
   {
@@ -4422,6 +4452,12 @@
       "industry": "Healthcare Technology",
       "connections": 50,
       "profileViews": 222
+    },
+    "microgram": {
+      "followers": 4628,
+      "following": 115,
+      "postsCount": 33,
+      "isVerified": false
     }
   },
   {
@@ -4454,6 +4490,12 @@
       "industry": "Gaming",
       "connections": 50,
       "profileViews": 155
+    },
+    "microgram": {
+      "followers": 2136,
+      "following": 270,
+      "postsCount": 114,
+      "isVerified": false
     }
   }
 ]
