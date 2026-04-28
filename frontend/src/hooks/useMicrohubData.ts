@@ -90,6 +90,7 @@ export interface ApiIssue {
   comments: ApiComment[];
   milestone?: string;
   order: number;
+  createdAt?: number;
 }
 
 export interface ApiComment {
