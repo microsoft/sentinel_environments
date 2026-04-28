@@ -200,15 +200,18 @@ const highlightCode = (code: string, language: string): string => {
  * Compute a relative timestamp string based on order and session start time.
  * Lower order items appear earlier (newer), higher order items are older.
  * Each order step = 30 minutes in simulated time for code repository-style display.
+ * If createdAt (real ms timestamp) is provided, it's used directly — for items
+ * created in-session so they show "just now" at creation and age in real time.
  */
-const computeRelativeTimestamp = (order: number, sessionStartTime: number): string => {
-  // Each order increment = 30 minutes of simulated elapsed time
-  const simulatedMinutesAgo = order * 30;
-  const realElapsedMs = Date.now() - sessionStartTime;
-  const realElapsedMinutes = Math.floor(realElapsedMs / 60000);
-
-  // Total "time ago" = simulated time + real elapsed time
-  const totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+const computeRelativeTimestamp = (order: number, sessionStartTime: number, createdAt?: number): string => {
+  let totalMinutesAgo: number;
+  if (createdAt && createdAt > 0) {
+    totalMinutesAgo = Math.floor((Date.now() - createdAt) / 60000);
+  } else {
+    const simulatedMinutesAgo = order * 30;
+    const realElapsedMinutes = Math.floor((Date.now() - sessionStartTime) / 60000);
+    totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+  }
 
   if (totalMinutesAgo < 1) return "just now";
   if (totalMinutesAgo < 60) return `${totalMinutesAgo} minutes ago`;
@@ -1964,7 +1967,7 @@ npm run dev`}</code>
                   {getLabelsByIds(issue.labelIds).map(label => label && <LabelBadge key={label.id} label={label} />)}
                 </div>
                 <div className={classNames("text-xs mt-1", theme.textSecondary)}>
-                  #{issue.number} opened {computeRelativeTimestamp(issue.order, startTime)} by <span className="hover:text-blue-400 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleViewProfile(issue.author); }}>{issue.author}</span>
+                  #{issue.number} opened {computeRelativeTimestamp(issue.order, startTime, issue.createdAt)} by <span className="hover:text-blue-400 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleViewProfile(issue.author); }}>{issue.author}</span>
                 </div>
               </div>
               <div className="flex items-center space-x-4 ml-4">
@@ -2005,7 +2008,7 @@ npm run dev`}</code>
             </span>
             <span className={classNames("text-sm", theme.textSecondary)}>
               <ClickableUsername username={selectedIssue.author} className="font-medium" />
-              {" "}opened this issue {computeRelativeTimestamp(selectedIssue.order, startTime)} · {selectedIssue.comments.length} comment{selectedIssue.comments.length !== 1 ? "s" : ""}
+              {" "}opened this issue {computeRelativeTimestamp(selectedIssue.order, startTime, selectedIssue.createdAt)} · {selectedIssue.comments.length} comment{selectedIssue.comments.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
@@ -2017,7 +2020,7 @@ npm run dev`}</code>
                 <div className="flex items-center space-x-2">
                   <Avatar user={author} size="sm" />
                   <ClickableUsername username={selectedIssue.author} className="font-medium text-sm" />
-                  <span className={classNames("text-sm", theme.textSecondary)}>commented {computeRelativeTimestamp(selectedIssue.order, startTime)}</span>
+                  <span className={classNames("text-sm", theme.textSecondary)}>commented {computeRelativeTimestamp(selectedIssue.order, startTime, selectedIssue.createdAt)}</span>
                 </div>
               </div>
               <div className="p-4">
