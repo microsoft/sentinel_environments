@@ -10,7 +10,9 @@
 from __future__ import annotations
 
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
+from server.timing import validate_speed_factor
 
 
 class EventPayload(BaseModel):
@@ -27,6 +29,11 @@ class InitPayload(BaseModel):
     speed_factor: float = 1.0
     events: list[EventPayload]
 
+    @field_validator("speed_factor")
+    @classmethod
+    def _check_speed_factor(cls, v: float) -> float:
+        return validate_speed_factor(v)
+
 
 # ---------------------------------------------------------------------------
 # Shared
@@ -37,6 +44,7 @@ class ConfigResponse(BaseModel):
     event_timeline_end: float
     speed_factor: float = 1.0
     selfUser: Optional[dict] = None
+    initial_date: Optional[str] = None
 
 
 class UsersResponse(BaseModel):
@@ -46,6 +54,11 @@ class UsersResponse(BaseModel):
 class EvaluateResponse(BaseModel):
     success: bool
     detail: str = ""
+    evaluation_time: Optional[float] = None
+    condition_at: Optional[float] = None
+    contact_get_time: Optional[int] = None
+    contact_post_time: Optional[int] = None
+    contact_message: Optional[str] = None
 
 
 # --- Shared POST response models ---
@@ -226,6 +239,11 @@ class MicrodinConversationsResponse(BaseModel):
     conversations: list[dict]
 
 
+class MicrodinCreateConversationResponse(BaseModel):
+    conversationId: str
+    created: bool
+
+
 class MicrodinNotificationsResponse(BaseModel):
     notifications: list[dict]
 
@@ -240,6 +258,14 @@ class MicrodinCompaniesResponse(BaseModel):
 
 class MicrodinNetworkResponse(BaseModel):
     users: list[dict]
+
+
+class MicrodinProfileSectionsResponse(BaseModel):
+    sections: list[dict]
+
+
+class MicrodinProfileSectionResponse(BaseModel):
+    section: dict
 
 
 # ---------------------------------------------------------------------------
@@ -425,6 +451,33 @@ class MicrohubCommentRequest(BaseModel):
 
 class MicrohubMergeRequest(BaseModel):
     strategy: str = "merge"  # "merge" | "squash" | "rebase"
+
+
+class MicrohubCreateRepoRequest(BaseModel):
+    name: str
+    description: str = ""
+    visibility: str = "public"  # "public" | "private"
+    addReadme: bool = False
+    addGitignore: bool = False
+
+
+class MicrohubCreateIssueRequest(BaseModel):
+    title: str
+    body: str = ""
+
+
+class MicrohubUserCreatedReposResponse(BaseModel):
+    repositories: list[dict]
+
+
+class MicrohubCreateRepoResponse(BaseModel):
+    success: bool
+    repository: dict
+
+
+class MicrohubCreateIssueResponse(BaseModel):
+    success: bool
+    issue: dict
 
 
 # ---------------------------------------------------------------------------

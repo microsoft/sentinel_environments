@@ -2,7 +2,7 @@
   "id": "microdin-connections-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "Keep an eye on my network page and tell me when I have 15 pending connection requests.",
+  "prompt": "Keep an eye on my network page and tell me when I have at least 15 pending connection requests.",
   "condition_at": 226.02,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -97,14 +97,14 @@
       }
     },
     {
-      "time": 280.36,
+      "time": 344.78,
       "type": "new_post",
       "payload": {
         "post_id": "post-7"
       }
     },
     {
-      "time": 336.34,
+      "time": 467.13,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-5"

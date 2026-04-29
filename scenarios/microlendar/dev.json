@@ -1,12 +1,14 @@
 {
   "id": "dev-microlendar",
   "environment": "microlendar",
-  "duration": 9999,
+  "event_timeline_end": 9999,
   "events": [
     {
       "time": 0,
       "type": "preload_events",
       "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
         "event_ids": [
           "*"
         ],

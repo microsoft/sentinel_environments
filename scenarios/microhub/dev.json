@@ -1,7 +1,7 @@
 {
   "id": "dev-microhub",
   "environment": "microhub",
-  "duration": 9999,
+  "event_timeline_end": 9999,
   "events": [
     {
       "time": 0,

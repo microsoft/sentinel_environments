@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { useHashRoute } from "../hooks/useHashRoute";
 import {
   GitBranch,
   GitCommit,
@@ -199,15 +200,18 @@ const highlightCode = (code: string, language: string): string => {
  * Compute a relative timestamp string based on order and session start time.
  * Lower order items appear earlier (newer), higher order items are older.
  * Each order step = 30 minutes in simulated time for code repository-style display.
+ * If createdAt (real ms timestamp) is provided, it's used directly — for items
+ * created in-session so they show "just now" at creation and age in real time.
  */
-const computeRelativeTimestamp = (order: number, sessionStartTime: number): string => {
-  // Each order increment = 30 minutes of simulated elapsed time
-  const simulatedMinutesAgo = order * 30;
-  const realElapsedMs = Date.now() - sessionStartTime;
-  const realElapsedMinutes = Math.floor(realElapsedMs / 60000);
-
-  // Total "time ago" = simulated time + real elapsed time
-  const totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+const computeRelativeTimestamp = (order: number, sessionStartTime: number, createdAt?: number): string => {
+  let totalMinutesAgo: number;
+  if (createdAt && createdAt > 0) {
+    totalMinutesAgo = Math.floor((Date.now() - createdAt) / 60000);
+  } else {
+    const simulatedMinutesAgo = order * 30;
+    const realElapsedMinutes = Math.floor((Date.now() - sessionStartTime) / 60000);
+    totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+  }
 
   if (totalMinutesAgo < 1) return "just now";
   if (totalMinutesAgo < 60) return `${totalMinutesAgo} minutes ago`;
@@ -228,10 +232,10 @@ const MicroHub = () => {
   const {
     repository, issues, pulls, runs, activity, projects, followingUsernames,
     files, commits, workflows, wiki, insights, releases, labels, security,
-    codeScanning, settings, deployments, packages, users,
+    codeScanning, settings, deployments, packages, users, userCreatedRepos,
     config, isLoading, error,
-    starRepo, watchRepo, forkRepo, mergePR, commentOnIssue, commentOnPR,
-    followUser,
+    starRepo, watchRepo, forkRepo, updateRepo, mergePR, commentOnIssue, commentOnPR,
+    followUser, createRepo, createIssue,
   } = useMicrohubData();
 
   // Derive users into MicroHubUser[]
@@ -302,11 +306,12 @@ const MicroHub = () => {
 
   // UI-only state
   const [startTime] = useState(Date.now());
-  const [currentView, setCurrentView] = useState<ViewType>("code");
-  const [selectedIssueId, setSelectedIssueId] = useState<string | null>(null);
-  const [selectedPRId, setSelectedPRId] = useState<string | null>(null);
-  const [selectedFilePath, setSelectedFilePath] = useState<string | null>(null);
-  const [viewingProfileUsername, setViewingProfileUsername] = useState<string | null>(null);
+  const [route, setRoute] = useHashRoute<ViewType>(["code", "issues", "pulls", "actions", "projects", "wiki", "security", "insights", "issue-detail", "pr-detail", "settings", "profile", "file-view", "commits"] as const, "code");
+  const currentView = route.view;
+  const selectedIssueId = currentView === "issue-detail" ? route.id : null;
+  const selectedPRId = currentView === "pr-detail" ? route.id : null;
+  const selectedFilePath = currentView === "file-view" ? route.id : null;
+  const viewingProfileUsername = currentView === "profile" ? route.id : null;
   const [isLoggedIn] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [issueFilter, setIssueFilter] = useState<IssueState>("open");
@@ -367,6 +372,12 @@ const MicroHub = () => {
   const [newPRTargetBranch, setNewPRTargetBranch] = useState("main");
   const [userCreatedIssues, setUserCreatedIssues] = useState<ApiIssue[]>([]);
   const [userCreatedPRs, setUserCreatedPRs] = useState<ApiPullRequest[]>([]);
+  const [newRepoName, setNewRepoName] = useState("");
+  const [newRepoDescription, setNewRepoDescription] = useState("");
+  const [newRepoVisibility, setNewRepoVisibility] = useState<"public" | "private">("public");
+  const [newRepoReadme, setNewRepoReadme] = useState(false);
+  const [newRepoGitignore, setNewRepoGitignore] = useState(false);
+  const [newRepoSubmitting, setNewRepoSubmitting] = useState(false);
 
   // Dropdowns
   const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
@@ -393,11 +404,9 @@ const MicroHub = () => {
 
     // Navigate based on type
     if (notification.type === "pr" && notification.targetId) {
-      setCurrentView("pr-detail");
-      setSelectedPRId(notification.targetId);
+      setRoute("pr-detail", notification.targetId);
     } else if (notification.type === "issue" && notification.targetId) {
-      setCurrentView("issue-detail");
-      setSelectedIssueId(notification.targetId);
+      setRoute("issue-detail", notification.targetId);
     }
   };
 
@@ -451,14 +460,12 @@ const MicroHub = () => {
   }, [forkRepo]);
 
   const handleViewProfile = useCallback((username: string) => {
-    setViewingProfileUsername(username);
-    setCurrentView("profile");
-  }, []);
+    setRoute("profile", username);
+  }, [setRoute]);
 
   const handleViewFile = useCallback((path: string) => {
-    setSelectedFilePath(path);
-    setCurrentView("file-view");
-  }, []);
+    setRoute("file-view", path);
+  }, [setRoute]);
 
   const toggleFolder = useCallback((path: string) => {
     setExpandedFolders(prev =>
@@ -500,7 +507,13 @@ const MicroHub = () => {
   };
 
   // Combine API issues/pulls with locally-created ones
-  const allIssues = useMemo(() => [...userCreatedIssues, ...issues], [userCreatedIssues, issues]);
+  const allIssues = useMemo(() => {
+    // Server's /microhub-issues already merges user-created issues from the session;
+    // dedupe so local-optimistic entries don't show up twice after the next poll.
+    const seen = new Set(issues.map(i => i.id));
+    const extras = userCreatedIssues.filter(i => !seen.has(i.id));
+    return [...extras, ...issues];
+  }, [userCreatedIssues, issues]);
   const allPRs = useMemo(() => [...userCreatedPRs, ...pulls], [userCreatedPRs, pulls]);
 
   // Filtered and sorted data
@@ -573,7 +586,28 @@ const MicroHub = () => {
   const selectedIssue = selectedIssueId ? allIssues.find(i => i.id === selectedIssueId) ?? null : null;
   const selectedPR = selectedPRId ? allPRs.find(pr => pr.id === selectedPRId) ?? null : null;
   const selectedFile = selectedFilePath ? getFileByPath(selectedFilePath) ?? null : null;
-  const viewingProfile = viewingProfileUsername ? getUserByUsername(viewingProfileUsername) ?? null : null;
+  const viewingProfile = useMemo<MicroHubUser | null>(() => {
+    if (!viewingProfileUsername) return null;
+    const existing = getUserByUsername(viewingProfileUsername);
+    if (existing) return existing;
+    // Synthesize an org profile when clicking an owner handle that isn't in the user list
+    // (e.g. "themicrocorporate" is an organization, not a regular MicroHub user).
+    if (repository && viewingProfileUsername === repository.owner) {
+      return {
+        id: `org-${repository.owner}`,
+        name: repository.owner,
+        username: repository.owner,
+        email: "",
+        avatarUrl: "",
+        bio: `${repository.owner} organization`,
+        location: "",
+        followers: 0,
+        following: 0,
+        joinedDate: "",
+      };
+    }
+    return null;
+  }, [viewingProfileUsername, getUserByUsername, repository]);
 
   // ============================================================================
   // RENDER COMPONENTS
@@ -665,17 +699,17 @@ const MicroHub = () => {
         </button>
 
         {/* MicroHub logo */}
-        <a href="#" className="text-white hover:text-gray-300" onClick={(e) => { e.preventDefault(); setCurrentView("code"); setSelectedIssueId(null); setSelectedPRId(null); setSelectedFilePath(null); setViewingProfileUsername(null); }}>
+        <a href="#" className="text-white hover:text-gray-300" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
           <img src="desktop/github-icon.png" alt="MicroHub" className="w-8 h-8 object-contain" />
         </a>
 
         {/* Repository path */}
         <div className="flex items-center text-sm">
-          <a href="#" className="text-gray-300 hover:text-white hover:underline" onClick={(e) => e.preventDefault()}>
+          <a href="#" className="text-gray-300 hover:text-white hover:underline" onClick={(e) => { e.preventDefault(); handleViewProfile(repository!.owner); }}>
             {repository!.owner}
           </a>
           <span className="mx-1 text-gray-500">/</span>
-          <a href="#" className="text-white font-semibold hover:underline" onClick={(e) => { e.preventDefault(); setCurrentView("code"); }}>
+          <a href="#" className="text-white font-semibold hover:underline" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
             {repository!.name}
           </a>
           {repository!.isPrivate ? (
@@ -744,12 +778,12 @@ const MicroHub = () => {
               </div>
 
               {/* Issues icon */}
-              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setCurrentView("issues"); setSelectedIssueId(null); }}>
+              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setRoute("issues"); }}>
                 <CircleDot className="w-5 h-5" />
               </button>
 
               {/* PRs icon */}
-              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setCurrentView("pulls"); setSelectedPRId(null); }}>
+              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setRoute("pulls"); }}>
                 <GitPullRequest className="w-5 h-5" />
               </button>
 
@@ -840,7 +874,7 @@ const MicroHub = () => {
                     <Star className="w-4 h-4 mr-3" />Your stars
                   </button>
                   <div className="border-t border-gray-700 my-1" />
-                  <button onClick={() => { setCurrentView("settings"); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
+                  <button onClick={() => { setRoute("settings"); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
                     <Settings className="w-4 h-4 mr-3" />Settings
                   </button>
                   <button
@@ -868,11 +902,11 @@ const MicroHub = () => {
     <div className={classNames("border-b px-4 py-4", theme.bgSecondary, theme.border)}>
       <div className="flex items-center space-x-2 text-sm mb-3">
         <Building2 className={classNames("w-4 h-4", theme.textSecondary)} />
-        <a href="#" className="text-blue-500 hover:underline" onClick={(e) => { e.preventDefault(); }}>
+        <a href="#" className="text-blue-500 hover:underline" onClick={(e) => { e.preventDefault(); handleViewProfile(repository!.owner); }}>
           {repository!.owner}
         </a>
         <span className={theme.textMuted}>/</span>
-        <a href="#" className="text-blue-500 hover:underline font-semibold" onClick={(e) => { e.preventDefault(); setCurrentView("code"); }}>
+        <a href="#" className="text-blue-500 hover:underline font-semibold" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
           {repository!.name}
         </a>
         <span className={classNames("px-2 py-0.5 text-xs border rounded-full", theme.border, theme.textSecondary)}>
@@ -954,7 +988,7 @@ const MicroHub = () => {
         ].map((tab) => (
           <button
             key={tab.key}
-            onClick={() => { setCurrentView(tab.key as ViewType); setSelectedIssueId(null); setSelectedPRId(null); setSelectedFilePath(null); }}
+            onClick={() => { setRoute(tab.key as ViewType); }}
             className={classNames(
               "flex items-center space-x-1 px-3 py-2 text-sm rounded-md whitespace-nowrap",
               currentView === tab.key || (tab.key === "code" && currentView === "file-view") || (tab.key === "issues" && currentView === "issue-detail") || (tab.key === "pulls" && currentView === "pr-detail")
@@ -1112,7 +1146,7 @@ const MicroHub = () => {
           <div className={classNames("flex items-center space-x-3 text-sm", theme.textSecondary)}>
             <span className="font-mono text-blue-400">{commits[0].sha}</span>
             <span>{computeRelativeTimestamp(commits[0].order, startTime)}</span>
-            <button onClick={() => setCurrentView("commits")} className="flex items-center hover:text-blue-400">
+            <button onClick={() => setRoute("commits")} className="flex items-center hover:text-blue-400">
               <History className="w-4 h-4 mr-1" />
               {repository!.commits.toLocaleString()} commits
             </button>
@@ -1307,7 +1341,7 @@ npm run dev`}</code>
     return (
       <div className="p-4">
         <div className={classNames("flex items-center space-x-2 text-sm mb-4", theme.textSecondary)}>
-          <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView("code"); setSelectedFilePath(null); }} className="text-blue-400 hover:underline">
+          <a href="#" onClick={(e) => { e.preventDefault(); setRoute("code"); }} className="text-blue-400 hover:underline">
             {repository!.name}
           </a>
           {selectedFile.path.split("/").map((part, i, arr) => {
@@ -1324,8 +1358,7 @@ npm run dev`}</code>
                 foldersToExpand.push(pathParts.slice(0, j).join("/"));
               }
               setExpandedFolders(prev => [...new Set([...prev, ...foldersToExpand])]);
-              setSelectedFilePath(null);
-              setCurrentView("code");
+              setRoute("code");
             };
 
             return (
@@ -1668,7 +1701,7 @@ npm run dev`}</code>
                 <div className={classNames("border rounded-md p-4", theme.border)}>
                   <div className="flex items-center space-x-2 mb-2">
                     <BookOpen className={classNames("w-4 h-4", theme.textSecondary)} />
-                    <a href="#" onClick={(e) => { e.preventDefault(); setCurrentView("code"); setViewingProfileUsername(null); }} className="text-blue-400 hover:underline font-semibold">
+                    <a href="#" onClick={(e) => { e.preventDefault(); setRoute("code"); }} className="text-blue-400 hover:underline font-semibold">
                       {repository!.fullName}
                     </a>
                     <span className={classNames("text-xs border rounded-full px-2 py-0.5", theme.border, theme.textSecondary)}>Public</span>
@@ -1689,6 +1722,35 @@ npm run dev`}</code>
                 </div>
               </div>
             </div>
+
+            {/* User-created repositories */}
+            {profile.isSelf && userCreatedRepos.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-3">Repositories</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {userCreatedRepos.map((r) => (
+                    <div key={r.id} className={classNames("border rounded-md p-4", theme.border)}>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <BookOpen className={classNames("w-4 h-4", theme.textSecondary)} />
+                        <span className="text-blue-400 font-semibold">{r.fullName}</span>
+                        <span className={classNames("text-xs border rounded-full px-2 py-0.5", theme.border, theme.textSecondary)}>
+                          {r.isPrivate ? "Private" : "Public"}
+                        </span>
+                      </div>
+                      {r.description && <p className={classNames("text-sm mb-3", theme.textSecondary)}>{r.description}</p>}
+                      <div className={classNames("flex items-center space-x-4 text-xs", theme.textSecondary)}>
+                        <span className="flex items-center">
+                          <Star className="w-3 h-3 mr-1" />{r.stars}
+                        </span>
+                        <span className="flex items-center">
+                          <GitFork className="w-3 h-3 mr-1" />{r.forks}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Contribution Graph - Now BELOW Pinned Repos */}
             {contributionGrid && (
@@ -1895,7 +1957,7 @@ npm run dev`}</code>
           </div>
         ) : (
           filteredIssues.map((issue, index) => (
-            <div key={issue.id} onClick={() => { setSelectedIssueId(issue.id); setCurrentView("issue-detail"); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredIssues.length - 1 && classNames("border-b", theme.borderLight))}>
+            <div key={issue.id} onClick={() => { setRoute("issue-detail", issue.id); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredIssues.length - 1 && classNames("border-b", theme.borderLight))}>
               <div className="mr-3 mt-1">
                 {issue.state === "open" ? <CircleDot className="w-4 h-4 text-green-500" /> : <CheckCircle2 className="w-4 h-4 text-purple-500" />}
               </div>
@@ -1905,7 +1967,7 @@ npm run dev`}</code>
                   {getLabelsByIds(issue.labelIds).map(label => label && <LabelBadge key={label.id} label={label} />)}
                 </div>
                 <div className={classNames("text-xs mt-1", theme.textSecondary)}>
-                  #{issue.number} opened {computeRelativeTimestamp(issue.order, startTime)} by <span className="hover:text-blue-400 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleViewProfile(issue.author); }}>{issue.author}</span>
+                  #{issue.number} opened {computeRelativeTimestamp(issue.order, startTime, issue.createdAt)} by <span className="hover:text-blue-400 cursor-pointer" onClick={(e) => { e.stopPropagation(); handleViewProfile(issue.author); }}>{issue.author}</span>
                 </div>
               </div>
               <div className="flex items-center space-x-4 ml-4">
@@ -1946,7 +2008,7 @@ npm run dev`}</code>
             </span>
             <span className={classNames("text-sm", theme.textSecondary)}>
               <ClickableUsername username={selectedIssue.author} className="font-medium" />
-              {" "}opened this issue {computeRelativeTimestamp(selectedIssue.order, startTime)} · {selectedIssue.comments.length} comment{selectedIssue.comments.length !== 1 ? "s" : ""}
+              {" "}opened this issue {computeRelativeTimestamp(selectedIssue.order, startTime, selectedIssue.createdAt)} · {selectedIssue.comments.length} comment{selectedIssue.comments.length !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
@@ -1958,7 +2020,7 @@ npm run dev`}</code>
                 <div className="flex items-center space-x-2">
                   <Avatar user={author} size="sm" />
                   <ClickableUsername username={selectedIssue.author} className="font-medium text-sm" />
-                  <span className={classNames("text-sm", theme.textSecondary)}>commented {computeRelativeTimestamp(selectedIssue.order, startTime)}</span>
+                  <span className={classNames("text-sm", theme.textSecondary)}>commented {computeRelativeTimestamp(selectedIssue.order, startTime, selectedIssue.createdAt)}</span>
                 </div>
               </div>
               <div className="p-4">
@@ -2094,7 +2156,7 @@ npm run dev`}</code>
 
       <div className={classNames("border rounded-md", theme.border)}>
         {filteredPRs.map((pr, index) => (
-          <div key={pr.id} onClick={() => { setSelectedPRId(pr.id); setCurrentView("pr-detail"); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredPRs.length - 1 && classNames("border-b", theme.borderLight))}>
+          <div key={pr.id} onClick={() => { setRoute("pr-detail", pr.id); }} className={classNames("flex items-start p-4 cursor-pointer", theme.hover, index < filteredPRs.length - 1 && classNames("border-b", theme.borderLight))}>
             <div className="mr-3 mt-1">
               {pr.state === "open" ? <GitPullRequest className="w-4 h-4 text-green-500" /> : pr.state === "merged" ? <GitMerge className="w-4 h-4 text-purple-500" /> : <GitPullRequest className="w-4 h-4 text-red-500" />}
             </div>
@@ -2841,6 +2903,25 @@ npm run dev`}</code>
   const SettingsView = () => {
     const repoSettings = settings as { general: { name: string; description: string; visibility: string; features: Record<string, boolean> }; branches: { protectionRules: { id: string; pattern: string; requirePullRequest: boolean; requiredApprovals: number; requireStatusChecks: boolean; requiredChecks: string[]; includeAdmins: boolean }[] }; collaborators: { userId: string; username: string; role: string }[] } | null;
 
+    const [nameDraft, setNameDraft] = useState(repository?.name || "");
+    const [descriptionDraft, setDescriptionDraft] = useState(repository?.description || "");
+    const [visibilityDraft, setVisibilityDraft] = useState(repository?.visibility || "public");
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+      setNameDraft(repository?.name || "");
+      setDescriptionDraft(repository?.description || "");
+      setVisibilityDraft(repository?.visibility || "public");
+    }, []);
+
+    const isDirty = nameDraft !== (repository?.name || "") || descriptionDraft !== (repository?.description || "") || visibilityDraft !== (repository?.visibility || "public");
+
+    const handleSaveRepoSettings = async () => {
+      setSaving(true);
+      await updateRepo({ name: nameDraft, description: descriptionDraft, visibility: visibilityDraft });
+      setSaving(false);
+    };
+
     return (
       <div className={classNames("max-w-3xl mx-auto p-6", theme.text)}>
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
@@ -2898,16 +2979,16 @@ npm run dev`}</code>
                   <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Repository name</label>
                   <input
                     type="text"
-                    value={repoSettings.general.name}
-                    readOnly
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
                     className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
                   />
                 </div>
                 <div>
                   <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Description</label>
                   <textarea
-                    value={repoSettings.general.description}
-                    readOnly
+                    value={descriptionDraft}
+                    onChange={(e) => setDescriptionDraft(e.target.value)}
                     rows={2}
                     className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
                   />
@@ -2916,12 +2997,29 @@ npm run dev`}</code>
                   <div>
                     <p className="font-medium">Visibility</p>
                     <p className={classNames("text-sm", theme.textSecondary)}>
-                      {repoSettings.general.visibility === "public" ? "Anyone can see this repository" : "Only collaborators can access"}
+                      {visibilityDraft === "public" ? "Anyone can see this repository" : "Only collaborators can access"}
                     </p>
                   </div>
-                  <span className={classNames("px-3 py-1 text-sm rounded-full", repoSettings.general.visibility === "public" ? "bg-green-900/30 text-green-400" : "bg-yellow-900/30 text-yellow-400")}>
-                    {repoSettings.general.visibility}
-                  </span>
+                  <select
+                    value={visibilityDraft}
+                    onChange={(e) => setVisibilityDraft(e.target.value === "private" ? "private" : "public")}
+                    className={classNames("px-3 py-1 text-sm rounded-md border", theme.inputBg, theme.border)}
+                  >
+                    <option value="public">public</option>
+                    <option value="private">private</option>
+                  </select>
+                </div>
+                <div className="flex justify-end pt-2">
+                  <button
+                    onClick={handleSaveRepoSettings}
+                    disabled={!isDirty || saving}
+                    className={classNames(
+                      "px-4 py-2 text-sm font-medium rounded-md",
+                      isDirty && !saving ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    )}
+                  >
+                    {saving ? "Saving..." : "Save changes"}
+                  </button>
                 </div>
                 <div className="pt-4 border-t" style={{ borderColor: darkMode ? "#374151" : "#e5e7eb" }}>
                   <p className="font-medium mb-2">Features</p>
@@ -2994,7 +3092,7 @@ npm run dev`}</code>
         </div>
 
         <button
-          onClick={() => setCurrentView("code")}
+          onClick={() => setRoute("code")}
           className="mt-6 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md"
         >
           Back to repository
@@ -3027,7 +3125,7 @@ npm run dev`}</code>
             ].map(item => (
               <button
                 key={item.view}
-                onClick={() => { if (item.extra) item.extra(); else setCurrentView(item.view as ViewType); setCommandPaletteOpen(false); }}
+                onClick={() => { if (item.extra) item.extra(); else setRoute(item.view as ViewType); setCommandPaletteOpen(false); }}
                 className={classNames("w-full flex items-center space-x-3 px-3 py-2 rounded", theme.hover)}
               >
                 <item.icon className={classNames("w-4 h-4", theme.textSecondary)} />
@@ -3141,7 +3239,7 @@ npm run dev`}</code>
                 ].map((item) => (
                   <button
                     key={item.key}
-                    onClick={() => { setCurrentView(item.key as ViewType); setSideMenuOpen(false); }}
+                    onClick={() => { setRoute(item.key as ViewType); setSideMenuOpen(false); }}
                     className={classNames(
                       "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm",
                       currentView === item.key ? "bg-gray-700 text-white" : "text-gray-300 hover:bg-gray-800"
@@ -3234,27 +3332,20 @@ npm run dev`}</code>
                 Cancel
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (!newIssueTitle.trim()) return;
-                  const maxIssueNumber = Math.max(...issues.map(i => i.number), ...userCreatedIssues.map(i => i.number), 0);
-                  const newIssue = {
-                    id: `user-issue-${Date.now()}`,
-                    number: maxIssueNumber + 1,
-                    title: newIssueTitle,
-                    body: newIssueBody,
-                    state: 'open' as const,
-                    author: selfUser?.username || 'unknown',
-                    authorId: selfUser?.id || 'unknown',
-                    assignees: [],
-                    labelIds: [],
-                    comments: [],
-                    order: -1,
-                  };
-                  setUserCreatedIssues(prev => [newIssue, ...prev]);
+                  const created = await createIssue(newIssueTitle.trim(), newIssueBody);
+                  if (!created) return;
+                  // Optimistically show the new issue using the server's canonical id, so
+                  // comments posted immediately after creation address the right record.
+                  // The next poll will include it too — dedupe by id.
+                  setUserCreatedIssues(prev =>
+                    prev.some(i => i.id === created.id) ? prev : [created, ...prev]
+                  );
                   setNewIssueTitle("");
                   setNewIssueBody("");
                   setNewIssueModalOpen(false);
-                  setCurrentView("issues");
+                  setRoute("issues");
                 }}
                 disabled={!newIssueTitle.trim()}
                 className={classNames(
@@ -3358,7 +3449,7 @@ npm run dev`}</code>
                   setNewPRBody("");
                   setNewPRSourceBranch("");
                   setNewPRModalOpen(false);
-                  setCurrentView("pulls");
+                  setRoute("pulls");
                 }}
                 disabled={!newPRTitle.trim() || !newPRSourceBranch}
                 className={classNames(
@@ -3388,6 +3479,8 @@ npm run dev`}</code>
                 <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Repository name</label>
                 <input
                   type="text"
+                  value={newRepoName}
+                  onChange={(e) => setNewRepoName(e.target.value)}
                   placeholder="my-new-repo"
                   className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
                 />
@@ -3396,45 +3489,100 @@ npm run dev`}</code>
                 <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Description (optional)</label>
                 <input
                   type="text"
+                  value={newRepoDescription}
+                  onChange={(e) => setNewRepoDescription(e.target.value)}
                   placeholder="Short description of your repository"
                   className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
                 />
               </div>
               <div className="space-y-2">
                 <label className={classNames("flex items-center space-x-2 text-sm", theme.textSecondary)}>
-                  <input type="radio" name="visibility" defaultChecked className="text-green-500" />
+                  <input
+                    type="radio"
+                    name="visibility"
+                    checked={newRepoVisibility === "public"}
+                    onChange={() => setNewRepoVisibility("public")}
+                    className="text-green-500"
+                  />
                   <Globe className="w-4 h-4" />
                   <span>Public</span>
                 </label>
                 <label className={classNames("flex items-center space-x-2 text-sm", theme.textSecondary)}>
-                  <input type="radio" name="visibility" className="text-green-500" />
+                  <input
+                    type="radio"
+                    name="visibility"
+                    checked={newRepoVisibility === "private"}
+                    onChange={() => setNewRepoVisibility("private")}
+                    className="text-green-500"
+                  />
                   <Lock className="w-4 h-4" />
                   <span>Private</span>
                 </label>
               </div>
               <div className="space-y-2">
                 <label className={classNames("flex items-center space-x-2 text-sm")}>
-                  <input type="checkbox" className="rounded" />
+                  <input
+                    type="checkbox"
+                    checked={newRepoReadme}
+                    onChange={(e) => setNewRepoReadme(e.target.checked)}
+                    className="rounded"
+                  />
                   <span>Add a README file</span>
                 </label>
                 <label className={classNames("flex items-center space-x-2 text-sm")}>
-                  <input type="checkbox" className="rounded" />
+                  <input
+                    type="checkbox"
+                    checked={newRepoGitignore}
+                    onChange={(e) => setNewRepoGitignore(e.target.checked)}
+                    className="rounded"
+                  />
                   <span>Add .gitignore</span>
                 </label>
               </div>
             </div>
             <div className={classNames("flex justify-end gap-2 p-4 border-t", theme.border)}>
               <button
-                onClick={() => setNewRepoModalOpen(false)}
+                onClick={() => {
+                  setNewRepoModalOpen(false);
+                  setNewRepoName("");
+                  setNewRepoDescription("");
+                  setNewRepoVisibility("public");
+                  setNewRepoReadme(false);
+                  setNewRepoGitignore(false);
+                }}
                 className={classNames("px-4 py-2 text-sm rounded-md border", theme.border, theme.hover)}
               >
                 Cancel
               </button>
               <button
-                onClick={() => setNewRepoModalOpen(false)}
-                className="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 rounded-md text-white"
+                onClick={async () => {
+                  const trimmed = newRepoName.trim();
+                  if (!trimmed || newRepoSubmitting) return;
+                  setNewRepoSubmitting(true);
+                  const created = await createRepo({
+                    name: trimmed,
+                    description: newRepoDescription.trim(),
+                    visibility: newRepoVisibility,
+                    addReadme: newRepoReadme,
+                    addGitignore: newRepoGitignore,
+                  });
+                  setNewRepoSubmitting(false);
+                  if (!created) return;
+                  setNewRepoModalOpen(false);
+                  setNewRepoName("");
+                  setNewRepoDescription("");
+                  setNewRepoVisibility("public");
+                  setNewRepoReadme(false);
+                  setNewRepoGitignore(false);
+                  if (selfUser?.username) handleViewProfile(selfUser.username);
+                }}
+                disabled={!newRepoName.trim() || newRepoSubmitting}
+                className={classNames(
+                  "px-4 py-2 text-sm rounded-md text-white",
+                  newRepoName.trim() && !newRepoSubmitting ? "bg-green-600 hover:bg-green-700" : "bg-gray-600 cursor-not-allowed"
+                )}
               >
-                Create repository
+                {newRepoSubmitting ? "Creating..." : "Create repository"}
               </button>
             </div>
           </div>

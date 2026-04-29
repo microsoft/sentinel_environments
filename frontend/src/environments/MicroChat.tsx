@@ -6,6 +6,7 @@ import {
   useCallback,
   type FormEvent,
 } from "react";
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrochatData } from "../hooks/useMicrochatData";
 import {
   Search,
@@ -467,7 +468,9 @@ const formatMessageTime = (date: Date) => {
 const renderFormattedText = (text: string): React.ReactNode[] => {
   // Combined regex for [link](url), **bold**, _italic_, `code`, @mentions, and raw URLs
   // Order matters: markdown links must come before raw URLs to avoid conflicts
-  const pattern = /(\[([^\]]+)\]\(([^)]+)\))|(\*\*[^*]+\*\*)|(_[^_]+_)|(`[^`]+`)|(@\w+\s*\w*)|(https?:\/\/[^\s<>"']+)/g;
+  // Mention matches @Name and optionally a trailing capitalized last name, so it
+  // won't greedily swallow the next word (e.g. "@Chris can" -> bolds only "@Chris").
+  const pattern = /(\[([^\]]+)\]\(([^)]+)\))|(\*\*[^*]+\*\*)|(_[^_]+_)|(`[^`]+`)|(@\w+(?:\s+[A-Z]\w+)?)|(https?:\/\/[^\s<>"']+)/g;
   const parts: React.ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -661,6 +664,7 @@ const MicroChat = () => {
         isMuted: c.isMuted,
         isOnline: false,
         avatarColor: c.avatarColor,
+        avatarUrl: c.avatarUrl,
       };
     }).sort((a, b) => {
       if (a.isPinned && !b.isPinned) return -1;
@@ -688,9 +692,16 @@ const MicroChat = () => {
   }, [apiTeams, selfUser.id]);
 
   // ---- UI state ----
-  const [currentView, setCurrentView] = useState<ViewType>("chat");
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
-  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+  const [route, setRoute] = useHashRoute<ViewType>(["chat", "teams", "calendar", "calls"] as const, "chat");
+  const currentView = route.view;
+  const setCurrentView = useCallback((view: ViewType) => setRoute(view), [setRoute]);
+  const selectedConversationId = currentView === "chat" ? route.id : null;
+  const setSelectedConversationId = useCallback(
+    (id: string | null) => setRoute("chat", id),
+    [setRoute],
+  );
+  const teamsCompositeId = currentView === "teams" ? route.id : null;
+  const selectedTeamId = teamsCompositeId ? teamsCompositeId.split(":")[0] || null : null;
   const [chatFilter, setChatFilter] = useState<ChatFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isSignedOut, setIsSignedOut] = useState(false);
@@ -722,7 +733,17 @@ const MicroChat = () => {
 
   // Translation helper
   const t = useCallback((key: string) => TRANSLATIONS[language][key] || TRANSLATIONS.en[key] || key, [language]);
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const selectedChannelId = teamsCompositeId && teamsCompositeId.includes(":")
+    ? teamsCompositeId.split(":")[1] || null
+    : null;
+  const setSelectedChannelId = useCallback(
+    (id: string | null) => {
+      const team = teamsCompositeId ? teamsCompositeId.split(":")[0] : null;
+      if (!team) return;
+      setRoute("teams", id ? `${team}:${id}` : team);
+    },
+    [setRoute, teamsCompositeId],
+  );
   const [channelMessages, setChannelMessages] = useState<Record<string, { id: string; senderId: string; content: string; timestamp: number }[]>>({});
   const [showChannelMembers, setShowChannelMembers] = useState(false);
   const [showNewMeetingModal, setShowNewMeetingModal] = useState(false);
@@ -742,6 +763,7 @@ const MicroChat = () => {
     recipientName: string;
     avatarUrl?: string;
     avatarColor?: string;
+    participantAvatars?: { id: string; avatarUrl?: string; name: string }[];
     status: "calling" | "not_answered";
   } | null>(null);
 
@@ -766,6 +788,12 @@ const MicroChat = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const messageInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevMessageCountRef = useRef(0);
+  const prevConversationIdRef = useRef<string | null>(null);
+  // Whether the user is currently pinned to the bottom of the message list.
+  // We suppress auto-scroll when they have intentionally scrolled up.
+  const isAtBottomRef = useRef(true);
   const toastTimeoutRef = useRef<number | null>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const voicePlaybackTimeoutRef = useRef<number | null>(null);
@@ -796,10 +824,33 @@ const MicroChat = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [profileDropdownOpen]);
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom only when the conversation changes, or when a new message
+  // arrives AND the user was already pinned to the bottom. `messages` is a
+  // Record keyed by conversation, so count the messages in the selected convo.
+  const selectedMessageCount = selectedConversationId
+    ? (messages[selectedConversationId]?.length ?? 0)
+    : 0;
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, selectedConversationId]);
+    const conversationChanged = prevConversationIdRef.current !== selectedConversationId;
+    const hasNewMessages = selectedMessageCount > prevMessageCountRef.current;
+    if (conversationChanged) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      isAtBottomRef.current = true;
+    } else if (hasNewMessages && isAtBottomRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+    prevMessageCountRef.current = selectedMessageCount;
+    prevConversationIdRef.current = selectedConversationId;
+  }, [selectedMessageCount, selectedConversationId]);
+
+  // Track whether the user is pinned to the bottom of the message list so we
+  // don't hijack scroll while they're reading earlier messages.
+  const handleMessagesScroll = useCallback(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    isAtBottomRef.current = distanceFromBottom <= 50;
+  }, []);
 
   // Voice recording timer
   useEffect(() => {
@@ -825,13 +876,20 @@ const MicroChat = () => {
   }, []);
 
   // Start a call (shows calling modal, then "not answered" after delay)
-  const startCall = useCallback((recipientName: string, callType: "video" | "audio", avatarUrl?: string, avatarColor?: string) => {
+  const startCall = useCallback((
+    recipientName: string,
+    callType: "video" | "audio",
+    avatarUrl?: string,
+    avatarColor?: string,
+    participantAvatars?: { id: string; avatarUrl?: string; name: string }[],
+  ) => {
     setCallingModal({
       isOpen: true,
       callType,
       recipientName,
       avatarUrl,
       avatarColor,
+      participantAvatars,
       status: "calling",
     });
 
@@ -894,7 +952,7 @@ const MicroChat = () => {
     for (const msg of convMsgs) {
       markRead(msg.id);
     }
-  }, [apiMessages, markRead]);
+  }, [apiMessages, markRead, setSelectedConversationId]);
 
   const handleSendMessage = useCallback(
     (e: FormEvent) => {
@@ -1335,6 +1393,7 @@ const MicroChat = () => {
                   onClick={() => handleSelectConversation(conversation.id)}
                   onToggleFavorite={toggleFavorite}
                   lookupUser={getUserById}
+                  darkMode={darkMode}
                 />
               ))}
             </div>
@@ -1360,6 +1419,8 @@ const MicroChat = () => {
                 isSelected={selectedConversationId === conversation.id}
                 onClick={() => handleSelectConversation(conversation.id)}
                 onToggleFavorite={toggleFavorite}
+                lookupUser={getUserById}
+                darkMode={darkMode}
               />
             ))}
           </div>
@@ -1379,7 +1440,7 @@ const MicroChat = () => {
         {selectedTeamId ? (
           <div className="flex items-center gap-3">
             <button
-              onClick={() => { setSelectedTeamId(null); setSelectedChannelId(null); }}
+              onClick={() => setRoute("teams")}
               className={classNames("rounded-md p-1", darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100")}
             >
               <ChevronLeft size={20} />
@@ -1461,7 +1522,10 @@ const MicroChat = () => {
                   </div>
                   <div className="flex items-center gap-1">
                     <button
-                      className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
+                      className={classNames(
+                        "rounded-md p-2",
+                        darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
+                      )}
                       onClick={() => startCall(`${selectedTeam?.name} - ${selectedChannel.name}`, "video")}
                       title="Start video call"
                     >
@@ -1469,8 +1533,10 @@ const MicroChat = () => {
                     </button>
                     <button
                       className={classNames(
-                        "rounded-md p-2 hover:bg-gray-100",
-                        showChannelMembers ? "bg-gray-100 text-[#5b5fc7]" : "text-gray-500"
+                        "rounded-md p-2",
+                        showChannelMembers
+                          ? darkMode ? "bg-[#3d3d3d] text-[#a5a7f3]" : "bg-gray-100 text-[#5b5fc7]"
+                          : darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
                       )}
                       onClick={() => setShowChannelMembers(!showChannelMembers)}
                       title="Show members"
@@ -1480,8 +1546,10 @@ const MicroChat = () => {
                     <div className="relative">
                       <button
                         className={classNames(
-                          "rounded-md p-2 hover:bg-gray-100",
-                          showMoreOptionsMenu === `channel-${selectedChannel.id}` ? "bg-gray-100 text-[#5b5fc7]" : "text-gray-500"
+                          "rounded-md p-2",
+                          showMoreOptionsMenu === `channel-${selectedChannel.id}`
+                            ? darkMode ? "bg-[#3d3d3d] text-[#a5a7f3]" : "bg-gray-100 text-[#5b5fc7]"
+                            : darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
                         )}
                         title="More options"
                         onClick={() => setShowMoreOptionsMenu(showMoreOptionsMenu === `channel-${selectedChannel.id}` ? null : `channel-${selectedChannel.id}`)}
@@ -1489,35 +1557,29 @@ const MicroChat = () => {
                         <MoreHorizontal size={18} />
                       </button>
                       {showMoreOptionsMenu === `channel-${selectedChannel.id}` && (
-                        <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                        <div className={classNames(
+                          "absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border py-1 shadow-lg",
+                          darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+                        )}>
                           <button
                             onClick={() => { triggerToast("Channel pinned", "success"); setShowMoreOptionsMenu(null); }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            className={classNames(
+                              "flex w-full items-center gap-2 px-3 py-2 text-sm",
+                              darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-50"
+                            )}
                           >
                             <Star size={14} />
                             Pin channel
                           </button>
                           <button
                             onClick={() => { triggerToast("Notifications muted", "success"); setShowMoreOptionsMenu(null); }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                            className={classNames(
+                              "flex w-full items-center gap-2 px-3 py-2 text-sm",
+                              darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-50"
+                            )}
                           >
                             <Bell size={14} />
                             Mute notifications
-                          </button>
-                          <button
-                            onClick={() => { triggerToast("Channel settings", "info"); setShowMoreOptionsMenu(null); }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                          >
-                            <Settings size={14} />
-                            Channel settings
-                          </button>
-                          <div className="my-1 border-t border-gray-200" />
-                          <button
-                            onClick={() => { triggerToast("Left channel", "info"); setShowMoreOptionsMenu(null); }}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-gray-50"
-                          >
-                            <LogOut size={14} />
-                            Leave channel
                           </button>
                         </div>
                       )}
@@ -1531,11 +1593,11 @@ const MicroChat = () => {
                   <div className="flex-1 flex flex-col overflow-hidden">
                     <div className={classNames("flex-1 overflow-y-auto p-4", darkMode ? "dark-scrollbar" : "light-scrollbar")}>
                       <div className="mb-6 text-center">
-                        <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-[#e8ebfa]">
-                          <Hash size={32} className="text-[#5b5fc7]" />
+                        <div className={classNames("mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full", darkMode ? "bg-[#464775]" : "bg-[#e8ebfa]")}>
+                          <Hash size={32} className={darkMode ? "text-[#a5a7f3]" : "text-[#5b5fc7]"} />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900">Welcome to #{selectedChannel.name}</h3>
-                        <p className="text-sm text-gray-500">{selectedChannel.description || "This is the beginning of the channel."}</p>
+                        <h3 className={classNames("text-lg font-semibold", darkMode ? "text-white" : "text-gray-900")}>Welcome to #{selectedChannel.name}</h3>
+                        <p className={classNames("text-sm", darkMode ? "text-gray-400" : "text-gray-500")}>{selectedChannel.description || "This is the beginning of the channel."}</p>
                       </div>
 
                       {/* Channel messages */}
@@ -1560,12 +1622,15 @@ const MicroChat = () => {
                                 </div>
                               )}
                               <div className="flex-1">
-                                <div className="flex items-center gap-2 text-xs text-gray-500">
-                                  <span className="font-medium text-gray-700">{isSelf ? "You" : sender.name}</span>
+                                <div className={classNames("flex items-center gap-2 text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>
+                                  <span className={classNames("font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{isSelf ? "You" : sender.name}</span>
                                   <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span>
                                 </div>
-                                <div className="mt-1 rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-800">
-                                  {renderFormattedText(msg.content)}
+                                <div className={classNames(
+                                  "mt-1 rounded-lg px-3 py-2 text-sm",
+                                  darkMode ? "bg-[#3d3d3d] text-gray-100" : "bg-gray-100 text-gray-800"
+                                )}>
+                                  {renderFormattedText(msg.content.replace(/@you\b/gi, `@${selfUser.name}`))}
                                 </div>
                               </div>
                             </div>
@@ -1575,12 +1640,18 @@ const MicroChat = () => {
                     </div>
 
                     {/* Channel message input */}
-                    <div className="border-t border-gray-200 p-4">
-                      <div className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2">
+                    <div className={classNames("border-t p-4", darkMode ? "border-gray-700" : "border-gray-200")}>
+                      <div className={classNames(
+                        "flex items-center gap-2 rounded-lg border px-3 py-2",
+                        darkMode ? "border-gray-600 bg-[#3d3d3d]" : "border-gray-300 bg-white"
+                      )}>
                         <input
                           type="text"
                           placeholder={`Message #${selectedChannel.name}`}
-                          className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
+                          className={classNames(
+                            "flex-1 bg-transparent text-sm outline-none",
+                            darkMode ? "text-gray-100 placeholder:text-gray-500" : "placeholder:text-gray-400"
+                          )}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && (e.target as HTMLInputElement).value.trim()) {
                               const content = (e.target as HTMLInputElement).value.trim();
@@ -1598,7 +1669,7 @@ const MicroChat = () => {
                             }
                           }}
                         />
-                        <button className="rounded-md p-1.5 text-gray-400 hover:text-[#5b5fc7]">
+                        <button className={classNames("rounded-md p-1.5", darkMode ? "text-gray-500 hover:text-[#a5a7f3]" : "text-gray-400 hover:text-[#5b5fc7]")}>
                           <Send size={18} />
                         </button>
                       </div>
@@ -1607,14 +1678,20 @@ const MicroChat = () => {
 
                   {/* Members panel */}
                   {showChannelMembers && selectedTeam && (
-                    <div className="w-64 border-l border-gray-200 bg-white p-4 overflow-y-auto">
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Members ({selectedTeam.memberCount})</h4>
+                    <div className={classNames(
+                      "w-64 border-l p-4 overflow-y-auto",
+                      darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+                    )}>
+                      <h4 className={classNames("text-sm font-semibold mb-3", darkMode ? "text-gray-200" : "text-gray-700")}>Members ({selectedTeam.memberCount})</h4>
                       <div className="space-y-2">
                         {(selectedTeam.memberIds || []).slice(0, 10).map((memberId) => {
                           const member = getUserById(memberId);
                           if (!member) return null;
                           return (
-                            <div key={memberId} className="flex items-center gap-2 rounded-md p-2 hover:bg-gray-50">
+                            <div key={memberId} className={classNames(
+                              "flex items-center gap-2 rounded-md p-2",
+                              darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-50"
+                            )}>
                               {member.avatarUrl ? (
                                 <img src={member.avatarUrl} alt={member.name} className="h-8 w-8 rounded-full object-cover" />
                               ) : (
@@ -1626,8 +1703,8 @@ const MicroChat = () => {
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{member.name}</p>
-                                <p className="text-xs text-gray-500 truncate">{member.jobTitle || "Member"}</p>
+                                <p className={classNames("text-sm font-medium truncate", darkMode ? "text-gray-100" : "text-gray-900")}>{member.name}</p>
+                                <p className={classNames("text-xs truncate", darkMode ? "text-gray-400" : "text-gray-500")}>{member.jobTitle || "Member"}</p>
                               </div>
                             </div>
                           );
@@ -1640,9 +1717,9 @@ const MicroChat = () => {
             ) : (
               <div className="flex flex-1 items-center justify-center">
                 <div className="text-center">
-                  <Hash size={48} className="mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-lg font-medium text-gray-700">Select a channel</h3>
-                  <p className="text-sm text-gray-500">Choose a channel to start chatting</p>
+                  <Hash size={48} className={classNames("mx-auto mb-4", darkMode ? "text-gray-500" : "text-gray-400")} />
+                  <h3 className={classNames("text-lg font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>Select a channel</h3>
+                  <p className={classNames("text-sm", darkMode ? "text-gray-400" : "text-gray-500")}>Choose a channel to start chatting</p>
                 </div>
               </div>
             )}
@@ -1691,10 +1768,7 @@ const MicroChat = () => {
                     key={team.id}
                     team={team}
                     darkMode={darkMode}
-                    onClick={() => {
-                      setSelectedTeamId(team.id);
-                      setSelectedChannelId(null);
-                    }}
+                    onClick={() => setRoute("teams", team.id)}
                   />
                 ))}
               </div>
@@ -1721,8 +1795,8 @@ const MicroChat = () => {
                 className="h-24 w-24"
               />
             </div>
-            <h3 className="text-xl font-semibold text-gray-800">This is your space</h3>
-            <p className="mt-2 max-w-sm text-sm text-gray-500">
+            <h3 className={classNames("text-xl font-semibold", darkMode ? "text-gray-100" : "text-gray-800")}>This is your space</h3>
+            <p className={classNames("mt-2 max-w-sm text-sm", darkMode ? "text-gray-400" : "text-gray-500")}>
               This chat is just for you...with you. Use it for drafts, send files to yourself, or get to know chat features a little better.
             </p>
           </div>
@@ -1808,7 +1882,7 @@ const MicroChat = () => {
                 )}
               </div>
               {selectedConversation.type === "direct" && (
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+                <div className={classNames("flex items-center gap-2 text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>
                   <span>Chat</span>
                   <span>·</span>
                   <span>Shared</span>
@@ -1817,22 +1891,46 @@ const MicroChat = () => {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <button
-              className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
-              onClick={() => startCall(selectedConversation.name, "video", selectedConversation.avatarUrl, selectedConversation.avatarColor)}
-            >
-              <Video size={18} />
-            </button>
-            <button
-              className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
-              onClick={() => startCall(selectedConversation.name, "audio", selectedConversation.avatarUrl, selectedConversation.avatarColor)}
-            >
-              <Phone size={18} />
-            </button>
+            {(() => {
+              const isGroupOrMeeting = selectedConversation.type === "group" || selectedConversation.type === "meeting";
+              const groupAvatars = isGroupOrMeeting
+                ? (selectedConversation.participants || [])
+                    .slice(0, 4)
+                    .map((pid) => {
+                      const u = getUserById(pid);
+                      return u ? { id: u.id, avatarUrl: u.avatarUrl, name: u.name } : null;
+                    })
+                    .filter(Boolean) as { id: string; avatarUrl?: string; name: string }[]
+                : undefined;
+              return (
+                <>
+                  <button
+                    className={classNames(
+                      "rounded-md p-2",
+                      darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
+                    )}
+                    onClick={() => startCall(selectedConversation.name, "video", selectedConversation.avatarUrl, selectedConversation.avatarColor, groupAvatars)}
+                  >
+                    <Video size={18} />
+                  </button>
+                  <button
+                    className={classNames(
+                      "rounded-md p-2",
+                      darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
+                    )}
+                    onClick={() => startCall(selectedConversation.name, "audio", selectedConversation.avatarUrl, selectedConversation.avatarColor, groupAvatars)}
+                  >
+                    <Phone size={18} />
+                  </button>
+                </>
+              );
+            })()}
             <button
               className={classNames(
-                "rounded-md p-2 hover:bg-gray-100",
-                conversationSearchOpen ? "bg-gray-100 text-[#5b5fc7]" : "text-gray-500"
+                "rounded-md p-2",
+                conversationSearchOpen
+                  ? darkMode ? "bg-[#3d3d3d] text-[#a5a7f3]" : "bg-gray-100 text-[#5b5fc7]"
+                  : darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
               )}
               onClick={() => {
                 setConversationSearchOpen(!conversationSearchOpen);
@@ -1846,7 +1944,7 @@ const MicroChat = () => {
 
         {/* Conversation search bar */}
         {conversationSearchOpen && (
-          <div className="border-b border-gray-200 px-4 py-2">
+          <div className={classNames("border-b px-4 py-2", darkMode ? "border-gray-700" : "border-gray-200")}>
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -1855,19 +1953,25 @@ const MicroChat = () => {
                 value={conversationSearchQuery}
                 onChange={(e) => setConversationSearchQuery(e.target.value)}
                 autoFocus
-                className="w-full rounded-md border border-gray-300 py-2 pl-9 pr-3 text-sm focus:border-[#5b5fc7] focus:outline-none focus:ring-1 focus:ring-[#5b5fc7]"
+                className={classNames(
+                  "w-full rounded-md border py-2 pl-9 pr-3 text-sm focus:border-[#5b5fc7] focus:outline-none focus:ring-1 focus:ring-[#5b5fc7]",
+                  darkMode ? "border-gray-600 bg-[#3d3d3d] text-gray-100 placeholder:text-gray-500" : "border-gray-300"
+                )}
               />
               {conversationSearchQuery && (
                 <button
                   onClick={() => setConversationSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className={classNames(
+                    "absolute right-3 top-1/2 -translate-y-1/2",
+                    darkMode ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600"
+                  )}
                 >
                   <X size={16} />
                 </button>
               )}
             </div>
             {conversationSearchQuery && (
-              <p className="mt-1 text-xs text-gray-500">
+              <p className={classNames("mt-1 text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>
                 {selectedMessages.filter((m) =>
                   m.content.toLowerCase().includes(conversationSearchQuery.toLowerCase())
                 ).length} results found
@@ -1877,7 +1981,11 @@ const MicroChat = () => {
         )}
 
         {/* Messages */}
-        <div className={classNames("flex-1 overflow-y-auto p-4", darkMode ? "dark-scrollbar" : "light-scrollbar")}>
+        <div
+          ref={messagesContainerRef}
+          onScroll={handleMessagesScroll}
+          className={classNames("flex-1 overflow-y-auto p-4", darkMode ? "dark-scrollbar" : "light-scrollbar")}
+        >
           {selectedMessages.map((message, index) => {
             const sender = getUserById(message.senderId);
             const isSelf = message.senderId === selfUser.id;
@@ -1925,8 +2033,8 @@ const MicroChat = () => {
                 {!isSelf && !showAvatar && <div className="w-8" />}
                 <div className={classNames("max-w-[70%]", isSelf ? "text-right" : "text-left")}>
                   {showAvatar && (
-                    <div className="mb-1 flex items-center gap-2 text-xs text-gray-500">
-                      <span className="font-medium text-gray-700">
+                    <div className={classNames("mb-1 flex items-center gap-2 text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>
+                      <span className={classNames("font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>
                         {isSelf ? "You" : sender?.name || "Unknown"}
                       </span>
                       <span>{formatMessageTime(message.timestamp)}</span>
@@ -1935,7 +2043,10 @@ const MicroChat = () => {
 
                   {/* Reply reference */}
                   {replyToMessage && (
-                    <div className="mb-1 flex items-center gap-1 text-xs text-gray-500 border-l-2 border-gray-300 pl-2">
+                    <div className={classNames(
+                      "mb-1 flex items-center gap-1 text-xs border-l-2 pl-2",
+                      darkMode ? "text-gray-400 border-gray-600" : "text-gray-500 border-gray-300"
+                    )}>
                       <Reply size={12} />
                       <span className="truncate max-w-[200px]">{replyToMessage.content}</span>
                     </div>
@@ -2043,7 +2154,7 @@ const MicroChat = () => {
                       )}
                     >
                       {/* Render message with markdown formatting (**bold**, _italic_, @mentions) */}
-                      {message.content && renderFormattedText(message.content)}
+                      {message.content && renderFormattedText(message.content.replace(/@you\b/gi, `@${selfUser.name}`))}
                     </div>
                   )}
 
@@ -2101,8 +2212,8 @@ const MicroChat = () => {
                           className={classNames(
                             "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition",
                             reaction.userIds.includes(selfUser.id)
-                              ? "border-[#5b5fc7] bg-[#e8ebfa] text-[#5b5fc7]"
-                              : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
+                              ? darkMode ? "border-[#5b5fc7] bg-[#464775] text-[#a5a7f3]" : "border-[#5b5fc7] bg-[#e8ebfa] text-[#5b5fc7]"
+                              : darkMode ? "border-gray-600 bg-[#3d3d3d] text-gray-200 hover:bg-[#4d4d4d]" : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"
                           )}
                         >
                           <span>{reaction.emoji}</span>
@@ -2115,14 +2226,15 @@ const MicroChat = () => {
                   {/* Hover action buttons */}
                   {isHovered && !isEditing && (
                     <div className={classNames(
-                      "absolute -top-8 flex items-center gap-0.5 rounded-md border border-gray-200 bg-white p-1 shadow-md z-10",
+                      "absolute -top-8 flex items-center gap-0.5 rounded-md border p-1 shadow-md z-10",
+                      darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white",
                       isSelf ? "right-0" : "left-8"
                     )}>
                       {QUICK_REACTIONS.slice(0, 4).map((emoji) => (
                         <button
                           key={emoji}
                           onClick={() => handleAddReaction(message.id, emoji)}
-                          className="rounded p-1 hover:bg-gray-100 text-sm"
+                          className={classNames("rounded p-1 text-sm", darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-100")}
                           title={`React with ${emoji}`}
                         >
                           {emoji}
@@ -2130,18 +2242,18 @@ const MicroChat = () => {
                       ))}
                       <button
                         onClick={() => setEmojiPickerForMessageId(message.id)}
-                        className="rounded p-1 hover:bg-gray-100 text-gray-500"
+                        className={classNames("rounded p-1", darkMode ? "hover:bg-[#3d3d3d] text-gray-400" : "hover:bg-gray-100 text-gray-500")}
                         title="More reactions"
                       >
                         <Smile size={16} />
                       </button>
-                      <div className="w-px h-4 bg-gray-200 mx-1" />
+                      <div className={classNames("w-px h-4 mx-1", darkMode ? "bg-gray-600" : "bg-gray-200")} />
                       <button
                         onClick={() => {
                           setReplyingToMessageId(message.id);
                           messageInputRef.current?.focus();
                         }}
-                        className="rounded p-1 hover:bg-gray-100 text-gray-500"
+                        className={classNames("rounded p-1", darkMode ? "hover:bg-[#3d3d3d] text-gray-400" : "hover:bg-gray-100 text-gray-500")}
                         title="Reply"
                       >
                         <Reply size={16} />
@@ -2153,7 +2265,7 @@ const MicroChat = () => {
                               setEditingMessageId(message.id);
                               setEditingContent(message.content);
                             }}
-                            className="rounded p-1 hover:bg-gray-100 text-gray-500"
+                            className={classNames("rounded p-1", darkMode ? "hover:bg-[#3d3d3d] text-gray-400" : "hover:bg-gray-100 text-gray-500")}
                             title="Edit"
                           >
                             <Edit2 size={16} />
@@ -2164,7 +2276,7 @@ const MicroChat = () => {
                                 handleDeleteMessage(message.id);
                               }
                             }}
-                            className="rounded p-1 hover:bg-gray-100 text-red-500"
+                            className={classNames("rounded p-1 text-red-500", darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-100")}
                             title="Delete"
                           >
                             <Trash2 size={16} />
@@ -2177,7 +2289,8 @@ const MicroChat = () => {
                   {/* Emoji picker for this message */}
                   {emojiPickerForMessageId === message.id && (
                     <div className={classNames(
-                      "absolute top-full mt-1 z-20 rounded-lg border border-gray-200 bg-white p-3 shadow-lg",
+                      "absolute top-full mt-1 z-20 rounded-lg border p-3 shadow-lg",
+                      darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white",
                       isSelf ? "right-0" : "left-8"
                     )}>
                       <div className="grid grid-cols-8 gap-1 max-h-48 overflow-y-auto">
@@ -2185,7 +2298,7 @@ const MicroChat = () => {
                           <button
                             key={emoji}
                             onClick={() => handleAddReaction(message.id, emoji)}
-                            className="rounded p-1 hover:bg-gray-100 text-lg"
+                            className={classNames("rounded p-1 text-lg", darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-100")}
                           >
                             {emoji}
                           </button>
@@ -2193,7 +2306,7 @@ const MicroChat = () => {
                       </div>
                       <button
                         onClick={() => setEmojiPickerForMessageId(null)}
-                        className="mt-2 w-full text-xs text-gray-500 hover:text-gray-700"
+                        className={classNames("mt-2 w-full text-xs", darkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-500 hover:text-gray-700")}
                       >
                         Close
                       </button>
@@ -2309,8 +2422,14 @@ const MicroChat = () => {
 
               {/* @Mention suggestions dropdown */}
               {showMentionSuggestions && mentionSuggestions.length > 0 && (
-                <div className="absolute bottom-full left-0 mb-1 w-64 rounded-lg border border-gray-200 bg-white py-1 shadow-lg z-20">
-                  <div className="px-3 py-1 text-xs text-gray-500 border-b border-gray-100">
+                <div className={classNames(
+                  "absolute bottom-full left-0 mb-1 w-64 rounded-lg border py-1 shadow-lg z-20",
+                  darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+                )}>
+                  <div className={classNames(
+                    "px-3 py-1 text-xs border-b",
+                    darkMode ? "text-gray-400 border-gray-700" : "text-gray-500 border-gray-100"
+                  )}>
                     Suggestions
                   </div>
                   {mentionSuggestions.map((user) => (
@@ -2318,7 +2437,10 @@ const MicroChat = () => {
                       key={user.id}
                       type="button"
                       onClick={() => handleInsertMention(user)}
-                      className="flex w-full items-center gap-3 px-3 py-2 hover:bg-gray-50"
+                      className={classNames(
+                        "flex w-full items-center gap-3 px-3 py-2",
+                        darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-50"
+                      )}
                     >
                       {user.avatarUrl ? (
                         <img src={user.avatarUrl} alt={user.name} className="h-8 w-8 rounded-full" />
@@ -2331,8 +2453,8 @@ const MicroChat = () => {
                         </div>
                       )}
                       <div className="text-left">
-                        <div className="text-sm font-medium text-gray-700">{user.name}</div>
-                        <div className="text-xs text-gray-500">{user.jobTitle}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-100" : "text-gray-700")}>{user.name}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{user.jobTitle}</div>
                       </div>
                     </button>
                   ))}
@@ -2341,26 +2463,29 @@ const MicroChat = () => {
 
               {/* Emoji picker popup */}
               {showEmojiPicker && (
-                <div className="absolute bottom-full right-0 mb-1 w-80 rounded-lg border border-gray-200 bg-white p-3 shadow-lg z-20">
+                <div className={classNames(
+                  "absolute bottom-full right-0 mb-1 w-80 rounded-lg border p-3 shadow-lg z-20",
+                  darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+                )}>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">Emojis</span>
+                    <span className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>Emojis</span>
                     <button
                       type="button"
                       onClick={() => setShowEmojiPicker(false)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className={darkMode ? "text-gray-500 hover:text-gray-300" : "text-gray-400 hover:text-gray-600"}
                     >
                       <X size={16} />
                     </button>
                   </div>
                   <div className="mb-2">
-                    <div className="text-xs text-gray-500 mb-1">Recently used</div>
+                    <div className={classNames("text-xs mb-1", darkMode ? "text-gray-400" : "text-gray-500")}>Recently used</div>
                     <div className="flex gap-1">
                       {EMOJI_CATEGORIES.recent.map((emoji) => (
                         <button
                           key={emoji}
                           type="button"
                           onClick={() => handleInsertEmoji(emoji)}
-                          className="rounded p-1.5 hover:bg-gray-100 text-xl"
+                          className={classNames("rounded p-1.5 text-xl", darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-100")}
                         >
                           {emoji}
                         </button>
@@ -2368,14 +2493,14 @@ const MicroChat = () => {
                     </div>
                   </div>
                   <div className="mb-2">
-                    <div className="text-xs text-gray-500 mb-1">Smileys & People</div>
+                    <div className={classNames("text-xs mb-1", darkMode ? "text-gray-400" : "text-gray-500")}>Smileys & People</div>
                     <div className="grid grid-cols-8 gap-1 max-h-32 overflow-y-auto">
                       {EMOJI_CATEGORIES.smileys.map((emoji) => (
                         <button
                           key={emoji}
                           type="button"
                           onClick={() => handleInsertEmoji(emoji)}
-                          className="rounded p-1 hover:bg-gray-100 text-lg"
+                          className={classNames("rounded p-1 text-lg", darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-100")}
                         >
                           {emoji}
                         </button>
@@ -2383,14 +2508,14 @@ const MicroChat = () => {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Gestures</div>
+                    <div className={classNames("text-xs mb-1", darkMode ? "text-gray-400" : "text-gray-500")}>Gestures</div>
                     <div className="grid grid-cols-8 gap-1 max-h-24 overflow-y-auto">
                       {EMOJI_CATEGORIES.gestures.map((emoji) => (
                         <button
                           key={emoji}
                           type="button"
                           onClick={() => handleInsertEmoji(emoji)}
-                          className="rounded p-1 hover:bg-gray-100 text-lg"
+                          className={classNames("rounded p-1 text-lg", darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-100")}
                         >
                           {emoji}
                         </button>
@@ -2405,8 +2530,10 @@ const MicroChat = () => {
               <button
                 type="button"
                 className={classNames(
-                  "rounded-md p-2 hover:bg-gray-100",
-                  showFormatToolbar ? "text-[#5b5fc7] bg-[#e8ebfa]" : "text-gray-500"
+                  "rounded-md p-2",
+                  showFormatToolbar
+                    ? darkMode ? "bg-[#464775] text-[#a5a7f3]" : "bg-[#e8ebfa] text-[#5b5fc7]"
+                    : darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
                 )}
                 onClick={() => setShowFormatToolbar(!showFormatToolbar)}
                 title="Format text"
@@ -2418,8 +2545,10 @@ const MicroChat = () => {
                 <button
                   type="button"
                   className={classNames(
-                    "rounded-md p-2 hover:bg-gray-100",
-                    showAttachmentMenu ? "text-[#5b5fc7] bg-[#e8ebfa]" : "text-gray-500"
+                    "rounded-md p-2",
+                    showAttachmentMenu
+                      ? darkMode ? "bg-[#464775] text-[#a5a7f3]" : "bg-[#e8ebfa] text-[#5b5fc7]"
+                      : darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
                   )}
                   onClick={() => setShowAttachmentMenu(!showAttachmentMenu)}
                   title="Attach file"
@@ -2428,11 +2557,17 @@ const MicroChat = () => {
                 </button>
                 {/* Attachment menu popup */}
                 {showAttachmentMenu && (
-                  <div className="absolute bottom-full left-0 mb-2 rounded-lg border border-gray-200 bg-white py-1 shadow-lg z-20 min-w-[200px]">
+                  <div className={classNames(
+                    "absolute bottom-full left-0 mb-2 rounded-lg border py-1 shadow-lg z-20 min-w-[200px]",
+                    darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+                  )}>
                     <button
                       type="button"
                       onClick={() => handleAddAttachment("file")}
-                      className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className={classNames(
+                        "flex w-full items-center gap-3 px-4 py-2 text-sm",
+                        darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-50"
+                      )}
                     >
                       <FileText size={18} className="text-blue-500" />
                       Upload from computer
@@ -2440,7 +2575,10 @@ const MicroChat = () => {
                     <button
                       type="button"
                       onClick={() => handleAddAttachment("image")}
-                      className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      className={classNames(
+                        "flex w-full items-center gap-3 px-4 py-2 text-sm",
+                        darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-50"
+                      )}
                     >
                       <Image size={18} className="text-green-500" />
                       Upload image
@@ -2451,8 +2589,10 @@ const MicroChat = () => {
               <button
                 type="button"
                 className={classNames(
-                  "rounded-md p-2 hover:bg-gray-100",
-                  showEmojiPicker ? "text-[#5b5fc7] bg-[#e8ebfa]" : "text-gray-500"
+                  "rounded-md p-2",
+                  showEmojiPicker
+                    ? darkMode ? "bg-[#464775] text-[#a5a7f3]" : "bg-[#e8ebfa] text-[#5b5fc7]"
+                    : darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
                 )}
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 title="Add emoji"
@@ -2463,16 +2603,19 @@ const MicroChat = () => {
               {isRecording ? (
                 <div className="flex items-center gap-2">
                   {/* Recording indicator */}
-                  <div className="flex items-center gap-2 px-3 py-1 bg-red-50 rounded-full">
+                  <div className={classNames("flex items-center gap-2 px-3 py-1 rounded-full", darkMode ? "bg-red-900/30" : "bg-red-50")}>
                     <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-sm font-medium text-red-600">
+                    <span className={classNames("text-sm font-medium", darkMode ? "text-red-400" : "text-red-600")}>
                       {formatRecordingTime(recordingDuration)}
                     </span>
                   </div>
                   {/* Cancel button */}
                   <button
                     type="button"
-                    className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-red-500"
+                    className={classNames(
+                      "rounded-md p-2 hover:text-red-500",
+                      darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
+                    )}
                     onClick={cancelRecording}
                     title="Cancel recording"
                   >
@@ -2491,7 +2634,10 @@ const MicroChat = () => {
               ) : (
                 <button
                   type="button"
-                  className="rounded-md p-2 text-gray-500 hover:bg-gray-100"
+                  className={classNames(
+                    "rounded-md p-2",
+                    darkMode ? "text-gray-400 hover:bg-[#3d3d3d]" : "text-gray-500 hover:bg-gray-100"
+                  )}
                   onClick={startRecording}
                   title="Record voice message"
                 >
@@ -2613,9 +2759,12 @@ const MicroChat = () => {
 
             {/* Profile dropdown */}
             {profileDropdownOpen && (
-              <div className="absolute right-0 top-10 w-72 rounded-lg border border-gray-200 bg-white shadow-xl z-50">
+              <div className={classNames(
+                "absolute right-0 top-10 w-72 rounded-lg border shadow-xl z-50",
+                darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+              )}>
                 {/* Profile header */}
-                <div className="p-4 border-b border-gray-100">
+                <div className={classNames("p-4 border-b", darkMode ? "border-gray-700" : "border-gray-100")}>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <img
@@ -2624,7 +2773,8 @@ const MicroChat = () => {
                         className="h-12 w-12 rounded-full object-cover"
                       />
                       <span className={classNames(
-                        "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white",
+                        "absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2",
+                        darkMode ? "border-[#2d2d2d]" : "border-white",
                         currentStatus === "available" && "bg-green-500",
                         currentStatus === "busy" && "bg-red-500",
                         currentStatus === "dnd" && "bg-red-600",
@@ -2632,8 +2782,8 @@ const MicroChat = () => {
                       )} />
                     </div>
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-900">{selfUser.name}</div>
-                      <div className="text-xs text-gray-500">{selfUser.email}</div>
+                      <div className={classNames("font-semibold", darkMode ? "text-white" : "text-gray-900")}>{selfUser.name}</div>
+                      <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{selfUser.email}</div>
                     </div>
                   </div>
 
@@ -2641,7 +2791,10 @@ const MicroChat = () => {
                   <div className="mt-3">
                     <button
                       onClick={() => setStatusMenuOpen(!statusMenuOpen)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-100"
+                      className={classNames(
+                        "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm",
+                        darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-100"
+                      )}
                     >
                       <span className={classNames(
                         "h-2.5 w-2.5 rounded-full",
@@ -2660,31 +2813,46 @@ const MicroChat = () => {
                     </button>
 
                     {statusMenuOpen && (
-                      <div className="mt-1 rounded-md border border-gray-200 bg-white py-1 shadow-sm">
+                      <div className={classNames(
+                        "mt-1 rounded-md border py-1 shadow-sm",
+                        darkMode ? "border-gray-700 bg-[#2d2d2d]" : "border-gray-200 bg-white"
+                      )}>
                         <button
                           onClick={() => { setCurrentStatus("available"); setStatusMenuOpen(false); }}
-                          className="flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-gray-100"
+                          className={classNames(
+                            "flex w-full items-center gap-2 px-3 py-1.5 text-sm",
+                            darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "hover:bg-gray-100"
+                          )}
                         >
                           <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
                           Available
                         </button>
                         <button
                           onClick={() => { setCurrentStatus("busy"); setStatusMenuOpen(false); }}
-                          className="flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-gray-100"
+                          className={classNames(
+                            "flex w-full items-center gap-2 px-3 py-1.5 text-sm",
+                            darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "hover:bg-gray-100"
+                          )}
                         >
                           <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
                           Busy
                         </button>
                         <button
                           onClick={() => { setCurrentStatus("dnd"); setStatusMenuOpen(false); }}
-                          className="flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-gray-100"
+                          className={classNames(
+                            "flex w-full items-center gap-2 px-3 py-1.5 text-sm",
+                            darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "hover:bg-gray-100"
+                          )}
                         >
                           <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
                           Do not disturb
                         </button>
                         <button
                           onClick={() => { setCurrentStatus("away"); setStatusMenuOpen(false); }}
-                          className="flex w-full items-center gap-2 px-3 py-1.5 text-sm hover:bg-gray-100"
+                          className={classNames(
+                            "flex w-full items-center gap-2 px-3 py-1.5 text-sm",
+                            darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "hover:bg-gray-100"
+                          )}
                         >
                           <span className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
                           Away
@@ -2699,34 +2867,46 @@ const MicroChat = () => {
                 <div className="py-1">
                   <button
                     onClick={() => { setShowSettingsModal(true); setProfileDropdownOpen(false); }}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className={classNames(
+                      "flex w-full items-center gap-3 px-4 py-2 text-sm",
+                      darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-100"
+                    )}
                   >
-                    <Settings size={16} className="text-gray-500" />
+                    <Settings size={16} className={darkMode ? "text-gray-400" : "text-gray-500"} />
                     Settings
                   </button>
                   <button
                     onClick={() => { setShowKeyboardShortcuts(true); setProfileDropdownOpen(false); }}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className={classNames(
+                      "flex w-full items-center gap-3 px-4 py-2 text-sm",
+                      darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-100"
+                    )}
                   >
-                    <Keyboard size={16} className="text-gray-500" />
+                    <Keyboard size={16} className={darkMode ? "text-gray-400" : "text-gray-500"} />
                     Keyboard shortcuts
                   </button>
                   <button
                     onClick={() => { setDarkMode(!darkMode); setProfileDropdownOpen(false); }}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className={classNames(
+                      "flex w-full items-center gap-3 px-4 py-2 text-sm",
+                      darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-100"
+                    )}
                   >
-                    {darkMode ? <Sun size={16} className="text-gray-500" /> : <Moon size={16} className="text-gray-500" />}
+                    {darkMode ? <Sun size={16} className="text-gray-400" /> : <Moon size={16} className="text-gray-500" />}
                     {darkMode ? "Light mode" : "Dark mode"}
                   </button>
                 </div>
 
                 {/* Sign out */}
-                <div className="border-t border-gray-100 py-1">
+                <div className={classNames("border-t py-1", darkMode ? "border-gray-700" : "border-gray-100")}>
                   <button
                     onClick={() => { setProfileDropdownOpen(false); setIsSignedOut(true); }}
-                    className="flex w-full items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className={classNames(
+                      "flex w-full items-center gap-3 px-4 py-2 text-sm",
+                      darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-100"
+                    )}
                   >
-                    <LogOut size={16} className="text-gray-500" />
+                    <LogOut size={16} className={darkMode ? "text-gray-400" : "text-gray-500"} />
                     Sign out
                   </button>
                 </div>
@@ -3224,28 +3404,37 @@ const MicroChat = () => {
       {/* Settings Modal */}
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-2xl rounded-lg bg-white shadow-xl max-h-[80vh] overflow-hidden">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-900">{t("settings")}</h2>
-              <button onClick={() => setShowSettingsModal(false)} className="text-gray-400 hover:text-gray-600">
+          <div className={classNames(
+            "w-full max-w-2xl rounded-lg shadow-xl max-h-[80vh] flex flex-col",
+            darkMode ? "bg-[#2d2d2d]" : "bg-white"
+          )}>
+            <div className={classNames(
+              "flex items-center justify-between border-b px-6 py-4 flex-shrink-0",
+              darkMode ? "border-gray-700" : "border-gray-200"
+            )}>
+              <h2 className={classNames("text-lg font-semibold", darkMode ? "text-white" : "text-gray-900")}>{t("settings")}</h2>
+              <button onClick={() => setShowSettingsModal(false)} className={darkMode ? "text-gray-400 hover:text-gray-200" : "text-gray-400 hover:text-gray-600"}>
                 <X size={20} />
               </button>
             </div>
-            <div className="overflow-y-auto p-6">
+            <div className="flex-1 min-h-0 overflow-y-auto p-6">
               <div className="space-y-6">
                 {/* General settings */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-4">{t("general")}</h3>
+                  <h3 className={classNames("text-sm font-medium mb-4", darkMode ? "text-white" : "text-gray-900")}>{t("general")}</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("theme")}</div>
-                        <div className="text-xs text-gray-500">{t("themeDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("theme")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("themeDesc")}</div>
                       </div>
                       <select
                         value={darkMode ? "dark" : "light"}
                         onChange={(e) => setDarkMode(e.target.value === "dark")}
-                        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-[#5b5fc7] focus:outline-none"
+                        className={classNames(
+                          "rounded-md border px-3 py-1.5 text-sm focus:border-[#5b5fc7] focus:outline-none",
+                          darkMode ? "border-gray-600 bg-[#3d3d3d] text-gray-100" : "border-gray-300"
+                        )}
                       >
                         <option value="light">{t("light")}</option>
                         <option value="dark">{t("dark")}</option>
@@ -3253,13 +3442,16 @@ const MicroChat = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("language")}</div>
-                        <div className="text-xs text-gray-500">{t("languageDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("language")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("languageDesc")}</div>
                       </div>
                       <select
                         value={language}
                         onChange={(e) => setLanguage(e.target.value as Language)}
-                        className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-[#5b5fc7] focus:outline-none"
+                        className={classNames(
+                          "rounded-md border px-3 py-1.5 text-sm focus:border-[#5b5fc7] focus:outline-none",
+                          darkMode ? "border-gray-600 bg-[#3d3d3d] text-gray-100" : "border-gray-300"
+                        )}
                       >
                         <option value="en">English</option>
                         <option value="es">Español</option>
@@ -3271,27 +3463,27 @@ const MicroChat = () => {
                 </div>
 
                 {/* Notifications settings */}
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-sm font-medium text-gray-900 mb-4">{t("notifications")}</h3>
+                <div className={classNames("border-t pt-6", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <h3 className={classNames("text-sm font-medium mb-4", darkMode ? "text-white" : "text-gray-900")}>{t("notifications")}</h3>
                   <div className="space-y-4">
                     <label className="flex items-center justify-between cursor-pointer">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("desktopNotifications")}</div>
-                        <div className="text-xs text-gray-500">{t("desktopNotificationsDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("desktopNotifications")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("desktopNotificationsDesc")}</div>
                       </div>
                       <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-[#5b5fc7] focus:ring-[#5b5fc7]" />
                     </label>
                     <label className="flex items-center justify-between cursor-pointer">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("soundNotifications")}</div>
-                        <div className="text-xs text-gray-500">{t("soundNotificationsDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("soundNotifications")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("soundNotificationsDesc")}</div>
                       </div>
                       <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-[#5b5fc7] focus:ring-[#5b5fc7]" />
                     </label>
                     <label className="flex items-center justify-between cursor-pointer">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("emailNotifications")}</div>
-                        <div className="text-xs text-gray-500">{t("emailNotificationsDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("emailNotifications")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("emailNotificationsDesc")}</div>
                       </div>
                       <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-[#5b5fc7] focus:ring-[#5b5fc7]" />
                     </label>
@@ -3299,20 +3491,20 @@ const MicroChat = () => {
                 </div>
 
                 {/* Privacy settings */}
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-sm font-medium text-gray-900 mb-4">{t("privacy")}</h3>
+                <div className={classNames("border-t pt-6", darkMode ? "border-gray-700" : "border-gray-200")}>
+                  <h3 className={classNames("text-sm font-medium mb-4", darkMode ? "text-white" : "text-gray-900")}>{t("privacy")}</h3>
                   <div className="space-y-4">
                     <label className="flex items-center justify-between cursor-pointer">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("readReceipts")}</div>
-                        <div className="text-xs text-gray-500">{t("readReceiptsDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("readReceipts")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("readReceiptsDesc")}</div>
                       </div>
                       <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-[#5b5fc7] focus:ring-[#5b5fc7]" />
                     </label>
                     <label className="flex items-center justify-between cursor-pointer">
                       <div>
-                        <div className="text-sm font-medium text-gray-700">{t("onlineStatus")}</div>
-                        <div className="text-xs text-gray-500">{t("onlineStatusDesc")}</div>
+                        <div className={classNames("text-sm font-medium", darkMode ? "text-gray-200" : "text-gray-700")}>{t("onlineStatus")}</div>
+                        <div className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>{t("onlineStatusDesc")}</div>
                       </div>
                       <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-gray-300 text-[#5b5fc7] focus:ring-[#5b5fc7]" />
                     </label>
@@ -3320,10 +3512,16 @@ const MicroChat = () => {
                 </div>
               </div>
             </div>
-            <div className="flex justify-end gap-2 border-t border-gray-200 px-6 py-4">
+            <div className={classNames(
+              "flex justify-end gap-2 border-t px-6 py-4 flex-shrink-0",
+              darkMode ? "border-gray-700" : "border-gray-200"
+            )}>
               <button
                 onClick={() => setShowSettingsModal(false)}
-                className="rounded-md px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                className={classNames(
+                  "rounded-md px-4 py-2 text-sm font-medium",
+                  darkMode ? "text-gray-200 hover:bg-[#3d3d3d]" : "text-gray-700 hover:bg-gray-100"
+                )}
               >
                 {t("cancel")}
               </button>
@@ -3393,8 +3591,36 @@ const MicroChat = () => {
       {callingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
           <div className={classNames("w-full max-w-sm rounded-xl p-8 text-center shadow-2xl", darkMode ? "bg-[#2d2d2d]" : "bg-white")}>
-            {/* Avatar */}
-            {callingModal.avatarUrl ? (
+            {/* Avatar — composite for groups, image for direct users, initials as fallback */}
+            {callingModal.participantAvatars && callingModal.participantAvatars.length >= 2 ? (
+              <div className="mx-auto mb-4 grid h-24 w-24 grid-cols-2 gap-0.5 overflow-hidden rounded-xl">
+                {callingModal.participantAvatars.slice(0, 4).map((p) => (
+                  p.avatarUrl ? (
+                    <img
+                      key={p.id}
+                      src={p.avatarUrl}
+                      alt={p.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      key={p.id}
+                      className="flex h-full w-full items-center justify-center text-sm font-semibold text-white"
+                      style={{ backgroundColor: pickColor(p.name) }}
+                    >
+                      {getInitials(p.name)}
+                    </div>
+                  )
+                ))}
+                {callingModal.participantAvatars.length < 4 && Array.from({ length: 4 - callingModal.participantAvatars.length }).map((_, idx) => (
+                  <div
+                    key={`empty-${idx}`}
+                    className="h-full w-full"
+                    style={{ backgroundColor: callingModal.avatarColor || "#6264A7" }}
+                  />
+                ))}
+              </div>
+            ) : callingModal.avatarUrl ? (
               <img
                 src={callingModal.avatarUrl}
                 alt={callingModal.recipientName}
@@ -3533,9 +3759,10 @@ interface ConversationRowProps {
   onClick: () => void;
   onToggleFavorite: (conversationId: string) => void;
   lookupUser?: (id: string) => { id: string; avatarUrl?: string; name: string } | undefined;
+  darkMode?: boolean;
 }
 
-const ConversationRow = ({ conversation, isSelected, onClick, onToggleFavorite, lookupUser }: ConversationRowProps) => {
+const ConversationRow = ({ conversation, isSelected, onClick, onToggleFavorite, lookupUser, darkMode = false }: ConversationRowProps) => {
   const isUnread = conversation.unreadCount > 0;
   const isGroupOrMeeting = conversation.type === "group" || conversation.type === "meeting";
 
@@ -3556,7 +3783,9 @@ const ConversationRow = ({ conversation, isSelected, onClick, onToggleFavorite, 
       onClick={onClick}
       className={classNames(
         "flex w-full items-center gap-3 px-4 py-2.5 text-left transition group",
-        isSelected ? "bg-[#e8ebfa]" : "hover:bg-gray-50"
+        isSelected
+          ? darkMode ? "bg-[#464775]" : "bg-[#e8ebfa]"
+          : darkMode ? "hover:bg-[#3d3d3d]" : "hover:bg-gray-50"
       )}
     >
       {/* Avatar - 2x2 collage for group/meeting, single for direct */}
@@ -3615,12 +3844,14 @@ const ConversationRow = ({ conversation, isSelected, onClick, onToggleFavorite, 
           <span
             className={classNames(
               "truncate text-sm",
-              isUnread ? "font-semibold text-gray-900" : "text-gray-700"
+              isUnread
+                ? darkMode ? "font-semibold text-white" : "font-semibold text-gray-900"
+                : darkMode ? "text-gray-200" : "text-gray-700"
             )}
           >
             {conversation.name}
             {conversation.type === "group" && (
-              <span className="text-gray-500">(External)</span>
+              <span className={darkMode ? "text-gray-400" : "text-gray-500"}>(External)</span>
             )}
           </span>
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -3631,13 +3862,15 @@ const ConversationRow = ({ conversation, isSelected, onClick, onToggleFavorite, 
               }}
               className={classNames(
                 "p-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity",
-                conversation.isPinned ? "opacity-100 text-yellow-500" : "text-gray-400 hover:text-yellow-500"
+                conversation.isPinned
+                  ? "opacity-100 text-yellow-500"
+                  : darkMode ? "text-gray-500 hover:text-yellow-500" : "text-gray-400 hover:text-yellow-500"
               )}
               title={conversation.isPinned ? "Remove from favorites" : "Add to favorites"}
             >
               <Star size={14} fill={conversation.isPinned ? "currentColor" : "none"} />
             </button>
-            <span className="text-xs text-gray-500">
+            <span className={classNames("text-xs", darkMode ? "text-gray-400" : "text-gray-500")}>
               {conversation.lastMessage && formatTimestamp(conversation.lastMessage.timestamp)}
             </span>
           </div>
@@ -3646,14 +3879,16 @@ const ConversationRow = ({ conversation, isSelected, onClick, onToggleFavorite, 
           <p
             className={classNames(
               "truncate text-xs",
-              isUnread ? "font-medium text-gray-700" : "text-gray-500"
+              isUnread
+                ? darkMode ? "font-medium text-gray-200" : "font-medium text-gray-700"
+                : darkMode ? "text-gray-400" : "text-gray-500"
             )}
           >
             {conversation.lastMessage?.senderId === "user000" && "You: "}
             {conversation.lastMessage?.content || "No messages yet"}
           </p>
           {conversation.type === "meeting" && (
-            <span className="flex-shrink-0 text-gray-400">
+            <span className={classNames("flex-shrink-0", darkMode ? "text-gray-500" : "text-gray-400")}>
               <Video size={12} />
             </span>
           )}

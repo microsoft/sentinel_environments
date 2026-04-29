@@ -96,7 +96,7 @@ export interface ApiDinCompany {
 
 export interface ApiTaskConfig {
   environment: string;
-  duration: number;
+  event_timeline_end: number;
   selfUser?: ApiSelfUser;
 }
 
@@ -116,6 +116,22 @@ export interface ApiDinUser {
   microscholar?: { title?: string; affiliation?: string };
 }
 
+export interface ApiDinProfileStats {
+  profileViewCount: number;
+  pageVisitorCount: number;
+  connectionsCount: number;
+  initialConnectionIds: string[];
+}
+
+export interface ApiDinProfileSection {
+  id: string;
+  type: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  timestamp: string;
+}
+
 export function useMicrodinData() {
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [connections, setConnections] = useState<ApiConnection[]>([]);
@@ -124,6 +140,8 @@ export function useMicrodinData() {
   const [jobs, setJobs] = useState<ApiJob[]>([]);
   const [users, setUsers] = useState<ApiDinUser[]>([]);
   const [companies, setCompanies] = useState<ApiDinCompany[]>([]);
+  const [profileStats, setProfileStats] = useState<ApiDinProfileStats | null>(null);
+  const [profileSections, setProfileSections] = useState<ApiDinProfileSection[]>([]);
   const [config, setConfig] = useState<ApiTaskConfig | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -212,13 +230,23 @@ export function useMicrodinData() {
         if (!r.ok) throw new Error(`Jobs fetch failed: ${r.status}`);
         return r.json();
       }),
+      fetch("/api/data/microdin-profile-stats").then((r) => {
+        if (!r.ok) throw new Error(`Profile stats fetch failed: ${r.status}`);
+        return r.json();
+      }),
+      fetch("/api/data/microdin-profile-sections").then((r) => {
+        if (!r.ok) throw new Error(`Profile sections fetch failed: ${r.status}`);
+        return r.json();
+      }),
     ])
-      .then(([postsData, connectionsData, conversationsData, notificationsData, jobsData]) => {
+      .then(([postsData, connectionsData, conversationsData, notificationsData, jobsData, statsData, sectionsData]) => {
         setPosts(postsData.posts ?? []);
         setConnections(connectionsData.connections ?? []);
         setConversations(conversationsData.conversations ?? []);
         setNotifications(notificationsData.notifications ?? []);
         setJobs(jobsData.jobs ?? []);
+        setProfileStats(statsData ?? null);
+        setProfileSections(sectionsData?.sections ?? []);
         setError(null);
         setIsLoading(false);
       })
@@ -277,6 +305,63 @@ export function useMicrodinData() {
     await fetch(`/api/data/microdin-conversations/${conversationId}/read`, { method: "POST" }).catch(() => {});
   }, []);
 
+  const sendMessage = useCallback(async (conversationId: string, content: string) => {
+    await fetch(`/api/data/microdin-conversations/${conversationId}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content }),
+    }).catch(() => {});
+  }, []);
+
+  const addProfileSection = useCallback(async (section: { type: string; title: string; subtitle?: string; content?: string }) => {
+    const optimistic: ApiDinProfileSection = {
+      id: `optimistic-${Date.now()}`,
+      type: section.type,
+      title: section.title,
+      subtitle: section.subtitle ?? "",
+      content: section.content ?? "",
+      timestamp: new Date().toISOString(),
+    };
+    setProfileSections((prev) => [...prev, optimistic]);
+    try {
+      const r = await fetch(`/api/data/microdin-profile-sections`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(section),
+      });
+      if (!r.ok) return;
+      const data = await r.json();
+      if (data?.section) {
+        setProfileSections((prev) => prev.map((s) => (s.id === optimistic.id ? data.section : s)));
+      }
+    } catch {
+      // leave optimistic in place; next poll will reconcile
+    }
+  }, []);
+
+  const createConversation = useCallback(async (userId: string): Promise<string | null> => {
+    try {
+      const r = await fetch(`/api/data/microdin-conversations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      if (!r.ok) return null;
+      const data = await r.json();
+      return data.conversationId as string;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const postComment = useCallback(async (postId: string, text: string) => {
+    await fetch(`/api/data/microdin-posts/${postId}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    }).catch(() => {});
+  }, []);
+
   const markNotificationRead = useCallback(async (notificationId: string) => {
     setReadOverrides((prev) => new Map(prev).set(notificationId, true));
     await fetch(`/api/data/microdin-notifications/${notificationId}/read`, { method: "POST" }).catch(() => {});
@@ -294,6 +379,8 @@ export function useMicrodinData() {
     jobs,
     users,
     companies,
+    profileStats,
+    profileSections,
     config,
     isLoading,
     error,
@@ -301,7 +388,11 @@ export function useMicrodinData() {
     acceptConnection,
     ignoreConnection,
     readConversation,
+    sendMessage,
+    createConversation,
+    postComment,
     markNotificationRead,
     applyJob,
+    addProfileSection,
   };
 }

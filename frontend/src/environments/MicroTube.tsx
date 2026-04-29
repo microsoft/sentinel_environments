@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 import { useMicrotubeData } from "../hooks/useMicrotubeData";
+import { useHashRoute } from "../hooks/useHashRoute";
 
 export const TASK_ID_MICROTUBE = "microtube";
 
@@ -264,7 +265,9 @@ type SidebarState = "expanded" | "collapsed";
 type PlayerState = "unloaded" | "loading" | "paused" | "playing" | "buffering" | "ended" | "error";
 type VolumeState = "muted" | "low" | "medium" | "high";
 type FullscreenState = "windowed" | "theater" | "fullscreen";
-type NavSection = "home" | "shorts" | "subscriptions" | "you" | "history" | "profile" | "channel" | "search-results" | "shopping" | "music" | "movies" | "live" | "gaming" | "news" | "sports" | "courses" | "fashion" | "podcasts" | "premium" | "yt-music" | "about" | "press" | "copyright" | "contact" | "creators" | "advertise" | "developers" | "terms" | "privacy" | "policy" | "how-it-works" | "test-features";
+type NavSection = "home" | "shorts" | "subscriptions" | "you" | "history" | "profile" | "watch" | "channel" | "search-results" | "shopping" | "music" | "movies" | "live" | "gaming" | "news" | "sports" | "courses" | "fashion" | "podcasts" | "premium" | "yt-music" | "about" | "press" | "copyright" | "contact" | "creators" | "advertise" | "developers" | "terms" | "privacy" | "policy" | "how-it-works" | "test-features";
+
+const NAV_SECTIONS: readonly NavSection[] = ["home", "shorts", "subscriptions", "you", "history", "profile", "watch", "channel", "search-results", "shopping", "music", "movies", "live", "gaming", "news", "sports", "courses", "fashion", "podcasts", "premium", "yt-music", "about", "press", "copyright", "contact", "creators", "advertise", "developers", "terms", "privacy", "policy", "how-it-works", "test-features"] as const;
 type ProfileTab = "videos" | "playlists" | "community" | "about";
 
 interface ChannelData {
@@ -470,13 +473,9 @@ export default function MicroTube() {
     searchQuery: string;
     volume: number;
     isMuted: boolean;
-    currentVideo: string | null;
-    currentShort: string | null;
-    navSection: NavSection;
     playbackSpeed: number;
     captionsEnabled: boolean;
     videoQuality: string;
-    viewingChannelId: string | null;
     profileTab: ProfileTab;
     darkMode: boolean;
     communityPosts: CommunityPost[];
@@ -495,13 +494,9 @@ export default function MicroTube() {
     searchQuery: "",
     volume: 100,
     isMuted: false,
-    currentVideo: null,
-    currentShort: null,
-    navSection: "home",
     playbackSpeed: 1,
     captionsEnabled: false,
     videoQuality: "Auto",
-    viewingChannelId: null,
     profileTab: "videos",
     darkMode: true,
     communityPosts: [],
@@ -514,6 +509,12 @@ export default function MicroTube() {
     likedPosts: [],
     betaEnrolled: false,
   });
+
+  const [route, setRoute] = useHashRoute<NavSection>(NAV_SECTIONS, "home");
+  const currentView = route.view;
+  const watchingVideoId = currentView === "watch" ? route.id : null;
+  const viewingShortId = currentView === "shorts" ? route.id : null;
+  const viewingChannelId = currentView === "channel" ? route.id : null;
 
   const [isSignedOut, setIsSignedOut] = useState(false);
   const [playerState, setPlayerState] = useState<PlayerState>("unloaded");
@@ -616,14 +617,13 @@ export default function MicroTube() {
   }, [CHANNELS]);
 
   const navigateToChannel = useCallback((channelId: string) => {
-    setState(prev => ({
-      ...prev,
-      currentVideo: null, // Clear video to show channel page
-      viewingChannelId: channelId === "ch-self" ? null : channelId,
-      navSection: channelId === "ch-self" ? "profile" : "channel",
-      profileTab: "videos",
-    }));
-  }, []);
+    setState(prev => ({ ...prev, profileTab: "videos" }));
+    if (channelId === "ch-self") {
+      setRoute("profile");
+    } else {
+      setRoute("channel", channelId);
+    }
+  }, [setRoute]);
 
   const getVideosForChannel = useCallback((channelId: string): VideoData[] => {
     return SAMPLE_VIDEOS.filter(v => v.channelId === channelId);
@@ -636,10 +636,16 @@ export default function MicroTube() {
     return loadedComments.filter(c => c.videoId === videoId);
   }, [loadedComments]);
 
+  useEffect(() => {
+    const prev = document.title;
+    document.title = "MicroTube";
+    return () => { document.title = prev; };
+  }, []);
+
   // Fetch comments when current video changes
   useEffect(() => {
-    if (state.currentVideo) {
-      apiFetchComments(state.currentVideo).then(comments => {
+    if (watchingVideoId) {
+      apiFetchComments(watchingVideoId).then(comments => {
         const mapped = comments.map((c): CommentData => ({
           id: c.id,
           videoId: c.video_id,
@@ -654,20 +660,25 @@ export default function MicroTube() {
         setLoadedComments(mapped);
       });
     }
-  }, [state.currentVideo, apiFetchComments]);
+  }, [watchingVideoId, apiFetchComments]);
 
   const addComment = useCallback(async (content: string) => {
-    if (!state.currentVideo || !content.trim()) return;
+    if (!watchingVideoId || !content.trim()) return;
 
-    const result = await apiPostComment(state.currentVideo, content.trim());
+    const result = await apiPostComment(watchingVideoId, content.trim());
     if (result) {
+      const selfName = config?.selfUser?.name || selfChannel?.name || "You";
+      const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+      const selfAvatarUrl = config?.selfUser?.avatarUrl
+        || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined);
       // Add optimistically to local display
       const newCommentData: CommentData = {
         id: result.id || `user-comment-${Date.now()}`,
-        videoId: state.currentVideo,
-        userId: "user000",
-        userName: "You",
-        userAvatar: "Y",
+        videoId: watchingVideoId,
+        userId: config?.selfUser?.id || "user000",
+        userName: selfName,
+        userAvatar: selfInitials,
+        userAvatarUrl: selfAvatarUrl,
         content: content.trim(),
         likes: 0,
         timestamp: "Just now",
@@ -675,7 +686,7 @@ export default function MicroTube() {
       setLoadedComments(prev => [newCommentData, ...prev]);
     }
     setNewComment("");
-  }, [state.currentVideo, apiPostComment]);
+  }, [watchingVideoId, apiPostComment, selfChannel, config]);
 
   const saveVideo = useCallback((videoId: string) => {
     apiSaveVideo(videoId);
@@ -720,20 +731,21 @@ export default function MicroTube() {
   const createPlaylist = useCallback(async (name: string) => {
     if (!name.trim()) return;
     const result = await apiCreatePlaylist(name.trim());
-    if (result && state.currentVideo) {
-      await apiAddToPlaylist(result.id, state.currentVideo);
+    if (result && watchingVideoId) {
+      await apiAddToPlaylist(result.id, watchingVideoId);
     }
     setNewPlaylistName("");
     setShowCreatePlaylistModal(false);
-  }, [state.currentVideo, apiCreatePlaylist, apiAddToPlaylist]);
+  }, [watchingVideoId, apiCreatePlaylist, apiAddToPlaylist]);
 
-  // Like comment
+  // Like comment (mutually exclusive with dislike)
   const toggleCommentLike = useCallback((commentId: string) => {
     setState(prev => ({
       ...prev,
       likedComments: prev.likedComments.includes(commentId)
         ? prev.likedComments.filter(id => id !== commentId)
         : [...prev.likedComments, commentId],
+      dislikedComments: prev.dislikedComments.filter(id => id !== commentId),
     }));
   }, []);
 
@@ -741,12 +753,16 @@ export default function MicroTube() {
   const addShortsComment = useCallback(async (shortId: string, content: string) => {
     if (!content.trim()) return;
     await apiPostComment(shortId, content.trim());
+    const selfName = config?.selfUser?.name || selfChannel?.name || "You";
+    const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
     const newCommentData: CommentData = {
       id: `shorts-comment-${Date.now()}`,
       videoId: shortId,
-      userId: "user000",
-      userName: "You",
-      userAvatar: "Y",
+      userId: config?.selfUser?.id || "user000",
+      userName: selfName,
+      userAvatar: selfInitials,
+      userAvatarUrl: config?.selfUser?.avatarUrl
+        || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined),
       content: content.trim(),
       likes: 0,
       timestamp: "Just now",
@@ -759,7 +775,7 @@ export default function MicroTube() {
       },
     }));
     setNewShortsComment("");
-  }, [apiPostComment]);
+  }, [apiPostComment, config, selfChannel]);
 
   // Navigate shorts with animation
   const navigateShort = useCallback((direction: 'up' | 'down', currentIndex: number, shortsList: VideoData[]) => {
@@ -768,10 +784,10 @@ export default function MicroTube() {
 
     setShortsTransition(direction);
     setTimeout(() => {
-      setState(prev => ({ ...prev, currentShort: shortsList[newIndex].id }));
+      setRoute("shorts", shortsList[newIndex].id);
       setShortsTransition('none');
     }, 200);
-  }, []);
+  }, [setRoute]);
 
   // Get visible videos (excluding deleted)
   const getVisibleVideos = useCallback((videos: VideoData[]) => {
@@ -803,15 +819,19 @@ export default function MicroTube() {
   // Add reply to comment
   const addCommentReply = useCallback(async (parentCommentId: string, content: string) => {
     if (!content.trim()) return;
-    if (state.currentVideo) {
-      await apiPostComment(state.currentVideo, content.trim());
+    if (watchingVideoId) {
+      await apiPostComment(watchingVideoId, content.trim());
     }
+    const selfName = config?.selfUser?.name || selfChannel?.name || "You";
+    const selfInitials = selfName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
     const newReply: CommentData = {
       id: `reply-${Date.now()}`,
-      videoId: state.currentVideo || "",
-      userId: "user000",
-      userName: "You",
-      userAvatar: "Y",
+      videoId: watchingVideoId || "",
+      userId: config?.selfUser?.id || "user000",
+      userName: selfName,
+      userAvatar: selfInitials,
+      userAvatarUrl: config?.selfUser?.avatarUrl
+        || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined),
       content: content.trim(),
       likes: 0,
       timestamp: "Just now",
@@ -825,7 +845,7 @@ export default function MicroTube() {
     }));
     setReplyingToCommentId(null);
     setReplyText("");
-  }, [state.currentVideo, apiPostComment]);
+  }, [watchingVideoId, apiPostComment, config, selfChannel]);
 
   // Toggle post like
   const togglePostLike = useCallback((postId: string) => {
@@ -898,16 +918,29 @@ export default function MicroTube() {
         video.channel.toLowerCase().includes(query)
       );
       setSearchResults(filtered);
-      setState(prev => ({ ...prev, navSection: "search-results", currentVideo: null }));
+      setRoute("search-results", state.searchQuery);
     }
-  }, [state.searchQuery, SAMPLE_VIDEOS]);
+  }, [state.searchQuery, SAMPLE_VIDEOS, setRoute]);
 
   const clearSearch = useCallback(() => {
-    setState((prev) => ({ ...prev, searchQuery: "", navSection: "home" }));
+    setState((prev) => ({ ...prev, searchQuery: "" }));
+    setRoute("home");
     setShowSearchSuggestions(false);
     setSearchSuggestions([]);
     setSearchResults([]);
-  }, []);
+  }, [setRoute]);
+
+  // Hydrate searchQuery + searchResults from the URL when landing on
+  // #search-results/{query} via refresh, Back/Forward, or shareable link.
+  useEffect(() => {
+    if (currentView === "search-results" && route.id) {
+      setState(prev => prev.searchQuery === route.id ? prev : { ...prev, searchQuery: route.id! });
+      const q = route.id.toLowerCase();
+      setSearchResults(SAMPLE_VIDEOS.filter(v =>
+        v.title.toLowerCase().includes(q) || v.channel.toLowerCase().includes(q)
+      ));
+    }
+  }, [currentView, route.id, SAMPLE_VIDEOS]);
 
   // Sidebar toggle (element-001)
   const toggleSidebar = useCallback(() => {
@@ -919,16 +952,13 @@ export default function MicroTube() {
 
   // Get current video object from SAMPLE_VIDEOS
   const currentVideoData = useMemo(() => {
-    if (!state.currentVideo) return null;
-    return SAMPLE_VIDEOS.find(v => v.id === state.currentVideo) || null;
-  }, [state.currentVideo, SAMPLE_VIDEOS]);
+    if (!watchingVideoId) return null;
+    return SAMPLE_VIDEOS.find(v => v.id === watchingVideoId) || null;
+  }, [watchingVideoId, SAMPLE_VIDEOS]);
 
   // Video player controls
   const loadVideo = useCallback((videoId: string) => {
-    setState((prev) => ({
-      ...prev,
-      currentVideo: videoId,
-    }));
+    setRoute("watch", videoId);
     apiWatchVideo(videoId);
     setVideoError(false);
     setPlayerState("loading");
@@ -942,7 +972,7 @@ export default function MicroTube() {
         setCurrentTime(0);
       }, 500);
     }
-  }, [SAMPLE_VIDEOS, apiWatchVideo]);
+  }, [SAMPLE_VIDEOS, apiWatchVideo, setRoute]);
 
   const togglePlayPause = useCallback(() => {
     if (playerState === "paused" || playerState === "ended") {
@@ -1002,16 +1032,16 @@ export default function MicroTube() {
   }, []);
 
   const likeVideo = useCallback(() => {
-    if (state.currentVideo) {
-      apiLikeVideo(state.currentVideo);
+    if (watchingVideoId) {
+      apiLikeVideo(watchingVideoId);
     }
-  }, [state.currentVideo, apiLikeVideo]);
+  }, [watchingVideoId, apiLikeVideo]);
 
   const dislikeVideo = useCallback(() => {
-    if (state.currentVideo) {
-      apiDislikeVideo(state.currentVideo);
+    if (watchingVideoId) {
+      apiDislikeVideo(watchingVideoId);
     }
-  }, [state.currentVideo, apiDislikeVideo]);
+  }, [watchingVideoId, apiDislikeVideo]);
 
   const toggleSubscribe = useCallback((channel: string) => {
     apiSubscribeChannel(channel);
@@ -1027,80 +1057,31 @@ export default function MicroTube() {
     setShowQualityMenu(false);
   }, []);
 
-  // Keyboard shortcuts
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (document.activeElement === searchInputRef.current) {
-        if (e.key === "Escape") {
-          searchInputRef.current?.blur();
-        }
+    if (videoRef.current) {
+      videoRef.current.playbackRate = state.playbackSpeed;
+    }
+  }, [state.playbackSpeed, watchingVideoId]);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const active = document.activeElement as HTMLElement | null;
+      if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.isContentEditable)) {
         return;
       }
-
-      switch (e.key) {
-        case "k":
-        case " ":
-          e.preventDefault();
-          if (state.currentVideo) togglePlayPause();
-          break;
-        case "m":
-          e.preventDefault();
-          if (state.currentVideo) toggleMute();
-          break;
-        case "f":
-          e.preventDefault();
-          if (state.currentVideo) toggleFullscreen();
-          break;
-        case "t":
-          e.preventDefault();
-          if (state.currentVideo) toggleTheaterMode();
-          break;
-        case "ArrowRight":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.min(currentTime + 5, videoDuration));
-          break;
-        case "ArrowLeft":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.max(currentTime - 5, 0));
-          break;
-        case "j":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.max(currentTime - 10, 0));
-          break;
-        case "l":
-          e.preventDefault();
-          if (state.currentVideo) seekVideo(Math.min(currentTime + 10, videoDuration));
-          break;
-        case "/":
-          e.preventDefault();
-          searchInputRef.current?.focus();
-          break;
-        case "Escape":
-          if (fullscreenState === "fullscreen") {
-            document.exitFullscreen();
-          }
-          setShowSettings(false);
-          setShowSearchSuggestions(false);
-          setShowVideoSettings(false);
-          setShowMoreMenu(false);
-          setShowShareModal(false);
-          break;
+      if (fullscreenState === "fullscreen") {
+        document.exitFullscreen();
       }
+      setShowSettings(false);
+      setShowSearchSuggestions(false);
+      setShowVideoSettings(false);
+      setShowMoreMenu(false);
+      setShowShareModal(false);
     };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [
-    togglePlayPause,
-    toggleMute,
-    toggleFullscreen,
-    toggleTheaterMode,
-    seekVideo,
-    currentTime,
-    videoDuration,
-    fullscreenState,
-    state.currentVideo,
-  ]);
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [fullscreenState]);
 
   // Format time for display
   const formatTime = (seconds: number) => {
@@ -1114,7 +1095,7 @@ export default function MicroTube() {
     return VolumeUpIcon;
   };
 
-  const currentVideo = state.currentVideo ? SAMPLE_VIDEOS.find(v => v.id === state.currentVideo) : null;
+  const currentVideo = watchingVideoId ? SAMPLE_VIDEOS.find(v => v.id === watchingVideoId) : null;
 
   // Light mode colors
   const lightModeColors = {
@@ -1188,7 +1169,7 @@ export default function MicroTube() {
   }
 
   return (
-    <div style={{
+    <div className={`microtube-root ${state.darkMode ? 'dark' : 'light'}`} style={{
       ...styles.container,
       backgroundColor: colors.bg,
       color: colors.text,
@@ -1218,7 +1199,8 @@ export default function MicroTube() {
 
           {/* element-002: Logo */}
           <div style={styles.logo} onClick={() => {
-            setState(prev => ({ ...prev, currentVideo: null, navSection: "home", searchQuery: "" }));
+            setState(prev => ({ ...prev, searchQuery: "" }));
+            setRoute("home");
             setSearchResults([]);
           }}>
             <img src="desktop/microtube-icon.png" alt="MicroTube" style={{ width: 28, height: 20, marginRight: 2, objectFit: 'contain' }} />
@@ -1352,7 +1334,7 @@ export default function MicroTube() {
                 }}
                 aria-label="Notifications"
                 title="Notifications"
-                onClick={() => setShowNotificationsPanel(!showNotificationsPanel)}
+                onClick={() => { setShowNotificationsPanel(!showNotificationsPanel); setShowSettings(false); }}
               >
                 <NotificationsIcon size={24} />
                 {activeNotifications.filter(n => !n.read).length > 0 && (
@@ -1408,14 +1390,22 @@ export default function MicroTube() {
                             // Navigate to a video when notification is clicked
                             const video = SAMPLE_VIDEOS.find(v => notif.message.toLowerCase().includes(v.title.toLowerCase().split(' ')[0])) || SAMPLE_VIDEOS[0];
                             if (video) {
-                              setState(prev => ({ ...prev, currentVideo: video.id }));
+                              setRoute("watch", video.id);
                             }
                             setShowNotificationsPanel(false);
                           }}
                           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.hover)}
                           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = !notif.read ? 'rgba(62,166,255,0.1)' : 'transparent')}
                         >
-                          <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: notif.avatar, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: 14, flexShrink: 0 }}>{notif.channel[0]}</div>
+                          {notif.avatar && notif.avatar.startsWith('/') ? (
+                            <img
+                              src={notif.avatar}
+                              alt={notif.channel}
+                              style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                            />
+                          ) : (
+                            <div style={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: notif.avatar || '#666', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', fontSize: 14, flexShrink: 0 }}>{notif.channel[0]}</div>
+                          )}
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: 14 }}><strong>{notif.channel}</strong> {notif.message}</div>
                             <div style={{ fontSize: 12, color: colors.textSecondary, marginTop: 4 }}>{notif.time}</div>
@@ -1452,7 +1442,7 @@ export default function MicroTube() {
             }}
             aria-label="Settings"
             title="Settings"
-            onClick={() => setShowSettings(!showSettings)}
+            onClick={() => { setShowSettings(!showSettings); setShowNotificationsPanel(false); }}
           >
             <SettingsIcon size={24} />
           </button>
@@ -1462,7 +1452,7 @@ export default function MicroTube() {
             <div
               style={{ ...styles.profileButton, cursor: 'pointer' }}
               title="Your channel"
-              onClick={() => setState(prev => ({ ...prev, navSection: 'profile', currentVideo: null }))}
+              onClick={() => setRoute("profile")}
             >
               {selfChannel?.avatarSrc ? (
                 <img
@@ -1506,62 +1496,6 @@ export default function MicroTube() {
             >
               Appearance: {state.darkMode ? 'Dark' : 'Light'}
             </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-language' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-language')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Language: English
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-location' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-location')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Location: United States
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-restricted' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-restricted')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Restricted Mode: Off
-            </div>
-            <hr style={{...styles.divider, borderColor: colors.border}} />
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-shortcuts' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-shortcuts')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Keyboard shortcuts
-            </div>
-            <div
-              style={{
-                ...styles.settingsItem,
-                backgroundColor: hoveredElement === 'setting-settings' ? colors.hover : 'transparent',
-              }}
-              onMouseEnter={() => setHoveredElement('setting-settings')}
-              onMouseLeave={() => setHoveredElement(null)}
-              onClick={() => {}}
-            >
-              Settings
-            </div>
             <hr style={{...styles.divider, borderColor: colors.border}} />
             <div
               style={{
@@ -1591,7 +1525,7 @@ export default function MicroTube() {
           <div style={styles.sidebarSection}>
             {SIDEBAR_PRIMARY.map((item) => {
               const Icon = item.icon;
-              const isActive = item.section === state.navSection;
+              const isActive = item.section === currentView;
               return (
                 <button
                   key={item.id}
@@ -1608,7 +1542,8 @@ export default function MicroTube() {
                     if (item.requiresAuth && !!isSignedOut) {
                       return;
                     }
-                    setState((prev) => ({ ...prev, navSection: item.section, currentVideo: null, searchQuery: "" }));
+                    setState((prev) => ({ ...prev, searchQuery: "" }));
+                    setRoute(item.section);
                     setSearchResults([]);
                   }}
                   aria-label={item.label}
@@ -1642,13 +1577,9 @@ export default function MicroTube() {
                         color: colors.text,
                       }}
                       onClick={() => {
-                        if (item.requiresAuth && !!isSignedOut) {
-                          setState((prev) => ({ ...prev, navSection: item.section, currentVideo: null, searchQuery: "" }));
-                          setSearchResults([]);
-                        } else {
-                          setState((prev) => ({ ...prev, navSection: item.section, currentVideo: null, searchQuery: "" }));
-                          setSearchResults([]);
-                        }
+                        setState((prev) => ({ ...prev, searchQuery: "" }));
+                        setRoute(item.section);
+                        setSearchResults([]);
                       }}
                       title={item.label}
                     >
@@ -1677,7 +1608,8 @@ export default function MicroTube() {
                       }}
                       title={item.label}
                       onClick={() => {
-                        setState((prev) => ({ ...prev, navSection: item.section, currentVideo: null, searchQuery: "" }));
+                        setState((prev) => ({ ...prev, searchQuery: "" }));
+                        setRoute(item.section);
                         setSearchResults([]);
                       }}
                     >
@@ -1706,7 +1638,8 @@ export default function MicroTube() {
                       }}
                       title={item.label}
                       onClick={() => {
-                        setState((prev) => ({ ...prev, navSection: item.section, currentVideo: null, searchQuery: "" }));
+                        setState((prev) => ({ ...prev, searchQuery: "" }));
+                        setRoute(item.section);
                         setSearchResults([]);
                       }}
                     >
@@ -1722,7 +1655,7 @@ export default function MicroTube() {
               <div style={{ ...styles.sidebarSection, fontSize: 13, color: '#aaa', padding: '12px 24px' }}>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "about", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("about"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-about')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1731,7 +1664,7 @@ export default function MicroTube() {
                     }}
                   >About</button>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "press", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("press"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-press')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1740,7 +1673,7 @@ export default function MicroTube() {
                     }}
                   >Press</button>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "copyright", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("copyright"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-copyright')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1751,7 +1684,7 @@ export default function MicroTube() {
                 </div>
                 <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "contact", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("contact"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-contact')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1760,7 +1693,7 @@ export default function MicroTube() {
                     }}
                   >Contact us</button>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "creators", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("creators"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-creators')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1771,7 +1704,7 @@ export default function MicroTube() {
                 </div>
                 <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "advertise", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("advertise"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-advertise')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1780,7 +1713,7 @@ export default function MicroTube() {
                     }}
                   >Advertise</button>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "developers", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("developers"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-developers')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1791,7 +1724,7 @@ export default function MicroTube() {
                 </div>
                 <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "terms", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("terms"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-terms')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1800,7 +1733,7 @@ export default function MicroTube() {
                     }}
                   >Terms</button>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "privacy", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("privacy"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-privacy')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1809,7 +1742,7 @@ export default function MicroTube() {
                     }}
                   >Privacy</button>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "policy", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("policy"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-policy')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1820,7 +1753,7 @@ export default function MicroTube() {
                 </div>
                 <div style={{ marginTop: 8 }}>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "how-it-works", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("how-it-works"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-how')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1831,7 +1764,7 @@ export default function MicroTube() {
                 </div>
                 <div style={{ marginTop: 8 }}>
                   <button
-                    onClick={() => { setState((prev) => ({ ...prev, navSection: "test-features", currentVideo: null, searchQuery: "" })); setSearchResults([]); }}
+                    onClick={() => { setState((prev) => ({ ...prev, searchQuery: "" })); setRoute("test-features"); setSearchResults([]); }}
                     onMouseEnter={() => setHoveredElement('footer-test')}
                     onMouseLeave={() => setHoveredElement(null)}
                     style={{
@@ -1855,7 +1788,7 @@ export default function MicroTube() {
             color: colors.text,
           }}
         >
-          {state.currentVideo ? (
+          {currentView === "watch" && watchingVideoId ? (
             <div style={{ display: 'flex', gap: 24, maxWidth: fullscreenState === "theater" ? '100%' : '1600px', margin: '0 auto' }}>
               {/* Main video column */}
               <div
@@ -2176,14 +2109,14 @@ export default function MicroTube() {
                         style={{
                           ...styles.actionButton,
                           ...styles.actionButtonLeft,
-                          ...(state.currentVideo && isVideoLiked(state.currentVideo) ? styles.actionButtonActive : {}),
+                          ...(watchingVideoId && isVideoLiked(watchingVideoId) ? styles.actionButtonActive : {}),
                           backgroundColor: hoveredElement === 'like-btn' ? colors.hover : colors.cardBg,
                         }}
                                                 title="I like this"
                       >
                         <LikeIcon size={24} />
                         <span style={{ marginLeft: 6 }}>
-                          {state.currentVideo && isVideoLiked(state.currentVideo) ? "Liked" : "Like"}
+                          {watchingVideoId && isVideoLiked(watchingVideoId) ? "Liked" : "Like"}
                         </span>
                       </button>
                       <div style={styles.actionButtonDivider} />
@@ -2194,7 +2127,7 @@ export default function MicroTube() {
                         style={{
                           ...styles.actionButton,
                           ...styles.actionButtonRight,
-                          ...(state.currentVideo && isVideoDisliked(state.currentVideo) ? styles.actionButtonActive : {}),
+                          ...(watchingVideoId && isVideoDisliked(watchingVideoId) ? styles.actionButtonActive : {}),
                           backgroundColor: hoveredElement === 'dislike-btn' ? colors.hover : colors.cardBg,
                         }}
                                                 title="I dislike this"
@@ -2223,13 +2156,13 @@ export default function MicroTube() {
                       style={{
                         ...styles.actionButton,
                         backgroundColor: hoveredElement === 'save' ? colors.hover : colors.cardBg,
-                        ...(state.currentVideo && isVideoSaved(state.currentVideo) ? { color: '#3ea6ff' } : {}),
+                        ...(watchingVideoId && isVideoSaved(watchingVideoId) ? { color: '#3ea6ff' } : {}),
                       }}
                                             title="Save to playlist"
                       onClick={() => !isSignedOut && setShowSaveModal(true)}
                     >
                       <SaveIcon size={24} />
-                      <span style={{ marginLeft: 6 }}>{state.currentVideo && isVideoSaved(state.currentVideo) ? "Saved" : "Save"}</span>
+                      <span style={{ marginLeft: 6 }}>{watchingVideoId && isVideoSaved(watchingVideoId) ? "Saved" : "Save"}</span>
                     </button>
 
                     <div style={{ position: 'relative' }}>
@@ -2259,8 +2192,8 @@ export default function MicroTube() {
                           minWidth: 200,
                         }}>
                           {[
-                            { label: 'Add to queue', action: () => { if (state.currentVideo) addToQueue(state.currentVideo); } },
-                            { label: 'Save to Watch later', action: () => { if (state.currentVideo) saveVideo(state.currentVideo); } },
+                            { label: 'Add to queue', action: () => { if (watchingVideoId) addToQueue(watchingVideoId); } },
+                            { label: 'Save to Watch later', action: () => { if (watchingVideoId) saveVideo(watchingVideoId); } },
                             { label: 'Save to playlist', action: () => setShowSaveModal(true) },
                             { label: 'Download', action: () => {} },
                             { label: 'Clip', action: () => setShowClipModal(true) },
@@ -2300,7 +2233,7 @@ export default function MicroTube() {
               {/* Comments section */}
               <div style={styles.commentsSection}>
                 <div style={{ fontSize: 20, fontWeight: 500, marginBottom: 24 }}>
-                  {state.currentVideo ? getCommentsForVideo(state.currentVideo).length : 0} Comments
+                  {watchingVideoId ? getCommentsForVideo(watchingVideoId).length : 0} Comments
                 </div>
                 <div style={{ marginBottom: 24 }}>
                   <div style={styles.commentInput}>
@@ -2354,7 +2287,7 @@ export default function MicroTube() {
 
                 {/* Display comments */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {state.currentVideo && getCommentsForVideo(state.currentVideo).map((comment) => (
+                  {watchingVideoId && getCommentsForVideo(watchingVideoId).map((comment) => (
                     <div key={comment.id} style={{ display: 'flex', gap: 12 }}>
                       {comment.userAvatarUrl ? (
                         <img
@@ -2522,7 +2455,7 @@ export default function MicroTube() {
                 <div style={{ width: 400, flexShrink: 0 }}>
                   <h3 style={{ fontSize: 16, fontWeight: 500, marginBottom: 16 }}>Related videos</h3>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                    {SAMPLE_VIDEOS.filter(v => v.id !== state.currentVideo).slice(0, 10).map((video) => (
+                    {SAMPLE_VIDEOS.filter(v => v.id !== watchingVideoId).slice(0, 10).map((video) => (
                       <div
                         key={video.id}
                         style={{ display: 'flex', gap: 8, cursor: 'pointer', padding: 4, borderRadius: 8 }}
@@ -2545,7 +2478,7 @@ export default function MicroTube() {
                 </div>
               )}
             </div>
-          ) : state.navSection === 'profile' ? (
+          ) : currentView === 'profile' ? (
             // Profile / Your Channel page
             <div style={{ padding: 24 }}>
               {/* Channel banner */}
@@ -2595,11 +2528,11 @@ export default function MicroTube() {
                     fontSize: 48,
                     fontWeight: 'bold',
                     color: '#fff',
-                  }}>{selfChannel?.name?.charAt(0) || "U"}</div>
+                  }}>{(selfChannel?.name || config?.selfUser?.name)?.charAt(0) || "U"}</div>
                 )}
                 <div style={{ flex: 1 }}>
-                  <h1 style={{ fontSize: 36, fontWeight: 'bold', marginBottom: 8 }}>{selfChannel?.name || "Your Channel"}</h1>
-                  <p style={{ color: '#aaa', marginBottom: 4 }}>@{selfChannel?.handle?.replace('@', '') || "yourchannel"} • {(selfChannel?.subscribers ?? 0).toLocaleString()} subscribers • {getVideosForChannel("ch-self").length} videos</p>
+                  <h1 style={{ fontSize: 36, fontWeight: 'bold', marginBottom: 8 }}>{config?.selfUser?.name || selfChannel?.name || ""}</h1>
+                  <p style={{ color: '#aaa', marginBottom: 4 }}>@{selfChannel?.handle?.replace('@', '') || config?.selfUser?.username || "yourchannel"} • {(selfChannel?.subscribers ?? 0).toLocaleString()} subscribers • {getVideosForChannel("ch-self").length} videos</p>
                   <p style={{ color: '#aaa', marginBottom: 16 }}>{selfChannel?.description || "Welcome to my channel!"}</p>
                   <div style={{ display: 'flex', gap: 12 }}>
                     <button
@@ -2704,7 +2637,9 @@ export default function MicroTube() {
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
-                      <LibraryIcon size={64} />
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <LibraryIcon size={64} />
+                      </div>
                       <h3 style={{ marginTop: 16, marginBottom: 8, color: '#fff' }}>No playlists yet</h3>
                       <p>Create playlists to organize your favorite videos</p>
                       <button
@@ -2821,11 +2756,11 @@ export default function MicroTube() {
                 </div>
               )}
             </div>
-          ) : state.navSection === 'channel' && state.viewingChannelId ? (
+          ) : currentView === 'channel' && viewingChannelId ? (
             // Viewing another channel's page
             (() => {
-              const channel = getChannelById(state.viewingChannelId);
-              const channelVideos = getVideosForChannel(state.viewingChannelId);
+              const channel = getChannelById(viewingChannelId);
+              const channelVideos = getVideosForChannel(viewingChannelId);
               if (!channel) return <div style={{ padding: 24, color: '#aaa' }}>Channel not found</div>;
               return (
                 <div style={{ padding: 24 }}>
@@ -2980,7 +2915,7 @@ export default function MicroTube() {
                 </div>
               );
             })()
-          ) : state.navSection === 'search-results' ? (
+          ) : currentView === 'search-results' ? (
             // Search results
             <div style={{ padding: 24 }}>
               <h2 style={{ fontSize: 18, marginBottom: 16 }}>
@@ -3020,16 +2955,18 @@ export default function MicroTube() {
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
-                  <SearchIcon size={64} />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <SearchIcon size={64} />
+                  </div>
                   <p style={{ marginTop: 16 }}>Try different keywords or check your spelling</p>
                 </div>
               )}
             </div>
-          ) : state.navSection === 'shorts' && state.currentShort ? (
+          ) : currentView === 'shorts' && viewingShortId ? (
             // Shorts Player - fullscreen vertical video experience
             (() => {
               const shortsList = SAMPLE_VIDEOS.slice(0, 8);
-              const currentIndex = shortsList.findIndex(v => v.id === state.currentShort);
+              const currentIndex = shortsList.findIndex(v => v.id === viewingShortId);
               const currentShortVideo = shortsList[currentIndex];
               const channel = CHANNELS.find(c => c.id === currentShortVideo?.channelId);
 
@@ -3333,7 +3270,7 @@ export default function MicroTube() {
 
                   {/* Close button */}
                   <button
-                    onClick={() => setState(prev => ({ ...prev, currentShort: null }))}
+                    onClick={() => setRoute("shorts")}
                     style={{
                       position: 'absolute', top: 16, left: 16,
                       background: 'none', border: 'none', cursor: 'pointer', color: '#fff',
@@ -3345,7 +3282,7 @@ export default function MicroTube() {
                 </div>
               );
             })()
-          ) : state.navSection === 'shorts' ? (
+          ) : currentView === 'shorts' ? (
             // Shorts page - grid of shorts thumbnails
             <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -3363,7 +3300,7 @@ export default function MicroTube() {
                       cursor: 'pointer',
                       transition: 'transform 0.2s',
                     }}
-                    onClick={() => setState(prev => ({ ...prev, currentShort: video.id }))}
+                    onClick={() => setRoute("shorts", video.id)}
                     onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
                     onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                   >
@@ -3379,7 +3316,7 @@ export default function MicroTube() {
                 ))}
               </div>
             </div>
-          ) : state.navSection === 'subscriptions' ? (
+          ) : currentView === 'subscriptions' ? (
             // Subscriptions page
             <div style={{ padding: '24px' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -3432,13 +3369,15 @@ export default function MicroTube() {
                 </>
               ) : (
                 <div style={{ textAlign: 'center', padding: 48, color: colors.textSecondary }}>
-                  <SubscriptionsIcon size={64} />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <SubscriptionsIcon size={64} />
+                  </div>
                   <p style={{ marginTop: 16, fontSize: 18 }}>No subscriptions yet</p>
                   <p style={{ marginTop: 8, color: colors.textSecondary }}>Subscribe to channels to see their latest videos here</p>
                 </div>
               )}
             </div>
-          ) : state.navSection === 'you' ? (
+          ) : currentView === 'you' ? (
             // You/Library page
             <div style={{ padding: '24px' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -3528,7 +3467,7 @@ export default function MicroTube() {
                 )}
               </div>
             </div>
-          ) : state.navSection === 'history' ? (
+          ) : currentView === 'history' ? (
             // History page
             <div style={{ padding: '24px' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -3559,146 +3498,140 @@ export default function MicroTube() {
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: 48, color: '#aaa' }}>
-                  <HistoryIcon size={64} />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <HistoryIcon size={64} />
+                  </div>
                   <p style={{ marginTop: 16, fontSize: 18 }}>No watch history</p>
                   <p style={{ marginTop: 8, color: '#717171' }}>Videos you watch will appear here</p>
                 </div>
               )}
             </div>
-          ) : state.navSection === 'shopping' ? (
+          ) : currentView === 'shopping' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <ShoppingBagIcon size={28} />
-                Shopping
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Browse products from your favorite creators</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <ShoppingBagIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Shopping is coming soon</p>
-                <p style={{ marginTop: 8 }}>Discover products featured in videos from channels you love</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <ShoppingBagIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Shopping</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Browse products from your favorite creators</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Shopping is coming soon</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Discover products featured in videos from channels you love</p>
               </div>
             </div>
-          ) : state.navSection === 'music' ? (
+          ) : currentView === 'music' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <MusicNoteIcon size={28} />
-                Music
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Discover music videos, live performances, and more</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <MusicNoteIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Explore Music content</p>
-                <p style={{ marginTop: 8 }}>Music videos, live concerts, artist channels, and playlists</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <MusicNoteIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Music</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Discover music videos, live performances, and more</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Explore Music content</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Music videos, live concerts, artist channels, and playlists</p>
               </div>
             </div>
-          ) : state.navSection === 'movies' ? (
+          ) : currentView === 'movies' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <MovieIcon size={28} />
-                Movies
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch movies, documentaries, and TV shows</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <MovieIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Browse Movies & TV</p>
-                <p style={{ marginTop: 8 }}>Rent, buy, or watch free movies and shows</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <MovieIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Movies</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch movies, documentaries, and TV shows</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Browse Movies & TV</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Rent, buy, or watch free movies and shows</p>
               </div>
             </div>
-          ) : state.navSection === 'live' ? (
+          ) : currentView === 'live' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <LiveTvIcon size={28} />
-                Live
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch live streams from around the world</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <LiveTvIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>No live streams right now</p>
-                <p style={{ marginTop: 8 }}>Check back later for live content from your favorite creators</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <LiveTvIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Live</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch live streams from around the world</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>No live streams right now</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Check back later for live content from your favorite creators</p>
               </div>
             </div>
-          ) : state.navSection === 'gaming' ? (
+          ) : currentView === 'gaming' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SportsEsportsIcon size={28} />
-                Gaming
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch gaming videos, live streams, and esports</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <SportsEsportsIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Explore Gaming content</p>
-                <p style={{ marginTop: 8 }}>Let's plays, walkthroughs, esports, and gaming news</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <SportsEsportsIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Gaming</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch gaming videos, live streams, and esports</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Explore Gaming content</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Let's plays, walkthroughs, esports, and gaming news</p>
               </div>
             </div>
-          ) : state.navSection === 'news' ? (
+          ) : currentView === 'news' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <NewspaperIcon size={28} />
-                News
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Stay informed with the latest news</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <NewspaperIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>News & Current Events</p>
-                <p style={{ marginTop: 8 }}>Breaking news, analysis, and coverage from trusted sources</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <NewspaperIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>News</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Stay informed with the latest news</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>News & Current Events</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Breaking news, analysis, and coverage from trusted sources</p>
               </div>
             </div>
-          ) : state.navSection === 'sports' ? (
+          ) : currentView === 'sports' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SportsIcon size={28} />
-                Sports
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Watch highlights, live games, and sports content</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <SportsIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Sports Hub</p>
-                <p style={{ marginTop: 8 }}>Highlights, live sports, analysis, and athlete channels</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <SportsIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Sports</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch highlights, live games, and sports content</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Sports Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Highlights, live sports, analysis, and athlete channels</p>
               </div>
             </div>
-          ) : state.navSection === 'courses' ? (
+          ) : currentView === 'courses' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SchoolIcon size={28} />
-                Courses
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Learn new skills with educational content</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <SchoolIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Learning Hub</p>
-                <p style={{ marginTop: 8 }}>Tutorials, courses, and educational content from expert creators</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <SchoolIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Courses</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Learn new skills with educational content</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Learning Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Tutorials, courses, and educational content from expert creators</p>
               </div>
             </div>
-          ) : state.navSection === 'fashion' ? (
+          ) : currentView === 'fashion' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <CheckroomIcon size={28} />
-                Fashion & Beauty
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Discover style tips, tutorials, and trends</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <CheckroomIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Fashion & Beauty Hub</p>
-                <p style={{ marginTop: 8 }}>Style guides, makeup tutorials, and fashion trends</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <CheckroomIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Fashion & Beauty</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Discover style tips, tutorials, and trends</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Fashion & Beauty Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Style guides, makeup tutorials, and fashion trends</p>
               </div>
             </div>
-          ) : state.navSection === 'podcasts' ? (
+          ) : currentView === 'podcasts' ? (
             <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <PodcastsIcon size={28} />
-                Podcasts
-              </h2>
-              <p style={{ color: '#aaa', marginBottom: 24 }}>Listen to podcasts from your favorite creators</p>
-              <div style={{ textAlign: 'center', padding: 64, color: '#717171', backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <PodcastsIcon size={64} />
-                <p style={{ marginTop: 16, fontSize: 18 }}>Podcast Hub</p>
-                <p style={{ marginTop: 8 }}>Discover video podcasts, interviews, and discussions</p>
+              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <PodcastsIcon size={64} />
+                </div>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Podcasts</h2>
+                <p style={{ color: '#aaa', marginBottom: 24 }}>Listen to podcasts from your favorite creators</p>
+                <p style={{ fontSize: 18, color: '#717171' }}>Podcast Hub</p>
+                <p style={{ marginTop: 8, color: '#717171' }}>Discover video podcasts, interviews, and discussions</p>
               </div>
             </div>
-          ) : state.navSection === 'premium' ? (
+          ) : currentView === 'premium' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', padding: 48, backgroundColor: '#1a1a1a', borderRadius: 16 }}>
-                <TrendingIcon size={64} />
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <TrendingIcon size={64} />
+                </div>
                 <h2 style={{ fontSize: 28, fontWeight: 600, marginTop: 24, marginBottom: 16 }}>MicroTube Premium</h2>
                 <p style={{ color: '#aaa', marginBottom: 32, fontSize: 16 }}>
                   Ad-free videos, background play, downloads, and more
@@ -3717,10 +3650,12 @@ export default function MicroTube() {
                 </button>
               </div>
             </div>
-          ) : state.navSection === 'yt-music' ? (
+          ) : currentView === 'yt-music' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', padding: 48, backgroundColor: '#1a1a1a', borderRadius: 16 }}>
-                <MusicNoteIcon size={64} />
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <MusicNoteIcon size={64} />
+                </div>
                 <h2 style={{ fontSize: 28, fontWeight: 600, marginTop: 24, marginBottom: 16 }}>MicroTube Music</h2>
                 <p style={{ color: '#aaa', marginBottom: 32, fontSize: 16 }}>
                   A new music service with official albums, playlists, and more
@@ -3732,14 +3667,14 @@ export default function MicroTube() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span style={{ color: '#ff0000' }}>♪</span> Music videos</div>
                 </div>
                 <button
-                  onClick={() => setState(prev => ({ ...prev, navSection: 'home' }))}
+                  onClick={() => setRoute('home')}
                   style={{ padding: '12px 32px', backgroundColor: '#ff0000', color: '#fff', border: 'none', borderRadius: 24, fontSize: 16, fontWeight: 600, cursor: 'pointer' }}
                 >
                   Try MicroTube Music
                 </button>
               </div>
             </div>
-          ) : state.navSection === 'about' ? (
+          ) : currentView === 'about' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>About MicroTube</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3752,7 +3687,7 @@ export default function MicroTube() {
                 </p>
               </div>
             </div>
-          ) : state.navSection === 'press' ? (
+          ) : currentView === 'press' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Press</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3762,7 +3697,7 @@ export default function MicroTube() {
                 <p style={{ color: '#717171' }}>Email: press@microtube.example.com</p>
               </div>
             </div>
-          ) : state.navSection === 'copyright' ? (
+          ) : currentView === 'copyright' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Copyright</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3774,7 +3709,7 @@ export default function MicroTube() {
                 </p>
               </div>
             </div>
-          ) : state.navSection === 'contact' ? (
+          ) : currentView === 'contact' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Contact Us</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3786,7 +3721,7 @@ export default function MicroTube() {
                 <p style={{ color: '#717171' }}>Business: business@microtube.example.com</p>
               </div>
             </div>
-          ) : state.navSection === 'creators' ? (
+          ) : currentView === 'creators' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Creators</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3804,7 +3739,7 @@ export default function MicroTube() {
                 </button>
               </div>
             </div>
-          ) : state.navSection === 'advertise' ? (
+          ) : currentView === 'advertise' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Advertise on MicroTube</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3819,7 +3754,7 @@ export default function MicroTube() {
                 </button>
               </div>
             </div>
-          ) : state.navSection === 'developers' ? (
+          ) : currentView === 'developers' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Developers</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3830,14 +3765,14 @@ export default function MicroTube() {
                   Access our comprehensive developer documentation, API references, and SDKs.
                 </p>
                 <button
-                  onClick={() => setState(prev => ({ ...prev, navSection: 'about' }))}
+                  onClick={() => setRoute('about')}
                   style={{ marginTop: 16, padding: '10px 24px', backgroundColor: '#3ea6ff', color: '#0f0f0f', border: 'none', borderRadius: 20, fontWeight: 500, cursor: 'pointer' }}
                 >
                   View Documentation
                 </button>
               </div>
             </div>
-          ) : state.navSection === 'terms' ? (
+          ) : currentView === 'terms' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Terms of Service</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3850,7 +3785,7 @@ export default function MicroTube() {
                 </p>
               </div>
             </div>
-          ) : state.navSection === 'privacy' ? (
+          ) : currentView === 'privacy' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Privacy Policy</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3863,7 +3798,7 @@ export default function MicroTube() {
                 </p>
               </div>
             </div>
-          ) : state.navSection === 'policy' ? (
+          ) : currentView === 'policy' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Policy & Safety</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3876,7 +3811,7 @@ export default function MicroTube() {
                 </p>
               </div>
             </div>
-          ) : state.navSection === 'how-it-works' ? (
+          ) : currentView === 'how-it-works' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>How MicroTube Works</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -3893,7 +3828,7 @@ export default function MicroTube() {
                 </p>
               </div>
             </div>
-          ) : state.navSection === 'test-features' ? (
+          ) : currentView === 'test-features' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24 }}>Test New Features</h2>
               <div style={{ backgroundColor: '#1a1a1a', borderRadius: 12, padding: 24 }}>
@@ -4004,7 +3939,7 @@ export default function MicroTube() {
             <div style={styles.modalBody}>
               <input
                 type="text"
-                value={`https://microtube.io/watch?v=${state.currentVideo}`}
+                value={`https://microtube.io/watch?v=${watchingVideoId}`}
                 readOnly
                 style={styles.shareInput}
                 onClick={(e) => (e.target as HTMLInputElement).select()}
@@ -4017,7 +3952,7 @@ export default function MicroTube() {
                   opacity: hoveredElement === 'copy-btn' ? 0.9 : 1,
                 }}
                 onClick={() => {
-                  navigator.clipboard.writeText(`https://microtube.io/watch?v=${state.currentVideo}`);
+                  navigator.clipboard.writeText(`https://microtube.io/watch?v=${watchingVideoId}`);
                   setShowShareModal(false);
                 }}
               >Copy</button>
@@ -4095,7 +4030,7 @@ export default function MicroTube() {
                 <label style={{ display: 'block', marginBottom: 8, color: '#aaa', fontSize: 12, textTransform: 'uppercase' }}>Channel name</label>
                 <input
                   type="text"
-                  defaultValue={selfChannel?.name || "Your Channel"}
+                  defaultValue={selfChannel?.name || config?.selfUser?.name || ""}
                   style={{
                     width: '100%',
                     padding: '12px 16px',
@@ -4276,7 +4211,7 @@ export default function MicroTube() {
       )}
 
       {/* Save to Playlist Modal */}
-      {showSaveModal && state.currentVideo && (
+      {showSaveModal && watchingVideoId && (
         <div style={styles.modalOverlay} onClick={() => setShowSaveModal(false)}>
           <div style={{
             ...styles.shareModal,
@@ -4295,18 +4230,46 @@ export default function MicroTube() {
                   padding: '12px 8px',
                   cursor: 'pointer',
                   borderRadius: 4,
-                  backgroundColor: isVideoSaved(state.currentVideo) ? '#272727' : 'transparent',
+                  backgroundColor: isVideoSaved(watchingVideoId) ? '#272727' : 'transparent',
                 }}
-                onClick={() => saveVideo(state.currentVideo!)}
+                onClick={() => saveVideo(watchingVideoId)}
               >
                 <input
                   type="checkbox"
-                  checked={isVideoSaved(state.currentVideo)}
+                  checked={isVideoSaved(watchingVideoId)}
                   readOnly
                   style={{ width: 18, height: 18 }}
                 />
                 <span>Watch later</span>
               </div>
+              {apiPlaylists.map(pl => {
+                const inPlaylist = pl.video_ids.includes(watchingVideoId);
+                return (
+                  <div
+                    key={pl.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 8px',
+                      cursor: inPlaylist ? 'default' : 'pointer',
+                      borderRadius: 4,
+                      backgroundColor: inPlaylist ? '#272727' : 'transparent',
+                    }}
+                    onClick={() => {
+                      if (!inPlaylist) apiAddToPlaylist(pl.id, watchingVideoId);
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={inPlaylist}
+                      readOnly
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span>{pl.name}</span>
+                  </div>
+                );
+              })}
               <div
                 style={{
                   display: 'flex',
@@ -4796,10 +4759,10 @@ export default function MicroTube() {
           <div className="rounded-lg shadow-2xl p-8 w-[360px] flex flex-col items-center" style={{ backgroundColor: "#282828" }}>
             <div className="text-2xl font-bold mb-6" style={{ color: "#FF0000" }}>MicroTube</div>
             <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#FF0000" }}>
-              {selfChannel?.name?.charAt(0) || "U"}
+              {(selfChannel?.name || config?.selfUser?.name)?.charAt(0) || "U"}
             </div>
-            <div className="text-lg font-semibold text-white mb-1">{selfChannel?.name || "Creator"}</div>
-            <div className="text-sm mb-6" style={{ color: "#aaa" }}>{selfChannel?.handle || "@user"}</div>
+            <div className="text-lg font-semibold text-white mb-1">{selfChannel?.name || config?.selfUser?.name || "Creator"}</div>
+            <div className="text-sm mb-6" style={{ color: "#aaa" }}>{selfChannel?.handle || (config?.selfUser?.username ? `@${config.selfUser.username}` : "@user")}</div>
             <input type="password" readOnly value="••••••••" className="w-full px-4 py-2 rounded mb-4 text-center" style={{ backgroundColor: "#3E3E3E", color: "#aaa", border: "none" }} />
             <button onClick={() => setIsSignedOut(false)} className="w-full py-2 text-white rounded font-semibold hover:opacity-90 transition-opacity" style={{ backgroundColor: "#FF0000" }}>
               Sign in

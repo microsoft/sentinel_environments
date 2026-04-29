@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicroLendarData, ApiCalendarEvent, ApiTask } from "../hooks/useMicroLendarData";
 import {
   ChevronLeft,
@@ -107,6 +108,19 @@ const generateInitialCalendars = (): CalendarCategory[] => [
   { id: 'tasks', name: 'Tasks', color: '#F6BF26', checked: true },
 ];
 
+// Fallback date when no scenario-provided initial_date is available.
+const FALLBACK_INITIAL_DATE = new Date(2024, 6, 18); // July 18, 2024
+
+// Parse YYYY-MM-DD into a local Date at midnight. Returns null on invalid input.
+const parseIsoDate = (iso: string | null | undefined): Date | null => {
+  if (!iso) return null;
+  const match = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+  const [, y, m, d] = match;
+  const date = new Date(parseInt(y, 10), parseInt(m, 10) - 1, parseInt(d, 10));
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 // ============================================================================
 // MAIN COMPONENT
 // ============================================================================
@@ -212,10 +226,26 @@ const MicroLendar = () => {
   const [calendarDropdown, setCalendarDropdown] = useState<{ id: string; x: number; y: number } | null>(null);
 
   // Calendar / navigation state
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [selectedDate, setSelectedDate] = useState(new Date(2024, 6, 18)); // July 18, 2024
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 6, 1));  // July 2024
+  const [lendarRoute, setLendarRoute] = useHashRoute<ViewMode>(['month', 'week', 'day', 'year', 'schedule', '4days'] as const, 'month');
+  const viewMode = lendarRoute.view;
+  const setViewMode = useCallback((mode: ViewMode) => setLendarRoute(mode), [setLendarRoute]);
+  const [selectedDate, setSelectedDate] = useState(FALLBACK_INITIAL_DATE);
+  const [currentMonth, setCurrentMonth] = useState(new Date(FALLBACK_INITIAL_DATE.getFullYear(), FALLBACK_INITIAL_DATE.getMonth(), 1));
   const [calendars, setCalendars] = useState<CalendarCategory[]>(generateInitialCalendars());
+
+  // "Today" marker — scenario-configured start date if provided, else fallback.
+  const todayDate = useMemo(() => parseIsoDate(config?.initial_date) ?? FALLBACK_INITIAL_DATE, [config?.initial_date]);
+
+  // When scenario-provided initial_date arrives, jump the view to it once.
+  const initialDateApplied = useRef(false);
+  useEffect(() => {
+    if (initialDateApplied.current) return;
+    const parsed = parseIsoDate(config?.initial_date);
+    if (!parsed) return;
+    setSelectedDate(parsed);
+    setCurrentMonth(new Date(parsed.getFullYear(), parsed.getMonth(), 1));
+    initialDateApplied.current = true;
+  }, [config?.initial_date]);
 
   // Form state
   const [eventForm, setEventForm] = useState({
@@ -311,9 +341,9 @@ const MicroLendar = () => {
   }, [viewMode, selectedDate]);
 
   const goToToday = useCallback(() => {
-    setCurrentMonth(new Date(2024, 6, 1));
-    setSelectedDate(new Date(2024, 6, 18));
-  }, []);
+    setCurrentMonth(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
+    setSelectedDate(todayDate);
+  }, [todayDate]);
 
   const toggleCalendar = useCallback((calendarId: string) => {
     setCalendars(prev => prev.map(cal =>
@@ -928,7 +958,7 @@ const MicroLendar = () => {
                 return days;
               })();
 
-              const today = new Date(2024, 6, 18);
+              const today = todayDate;
 
               return (
                 <>
@@ -1123,7 +1153,7 @@ const MicroLendar = () => {
                   const visibleEvents = dayEvents.slice(0, 3);
                   const moreCount = dayEvents.length - visibleEvents.length;
                   const isSelected = day.fullDate.toDateString() === selectedDate.toDateString();
-                  const isToday = day.fullDate.toDateString() === new Date(2024, 6, 18).toDateString();
+                  const isToday = day.fullDate.toDateString() === todayDate.toDateString();
 
                   const isDragOver = dragOverDate?.toDateString() === day.fullDate.toDateString();
 
@@ -1210,7 +1240,7 @@ const MicroLendar = () => {
                     return Array.from({ length: 7 }, (_, i) => {
                       const day = new Date(weekStart);
                       day.setDate(weekStart.getDate() + i);
-                      const isToday = day.toDateString() === new Date(2024, 6, 18).toDateString();
+                      const isToday = day.toDateString() === todayDate.toDateString();
                       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                       return (
                         <div key={i} className={`p-2 text-center border-r border-gray-200 last:border-r-0 ${isToday ? 'bg-blue-50' : ''}`}>
@@ -1290,7 +1320,7 @@ const MicroLendar = () => {
                   <div className="text-sm text-gray-500">
                     {selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}
                   </div>
-                  <div className={`text-3xl font-bold ${selectedDate.toDateString() === new Date(2024, 6, 18).toDateString() ? 'text-blue-600' : 'text-gray-900'}`}>
+                  <div className={`text-3xl font-bold ${selectedDate.toDateString() === todayDate.toDateString() ? 'text-blue-600' : 'text-gray-900'}`}>
                     {selectedDate.getDate()}
                   </div>
                   <div className="text-sm text-gray-500">
@@ -1391,7 +1421,7 @@ const MicroLendar = () => {
                   const monthDate = new Date(year, monthIndex, 1);
                   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
                   const firstDayOfWeek = monthDate.getDay();
-                  const today = new Date(2024, 6, 18);
+                  const today = todayDate;
 
                   const days: { date: number; isCurrentMonth: boolean; fullDate: Date }[] = [];
 
@@ -1491,7 +1521,7 @@ const MicroLendar = () => {
                   <div className="space-y-4">
                     {dates.map(date => {
                       const eventDate = new Date(date);
-                      const today = new Date(2024, 6, 18);
+                      const today = todayDate;
                       const isToday = eventDate.toDateString() === today.toDateString();
 
                       return (
@@ -1545,7 +1575,7 @@ const MicroLendar = () => {
                     return Array.from({ length: 4 }, (_, i) => {
                       const day = new Date(selectedDate);
                       day.setDate(selectedDate.getDate() + i);
-                      const isToday = day.toDateString() === new Date(2024, 6, 18).toDateString();
+                      const isToday = day.toDateString() === todayDate.toDateString();
                       const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                       return (
                         <div key={i} className={`p-2 text-center border-r border-gray-200 last:border-r-0 ${isToday ? 'bg-blue-50' : ''}`}>

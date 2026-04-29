@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 
-import { useMicrogramData, type ApiGramPost, type ApiGramUser } from "../hooks/useMicrogramData";
+import { useHashRoute } from "../hooks/useHashRoute";
+import { useMicrogramData, type ApiGramPost, type ApiGramUser, type ApiGramMessage } from "../hooks/useMicrogramData";
 import {
   Home,
   Search,
@@ -80,11 +81,12 @@ const formatNumber = (num: number): string => {
 
 /**
  * Compute a relative timestamp string based on order and session start time.
- * Lower order items appear earlier (newer), higher order items are older.
+ * Higher order items are newer, lower order items are older.
  * Each order step = 10 minutes in simulated time.
+ * maxOrder is the highest order seen so far — that item is the most recent.
  */
-const computeRelativeTimestamp = (order: number, sessionStartTime: number): string => {
-  const simulatedMinutesAgo = order * 10;
+const computeRelativeTimestamp = (order: number, sessionStartTime: number, maxOrder: number): string => {
+  const simulatedMinutesAgo = (maxOrder - order) * 10;
   const realElapsedMs = Date.now() - sessionStartTime;
   const realElapsedMinutes = Math.floor(realElapsedMs / 60000);
 
@@ -225,8 +227,9 @@ const MicroGram = () => {
   const [isSignedOut, setIsSignedOut] = useState(false);
 
   // Navigation
-  const [navSection, setNavSection] = useState<NavSection>("home");
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
+  const [route, setRoute] = useHashRoute<NavSection>(["home", "explore", "create", "activity", "profile", "direct", "search"] as const, "home");
+  const navSection = route.view;
+  const selectedProfile = navSection === "profile" ? route.id : null;
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState<number | null>(null);
@@ -265,6 +268,9 @@ const MicroGram = () => {
   // New DM modal
   const [showNewDMModal, setShowNewDMModal] = useState(false);
 
+  // Locally-started conversations (created via the "New message" modal)
+  const [localConversations, setLocalConversations] = useState<ApiGramMessage[]>([]);
+
   // Profile tabs
   const [profileTab, setProfileTab] = useState<"posts" | "reels" | "saved">("posts");
 
@@ -297,7 +303,12 @@ const MicroGram = () => {
   // Story auto-advance
   // ---------------------------------------------------------------------------
   const activeStories = useMemo(() =>
-    stories.slice().sort((a, b) => (a.order || 0) - (b.order || 0)),
+    stories.slice().sort((a, b) => {
+      const aViewed = a.isViewed ? 1 : 0;
+      const bViewed = b.isViewed ? 1 : 0;
+      if (aViewed !== bViewed) return aViewed - bViewed;
+      return (b.order || 0) - (a.order || 0);
+    }),
     [stories]
   );
 
@@ -367,10 +378,9 @@ const MicroGram = () => {
   }, [commentText, replyToComment, commentOnPost]);
 
   const navigateToProfile = useCallback((userId: string) => {
-    setSelectedProfile(userId);
-    setNavSection("profile");
+    setRoute("profile", userId);
     setProfileTab("posts");
-  }, []);
+  }, [setRoute]);
 
   const openPostModal = useCallback((postId: string) => {
     setSelectedPost(postId);
@@ -504,13 +514,50 @@ const MicroGram = () => {
     apiReadConversation(dmId);
   }, [apiReadConversation]);
 
+  const handleStartConversation = useCallback((userId: string) => {
+    const selfId = config?.selfUser?.id || "user000";
+    const existing = [...apiMessages, ...localConversations].find(dm =>
+      dm.participantIds.includes(userId) && dm.participantIds.includes(selfId)
+    );
+    if (existing) {
+      setSelectedDM(existing.id);
+      return;
+    }
+    const target = users[userId];
+    const newConversation: ApiGramMessage = {
+      id: `local-dm-${userId}-${Date.now()}`,
+      participantIds: [selfId, userId],
+      participants: target ? [{ id: userId, name: target.name, avatarUrl: target.avatarUrl }] : [],
+      lastMessage: "",
+      unreadCount: 0,
+      messages: [],
+      order: Number.MAX_SAFE_INTEGER,
+    };
+    setLocalConversations(prev => [...prev, newConversation]);
+    setSelectedDM(newConversation.id);
+  }, [apiMessages, localConversations, users, config?.selfUser?.id]);
+
   // ---------------------------------------------------------------------------
   // Derived Values
   // ---------------------------------------------------------------------------
 
   const feedPosts = useMemo(() =>
-    posts.slice().sort((a, b) => a.order - b.order),
+    posts.slice().sort((a, b) => b.order - a.order),
     [posts]
+  );
+
+  const maxOrder = useMemo(() => {
+    let max = 0;
+    for (const p of posts) max = Math.max(max, p.order);
+    for (const s of stories) max = Math.max(max, s.order);
+    for (const a of activity) max = Math.max(max, a.order);
+    return max;
+  }, [posts, stories, activity]);
+
+  // Merge server-backed conversations with locally-started ones for display.
+  const allConversations = useMemo<ApiGramMessage[]>(
+    () => [...apiMessages, ...localConversations],
+    [apiMessages, localConversations]
   );
 
   const searchResults = useMemo(() => {
@@ -704,7 +751,7 @@ const MicroGram = () => {
               View all {post.comments.length} comments
             </button>
           )}
-          <p className="text-xs text-gray-400 mt-1 uppercase">{computeRelativeTimestamp(post.order, startTime)}</p>
+          <p className="text-xs text-gray-400 mt-1 uppercase">{computeRelativeTimestamp(post.order, startTime, maxOrder)}</p>
         </div>
       </article>
     );
@@ -817,7 +864,7 @@ const MicroGram = () => {
                   {entry.type === "follow" && "started following you."}
                   {entry.type === "comment" && `commented: "${entry.text}"`}
                   {entry.type === "mention" && entry.text}
-                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime)}</span>
+                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime, maxOrder)}</span>
                 </p>
               </div>
               {entry.type === "follow" && !followedUserIds.includes(entry.actorId) && (
@@ -1023,7 +1070,7 @@ const MicroGram = () => {
   const renderDirect = () => {
     // If a DM is selected, show the conversation view
     if (selectedDM) {
-      const dm = apiMessages.find(d => d.id === selectedDM);
+      const dm = allConversations.find(d => d.id === selectedDM);
       if (!dm) return null;
 
       const otherUserId = dm.participantIds.find(id => id !== "user000");
@@ -1157,7 +1204,7 @@ const MicroGram = () => {
         </div>
         <div className="divide-y">
           {/* Sort DMs by most recent activity (user messages first, then original order) */}
-          {[...apiMessages].sort((a, b) => {
+          {[...allConversations].sort((a, b) => {
             const aReplies = dmReplies[a.id] || [];
             const bReplies = dmReplies[b.id] || [];
             const aLastTimestamp = aReplies.length > 0 ? aReplies[aReplies.length - 1].timestamp : 0;
@@ -1276,7 +1323,7 @@ const MicroGram = () => {
           <div className="absolute top-6 left-4 flex items-center gap-2 z-20">
             {renderAvatar(author, "sm")}
             <span className="text-white font-semibold text-sm">{author?.username}</span>
-            <span className="text-gray-300 text-xs">{story ? computeRelativeTimestamp(story.order, startTime) : ''}</span>
+            <span className="text-gray-300 text-xs">{story ? computeRelativeTimestamp(story.order, startTime, maxOrder) : ''}</span>
           </div>
 
           {/* Story content */}
@@ -1349,7 +1396,7 @@ const MicroGram = () => {
                     <span className="font-semibold">{author?.username}</span>{" "}
                     {post.caption}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">{computeRelativeTimestamp(post.order, startTime)}</p>
+                  <p className="text-xs text-gray-400 mt-1">{computeRelativeTimestamp(post.order, startTime, maxOrder)}</p>
                 </div>
               </div>
               {post.comments.map((comment, commentIndex) => {
@@ -1364,7 +1411,7 @@ const MicroGram = () => {
                         {comment.text}
                       </p>
                       <div className="flex items-center gap-3 mt-1">
-                        <p className="text-xs text-gray-400">{computeRelativeTimestamp(commentOrder, startTime)}</p>
+                        <p className="text-xs text-gray-400">{computeRelativeTimestamp(commentOrder, startTime, maxOrder)}</p>
                         <button
                           onClick={() => setReplyToComment({ id: comment.id, authorUsername: commenter?.username || "" })}
                           className="text-xs text-gray-500 font-semibold hover:text-gray-700"
@@ -1459,29 +1506,29 @@ const MicroGram = () => {
       <header className="fixed left-0 right-0 bg-white border-b border-gray-200 z-40 top-0">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <button
-            onClick={() => { setNavSection("home"); setSelectedProfile(null); }}
+            onClick={() => { setRoute("home"); }}
             className="flex items-center gap-2 hover:opacity-70 transition-opacity"
           >
             <img src="desktop/microgram-icon.png" alt="MicroGram" className="w-7 h-7 object-contain" />
             <h1 className="text-xl font-semibold italic">MicroGram</h1>
           </button>
           <nav className="flex items-center gap-6">
-            <button onClick={() => { setNavSection("home"); setSelectedProfile(null); }}>
+            <button onClick={() => { setRoute("home"); }}>
               <Home size={24} className={navSection === "home" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("search")}>
+            <button onClick={() => setRoute("search")}>
               <Search size={24} className={navSection === "search" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("explore")}>
+            <button onClick={() => setRoute("explore")}>
               <Compass size={24} className={navSection === "explore" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("direct")}>
+            <button onClick={() => setRoute("direct")}>
               <Send size={24} className={navSection === "direct" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setNavSection("activity")}>
+            <button onClick={() => setRoute("activity")}>
               <Heart size={24} className={navSection === "activity" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => { setNavSection("profile"); setSelectedProfile(null); }}>
+            <button onClick={() => { setRoute("profile"); }}>
               <User size={24} className={navSection === "profile" ? "fill-gray-900" : ""} />
             </button>
           </nav>
@@ -1728,7 +1775,8 @@ const MicroGram = () => {
 
       {/* New DM Modal */}
       {showNewDMModal && (() => {
-        const existingDMUserIds = apiMessages.flatMap(dm => dm.participantIds).filter(id => id !== "user000");
+        const selfId = config?.selfUser?.id || "user000";
+        const existingDMUserIds = allConversations.flatMap(dm => dm.participantIds).filter(id => id !== selfId);
         const usersWithoutDMs = MICROGRAM_USERS.filter(u => !u.isSelf && !existingDMUserIds.includes(u.id));
 
         return (
@@ -1743,8 +1791,12 @@ const MicroGram = () => {
                   <button
                     key={user.id}
                     onClick={() => {
+                      if (!followedUserIds.includes(user.id)) {
+                        showToast("Start a conversation by following " + user.username + " first", "info");
+                        return;
+                      }
                       setShowNewDMModal(false);
-                      showToast("Start a conversation by following " + user.username + " first", "info");
+                      handleStartConversation(user.id);
                     }}
                     className="w-full p-3 flex items-center gap-3 hover:bg-gray-50"
                   >

@@ -2,7 +2,7 @@
   "id": "microlendar-tasks-absolute-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "Keep an eye on my tasks and tell me when the list reaches 10 items.",
+  "prompt": "Keep an eye on my tasks and tell me when the list reaches at least 10 items.",
   "condition_at": 221.51,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -11,6 +11,8 @@
       "time": 0.0,
       "type": "preload_events",
       "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
         "event_ids": [
           "evt001",
           "evt002",
@@ -57,14 +59,14 @@
       }
     },
     {
-      "time": 346.13,
+      "time": 470.76,
       "type": "new_event",
       "payload": {
         "event_id": "today01"
       }
     },
     {
-      "time": 470.75,
+      "time": 720.0,
       "type": "new_event",
       "payload": {
         "event_id": "today02"

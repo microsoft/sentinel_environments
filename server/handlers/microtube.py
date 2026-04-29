@@ -27,12 +27,29 @@ if TYPE_CHECKING:
 # Row builders
 # ---------------------------------------------------------------------------
 
+def _resolve_channel_raw(channel_id: str) -> dict:
+    # Returns the catalog channel record with self-channel placeholder fields
+    # (name/handle/avatar/banner) replaced by the active self user's identity.
+    raw = MICROTUBE_CHANNEL_CATALOG.get(channel_id)
+    if raw is None or not raw.get("is_self"):
+        return raw or {}
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    username = self_user.get("username")
+    return {
+        **raw,
+        "name": self_user.get("name") or raw.get("name", ""),
+        "handle": f"@{username}" if username else raw.get("handle", ""),
+        "avatar_src": self_user.get("avatarUrl") or raw.get("avatar_src", ""),
+        "banner_src": self_user.get("bannerUrl") or raw.get("banner_src", ""),
+    }
+
+
 def _build_video_row(video_id: str) -> dict:
     raw = MICROTUBE_VIDEO_CATALOG.get(video_id)
     if raw is None:
         raise KeyError(f"Unknown video_id: {video_id!r}")
 
-    ch = MICROTUBE_CHANNEL_CATALOG.get(raw["channel_id"], {})
+    ch = _resolve_channel_raw(raw["channel_id"])
     return {
         "id": raw["id"],
         "channel_id": raw["channel_id"],
@@ -61,9 +78,9 @@ def _build_video_row(video_id: str) -> dict:
 
 
 def _build_channel_row(channel_id: str) -> dict:
-    raw = MICROTUBE_CHANNEL_CATALOG.get(channel_id)
-    if raw is None:
+    if channel_id not in MICROTUBE_CHANNEL_CATALOG:
         raise KeyError(f"Unknown channel_id: {channel_id!r}")
+    raw = _resolve_channel_raw(channel_id)
 
     return {
         "id": raw["id"],
@@ -105,7 +122,7 @@ def _build_notification_row(notif_id: str) -> dict:
     if raw is None:
         raise KeyError(f"Unknown notification_id: {notif_id!r}")
 
-    ch = MICROTUBE_CHANNEL_CATALOG.get(raw.get("channel_id", ""), {})
+    ch = _resolve_channel_raw(raw.get("channel_id", ""))
     return {
         "id": raw["id"],
         "type": raw["type"],

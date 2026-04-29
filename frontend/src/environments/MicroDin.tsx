@@ -1,9 +1,26 @@
-import { useState, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrodinData } from "../hooks/useMicrodinData";
 import type { ApiDinCompany, ApiDinUser } from "../hooks/useMicrodinData";
 
 export const TASK_ID_MICRODIN = "microdin";
+
+
+const formatMessageTimestamp = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return timestamp;
+  const now = new Date();
+  const sameDay = date.toDateString() === now.toDateString();
+  if (sameDay) {
+    return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  }
+  const diffMs = Math.abs(now.getTime() - date.getTime());
+  if (diffMs <= 7 * 24 * 60 * 60 * 1000) {
+    return date.toLocaleDateString([], { weekday: "short", hour: "numeric", minute: "2-digit" });
+  }
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+};
 
 
 // ============================================================================
@@ -180,13 +197,14 @@ interface Contact {
 
 interface Notification {
   id: string;
-  type: 'like' | 'comment' | 'connection' | 'message';
+  type: 'like' | 'comment' | 'connection' | 'message' | 'mention' | 'job' | 'profile_view';
   actor: string;
   avatar: string;
   avatarUrl: string;
   content: string;
   timestamp: string;
   read: boolean;
+  targetPostId?: string;
 }
 
 // Extended interfaces for complete profiles
@@ -368,6 +386,8 @@ const MicroDin = () => {
     jobs: apiJobs,
     users: apiUsers,
     companies: apiCompanies,
+    profileStats,
+    profileSections,
     config,
     isLoading,
     error,
@@ -375,8 +395,12 @@ const MicroDin = () => {
     acceptConnection,
     ignoreConnection,
     readConversation,
+    sendMessage: apiSendMessage,
+    createConversation: apiCreateConversation,
+    postComment: apiPostComment,
     markNotificationRead,
     applyJob: apiApplyJob,
+    addProfileSection: apiAddProfileSection,
   } = useMicrodinData();
 
 
@@ -402,10 +426,18 @@ const MicroDin = () => {
   const [newPostContent, setNewPostContent] = useState('');
   const [postVisibility, setPostVisibility] = useState<'anyone' | 'connections' | 'group'>('anyone');
   const [visibilityDropdownOpen, setVisibilityDropdownOpen] = useState(false);
-  const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messageInputs, setMessageInputs] = useState<{[key: string]: string}>({});
   const [mainChatInput, setMainChatInput] = useState('');
-  const [currentView, setCurrentView] = useState<'feed' | 'my-network' | 'jobs' | 'profile' | 'messaging'>('feed');
+  const [route, setRoute] = useHashRoute(
+    ['feed', 'my-network', 'jobs', 'job-detail', 'profile', 'connections', 'company', 'messaging'] as const,
+    'feed',
+  );
+  const currentView = route.view;
+  const viewedPersonId = (currentView === 'profile' || currentView === 'connections') ? (route.id ?? 'self') : 'self';
+  const viewedCompanyId = currentView === 'company' ? route.id : null;
+  const selectedJobId = currentView === 'job-detail' ? route.id : null;
+  const activeChat = currentView === 'messaging' ? route.id : null;
+  const setActiveChat = useCallback((id: string | null) => setRoute('messaging', id), [setRoute]);
   const [pageNotificationsOpen, setPageNotificationsOpen] = useState(false);
   const [pageVisitorsOpen, setPageVisitorsOpen] = useState(false);
   const [profileViewersOpen, setProfileViewersOpen] = useState(false);
@@ -432,28 +464,20 @@ const MicroDin = () => {
   const [savedPosts, setSavedPosts] = useState<string[]>([]);
   const [hiddenPosts, setHiddenPosts] = useState<string[]>([]);
 
-  // Profile and company navigation state
-  const [viewedPersonId, setViewedPersonId] = useState<string>('self'); // Default to current user
-  const [viewedCompanyId, setViewedCompanyId] = useState<string | null>(null);
-  const [currentViewSubPage, setCurrentViewSubPage] = useState<'company' | 'job-detail' | 'connections' | null>(null);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  // Profile / company navigation state is derived from `route` above.
   const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [manageJobsModalOpen, setManageJobsModalOpen] = useState(false);
   const [postJobModalOpen, setPostJobModalOpen] = useState(false);
-  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [eventInterestModalOpen, setEventInterestModalOpen] = useState(false);
-  // Settings sub-modals
-  const [accountPreferencesOpen, setAccountPreferencesOpen] = useState(false);
-  const [signInSecurityOpen, setSignInSecurityOpen] = useState(false);
-  const [notificationsSettingsOpen, setNotificationsSettingsOpen] = useState(false);
-  const [visibilitySettingsOpen, setVisibilitySettingsOpen] = useState(false);
-  const [dataPrivacyOpen, setDataPrivacyOpen] = useState(false);
   // Help sub-modals
   const [helpArticleOpen, setHelpArticleOpen] = useState<string | null>(null);
   // Add to profile sub-modals
   const [addSectionType, setAddSectionType] = useState<string | null>(null);
+  const [sectionFormTitle, setSectionFormTitle] = useState('');
+  const [sectionFormSubtitle, setSectionFormSubtitle] = useState('');
+  const [sectionFormContent, setSectionFormContent] = useState('');
   // Open to sub-modals
   const [openToType, setOpenToType] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<{title: string; date: string; attendees: number} | null>(null);
@@ -576,11 +600,12 @@ const MicroDin = () => {
       content: n.content,
       timestamp: n.timestamp,
       read: n.isRead,
+      targetPostId: n.targetPostId,
     }));
   }, [apiNotifications]);
 
   const allJobListings = useMemo<JobListing[]>(() => {
-    return apiJobs.map(j => ({
+    const fromApi = apiJobs.map(j => ({
       id: j.id,
       title: j.title,
       company: companyMap.get(j.companyId)?.name || j.companyId,
@@ -592,7 +617,20 @@ const MicroDin = () => {
       requirements: j.requirements,
       companyId: j.companyId,
     }));
-  }, [apiJobs, companyMap]);
+    const fromPosted = postedJobs.map((j, idx) => ({
+      id: `posted-job-${idx}`,
+      title: j.title,
+      company: j.company,
+      location: j.location,
+      type: j.type,
+      posted: 'Just now',
+      applicants: 0,
+      description: '',
+      requirements: [] as string[],
+      companyId: '',
+    }));
+    return [...fromPosted, ...fromApi];
+  }, [apiJobs, companyMap, postedJobs]);
 
   // Use self person when viewing own profile, otherwise find in allPeople
   const viewedPerson = viewedPersonId === 'self'
@@ -612,6 +650,7 @@ const MicroDin = () => {
 
   const handleSubmitComment = () => {
     if (!commentText.trim() || !selectedPostId) return;
+    apiPostComment(selectedPostId, commentText.trim());
     setCommentText("");
     setCommentModalOpen(false);
     setSelectedPostId(null);
@@ -641,12 +680,14 @@ const MicroDin = () => {
   const handleSendMessage = (contactId: string) => {
     const message = messageInputs[contactId];
     if (!message?.trim()) return;
+    apiSendMessage(contactId, message.trim());
     readConversation(contactId);
     setMessageInputs(prev => ({ ...prev, [contactId]: '' }));
   };
 
   const handleSendMainChatMessage = () => {
     if (!mainChatInput.trim() || !activeChat) return;
+    apiSendMessage(activeChat, mainChatInput.trim());
     readConversation(activeChat);
     setMainChatInput('');
   };
@@ -680,36 +721,33 @@ const MicroDin = () => {
 
   // Navigation helper functions
   const handleViewProfile = (personId: string) => {
-    setViewedPersonId(personId);
-    setCurrentView('profile');
-    setCurrentViewSubPage(null);
+    setRoute('profile', personId === 'self' ? null : personId);
     setProfileDropdownOpen(false);
     setShowSearchResults(false);
   };
 
   const handleViewCompany = (companyId: string) => {
-    setViewedCompanyId(companyId);
-    setCurrentViewSubPage('company');
+    setRoute('company', companyId);
     setProfileDropdownOpen(false);
     setShowSearchResults(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleMessagePerson = (personName: string) => {
-    // Find existing contact or use first contact as fallback
+  const handleMessagePerson = async (personName: string) => {
+    setRoute('messaging');
     const existingContact = contacts.find(c => c.name === personName);
     if (existingContact) {
       setActiveChat(existingContact.id);
-    } else if (contacts.length > 0) {
-      setActiveChat(contacts[0].id);
+      return;
     }
-    setCurrentView('messaging');
+    const person = allPeople.find(p => p.name === personName);
+    if (!person) return;
+    const conversationId = await apiCreateConversation(person.id);
+    if (conversationId) setActiveChat(conversationId);
   };
 
   const handleViewJobDetail = (jobId: string) => {
-    setSelectedJobId(jobId);
-    setCurrentView('jobs');
-    setCurrentViewSubPage('job-detail');
+    setRoute('job-detail', jobId);
   };
 
   const handleApplyJob = (jobId: string) => {
@@ -720,7 +758,7 @@ const MicroDin = () => {
   };
 
   const handleViewConnections = () => {
-    setCurrentViewSubPage('connections');
+    setRoute('connections', viewedPersonId === 'self' ? null : viewedPersonId);
   };
 
   const handleConnect = (personId: string) => {
@@ -785,9 +823,7 @@ const MicroDin = () => {
   };
 
   const handleBackFromSubPage = () => {
-    setCurrentViewSubPage(null);
-    setSelectedJobId(null);
-    setViewedCompanyId(null);
+    window.history.back();
   };
 
 
@@ -851,8 +887,7 @@ const MicroDin = () => {
               <div
                 className="w-9 h-9 rounded flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => {
-                  setCurrentView('feed');
-                  setCurrentViewSubPage(null);
+                  setRoute('feed');
                 }}
               >
                 <img
@@ -965,7 +1000,7 @@ const MicroDin = () => {
             {/* Navigation */}
             <nav className="flex items-center space-x-8">
               <button
-                onClick={() => { setCurrentView('feed'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('feed'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'feed' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -979,7 +1014,7 @@ const MicroDin = () => {
                 )}
               </button>
               <button
-                onClick={() => { setCurrentView('my-network'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('my-network'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'my-network' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -993,7 +1028,7 @@ const MicroDin = () => {
                 )}
               </button>
               <button
-                onClick={() => { setCurrentView('jobs'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('jobs'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'jobs' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -1008,7 +1043,7 @@ const MicroDin = () => {
                 )}
               </button>
               <button
-                onClick={() => { setCurrentView('messaging'); setCurrentViewSubPage(null); }}
+                onClick={() => { setRoute('messaging'); }}
                 className={`flex flex-col items-center text-xs group relative pb-3 ${
                   currentView === 'messaging' ? 'text-gray-700' : 'text-gray-600 hover:text-gray-900'
                 }`}
@@ -1062,17 +1097,22 @@ const MicroDin = () => {
                             setNotificationsDropdownOpen(false);
                             // Navigate based on notification type
                             if (notif.type === 'like' || notif.type === 'comment') {
-                              setCurrentView('feed');
-                              setCurrentViewSubPage(null);
+                              setRoute('feed');
+                              if (notif.targetPostId) {
+                                if (notif.type === 'comment') {
+                                  setSelectedPostId(notif.targetPostId);
+                                  setCommentModalOpen(true);
+                                } else {
+                                  setSelectedReactionPost(notif.targetPostId);
+                                  setReactionsModalOpen(true);
+                                }
+                              }
                             } else if (notif.type === 'connection') {
-                              setCurrentView('my-network');
-                              setCurrentViewSubPage(null);
+                              setRoute('my-network');
                             } else if (notif.type === 'message') {
-                              setCurrentView('messaging');
-                              setCurrentViewSubPage(null);
+                              setRoute('messaging');
                             } else if (notif.type === 'job') {
-                              setCurrentView('jobs');
-                              setCurrentViewSubPage(null);
+                              setRoute('jobs');
                             }
                           }}
                           className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${!notif.read ? 'bg-blue-50' : ''}`}
@@ -1143,15 +1183,6 @@ const MicroDin = () => {
                     </div>
                     <div className="py-2">
                       <button
-                        onClick={() => { setProfileDropdownOpen(false); setSettingsModalOpen(true); }}
-                        className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        <svg className="w-5 h-5 mr-3 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                        </svg>
-                        Settings & Privacy
-                      </button>
-                      <button
                         onClick={() => { setProfileDropdownOpen(false); setHelpModalOpen(true); }}
                         className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50"
                       >
@@ -1191,7 +1222,7 @@ const MicroDin = () => {
       )}
 
       {/* Main Content */}
-      {currentView === 'feed' && !currentViewSubPage && (
+      {currentView === 'feed' && (
       <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
         {/* Left Sidebar */}
         <div className="w-56 flex-shrink-0 space-y-2">
@@ -1225,7 +1256,7 @@ const MicroDin = () => {
             >
               <div className="flex items-center justify-between text-xs">
                 <span className="text-gray-700">Profile viewers</span>
-                <span className="text-blue-600 font-semibold">52</span>
+                <span className="text-blue-600 font-semibold">{profileStats?.profileViewCount ?? 52}</span>
               </div>
             </div>
           </div>
@@ -1586,7 +1617,10 @@ const MicroDin = () => {
                 </div>
               ))}
             </div>
-            <button className="mt-3 text-sm text-gray-600 hover:bg-gray-100 w-full text-left px-2 py-1 rounded font-medium flex items-center">
+            <button
+              onClick={() => { setRoute('my-network'); }}
+              className="mt-3 text-sm text-gray-600 hover:bg-gray-100 w-full text-left px-2 py-1 rounded font-medium flex items-center"
+            >
               View all recommendations
               <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1598,7 +1632,7 @@ const MicroDin = () => {
       )}
 
       {/* My Network View */}
-      {currentView === 'my-network' && currentViewSubPage !== 'company' && (
+      {currentView === 'my-network' && (
         <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
           {/* Left Sidebar - Manage my network */}
           <div className="w-64 flex-shrink-0">
@@ -2066,7 +2100,7 @@ const MicroDin = () => {
       )}
 
       {/* Profile View */}
-      {currentView === 'profile' && !currentViewSubPage && (
+      {currentView === 'profile' && (
         <div className="max-w-5xl mx-auto py-6 px-4">
           {/* Profile Header Card */}
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
@@ -2150,7 +2184,7 @@ const MicroDin = () => {
                     onClick={handleViewConnections}
                     className="text-blue-600 hover:underline font-semibold"
                   >
-                    {viewedPerson.connections} connections
+                    {(viewedPersonId === 'self' && profileStats?.connectionsCount) ? profileStats.connectionsCount : viewedPerson.connections} connections
                   </button>
                   <button onClick={() => setContactInfoModalOpen(true)} className="text-blue-600 hover:underline font-semibold">Contact info</button>
                 </div>
@@ -2171,23 +2205,29 @@ const MicroDin = () => {
             <h2 className="text-xl font-semibold mb-4">Experience</h2>
 
             <div className="space-y-6">
-              {viewedPerson.experience.map((exp, idx) => (
+              {viewedPerson.experience.map((exp, idx) => {
+                const expCompany = allCompanies.find(c => c.name === exp.company || c.name.includes(exp.company));
+                return (
                 <div key={idx} className="flex items-start space-x-3">
-                  <div className={`w-12 h-12 ${exp.companyColor} rounded flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity`}
-                    onClick={() => {
-                      const company = allCompanies.find(c => c.name === exp.company || c.name.includes(exp.company));
-                      if (company) handleViewCompany(company.id);
-                    }}
-                  >
-                    <span className="text-white font-bold text-xl">{exp.companyInitial}</span>
-                  </div>
+                  {expCompany?.logoUrl ? (
+                    <img
+                      src={expCompany.logoUrl}
+                      alt={exp.company}
+                      onClick={() => handleViewCompany(expCompany.id)}
+                      className="w-12 h-12 rounded object-cover flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                    />
+                  ) : (
+                    <div
+                      className={`w-12 h-12 bg-gradient-to-br ${expCompany?.color ?? 'from-gray-400 to-gray-600'} rounded flex items-center justify-center flex-shrink-0 ${expCompany ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+                      onClick={() => { if (expCompany) handleViewCompany(expCompany.id); }}
+                    >
+                      <span className="text-white font-bold text-xl">{exp.companyInitial}</span>
+                    </div>
+                  )}
                   <div className="flex-1">
                     <h3 className="font-semibold">{exp.role}</h3>
                     <p className="text-sm text-gray-700 hover:underline cursor-pointer"
-                      onClick={() => {
-                        const company = allCompanies.find(c => c.name === exp.company || c.name.includes(exp.company));
-                        if (company) handleViewCompany(company.id);
-                      }}
+                      onClick={() => { if (expCompany) handleViewCompany(expCompany.id); }}
                     >{exp.company}</p>
                     <p className="text-xs text-gray-500 mt-1">{exp.duration}</p>
                     <p className="text-xs text-gray-500">{exp.location}</p>
@@ -2196,7 +2236,8 @@ const MicroDin = () => {
                     )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -2229,13 +2270,34 @@ const MicroDin = () => {
                   {skill}
                 </span>
               ))}
+              {viewedPersonId === 'self' && profileSections.filter(s => s.type === 'Skills').map((s) => (
+                <span key={s.id} className="px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-sm">
+                  {s.title}
+                </span>
+              ))}
             </div>
           </div>
+
+          {viewedPersonId === 'self' && profileSections.filter(s => s.type !== 'Skills').length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 mt-4">
+              <h2 className="text-xl font-semibold mb-4">Additions</h2>
+              <div className="space-y-4">
+                {profileSections.filter(s => s.type !== 'Skills').map((s) => (
+                  <div key={s.id} className="border-l-4 border-blue-500 pl-3">
+                    <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">{s.type}</p>
+                    {s.title && <h3 className="font-semibold text-sm">{s.title}</h3>}
+                    {s.subtitle && <p className="text-sm text-gray-700">{s.subtitle}</p>}
+                    {s.content && <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">{s.content}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* Connections List View */}
-      {currentView === 'profile' && currentViewSubPage === 'connections' && (
+      {currentView === 'connections' && (
         <div className="max-w-5xl mx-auto py-6 px-4">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <button
@@ -2282,7 +2344,7 @@ const MicroDin = () => {
       )}
 
       {/* Company Profile View */}
-      {currentViewSubPage === 'company' && viewedCompany && (
+      {currentView === 'company' && viewedCompany && (
         <div className="max-w-5xl mx-auto py-6 px-4">
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
             <button
@@ -2306,7 +2368,7 @@ const MicroDin = () => {
             </div>
 
             {/* Company Info */}
-            <div className="px-6 pb-6 -mt-16">
+            <div className="px-6 pb-6 -mt-16 relative z-10">
               <div className="flex justify-between items-end">
                 {viewedCompany.logoUrl ? (
                   <img
@@ -2339,8 +2401,7 @@ const MicroDin = () => {
 
               <div className="mt-4">
                 <h1 className="text-3xl font-bold">{viewedCompany.name}</h1>
-                <p className="text-lg text-gray-700 mt-1">{viewedCompany.desc}</p>
-                <div className="mt-4 flex items-center space-x-6 text-sm text-gray-600">
+                <div className="mt-2 flex items-center space-x-6 text-sm text-gray-600">
                   <span>{viewedCompany.industry}</span>
                   <span>•</span>
                   <span>{viewedCompany.size}</span>
@@ -2427,7 +2488,7 @@ const MicroDin = () => {
                     }`}>
                       <p className="text-sm">{message.content}</p>
                       <p className={`text-xs mt-1 ${message.isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
-                        {message.timestamp}
+                        {formatMessageTimestamp(message.timestamp)}
                       </p>
                     </div>
                   </div>
@@ -2498,8 +2559,7 @@ const MicroDin = () => {
                 key={contact.id}
                 onClick={() => {
                   setActiveChat(contact.id);
-                  setCurrentView('messaging');
-                  setCurrentViewSubPage(null);
+                  setRoute('messaging');
                   setMessagingPanelOpen(false);
                   // Mark messages as read
                   readConversation(contact.id);
@@ -2538,7 +2598,7 @@ const MicroDin = () => {
       )}
 
       {/* Jobs View */}
-      {currentView === 'jobs' && currentViewSubPage !== 'company' && (
+      {(currentView === 'jobs' || currentView === 'job-detail') && (
         <div className="max-w-7xl mx-auto py-6 px-4 flex space-x-6">
           {/* Left Sidebar */}
           <div className="w-64 flex-shrink-0 space-y-4">
@@ -2580,7 +2640,7 @@ const MicroDin = () => {
             {/* Header */}
             <div className="bg-white rounded-lg border border-gray-200 p-6">
               <h2 className="text-xl font-semibold mb-2">Top job picks for you</h2>
-              <p className="text-sm text-gray-600 mb-4">10 jobs available</p>
+              <p className="text-sm text-gray-600 mb-4">{allJobListings.length} {allJobListings.length === 1 ? 'job' : 'jobs'} available</p>
 
               {/* Search Bar */}
               <div className="relative">
@@ -2596,7 +2656,16 @@ const MicroDin = () => {
             </div>
 
             {/* Job Listings */}
-            {!currentViewSubPage && (
+            {currentView === 'jobs' && allJobListings.length === 0 && (
+              <div className="bg-white rounded-lg border border-gray-200 p-10 text-center">
+                <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <h3 className="font-medium text-gray-900 mb-1">No jobs to show yet</h3>
+                <p className="text-sm text-gray-500">New opportunities matching your profile will appear here.</p>
+              </div>
+            )}
+            {currentView === 'jobs' && allJobListings.length > 0 && (
               <div className="space-y-2">
                 {(showAllJobListings ? allJobListings : allJobListings.slice(0, 5)).map((job) => {
                   const company = allCompanies.find(c => c.id === job.companyId);
@@ -2760,7 +2829,7 @@ const MicroDin = () => {
             )}
 
             {/* Job Detail View */}
-            {currentViewSubPage === 'job-detail' && selectedJob && (
+            {currentView === 'job-detail' && selectedJob && (
               <div className="bg-white rounded-lg border border-gray-200 p-6">
                 <button
                   onClick={handleBackFromSubPage}
@@ -2822,8 +2891,21 @@ const MicroDin = () => {
                       Apply
                     </button>
                   )}
-                  <button className="px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-full font-semibold hover:bg-gray-50 transition-colors">
-                    Save
+                  <button
+                    onClick={() => {
+                      if (savedJobs.includes(selectedJob.id)) {
+                        setSavedJobs(savedJobs.filter(id => id !== selectedJob.id));
+                      } else {
+                        setSavedJobs([...savedJobs, selectedJob.id]);
+                      }
+                    }}
+                    className={`px-6 py-2 border-2 rounded-full font-semibold transition-colors ${
+                      savedJobs.includes(selectedJob.id)
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {savedJobs.includes(selectedJob.id) ? 'Saved' : 'Save'}
                   </button>
                 </div>
 
@@ -2895,7 +2977,7 @@ const MicroDin = () => {
       )}
 
       {/* Messaging View */}
-      {currentView === 'messaging' && !currentViewSubPage && (
+      {currentView === 'messaging' && (
         <div className="max-w-7xl mx-auto py-6 px-4">
           <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" style={{ height: 'calc(100vh - 150px)' }}>
             <div className="flex h-full">
@@ -3078,7 +3160,7 @@ const MicroDin = () => {
                         <div key={message.id} className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}>
                           <div className={`max-w-md ${message.isOwn ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-900'} rounded-lg px-4 py-2`}>
                             <p className="text-sm">{message.content}</p>
-                            <p className={`text-xs mt-1 ${message.isOwn ? 'text-blue-100' : 'text-gray-500'}`}>{message.timestamp}</p>
+                            <p className={`text-xs mt-1 ${message.isOwn ? 'text-blue-100' : 'text-gray-500'}`}>{formatMessageTimestamp(message.timestamp)}</p>
                           </div>
                         </div>
                       ))}
@@ -3359,13 +3441,33 @@ const MicroDin = () => {
               </button>
             </div>
             <div className="space-y-3">
-              <button className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded transition-colors">
+              <button
+                onClick={() => {
+                  const shareUrl = selectedPostId
+                    ? `${window.location.origin}/microdin/post/${selectedPostId}`
+                    : window.location.href;
+                  navigator.clipboard?.writeText(shareUrl);
+                  setShareModalOpen(false);
+                }}
+                className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded transition-colors"
+              >
                 <svg className="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
                 </svg>
                 <span className="font-semibold">Share via Link</span>
               </button>
-              <button className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded transition-colors">
+              <button
+                onClick={() => {
+                  const shareUrl = selectedPostId
+                    ? `${window.location.origin}/microdin/post/${selectedPostId}`
+                    : window.location.href;
+                  const subject = encodeURIComponent("Check out this post on MicroDin");
+                  const body = encodeURIComponent(`I thought you'd like this:\n\n${shareUrl}`);
+                  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+                  setShareModalOpen(false);
+                }}
+                className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded transition-colors"
+              >
                 <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
@@ -3436,7 +3538,7 @@ const MicroDin = () => {
             </div>
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-2xl font-bold">276</span>
+                <span className="text-2xl font-bold">{profileStats?.pageVisitorCount ?? 276}</span>
                 <span className="text-sm text-green-600 flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
@@ -3450,7 +3552,7 @@ const MicroDin = () => {
                     <div
                       className="bg-blue-500 rounded-t hover:bg-blue-600 transition-colors cursor-pointer"
                       style={{ height: `${height}%` }}
-                      title={`${Math.floor(276 / 7)} visitors`}
+                      title={`${Math.floor((profileStats?.pageVisitorCount ?? 276) / 7)} visitors`}
                     />
                   </div>
                 ))}
@@ -3505,7 +3607,7 @@ const MicroDin = () => {
             </div>
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-2xl font-bold">52</span>
+                <span className="text-2xl font-bold">{profileStats?.profileViewCount ?? 52}</span>
                 <span className="text-sm text-green-600 flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
@@ -3653,7 +3755,7 @@ const MicroDin = () => {
                   <button
                     onClick={() => {
                       setManageJobsModalOpen(false);
-                      setCurrentView('jobs');
+                      setRoute('jobs');
                     }}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
                   >
@@ -3723,7 +3825,7 @@ const MicroDin = () => {
                   <button
                     onClick={() => {
                       setManageJobsModalOpen(false);
-                      setCurrentView('jobs');
+                      setRoute('jobs');
                     }}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-full font-semibold text-sm hover:bg-blue-700 transition-colors"
                   >
@@ -4238,80 +4340,6 @@ const MicroDin = () => {
         </div>
       )}
 
-      {/* Settings Modal */}
-      {settingsModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setSettingsModalOpen(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Settings & Privacy</h3>
-              <button onClick={() => setSettingsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div onClick={() => { setSettingsModalOpen(false); setAccountPreferencesOpen(true); }} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm">Account preferences</span>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div onClick={() => { setSettingsModalOpen(false); setSignInSecurityOpen(true); }} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm">Sign in & security</span>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div onClick={() => { setSettingsModalOpen(false); setNotificationsSettingsOpen(true); }} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                  </svg>
-                  <span className="text-sm">Notifications</span>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div onClick={() => { setSettingsModalOpen(false); setVisibilitySettingsOpen(true); }} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
-                    <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.065 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
-                  </svg>
-                  <span className="text-sm">Visibility</span>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-              <div onClick={() => { setSettingsModalOpen(false); setDataPrivacyOpen(true); }} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg cursor-pointer">
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-sm">Data privacy</span>
-                </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Help Modal */}
       {helpModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setHelpModalOpen(false)}>
@@ -4563,250 +4591,6 @@ const MicroDin = () => {
         </div>
       )}
 
-      {/* Account Preferences Modal */}
-      {accountPreferencesOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setAccountPreferencesOpen(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <button onClick={() => { setAccountPreferencesOpen(false); setSettingsModalOpen(true); }} className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h3 className="text-xl font-semibold">Account preferences</h3>
-              </div>
-              <button onClick={() => setAccountPreferencesOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Profile information</h4>
-                <p className="text-xs text-gray-600 mb-3">Control how others see your profile</p>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Name, location, and industry</span>
-                    <button className="text-blue-600 text-sm hover:underline">Edit</button>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Personal demographic information</span>
-                    <button className="text-blue-600 text-sm hover:underline">Edit</button>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Display preferences</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Dark mode</span>
-                    <div className="relative">
-                      <input type="checkbox" className="sr-only" />
-                      <div className="w-10 h-6 bg-gray-200 rounded-full shadow-inner"></div>
-                      <div className="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full shadow transition"></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Language</span>
-                    <span className="text-sm text-gray-600">English</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sign In & Security Modal */}
-      {signInSecurityOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setSignInSecurityOpen(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <button onClick={() => { setSignInSecurityOpen(false); setSettingsModalOpen(true); }} className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h3 className="text-xl font-semibold">Sign in & security</h3>
-              </div>
-              <button onClick={() => setSignInSecurityOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Email addresses</h4>
-                <p className="text-xs text-gray-600 mb-3">Add or remove email addresses on your account</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">{selfUser?.email}</span>
-                  <span className="text-xs text-green-600 font-medium">Primary</span>
-                </div>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Phone numbers</h4>
-                <p className="text-xs text-gray-600 mb-3">Add a phone number in case you get locked out</p>
-                <button className="text-blue-600 text-sm hover:underline">Add phone number</button>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Change password</h4>
-                <p className="text-xs text-gray-600 mb-3">Choose a strong, unique password</p>
-                <button className="text-blue-600 text-sm hover:underline">Change password</button>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Two-step verification</h4>
-                <p className="text-xs text-gray-600 mb-3">Add an extra layer of security to your account</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Status: Off</span>
-                  <button className="text-blue-600 text-sm hover:underline">Turn on</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Notifications Settings Modal */}
-      {notificationsSettingsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setNotificationsSettingsOpen(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <button onClick={() => { setNotificationsSettingsOpen(false); setSettingsModalOpen(true); }} className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h3 className="text-xl font-semibold">Notifications</h3>
-              </div>
-              <button onClick={() => setNotificationsSettingsOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { title: 'Messages', desc: 'Get notified when you receive messages' },
-                { title: 'Connection requests', desc: 'Get notified of new connection requests' },
-                { title: 'Job alerts', desc: 'Get notified about jobs you might be interested in' },
-                { title: 'News and updates', desc: 'Stay informed about news in your industry' },
-                { title: 'Profile views', desc: 'Get notified when someone views your profile' }
-              ].map((item) => (
-                <div key={item.title} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                  <div>
-                    <h4 className="font-semibold text-sm">{item.title}</h4>
-                    <p className="text-xs text-gray-600">{item.desc}</p>
-                  </div>
-                  <div className="relative">
-                    <input type="checkbox" defaultChecked className="sr-only peer" />
-                    <div className="w-10 h-6 bg-blue-600 peer-checked:bg-blue-600 rounded-full shadow-inner"></div>
-                    <div className="dot absolute right-1 top-1 bg-white w-4 h-4 rounded-full shadow transition"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Visibility Settings Modal */}
-      {visibilitySettingsOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setVisibilitySettingsOpen(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <button onClick={() => { setVisibilitySettingsOpen(false); setSettingsModalOpen(true); }} className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h3 className="text-xl font-semibold">Visibility</h3>
-              </div>
-              <button onClick={() => setVisibilitySettingsOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Profile viewing options</h4>
-                <p className="text-xs text-gray-600 mb-3">Choose what others see when you view their profile</p>
-                <select className="w-full p-2 border border-gray-300 rounded-lg text-sm">
-                  <option>Your name and headline</option>
-                  <option>Private profile characteristics</option>
-                  <option>Private mode</option>
-                </select>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Connections visibility</h4>
-                <p className="text-xs text-gray-600 mb-3">Who can see your connections</p>
-                <select className="w-full p-2 border border-gray-300 rounded-lg text-sm">
-                  <option>Your connections</option>
-                  <option>Only you</option>
-                </select>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Active status</h4>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-600">Show when you're active on MicroDin</p>
-                  <div className="relative">
-                    <input type="checkbox" defaultChecked className="sr-only" />
-                    <div className="w-10 h-6 bg-blue-600 rounded-full shadow-inner"></div>
-                    <div className="dot absolute right-1 top-1 bg-white w-4 h-4 rounded-full shadow transition"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Data Privacy Modal */}
-      {dataPrivacyOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setDataPrivacyOpen(false)}>
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <button onClick={() => { setDataPrivacyOpen(false); setSettingsModalOpen(true); }} className="text-gray-400 hover:text-gray-600">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <h3 className="text-xl font-semibold">Data privacy</h3>
-              </div>
-              <button onClick={() => setDataPrivacyOpen(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">How MicroDin uses your data</h4>
-                <p className="text-xs text-gray-600 mb-3">Manage how your data is used for personalization and advertising</p>
-                <button className="text-blue-600 text-sm hover:underline">Manage preferences</button>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Get a copy of your data</h4>
-                <p className="text-xs text-gray-600 mb-3">Download an archive of your account data</p>
-                <button className="text-blue-600 text-sm hover:underline">Request archive</button>
-              </div>
-              <div className="p-4 border border-gray-200 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2">Delete account</h4>
-                <p className="text-xs text-gray-600 mb-3">Permanently delete your MicroDin account and data</p>
-                <button className="text-red-600 text-sm hover:underline">Close account</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Help Article Modal */}
       {helpArticleOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setHelpArticleOpen(null)}>
@@ -4907,7 +4691,7 @@ const MicroDin = () => {
           <div className="bg-white rounded-lg p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-semibold">Add {addSectionType}</h3>
-              <button onClick={() => setAddSectionType(null)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setAddSectionType(null); setSectionFormTitle(''); setSectionFormSubtitle(''); setSectionFormContent(''); }} className="text-gray-400 hover:text-gray-600">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -4918,6 +4702,8 @@ const MicroDin = () => {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Summary</label>
                   <textarea
+                    value={sectionFormContent}
+                    onChange={(e) => setSectionFormContent(e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                     rows={6}
                     placeholder="Tell your professional story..."
@@ -4928,15 +4714,15 @@ const MicroDin = () => {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">School *</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Stanford University" />
+                    <input type="text" value={sectionFormTitle} onChange={(e) => setSectionFormTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Westwood University" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Degree</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Bachelor's" />
+                    <input type="text" value={sectionFormSubtitle} onChange={(e) => setSectionFormSubtitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Bachelor's" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Field of study</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Computer Science" />
+                    <input type="text" value={sectionFormContent} onChange={(e) => setSectionFormContent(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Computer Science" />
                   </div>
                 </>
               )}
@@ -4944,22 +4730,22 @@ const MicroDin = () => {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Software Engineer" />
+                    <input type="text" value={sectionFormTitle} onChange={(e) => setSectionFormTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Software Engineer" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Company *</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: Google" />
+                    <input type="text" value={sectionFormSubtitle} onChange={(e) => setSectionFormSubtitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: NexusAI" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: San Francisco, CA" />
+                    <input type="text" value={sectionFormContent} onChange={(e) => setSectionFormContent(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: San Francisco, CA" />
                   </div>
                 </>
               )}
               {addSectionType === 'Skills' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Skill *</label>
-                  <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: JavaScript" />
+                  <input type="text" value={sectionFormTitle} onChange={(e) => setSectionFormTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ex: JavaScript" />
                   <p className="text-xs text-gray-500 mt-2">Add skills to showcase your expertise</p>
                 </div>
               )}
@@ -4967,11 +4753,13 @@ const MicroDin = () => {
                 <>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
-                    <input type="text" className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder={`Enter ${addSectionType.toLowerCase()} name`} />
+                    <input type="text" value={sectionFormTitle} onChange={(e) => setSectionFormTitle(e.target.value)} className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder={`Enter ${addSectionType.toLowerCase()} name`} />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                     <textarea
+                      value={sectionFormContent}
+                      onChange={(e) => setSectionFormContent(e.target.value)}
                       className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       rows={3}
                       placeholder="Add details..."
@@ -4981,14 +4769,28 @@ const MicroDin = () => {
               )}
               <div className="flex space-x-3 pt-4">
                 <button
-                  onClick={() => setAddSectionType(null)}
+                  onClick={() => { setAddSectionType(null); setSectionFormTitle(''); setSectionFormSubtitle(''); setSectionFormContent(''); }}
                   className="flex-1 py-2 border border-gray-300 rounded-full text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={() => setAddSectionType(null)}
-                  className="flex-1 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
+                  onClick={() => {
+                    if (!addSectionType) return;
+                    if (!sectionFormTitle.trim() && !sectionFormContent.trim()) return;
+                    apiAddProfileSection({
+                      type: addSectionType,
+                      title: sectionFormTitle.trim(),
+                      subtitle: sectionFormSubtitle.trim(),
+                      content: sectionFormContent.trim(),
+                    });
+                    setAddSectionType(null);
+                    setSectionFormTitle('');
+                    setSectionFormSubtitle('');
+                    setSectionFormContent('');
+                  }}
+                  disabled={!sectionFormTitle.trim() && !sectionFormContent.trim()}
+                  className="flex-1 py-2 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Save
                 </button>
@@ -5116,8 +4918,12 @@ const MicroDin = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.5)", backdropFilter: "blur(6px)" }}>
           <div className="bg-white rounded-lg shadow-2xl p-8 w-[360px] flex flex-col items-center">
             <div className="text-2xl font-bold mb-6" style={{ color: "#0A66C2" }}>Micro<span style={{ fontWeight: 800 }}>Din</span></div>
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#0A66C2" }}>
-              {selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
+            <div className="w-20 h-20 rounded-full overflow-hidden mb-4 bg-gray-200 flex items-center justify-center text-white text-2xl font-bold" style={{ backgroundColor: selfUser?.avatarUrl ? undefined : "#0A66C2" }}>
+              {selfUser?.avatarUrl ? (
+                <img src={selfUser.avatarUrl} alt={selfUser.name} className="w-full h-full object-cover" />
+              ) : (
+                selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"
+              )}
             </div>
             <div className="text-lg font-semibold text-gray-900 mb-1">{selfUser?.name || "User"}</div>
             <div className="text-sm text-gray-500 mb-6">{selfUser?.email || "user@microdin.com"}</div>

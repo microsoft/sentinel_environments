@@ -50,35 +50,30 @@
       }
     },
     {
-      "time": 608.73,
+      "time": 579.07,
       "type": "new_email",
       "payload": {
         "email_id": "att-24"
       }
     },
     {
-      "time": 649.19,
+      "time": 589.88,
       "type": "new_email",
       "payload": {
         "email_id": "base-03"
       }
     },
     {
-      "time": 689.65,
+      "time": 600.68,
       "type": "new_email",
       "payload": {
         "email_id": "base-04"
       }
     }
   ],
-  "annotator_notes": "",
   "taxonomy": {
-    "criteria": "objective",
     "milestone_type": "absolute",
-    "event_persistence": "persistent",
-    "monitoring_approach": "active",
-    "difficulty": "hard",
-    "distraction_level": "medium"
+    "monitoring_approach": "active"
   },
   "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE attachment_name LIKE '%mobile-app-mockups%') >= 1"
 }

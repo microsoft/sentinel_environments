@@ -2,7 +2,7 @@
   "id": "micromail-unread-absolute-passive",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "Tell me when I have 10 unread emails.",
+  "prompt": "Tell me when I have 10 or more unread emails.",
   "condition_at": 585.56,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -78,42 +78,37 @@
       }
     },
     {
-      "time": 616.93,
+      "time": 592.76,
       "type": "new_email",
       "payload": {
         "email_id": "base-11"
       }
     },
     {
-      "time": 648.3,
+      "time": 599.96,
       "type": "new_email",
       "payload": {
         "email_id": "base-12"
       }
     },
     {
-      "time": 679.67,
+      "time": 607.17,
       "type": "new_email",
       "payload": {
         "email_id": "base-14"
       }
     },
     {
-      "time": 711.04,
+      "time": 614.37,
       "type": "new_email",
       "payload": {
         "email_id": "base-15"
       }
     }
   ],
-  "annotator_notes": "",
   "taxonomy": {
-    "criteria": "objective",
     "milestone_type": "absolute",
-    "event_persistence": "persistent",
-    "monitoring_approach": "passive",
-    "difficulty": "easy",
-    "distraction_level": "medium"
+    "monitoring_approach": "passive"
   },
   "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states es ON e.id=es.email_id WHERE es.isRead=0 AND es.folder='inbox') >= 10"
 }

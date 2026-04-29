@@ -21,10 +21,10 @@
 {"id":"meeting-architecture-review","type":"meeting","name":"Architecture Review","participantIds":["user000","user001","user009","user033","user013"],"avatarColor":"#0078D4","isPinned":false,"isMuted":false,"order":20}
 {"id":"meeting-incident-response","type":"meeting","name":"Incident Response","participantIds":["user000","user007","user009","user023"],"avatarColor":"#E74856","isPinned":false,"isMuted":false,"order":21}
 {"id":"meeting-budget-planning","type":"meeting","name":"Budget Planning","participantIds":["user000","user015","user018","user004"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":22}
-{"id":"direct-brenda","type":"direct","name":"Brenda Carter","participantIds":["user000","user002"],"avatarColor":"#E74856","isPinned":true,"isMuted":false,"order":23}
-{"id":"direct-aaron","type":"direct","name":"Aaron Chen","participantIds":["user000","user001"],"avatarColor":"#5B5FC7","isPinned":false,"isMuted":false,"order":24}
+{"id":"direct-brenda","type":"direct","name":"Brenda Rodriguez","participantIds":["user000","user002"],"avatarColor":"#E74856","isPinned":true,"isMuted":false,"order":23}
+{"id":"direct-alex","type":"direct","name":"Alex Chen","participantIds":["user000","user001"],"avatarColor":"#5B5FC7","isPinned":false,"isMuted":false,"order":24}
 {"id":"direct-michael","type":"direct","name":"Michael Brown","participantIds":["user000","user013"],"avatarColor":"#0078D4","isPinned":false,"isMuted":false,"order":25}
-{"id":"direct-edward","type":"direct","name":"Edward Kim","participantIds":["user000","user005"],"avatarColor":"#00B294","isPinned":false,"isMuted":false,"order":26}
-{"id":"direct-olivia","type":"direct","name":"Olivia Hayes","participantIds":["user000","user015"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":27}
-{"id":"direct-carlos","type":"direct","name":"Carlos Davis","participantIds":["user000","user003"],"avatarColor":"#FF8C00","isPinned":false,"isMuted":false,"order":28}
-{"id":"direct-ivan","type":"direct","name":"Ivan Martinez","participantIds":["user000","user009"],"avatarColor":"#5C2D91","isPinned":false,"isMuted":false,"order":29}
+{"id":"direct-edward","type":"direct","name":"Edward Wilson","participantIds":["user000","user005"],"avatarColor":"#00B294","isPinned":false,"isMuted":false,"order":26}
+{"id":"direct-oscar","type":"direct","name":"Oscar Perez","participantIds":["user000","user015"],"avatarColor":"#6264A7","isPinned":false,"isMuted":false,"order":27}
+{"id":"direct-charles","type":"direct","name":"Charles Davis","participantIds":["user000","user003"],"avatarColor":"#FF8C00","isPinned":false,"isMuted":false,"order":28}
+{"id":"direct-ian","type":"direct","name":"Ian Martinez","participantIds":["user000","user009"],"avatarColor":"#5C2D91","isPinned":false,"isMuted":false,"order":29}

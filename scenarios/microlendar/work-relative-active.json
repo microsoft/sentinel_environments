@@ -11,6 +11,8 @@
       "time": 0.0,
       "type": "preload_events",
       "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
         "event_ids": [
           "work01",
           "work02",
@@ -61,14 +63,14 @@
       }
     },
     {
-      "time": 274.45,
+      "time": 422.98,
       "type": "new_event",
       "payload": {
         "event_id": "work10"
       }
     },
     {
-      "time": 422.96,
+      "time": 720.0,
       "type": "new_event",
       "payload": {
         "event_id": "noise02"

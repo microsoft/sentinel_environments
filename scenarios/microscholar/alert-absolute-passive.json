@@ -28,7 +28,7 @@
       }
     },
     {
-      "time": 385.41,
+      "time": 720.0,
       "type": "new_alert",
       "payload": {
         "alert_id": "alert-7"

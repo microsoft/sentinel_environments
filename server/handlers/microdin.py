@@ -269,6 +269,18 @@ def process_event(session: Session, event: dict) -> None:
     if etype == "preload_posts":
         payload = event.get("payload", {})
 
+        # Optional profile stats
+        if "profile_view_count" in payload:
+            session.microdin_profile_view_count = int(payload["profile_view_count"])
+        if "page_visitor_count" in payload:
+            session.microdin_page_visitor_count = int(payload["page_visitor_count"])
+        if "connections_count" in payload:
+            session.microdin_connections_count = int(payload["connections_count"])
+        if "initial_connection_ids" in payload:
+            session.microdin_initial_connection_ids = list(payload["initial_connection_ids"])
+            if "connections_count" not in payload:
+                session.microdin_connections_count = len(session.microdin_initial_connection_ids)
+
         # Load posts
         post_ids = payload.get("post_ids", [])
         if post_ids == ["*"]:

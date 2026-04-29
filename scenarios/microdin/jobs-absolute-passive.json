@@ -2,7 +2,7 @@
   "id": "microdin-jobs-absolute-passive",
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
-  "prompt": "Keep an eye on the jobs page and tell me when there are 8 job listings.",
+  "prompt": "Keep an eye on the jobs page and tell me when there are 8 or more job listings.",
   "condition_at": 68.4,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -75,28 +75,28 @@
       }
     },
     {
-      "time": 231.3,
+      "time": 272.03,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-7"
       }
     },
     {
-      "time": 339.9,
+      "time": 407.77,
       "type": "new_job",
       "payload": {
         "job_id": "job-12"
       }
     },
     {
-      "time": 448.5,
+      "time": 543.52,
       "type": "new_job",
       "payload": {
         "job_id": "job-13"
       }
     },
     {
-      "time": 589.68,
+      "time": 720.0,
       "type": "new_post",
       "payload": {
         "post_id": "post-15"

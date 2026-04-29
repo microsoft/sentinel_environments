@@ -1,12 +1,15 @@
 {
   "id": "dev-microdin",
   "environment": "microdin",
-  "duration": 9999,
+  "event_timeline_end": 9999,
   "events": [
     {
       "time": 0,
       "type": "preload_posts",
       "payload": {
+        "profile_view_count": 52,
+        "page_visitor_count": 276,
+        "connections_count": 482,
         "post_ids": [
           "*"
         ],

@@ -2,7 +2,7 @@
   "id": "micromail-inbox-relative-passive",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I already have a few emails. Let me know when 5 more show up in my inbox.",
+  "prompt": "Let me know when 5 new emails appear in my inbox (not counting any unread emails already there).",
   "condition_at": 130.85,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -56,35 +56,30 @@
       }
     },
     {
-      "time": 287.96,
+      "time": 327.24,
       "type": "new_email",
       "payload": {
         "email_id": "base-11"
       }
     },
     {
-      "time": 445.06,
+      "time": 523.61,
       "type": "new_email",
       "payload": {
         "email_id": "base-12"
       }
     },
     {
-      "time": 602.17,
+      "time": 720.0,
       "type": "new_email",
       "payload": {
         "email_id": "base-14"
       }
     }
   ],
-  "annotator_notes": "",
   "taxonomy": {
-    "criteria": "objective",
     "milestone_type": "relative",
-    "event_persistence": "persistent",
-    "monitoring_approach": "passive",
-    "difficulty": "easy",
-    "distraction_level": "medium"
+    "monitoring_approach": "passive"
   },
   "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='inbox') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_inbox_count') + 5"
 }

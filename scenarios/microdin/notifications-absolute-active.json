@@ -75,21 +75,21 @@
       }
     },
     {
-      "time": 533.73,
+      "time": 499.66,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-4"
       }
     },
     {
-      "time": 580.3,
+      "time": 529.19,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-9"
       }
     },
     {
-      "time": 626.87,
+      "time": 558.72,
       "type": "new_job",
       "payload": {
         "job_id": "job-11"

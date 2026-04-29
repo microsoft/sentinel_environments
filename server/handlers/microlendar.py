@@ -115,7 +115,7 @@ def compute_current_metrics(session: Session) -> dict:
     events = _get_all_events(session)
     tasks = _get_all_tasks(session)
 
-    today = "2026-03-18"
+    today = session.microlendar_today
 
     event_count = len(events)
     today_event_count = sum(
@@ -159,6 +159,12 @@ def process_event(session: Session, event: dict) -> None:
         payload = event.get("payload", {})
         event_ids = payload.get("event_ids", [])
         task_ids = payload.get("task_ids", [])
+        today = payload.get("today")
+        if today:
+            session.microlendar_today = today
+        initial_date = payload.get("initial_date")
+        if initial_date:
+            session.microlendar_initial_date = initial_date
 
         # Load calendar events -- "*" means all non-task events
         if event_ids == ["*"]:

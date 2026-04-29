@@ -2,7 +2,7 @@
   "id": "microchat-unread-absolute-active",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
-  "prompt": "Keep an eye on my chat with Aaron Chen. If he says the payment processing service is down, let me know right away.",
+  "prompt": "Keep an eye on my chat with Alex Chen. If he reports any problems with payment processing, let me know right away.",
   "condition_at": 374.51,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -109,28 +109,28 @@
       }
     },
     {
-      "time": 518.46,
+      "time": 507.31,
       "type": "new_message",
       "payload": {
         "message_id": "att-dm-01"
       }
     },
     {
-      "time": 576.05,
+      "time": 560.43,
       "type": "new_message",
       "payload": {
         "message_id": "dm-13"
       }
     },
     {
-      "time": 633.63,
+      "time": 613.55,
       "type": "new_message",
       "payload": {
         "message_id": "grp-09"
       }
     },
     {
-      "time": 691.21,
+      "time": 666.67,
       "type": "new_message",
       "payload": {
         "message_id": "mention-grp-13"
@@ -146,5 +146,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages WHERE conversationId='direct-aaron' AND content LIKE '%payment processing service is down%')"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages WHERE conversationId='direct-alex' AND content LIKE '%payment processing service is down%')"
 }

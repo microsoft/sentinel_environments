@@ -29,8 +29,9 @@ export interface ApiTask {
 
 export interface ApiTaskConfig {
   environment: string;
-  duration: number;
+  event_timeline_end: number;
   selfUser?: ApiSelfUser;
+  initial_date?: string | null;
 }
 
 export function useMicroLendarData() {

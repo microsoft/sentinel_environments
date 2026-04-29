@@ -69,3 +69,74 @@
 .light-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
 }
+
+/* MicroTube (YouTube-like) scrollbar styles — scoped so all nested scroll areas
+   match the host look instead of the OS default white bar. */
+.microtube-root,
+.microtube-root * {
+  scrollbar-width: thin;
+  scrollbar-color: #717171 transparent;
+}
+
+.microtube-root ::-webkit-scrollbar,
+.microtube-root::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.microtube-root ::-webkit-scrollbar-track,
+.microtube-root::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.microtube-root ::-webkit-scrollbar-thumb,
+.microtube-root::-webkit-scrollbar-thumb {
+  background: #717171;
+  border-radius: 4px;
+}
+
+.microtube-root ::-webkit-scrollbar-thumb:hover,
+.microtube-root::-webkit-scrollbar-thumb:hover {
+  background: #909090;
+}
+
+.microtube-root.light ::-webkit-scrollbar-thumb,
+.microtube-root.light::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+}
+
+.microtube-root.light ::-webkit-scrollbar-thumb:hover,
+.microtube-root.light::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* MicroFy (Spotify-like) scrollbar styles — scoped so nested scroll areas
+   (Settings modal, sidebar, main panel) match the dark host look instead of
+   the OS default white bar. */
+.microfy-root,
+.microfy-root * {
+  scrollbar-width: thin;
+  scrollbar-color: #535353 transparent;
+}
+
+.microfy-root ::-webkit-scrollbar,
+.microfy-root::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.microfy-root ::-webkit-scrollbar-track,
+.microfy-root::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.microfy-root ::-webkit-scrollbar-thumb,
+.microfy-root::-webkit-scrollbar-thumb {
+  background: #535353;
+  border-radius: 4px;
+}
+
+.microfy-root ::-webkit-scrollbar-thumb:hover,
+.microfy-root::-webkit-scrollbar-thumb:hover {
+  background: #7a7a7a;
+}

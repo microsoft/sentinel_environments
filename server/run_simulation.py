@@ -13,6 +13,8 @@ import time
 
 import requests
 
+from server.timing import validate_speed_factor
+
 DEFAULT_HOST = "http://localhost:8000"
 
 
@@ -51,7 +53,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run MicroMail simulation.")
     parser.add_argument("scenario", help="Path to scenario JSON file")
     parser.add_argument("--host", default=DEFAULT_HOST)
-    parser.add_argument("--speed", type=float, default=1.0)
+    parser.add_argument("--speed", type=float, default=1.0, help="speed_factor (>1 = faster, <1 = slower)")
     parser.add_argument("--close", action="store_true", help="Just send /close and exit")
     args = parser.parse_args()
 
@@ -59,6 +61,8 @@ def main():
         requests.get(f"{args.host}/close")
         print("Sent /close.")
         return
+
+    speed_factor = validate_speed_factor(args.speed)
 
     with open(args.scenario) as f:
         scenario = json.load(f)
@@ -69,8 +73,10 @@ def main():
     # POST /init with full scenario payload
     init_payload = {
         "environment": scenario["environment"],
-        "duration": scenario["duration"],
+        "event_timeline_end": scenario["event_timeline_end"],
         "eval_sql": scenario.get("eval_sql", ""),
+        "condition_at": scenario.get("condition_at"),
+        "speed_factor": speed_factor,
         "events": scenario["events"],
     }
     resp = requests.post(f"{args.host}/init", json=init_payload)
@@ -81,11 +87,11 @@ def main():
     sim_time = data["simulation_time"]
     next_time = data["next_event_time"]
 
-    print(f"Initialized. Playback at {args.speed}x speed")
+    print(f"Initialized. speed_factor={speed_factor} (authored times divided by {speed_factor})")
 
     while next_time is not None:
-        sleep_for = (next_time - sim_time) / args.speed
-        print(f"  Sleeping {sleep_for:.1f}s (sim -> {next_time}s)")
+        sleep_for = next_time - sim_time
+        print(f"  Sleeping {sleep_for:.1f}s (wall -> {next_time}s)")
         time.sleep(sleep_for)
 
         resp = requests.get(f"{args.host}/advance", params={"time": next_time})

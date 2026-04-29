@@ -58,6 +58,12 @@ def post(path, json_body=None, **kwargs):
     return r.json()
 
 
+def touch_contact():
+    """Satisfy /evaluate's contact gate by visiting the form once."""
+    r = requests.get(f"{BASE}/contact", timeout=TIMEOUT)
+    r.raise_for_status()
+
+
 class IntegrationResult:
     def __init__(self, env_name):
         self.env_name = env_name
@@ -85,17 +91,18 @@ def build_init_body(scenario):
     """Build POST /init body from a scenario JSON."""
     return {
         "environment": scenario["environment"],
-        "duration": scenario["duration"],
+        "event_timeline_end": scenario["event_timeline_end"],
         "eval_sql": scenario.get("eval_sql", ""),
+        "condition_at": scenario.get("condition_at"),
         "events": scenario["events"],
     }
 
 
-def build_manual_init_body(environment, events, duration=120, eval_sql="SELECT 1"):
+def build_manual_init_body(environment, events, event_timeline_end=120, eval_sql="SELECT 1"):
     """Build POST /init body for targeted branch coverage tests."""
     return {
         "environment": environment,
-        "duration": duration,
+        "event_timeline_end": event_timeline_end,
         "eval_sql": eval_sql,
         "events": events,
     }
@@ -130,9 +137,11 @@ def test_micromail():
         t.check("POST /init", init_resp["success"] and init_resp["status"] == "ready",
                 f"status={init_resp.get('status')}")
 
-        # 3. Advance a few ticks -- bring in some emails
-        adv = get("/advance", params={"time": 30})
-        t.check("GET /advance?time=30", adv["success"],
+        # 3. Advance past the first event -- bring in some emails
+        first_event_time = scenario["events"][0]["time"]
+        adv_time = first_event_time + 5
+        adv = get("/advance", params={"time": adv_time})
+        t.check(f"GET /advance?time={adv_time}", adv["success"],
                 f"sim_time={adv.get('simulation_time')}, processed={len(adv.get('processed_events', []))}")
         events_processed = len(adv.get("processed_events", []))
         t.check("Events processed > 0", events_processed > 0, f"count={events_processed}")
@@ -153,7 +162,7 @@ def test_micromail():
         # 5. Advance past condition_at to deliver enough emails for the eval
         #    (must happen BEFORE mutations that reduce unread count)
         expected_emails = len(scenario["events"])
-        adv2 = get("/advance", params={"time": scenario["duration"]})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance to end", adv2["success"],
                 f"sim_time={adv2.get('simulation_time')}")
 
@@ -162,6 +171,7 @@ def test_micromail():
         t.check("All scenario emails delivered", full_count == expected_emails,
                 f"count={full_count}, expected={expected_emails}")
 
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("Evaluate success (unread threshold met)", eval_resp.get("success", False),
                 f"success={eval_resp.get('success')}, detail={eval_resp.get('detail')}")
@@ -267,9 +277,10 @@ def test_microchat():
                     f"count={len(filtered.get('messages', []))}")
 
         # 6. Advance to end and evaluate BEFORE mutations (reads would reduce unread count)
-        adv2 = get("/advance", params={"time": scenario["duration"]})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance to end", adv2["success"])
 
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate (unread threshold met)", eval_resp.get("success"),
                 f"success={eval_resp.get('success')}, detail={eval_resp.get('detail')}")
@@ -393,10 +404,11 @@ def test_microdin():
             t.check(f"POST /data/microdin-jobs/{jid}/apply", apply_resp.get("success"))
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -494,10 +506,11 @@ def test_microfy():
                     f"isFollowed={follow_resp.get('isFollowed')}")
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -594,10 +607,11 @@ def test_microgram():
                 f"isFollowed={follow_resp.get('isFollowed')}")
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -696,10 +710,11 @@ def test_microhood():
                     f"inWatchlist={toggle_resp.get('inWatchlist')}")
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 7. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -826,10 +841,11 @@ def test_microhub():
             t.check(f"POST /data/microhub-pulls/{prid}/comment", pr_comment.get("success"))
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -918,10 +934,11 @@ def test_microlendar():
             t.check(f"POST /data/microlendar-tasks/{tid}/complete", complete_resp.get("success"))
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -1008,10 +1025,11 @@ def test_microscholar():
             t.check(f"POST /data/microscholar-alerts/{aid}/read", read_resp.get("success"))
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")
@@ -1134,10 +1152,11 @@ def test_microtube():
             t.check(f"POST /data/microtube-notifications/{nid}/read", nread_resp.get("success"))
 
         # Advance to end
-        adv2 = get("/advance", params={"time": 120})
+        adv2 = get("/advance", params={"time": scenario["kill_at"]})
         t.check("GET /advance?time=120", adv2["success"])
 
         # 6. Evaluate
+        touch_contact()  # satisfy /evaluate's contact gate
         eval_resp = post("/evaluate")
         t.check("POST /evaluate", eval_resp.get("success") is not None,
                 f"success={eval_resp.get('success')}")

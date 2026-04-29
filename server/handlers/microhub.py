@@ -7,8 +7,10 @@
 
 from __future__ import annotations
 
+import bisect
 import json
 import sqlite3
+import time
 from typing import TYPE_CHECKING
 
 from server.catalogs import (
@@ -286,31 +288,43 @@ def _build_package_row(raw: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Star interpolation
+# Star waypoint interpolation
 # ---------------------------------------------------------------------------
+# Stars follow the same event-driven waypoint pattern as MicroHood prices:
+# scenarios declare [[time, stars], ...] and the server linearly interpolates
+# between adjacent waypoints on every read. This lets a scenario guarantee
+# "repository reaches N stars at t=T" — the count climbs continuously toward
+# N and crosses exactly at T — instead of stepping instantaneously.
 
-def _interpolate_star_count(session: Session) -> int:
-    """Return star count at current simulation_time by linear interpolation of waypoints."""
-    waypoints = session.microhub_star_waypoints
-    if not waypoints:
-        return session.microhub_star_count
-    t = session.simulation_time
-    # Before first waypoint
-    if t <= waypoints[0][0]:
+def _interpolate_stars(waypoints: list[list[float]], sim_time: float) -> float:
+    if sim_time <= waypoints[0][0]:
         return waypoints[0][1]
-    # After last waypoint
-    if t >= waypoints[-1][0]:
+    if sim_time >= waypoints[-1][0]:
         return waypoints[-1][1]
-    # Find bracketing pair
-    for i in range(len(waypoints) - 1):
-        t0, c0 = waypoints[i]
-        t1, c1 = waypoints[i + 1]
-        if t0 <= t <= t1:
-            if t1 == t0:
-                return c1
-            frac = (t - t0) / (t1 - t0)
-            return int(c0 + frac * (c1 - c0))
-    return waypoints[-1][1]
+    times = [w[0] for w in waypoints]
+    idx = bisect.bisect_right(times, sim_time) - 1
+    t0, v0 = waypoints[idx]
+    t1, v1 = waypoints[idx + 1]
+    return v0 + (v1 - v0) * (sim_time - t0) / (t1 - t0)
+
+
+def _add_star_waypoint(session: Session, time: float, stars: float) -> None:
+    waypoints = session.microhub_star_waypoints
+    # Seed (0, initial_star_count) if this is the first explicit waypoint at t > 0,
+    # so interpolation from the start is well-defined.
+    if not waypoints and time > 0:
+        waypoints.append([0.0, float(session.microhub_star_count)])
+    entry = [float(time), float(stars)]
+    idx = bisect.bisect_right([w[0] for w in waypoints], entry[0])
+    waypoints.insert(idx, entry)
+
+
+def _current_star_count(session: Session) -> int:
+    if session.microhub_star_waypoints:
+        base = _interpolate_stars(session.microhub_star_waypoints, session.simulation_time)
+    else:
+        base = session.microhub_star_count
+    return max(0, int(round(base + session.microhub_star_offset)))
 
 
 # ---------------------------------------------------------------------------
@@ -319,7 +333,7 @@ def _interpolate_star_count(session: Session) -> int:
 
 def compute_current_metrics(session: Session) -> dict:
     return {
-        "star_count": _interpolate_star_count(session),
+        "star_count": _current_star_count(session),
         "fork_count": session.microhub_fork_count,
         "watch_count": session.microhub_watch_count,
         "issue_count": len(session.microhub_issues),
@@ -345,14 +359,26 @@ def process_event(session: Session, event: dict) -> None:
             break  # Only one repo
 
         repo = session.microhub_repository
-        session.microhub_star_count = repo.get("stars", 0)
-        session.microhub_fork_count = repo.get("forks", 0)
-        session.microhub_watch_count = repo.get("watchers", 0)
+        session.microhub_star_count = payload.get("initial_stars", repo.get("stars", 0))
+        session.microhub_fork_count = payload.get("initial_forks", repo.get("forks", 0))
+        session.microhub_watch_count = payload.get("initial_watchers", repo.get("watchers", 0))
+        if "initial_commits" in payload:
+            repo["commits"] = int(payload["initial_commits"])
+        if "default_branch" in payload:
+            branch = str(payload["default_branch"])
+            repo["defaultBranch"] = branch
+            branches = list(repo.get("branches") or [])
+            if branch not in branches:
+                branches.insert(0, branch)
+                repo["branches"] = branches
 
-        # Star waypoints for time-based interpolation
+        # Bulk star waypoints: scenarios pass [[time, stars], ...] to drive the
+        # count continuously from the initial value to each target. Seed with
+        # (0, initial_stars) first so interpolation is defined from t=0.
         star_waypoints = payload.get("star_waypoints")
         if star_waypoints:
-            session.microhub_star_waypoints = [list(wp) for wp in star_waypoints]
+            for t, v in star_waypoints:
+                _add_star_waypoint(session, float(t), float(v))
 
         # Load files
         file_ids = payload.get("file_ids", ["*"])
@@ -515,17 +541,30 @@ def process_event(session: Session, event: dict) -> None:
         raw = MICROHUB_ISSUE_CATALOG.get(issue_id)
         if raw and issue_id not in session.microhub_issue_states:
             row = _build_issue_row(raw)
+            # Issue arrives mid-session, so override its catalog ordering: bump its
+            # number above all existing issues so it sorts to the top of the list,
+            # and stamp createdAt so it displays "just now" and ages in real time.
+            existing_numbers = [i.get("number", 0) for i in session.microhub_issues]
+            existing_numbers += [i.get("number", 0) for i in session.microhub_user_created_issues]
+            row["number"] = (max(existing_numbers) if existing_numbers else 0) + 1
+            row["createdAt"] = int(time.time() * 1000)
             session.microhub_issues.append(row)
             session.microhub_issue_states[issue_id] = {"state": row["state"]}
 
     elif etype == "stars_waypoint":
-        delta = event.get("payload", {}).get("delta", 0)
-        t = event.get("time", 0)
-        if session.microhub_star_waypoints:
-            last_count = session.microhub_star_waypoints[-1][1]
-        else:
-            last_count = session.microhub_star_count
-        session.microhub_star_waypoints.append([t, last_count + delta])
+        payload = event.get("payload", {})
+        event_time = float(event.get("time", 0.0))
+        if "stars" in payload:
+            _add_star_waypoint(session, event_time, float(payload["stars"]))
+        elif "delta" in payload:
+            # Resolve the current interpolated value first, then add the delta as
+            # a new waypoint so the curve continues from that point onward.
+            if session.microhub_star_waypoints:
+                current = _interpolate_stars(session.microhub_star_waypoints, event_time)
+            else:
+                current = float(session.microhub_star_count)
+            _add_star_waypoint(session, event_time, max(0.0, current + float(payload["delta"])))
+
 
 
 # ---------------------------------------------------------------------------
@@ -549,10 +588,10 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         [(f.get("id"), f.get("name"), f.get("path"), f.get("type"), f.get("parentId")) for f in session.microhub_files],
     )
 
-    conn.execute("CREATE TABLE issues (id TEXT, number INT, title TEXT, state TEXT, author TEXT, body TEXT)")
+    conn.execute("CREATE TABLE issues (id TEXT, number INT, title TEXT, state TEXT, author TEXT)")
     conn.executemany(
-        "INSERT INTO issues VALUES (?,?,?,?,?,?)",
-        [(i.get("id"), int(i.get("number", 0)), i.get("title"), i.get("state"), i.get("author"), i.get("body", "")) for i in session.microhub_issues],
+        "INSERT INTO issues VALUES (?,?,?,?,?)",
+        [(i.get("id"), int(i.get("number", 0)), i.get("title"), i.get("state"), i.get("author")) for i in session.microhub_issues],
     )
 
     conn.execute("CREATE TABLE issue_states (issue_id TEXT, state TEXT)")
@@ -623,7 +662,7 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         ("starred", "1" if session.microhub_starred else "0"),
         ("watched", "1" if session.microhub_watched else "0"),
         ("forked", "1" if session.microhub_forked else "0"),
-        ("star_count", str(_interpolate_star_count(session))),
+        ("star_count", str(_current_star_count(session))),
         ("fork_count", str(session.microhub_fork_count)),
         ("watch_count", str(session.microhub_watch_count)),
     ]:

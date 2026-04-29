@@ -74,15 +74,22 @@ def close():
 def build_init_body(scenario):
     return {
         "environment": scenario["environment"],
-        "duration": scenario["duration"],
+        "event_timeline_end": scenario["event_timeline_end"],
         "eval_sql": scenario.get("eval_sql", ""),
+        "condition_at": scenario.get("condition_at"),
         "events": scenario["events"],
     }
 
 
-def advance_all():
-    """Advance simulation time to 999999 to process all events at once."""
-    return get("/advance", params={"time": 999999})
+def advance_all(scenario):
+    """Advance simulation time to the scenario's kill_at so all events fire."""
+    return get("/advance", params={"time": scenario["kill_at"]})
+
+
+def touch_contact():
+    """Satisfy /evaluate's contact gate by visiting the form once."""
+    r = requests.get(f"{HOST}/contact", timeout=TIMEOUT)
+    r.raise_for_status()
 
 
 # ---------------------------------------------------------------------------
@@ -182,11 +189,12 @@ def run_one(scenario_path: Path) -> tuple:
         if not init_resp.get("success"):
             return (sid, False, f"init failed: {init_resp}")
 
-        advance_all()
+        advance_all(scenario)
 
         if sid in NEEDS_USER_ACTION:
             simulate_actions(sid)
 
+        touch_contact()  # satisfy /evaluate's contact gate
         result = post("/evaluate")
         passed = result.get("success", False)
         detail = result.get("detail", "")

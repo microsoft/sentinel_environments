@@ -48,14 +48,14 @@
       }
     },
     {
-      "time": 572.05,
+      "time": 584.58,
       "type": "new_video",
       "payload": {
         "video_id": "vid-gaming-03"
       }
     },
     {
-      "time": 572.05,
+      "time": 584.58,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-08"

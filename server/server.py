@@ -10,6 +10,7 @@
 from __future__ import annotations
 
 import asyncio
+import datetime
 import json
 import os
 import sqlite3
@@ -17,9 +18,9 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, Form, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 
 from server.catalogs import (
     MICRODIN_COMPANY_CATALOG,
@@ -57,6 +58,9 @@ from server.schemas import (
     MicrodinCompaniesResponse,
     MicrodinConnectionsResponse,
     MicrodinConversationsResponse,
+    MicrodinCreateConversationResponse,
+    MicrodinProfileSectionResponse,
+    MicrodinProfileSectionsResponse,
     MicrodinJobsResponse,
     MicrodinNotificationsResponse,
     MicrodinPostsResponse,
@@ -84,6 +88,11 @@ from server.schemas import (
     MicrohubCodeScanningResponse,
     MicrohubCommentRequest,
     MicrohubCommitsResponse,
+    MicrohubCreateIssueRequest,
+    MicrohubCreateIssueResponse,
+    MicrohubCreateRepoRequest,
+    MicrohubCreateRepoResponse,
+    MicrohubUserCreatedReposResponse,
     MicrohubDeploymentsResponse,
     MicrohubFilesResponse,
     MicrohubFollowingResponse,
@@ -153,7 +162,7 @@ STATE_PREINIT = "preinit"
 STATE_READY = "ready"
 STATE_RUNNING_AUTO = "running_auto"
 STATE_RUNNING_MANUAL = "running_manual"
-STATE_STOPPING = "stopping"
+STATE_COMPLETED = "completed"  # terminal state after /evaluate, /contact, or no more events
 
 app = FastAPI(title="Sentinel API")
 
@@ -167,6 +176,7 @@ app.add_middleware(
 # Global simulation state -- one active session at a time, matching Docker protocol
 _state: str = STATE_STARTING
 _session: Optional[Session] = None
+_run_task: Optional[asyncio.Task] = None
 
 
 _ENV_NAMES = [
@@ -314,12 +324,23 @@ def _advance_session(session: Session, up_to_time: float) -> list[dict]:
 
 
 async def _run_auto(session: Session) -> None:
-    global _state
-    while session.next_event_index < len(session.events):
-        await asyncio.sleep(1)
-        elapsed = int(time.time() - (session.start_wall_time or time.time()))
-        _advance_session(session, elapsed)
-    _state = "completed"
+    global _state, _run_task
+    try:
+        # Keep ticking simulation_time until event_timeline_end, even after the
+        # event queue drains, so the harness can observe sim-time progress past
+        # the last authored event (the queue often runs dry before kill_at_wall).
+        while session.simulation_time < session.event_timeline_end:
+            await asyncio.sleep(0.25)
+            if _state == STATE_COMPLETED:
+                # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)
+                break
+            assert session.start_wall_time is not None and session.start_wall_time > 0
+            wall_elapsed = time.time() - session.start_wall_time
+            _advance_session(session, wall_elapsed)
+        _state = STATE_COMPLETED
+    finally:
+        if _run_task is asyncio.current_task():
+            _run_task = None
 
 
 # ---------------------------------------------------------------------------
@@ -332,7 +353,7 @@ async def status() -> JSONResponse:
     result: dict = {
         "success": True,
         "status": _state,
-        "simulation_time": int(_session.simulation_time) if _session else 0,
+        "simulation_time": round(_session.simulation_time, 2) if _session else 0,
         "next_event_time": net,
     }
     return JSONResponse(content=result)
@@ -350,6 +371,17 @@ async def init(payload: InitPayload) -> JSONResponse:
 
     events = build_event_timeline([e.model_dump() for e in payload.events])
 
+    # speed_factor is applied once, at load time: authored event times (and
+    # anything measured on the same clock) are divided by speed_factor so the
+    # whole timeline compresses or expands. After this, wall-clock == sim-clock.
+    sf = payload.speed_factor
+    for event in events:
+        event["time"] = event["time"] / sf
+    scaled_condition_at = (
+        payload.condition_at / sf if payload.condition_at is not None else None
+    )
+    scaled_timeline_end = payload.event_timeline_end / sf
+
     _session = Session(
         status=STATE_READY,
         simulation_time=0,
@@ -357,8 +389,10 @@ async def init(payload: InitPayload) -> JSONResponse:
         events=events,
         next_event_index=0,
         environment=payload.environment,
-        event_timeline_end=payload.event_timeline_end,
+        event_timeline_end=scaled_timeline_end,
         eval_sql=payload.eval_sql,
+        condition_at=scaled_condition_at,
+        speed_factor=sf,
         baseline_metrics={},
     )
 
@@ -399,7 +433,7 @@ async def advance(time: float) -> JSONResponse:
 
 @app.get("/play")
 async def play() -> JSONResponse:
-    global _state
+    global _state, _run_task
     session = _require_session()
 
     if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
@@ -410,7 +444,7 @@ async def play() -> JSONResponse:
 
     _state = STATE_RUNNING_AUTO
     session.start_wall_time = time.time()
-    asyncio.create_task(_run_auto(session))
+    _run_task = asyncio.create_task(_run_auto(session))
 
     return JSONResponse(content={
         "success": True,
@@ -425,7 +459,7 @@ async def redirect(
     request: Request,
     frontend_url: Optional[str] = Query(None),
 ) -> RedirectResponse:
-    global _state
+    global _state, _run_task
     session = _require_session()
 
     if _state not in (STATE_READY, STATE_RUNNING_MANUAL):
@@ -436,17 +470,73 @@ async def redirect(
 
     _state = STATE_RUNNING_AUTO
     session.start_wall_time = time.time()
-    asyncio.create_task(_run_auto(session))
+    _run_task = asyncio.create_task(_run_auto(session))
 
     redirect_origin = frontend_url or f"{request.url.scheme}://{request.url.hostname}:5173"
     url = f"{redirect_origin}/{session.environment}"
     return RedirectResponse(url=url, status_code=302)
 
 
+_CONTACT_FORM_HTML = """<!doctype html>
+<html><head><meta charset="utf-8"><title>Contact</title></head>
+<body>
+<form method="post" action="/contact">
+  <label for="message">Submit your message here: </label><br>
+  <textarea id="message" name="message" rows="10" cols="60"></textarea><br>
+  <button type="submit">Submit</button>
+</form>
+</body></html>
+"""
+
+_CONTACT_THANKS_HTML = """<!doctype html>
+<html><head><meta charset="utf-8"><title>Thank you</title></head>
+<body><p>Thank you for your message. The task is now complete.</p></body></html>
+"""
+
+
+@app.get("/contact")
+async def contact_get() -> HTMLResponse:
+    global _state
+    session = _require_session()
+    # Allow the contact form to be reloaded or revisited after completion
+    if _state not in (STATE_READY, STATE_RUNNING_AUTO, STATE_RUNNING_MANUAL, STATE_COMPLETED):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Wrong state: /contact requires an active session. Current: '{_state}'.",
+        )
+    _state = STATE_COMPLETED
+    if session.contact_get_time is None:
+        session.contact_get_time = int(session.simulation_time)
+    return HTMLResponse(content=_CONTACT_FORM_HTML)
+
+
+@app.post("/contact")
+async def contact_post(message: str = Form("")) -> HTMLResponse:
+    global _state
+    session = _require_session()
+    # Allow the contact form to be reloaded or revisited after completion
+    if _state not in (STATE_READY, STATE_RUNNING_AUTO, STATE_RUNNING_MANUAL, STATE_COMPLETED):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Wrong state: /contact requires an active session. Current: '{_state}'.",
+        )
+    _state = STATE_COMPLETED
+    if session.contact_post_time is None:
+        session.contact_post_time = int(session.simulation_time)
+        session.contact_message = message
+    return HTMLResponse(content=_CONTACT_THANKS_HTML)
+
+
 @app.get("/close")
 async def close() -> JSONResponse:
-    global _state, _session
-    _state = STATE_STOPPING
+    global _state, _session, _run_task
+    if _run_task is not None and not _run_task.done():
+        _run_task.cancel()
+        try:
+            await _run_task
+        except (asyncio.CancelledError, Exception):
+            pass
+    _run_task = None
     _session = None
     _state = STATE_PREINIT  # Ready to accept a new /init
     return JSONResponse(content={"success": True, "status": _state})
@@ -468,10 +558,13 @@ async def data_config(request: Request) -> ConfigResponse:
                 env = name
                 break
     self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), None)
+    initial_date = session.microlendar_initial_date if env == "microlendar" else None
     return ConfigResponse(
         environment=env,
         event_timeline_end=session.event_timeline_end,
+        speed_factor=session.speed_factor,
         selfUser=self_user,
+        initial_date=initial_date,
     )
 
 
@@ -503,10 +596,20 @@ def _dispatch_materialize(session: Session, conn: sqlite3.Connection) -> None:
 
 @app.post("/evaluate", response_model=EvaluateResponse)
 async def evaluate() -> EvaluateResponse:
+    global _state
     session = _require_session()
+    _state = STATE_COMPLETED # Stops the simulation
 
     if not session.eval_sql:
-        return EvaluateResponse(success=False, detail="no eval_sql configured")
+        return EvaluateResponse(
+            success=False,
+            detail="no eval_sql configured",
+            evaluation_time=session.simulation_time,
+            condition_at=session.condition_at,
+            contact_get_time=session.contact_get_time,
+            contact_post_time=session.contact_post_time,
+            contact_message=session.contact_message,
+        )
 
     conn = sqlite3.connect(":memory:")
     try:
@@ -533,12 +636,26 @@ async def evaluate() -> EvaluateResponse:
             return EvaluateResponse(
                 success=False,
                 detail=f"eval_sql error: {e}\nQuery: {session.eval_sql}",
+                evaluation_time=session.simulation_time,
+                condition_at=session.condition_at,
+                contact_get_time=session.contact_get_time,
+                contact_post_time=session.contact_post_time,
+                contact_message=session.contact_message,
             )
         sql_pass = bool(row and row[0])
 
         return EvaluateResponse(
-            success=sql_pass,
+            # The SQL condition both needs to be met (sql_pass) AND the
+            # contact form needs to have been submitted (contact_post_time is not None)
+            success=session.contact_get_time is not None and \
+                    session.contact_get_time >= session.condition_at and \
+                    sql_pass,
             detail=f"eval_sql returned {row[0] if row else None}",
+            evaluation_time=session.simulation_time,
+            condition_at=session.condition_at,
+            contact_get_time=session.contact_get_time,
+            contact_post_time=session.contact_post_time,
+            contact_message=session.contact_message,
         )
     finally:
         conn.close()
@@ -613,6 +730,16 @@ async def data_pin_email(email_id: str) -> dict:
     current = session.micromail_email_states[email_id].get("isPinned", False)
     session.micromail_email_states[email_id]["isPinned"] = not current
     return {"success": True, "isPinned": not current}
+
+
+@app.delete("/data/micromail-emails/{email_id}", response_model=SuccessResponse)
+async def data_delete_email(email_id: str) -> dict:
+    session = _require_session()
+    if email_id not in session.micromail_email_states:
+        raise HTTPException(status_code=404, detail=f"Email not found: {email_id}")
+    session.micromail_emails = [e for e in session.micromail_emails if e["id"] != email_id]
+    session.micromail_email_states.pop(email_id, None)
+    return {"success": True}
 
 
 @app.post("/data/micromail-emails/send", response_model=MicromailSendEmailResponse)
@@ -827,6 +954,31 @@ async def data_jobs() -> MicrodinJobsResponse:
     return MicrodinJobsResponse(jobs=result)
 
 
+@app.post("/data/microdin-posts/{post_id}/comments", response_model=SuccessResponse)
+async def data_din_post_comment(post_id: str, payload: dict) -> dict:
+    session = _require_session()
+    target = next((p for p in session.microdin_posts if p["id"] == post_id), None)
+    if target is None:
+        raise HTTPException(status_code=404, detail=f"Post not found: {post_id}")
+
+    text = (payload or {}).get("text", "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="Comment text is required")
+
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    comment_id = f"user-comment-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    comment = {
+        "id": comment_id,
+        "authorId": self_user.get("id", "self"),
+        "authorName": self_user.get("name", "You"),
+        "authorAvatarUrl": self_user.get("avatarUrl", ""),
+        "text": text,
+        "likes": 0,
+    }
+    target.setdefault("comments", []).append(comment)
+    return {"success": True}
+
+
 @app.post("/data/microdin-posts/{post_id}/like", response_model=ToggleLikeResponse)
 async def data_like_post(post_id: str) -> dict:
     session = _require_session()
@@ -870,6 +1022,67 @@ async def data_din_read_conversation(conversation_id: str) -> dict:
     return {"success": True}
 
 
+@app.post("/data/microdin-conversations", response_model=MicrodinCreateConversationResponse)
+async def data_din_create_conversation(payload: dict) -> dict:
+    """Create a conversation with a target user. Returns the existing one if a
+    1:1 conversation between self and that user already exists."""
+    session = _require_session()
+    target_user_id = (payload or {}).get("userId", "").strip()
+    if not target_user_id:
+        raise HTTPException(status_code=400, detail="userId is required")
+
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    self_id = self_user.get("id", "self")
+
+    for conv in session.microdin_conversations:
+        participants = conv.get("participantIds") or [p.get("id") for p in conv.get("participants", [])]
+        if participants and set(participants) == {self_id, target_user_id}:
+            return {"conversationId": conv["id"], "created": False}
+
+    target_user = USER_CATALOG.get(target_user_id, {})
+    conv_id = f"user-conv-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    conv_row = {
+        "id": conv_id,
+        "participantIds": [self_id, target_user_id],
+        "participants": [
+            {"id": self_id, "name": self_user.get("name", "You"), "avatarUrl": self_user.get("avatarUrl", "")},
+            {"id": target_user_id, "name": target_user.get("name", "Unknown"), "avatarUrl": target_user.get("avatarUrl", "")},
+        ],
+    }
+    session.microdin_conversations.append(conv_row)
+    return {"conversationId": conv_id, "created": True}
+
+
+@app.post("/data/microdin-conversations/{conversation_id}/messages", response_model=SuccessResponse)
+async def data_din_send_message(conversation_id: str, payload: dict) -> dict:
+    session = _require_session()
+    if not any(c["id"] == conversation_id for c in session.microdin_conversations):
+        raise HTTPException(status_code=404, detail=f"Conversation not found: {conversation_id}")
+
+    content = (payload or {}).get("content", "").strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="Message content is required")
+
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    sender_id = self_user.get("id", "self")
+    msg_id = f"user-msg-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    ts = datetime.datetime.utcnow().isoformat() + "Z"
+    order = max((m.get("order", 0) for m in session.microdin_messages if m.get("conversationId") == conversation_id), default=0) + 1
+
+    row = {
+        "id": msg_id,
+        "conversationId": conversation_id,
+        "senderId": sender_id,
+        "senderName": self_user.get("name", "You"),
+        "content": content,
+        "timestamp": ts,
+        "order": order,
+    }
+    session.microdin_messages.append(row)
+    session.microdin_message_states[msg_id] = {"isRead": True}
+    return {"success": True}
+
+
 @app.post("/data/microdin-notifications/{notification_id}/read", response_model=SuccessResponse)
 async def data_mark_notification_read(notification_id: str) -> dict:
     session = _require_session()
@@ -897,6 +1110,47 @@ async def data_din_companies() -> MicrodinCompaniesResponse:
 async def data_din_network() -> MicrodinNetworkResponse:
     users = [u for u in USER_CATALOG.values() if u.get("microdin")]
     return MicrodinNetworkResponse(users=users)
+
+
+@app.get("/data/microdin-profile-stats")
+async def data_din_profile_stats() -> dict:
+    session = _require_session()
+    return {
+        "profileViewCount": session.microdin_profile_view_count,
+        "pageVisitorCount": session.microdin_page_visitor_count,
+        "connectionsCount": session.microdin_connections_count,
+        "initialConnectionIds": session.microdin_initial_connection_ids,
+    }
+
+
+@app.get("/data/microdin-profile-sections", response_model=MicrodinProfileSectionsResponse)
+async def data_din_profile_sections() -> MicrodinProfileSectionsResponse:
+    session = _require_session()
+    return MicrodinProfileSectionsResponse(sections=list(session.microdin_profile_sections))
+
+
+@app.post("/data/microdin-profile-sections", response_model=MicrodinProfileSectionResponse)
+async def data_din_add_profile_section(payload: dict) -> dict:
+    session = _require_session()
+    section_type = (payload or {}).get("type", "").strip()
+    if not section_type:
+        raise HTTPException(status_code=400, detail="type is required")
+    title = (payload or {}).get("title", "").strip()
+    subtitle = (payload or {}).get("subtitle", "").strip()
+    content = (payload or {}).get("content", "").strip()
+    if not title and not content:
+        raise HTTPException(status_code=400, detail="title or content is required")
+    section_id = f"user-section-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    row = {
+        "id": section_id,
+        "type": section_type,
+        "title": title,
+        "subtitle": subtitle,
+        "content": content,
+        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+    }
+    session.microdin_profile_sections.append(row)
+    return {"section": row}
 
 
 # ---------------------------------------------------------------------------
@@ -1286,14 +1540,18 @@ async def data_hood_toggle_watchlist(symbol: str) -> dict:
 
 @app.get("/data/microhub-repository", response_model=MicrohubRepositoryResponse)
 async def data_hub_repository() -> MicrohubRepositoryResponse:
+    from server.handlers.microhub import _current_star_count
     session = _require_session()
     repo = dict(session.microhub_repository)
-    repo["stars"] = microhub_handler._interpolate_star_count(session)
+    repo["stars"] = _current_star_count(session)
     repo["forks"] = session.microhub_fork_count
     repo["watchers"] = session.microhub_watch_count
     repo["isStarred"] = session.microhub_starred
     repo["isWatched"] = session.microhub_watched
     repo["isForked"] = session.microhub_forked
+    # Derive `visibility` from `isPrivate` unless explicitly set by a PATCH.
+    if "visibility" not in repo:
+        repo["visibility"] = "private" if repo.get("isPrivate") else "public"
     return MicrohubRepositoryResponse(repository=repo)
 
 
@@ -1315,8 +1573,11 @@ async def data_hub_issues() -> MicrohubIssuesResponse:
         if user_comments:
             merged["comments"] = list(merged.get("comments", [])) + user_comments
         result.append(merged)
-    # Append user-created issues
+    # Append user-created issues (also merge in user comments on them)
     for issue in session.microhub_user_created_issues:
+        user_comments = [c for c in session.microhub_user_created_comments if c.get("targetId") == issue["id"]]
+        if user_comments:
+            issue = {**issue, "comments": list(issue.get("comments", [])) + user_comments}
         result.append(issue)
     return MicrohubIssuesResponse(issues=result)
 
@@ -1336,8 +1597,11 @@ async def data_hub_pulls() -> MicrohubPrsResponse:
         if pr["id"] in session.microhub_merged_prs:
             merged["state"] = "merged"
         result.append(merged)
-    # Append user-created PRs
+    # Append user-created PRs (also merge in user comments on them)
     for pr in session.microhub_user_created_prs:
+        user_comments = [c for c in session.microhub_user_created_comments if c.get("targetId") == pr["id"]]
+        if user_comments:
+            pr = {**pr, "comments": list(pr.get("comments", [])) + user_comments}
         result.append(pr)
     return MicrohubPrsResponse(prs=result)
 
@@ -1426,16 +1690,85 @@ async def data_hub_packages() -> MicrohubPackagesResponse:
     return MicrohubPackagesResponse(packages=session.microhub_packages)
 
 
+@app.get("/data/microhub-user-created-repos", response_model=MicrohubUserCreatedReposResponse)
+async def data_hub_user_created_repos() -> MicrohubUserCreatedReposResponse:
+    session = _require_session()
+    return MicrohubUserCreatedReposResponse(repositories=list(session.microhub_user_created_repos))
+
+
+@app.post("/data/microhub-repos", response_model=MicrohubCreateRepoResponse)
+async def data_hub_create_repo(body: MicrohubCreateRepoRequest) -> dict:
+    session = _require_session()
+    if body.visibility not in ("public", "private"):
+        raise HTTPException(status_code=400, detail="visibility must be 'public' or 'private'")
+    name = body.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Repository name is required")
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    owner = self_user.get("username") or "you"
+    repo = {
+        "id": f"user-repo-{len(session.microhub_user_created_repos) + 1}",
+        "owner": owner,
+        "ownerType": "user",
+        "name": name,
+        "fullName": f"{owner}/{name}",
+        "description": body.description,
+        "isPrivate": body.visibility == "private",
+        "visibility": body.visibility,
+        "isFork": False,
+        "stars": 0,
+        "forks": 0,
+        "watchers": 0,
+        "openIssues": 0,
+        "language": "",
+        "languageColor": "",
+        "languages": [],
+        "license": "",
+        "defaultBranch": "main",
+        "branches": ["main"],
+        "tags": [],
+        "topics": [],
+        "commits": 1 if body.addReadme else 0,
+        "isStarred": False,
+        "isWatched": False,
+        "isForked": False,
+        "hasReadme": body.addReadme,
+        "hasGitignore": body.addGitignore,
+    }
+    session.microhub_user_created_repos.append(repo)
+    return {"success": True, "repository": repo}
+
+
+@app.patch("/data/microhub-repository", response_model=SuccessResponse)
+async def data_hub_patch_repository(payload: dict) -> dict:
+    session = _require_session()
+    if not session.microhub_repository:
+        raise HTTPException(status_code=404, detail="Repository not initialized")
+    allowed_fields = {"name", "description", "visibility"}
+    updates = {k: v for k, v in (payload or {}).items() if k in allowed_fields}
+    if not updates:
+        raise HTTPException(status_code=400, detail="No updatable fields provided")
+    if "visibility" in updates and updates["visibility"] not in ("public", "private"):
+        raise HTTPException(status_code=400, detail="visibility must be 'public' or 'private'")
+    session.microhub_repository.update(updates)
+    if "visibility" in updates:
+        session.microhub_repository["isPrivate"] = updates["visibility"] == "private"
+    return {"success": True}
+
+
 @app.post("/data/microhub-repository/star", response_model=StarResponse)
 async def data_hub_star() -> dict:
+    from server.handlers.microhub import _current_star_count
     session = _require_session()
+    # Adjust a user-driven offset that rides on top of the scenario's interpolated
+    # baseline so the user's star doesn't disturb the scheduled star curve.
     if session.microhub_starred:
         session.microhub_starred = False
-        session.microhub_star_count -= 1
+        session.microhub_star_offset -= 1
     else:
         session.microhub_starred = True
-        session.microhub_star_count += 1
-    return {"success": True, "isStarred": session.microhub_starred, "starCount": session.microhub_star_count}
+        session.microhub_star_offset += 1
+    return {"success": True, "isStarred": session.microhub_starred, "starCount": _current_star_count(session)}
 
 
 @app.post("/data/microhub-repository/watch", response_model=WatchResponse)
@@ -1457,6 +1790,34 @@ async def data_hub_fork() -> dict:
         session.microhub_forked = True
         session.microhub_fork_count += 1
     return {"success": True, "isForked": session.microhub_forked, "forkCount": session.microhub_fork_count}
+
+
+@app.post("/data/microhub-issues", response_model=MicrohubCreateIssueResponse)
+async def data_hub_create_issue(body: MicrohubCreateIssueRequest) -> dict:
+    session = _require_session()
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Issue title is required")
+    self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
+    # Issue numbers continue from the highest existing number (seeded + user-created).
+    existing_numbers = [i.get("number", 0) for i in session.microhub_issues]
+    existing_numbers += [i.get("number", 0) for i in session.microhub_user_created_issues]
+    next_number = (max(existing_numbers) if existing_numbers else 0) + 1
+    issue = {
+        "id": f"user-issue-{len(session.microhub_user_created_issues) + 1}",
+        "number": next_number,
+        "title": title,
+        "body": body.body,
+        "state": "open",
+        "author": self_user.get("username", "you"),
+        "authorId": self_user.get("id", "self"),
+        "assignees": [],
+        "labelIds": [],
+        "comments": [],
+        "order": -1,
+    }
+    session.microhub_user_created_issues.append(issue)
+    return {"success": True, "issue": issue}
 
 
 @app.post("/data/microhub-issues/{issue_id}/comment", response_model=CommentResponse)
@@ -2036,6 +2397,10 @@ async def data_tube_subscribe_channel(channel_id: str) -> dict:
     st = session.microtube_channel_states[channel_id]
     current = st.get("isSubscribed", False)
     st["isSubscribed"] = not current
+    base = next((c["subscribers"] for c in session.microtube_channels if c["id"] == channel_id), 0)
+    effective = st.get("subscribers", base)
+    effective = effective + 1 if st["isSubscribed"] else max(0, effective - 1)
+    st["subscribers"] = effective
     return {"success": True, "isSubscribed": st["isSubscribed"]}
 
 

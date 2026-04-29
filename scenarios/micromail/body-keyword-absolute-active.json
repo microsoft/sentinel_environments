@@ -2,7 +2,7 @@
   "id": "micromail-body-keyword-absolute-active",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I'm expecting an email about platform scalability \u2014 it might not be in the subject line, so you'll need to read through the emails.",
+  "prompt": "I'm expecting an email about platform scalability. Let me know as soon as it arrives. Note that 'platform scalability' might not be obvious from the subject, so you'll need to read through the emails.",
   "condition_at": 484.76,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -43,35 +43,30 @@
       }
     },
     {
-      "time": 547.49,
+      "time": 515.2,
       "type": "new_email",
       "payload": {
         "email_id": "base-06"
       }
     },
     {
-      "time": 610.22,
+      "time": 545.64,
       "type": "new_email",
       "payload": {
         "email_id": "base-07"
       }
     },
     {
-      "time": 672.95,
+      "time": 576.08,
       "type": "new_email",
       "payload": {
         "email_id": "base-08"
       }
     }
   ],
-  "annotator_notes": "",
   "taxonomy": {
-    "criteria": "objective",
     "milestone_type": "absolute",
-    "event_persistence": "persistent",
-    "monitoring_approach": "active",
-    "difficulty": "hard",
-    "distraction_level": "medium"
+    "monitoring_approach": "active"
   },
   "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE body LIKE '%platform scalability%') >= 1"
 }

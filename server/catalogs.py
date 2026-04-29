@@ -59,7 +59,6 @@ MICROGRAM_ACTIVITY_CATALOG: dict[str, dict] = {}        # activity_id → activi
 
 # MicroHood catalogs
 MICROHOOD_STOCK_CATALOG: dict[str, dict] = {}           # symbol → stock row
-MICROHOOD_TRACE_CATALOG: dict[str, list[float]] = {}    # symbol → [11 price points]
 MICROHOOD_WATCHLIST_CATALOG: dict[str, dict] = {}       # symbol → watchlist item
 MICROHOOD_NEWS_CATALOG: dict[str, dict] = {}            # id → news row
 
@@ -268,9 +267,6 @@ def _load_microhood_catalogs() -> None:
     for row in conn.execute("SELECT * FROM stocks"):
         d = dict(row)
         MICROHOOD_STOCK_CATALOG[d["symbol"]] = d
-
-    for row in conn.execute("SELECT * FROM price_traces"):
-        MICROHOOD_TRACE_CATALOG[row["symbol"]] = json.loads(row["trace_points"])
 
     for row in conn.execute("SELECT * FROM watchlist"):
         d = dict(row)

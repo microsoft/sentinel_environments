@@ -2,7 +2,7 @@
   "id": "microlendar-events-absolute-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "Keep an eye on my calendar and tell me when it reaches 24 events.",
+  "prompt": "Keep an eye on my calendar and tell me when it reaches 24 or more events.",
   "condition_at": 20.59,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -11,6 +11,8 @@
       "time": 0.0,
       "type": "preload_events",
       "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
         "event_ids": [
           "evt001",
           "evt002",
@@ -71,21 +73,21 @@
       }
     },
     {
-      "time": 195.44,
+      "time": 320.33,
       "type": "new_event",
       "payload": {
         "event_id": "today05"
       }
     },
     {
-      "time": 312.01,
+      "time": 520.17,
       "type": "new_event",
       "payload": {
         "event_id": "noise01"
       }
     },
     {
-      "time": 428.58,
+      "time": 720.0,
       "type": "new_event",
       "payload": {
         "event_id": "noise02"

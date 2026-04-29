@@ -785,13 +785,6 @@ CREATE TABLE IF NOT EXISTS stocks (
 );
 """
 
-MICROHOOD_TRACES_DDL = """\
-CREATE TABLE IF NOT EXISTS price_traces (
-    symbol TEXT PRIMARY KEY,
-    trace_points TEXT NOT NULL
-);
-"""
-
 MICROHOOD_WATCHLIST_DDL = """\
 CREATE TABLE IF NOT EXISTS watchlist (
     symbol TEXT PRIMARY KEY,
@@ -822,7 +815,6 @@ def build_microhood_db() -> None:
     conn = sqlite3.connect(MICROHOOD_DB)
 
     conn.execute(MICROHOOD_STOCKS_DDL)
-    conn.execute(MICROHOOD_TRACES_DDL)
     conn.execute(MICROHOOD_WATCHLIST_DDL)
     conn.execute(MICROHOOD_NEWS_DDL)
 
@@ -850,17 +842,6 @@ def build_microhood_db() -> None:
             ),
         )
     print(f"  stocks: {len(stocks)} rows")
-
-    # --- Price Traces ---
-    traces_path = hood_dir / "stock_price_traces.json"
-    with open(traces_path, encoding="utf-8") as fh:
-        traces = json.load(fh)
-    for symbol, points in traces.items():
-        conn.execute(
-            "INSERT INTO price_traces (symbol, trace_points) VALUES (?,?)",
-            (symbol, json.dumps(points)),
-        )
-    print(f"  price_traces: {len(traces)} rows")
 
     # --- Watchlist ---
     watchlist = _load_jsonl(hood_dir / "watchlist.jsonl")
@@ -1605,6 +1586,7 @@ CREATE TABLE IF NOT EXISTS papers (
     year INTEGER NOT NULL DEFAULT 0,
     snippet TEXT NOT NULL DEFAULT '',
     cited_by INTEGER NOT NULL DEFAULT 0,
+    versions INTEGER NOT NULL DEFAULT 0,
     pdf_link TEXT NOT NULL DEFAULT '',
     pdf_source TEXT NOT NULL DEFAULT '',
     is_book INTEGER NOT NULL DEFAULT 0,
@@ -1654,9 +1636,9 @@ def build_microscholar_db() -> None:
         conn.execute(
             """INSERT INTO papers
                (id, title, title_html, author_ids, authors, source, year,
-                snippet, cited_by, pdf_link, pdf_source, is_book,
+                snippet, cited_by, versions, pdf_link, pdf_source, is_book,
                 is_target_paper, task_type, "order")
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 p["id"],
                 p.get("title", ""),
@@ -1667,6 +1649,7 @@ def build_microscholar_db() -> None:
                 p.get("year", 0),
                 p.get("snippet", ""),
                 p.get("citedBy", 0),
+                p.get("versions", p.get("citedBy", 0) // 100 + 2),
                 p.get("pdfLink", ""),
                 p.get("pdfSource", ""),
                 int(p.get("isBook", False)),
@@ -1720,6 +1703,49 @@ def build_microscholar_db() -> None:
 # ---------------------------------------------------------------------------
 # microtube.db
 # ---------------------------------------------------------------------------
+
+
+def _mp4_duration_seconds(path: Path) -> float | None:
+    """Parse mp4 `mvhd` box to return duration in seconds. Returns None on parse failure."""
+    import struct
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    i = 0
+    n = len(data)
+    while i < n - 8:
+        size = struct.unpack(">I", data[i:i+4])[0]
+        box_type = data[i+4:i+8]
+        if box_type == b"moov":
+            j = i + 8
+            end = i + size
+            while j < end - 8:
+                sz2 = struct.unpack(">I", data[j:j+4])[0]
+                t2 = data[j+4:j+8]
+                if t2 == b"mvhd":
+                    version = data[j+8]
+                    if version == 1:
+                        timescale = struct.unpack(">I", data[j+28:j+32])[0]
+                        duration = struct.unpack(">Q", data[j+32:j+40])[0]
+                    else:
+                        timescale = struct.unpack(">I", data[j+20:j+24])[0]
+                        duration = struct.unpack(">I", data[j+24:j+28])[0]
+                    return duration / timescale if timescale else None
+                j += sz2 if sz2 > 0 else 8
+            return None
+        i += size if size > 0 else 8
+    return None
+
+
+def _format_duration(seconds: float) -> str:
+    total = int(round(seconds))
+    h, rem = divmod(total, 3600)
+    m, s = divmod(rem, 60)
+    if h:
+        return f"{h}:{m:02d}:{s:02d}"
+    return f"{m}:{s:02d}"
+
 
 MICROTUBE_VIDEOS_DDL = """\
 CREATE TABLE IF NOT EXISTS videos (
@@ -1800,7 +1826,16 @@ def build_microtube_db() -> None:
 
     # Videos
     videos = _load_jsonl(DATA_DIR / "catalogs" / "microtube" / "videos.jsonl")
+    probed = 0
     for v in videos:
+        duration = v.get("duration", "0:00")
+        video_src = v.get("videoSrc", "")
+        if video_src:
+            mp4_path = DATA_DIR / "public" / video_src
+            seconds = _mp4_duration_seconds(mp4_path)
+            if seconds is not None and seconds > 0:
+                duration = _format_duration(seconds)
+                probed += 1
         conn.execute(
             """INSERT INTO videos
                (id, task, "order", channel_id, title, description, views, likes,
@@ -1818,7 +1853,7 @@ def build_microtube_db() -> None:
                 v.get("likes", 0),
                 v.get("dislikes", 0),
                 v.get("comments", 0),
-                v.get("duration", "0:00"),
+                duration,
                 v.get("thumbnailColor", "#333"),
                 v.get("thumbnailSrc", ""),
                 v.get("videoSrc", ""),
@@ -1827,6 +1862,7 @@ def build_microtube_db() -> None:
                 int(v.get("isShort", False)),
             ),
         )
+    print(f"  videos: {len(videos)} rows ({probed} durations probed from mp4)")
 
     # Channels
     channels = _load_jsonl(DATA_DIR / "catalogs" / "microtube" / "channels.jsonl")

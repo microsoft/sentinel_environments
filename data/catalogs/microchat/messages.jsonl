@@ -1,9 +1,9 @@
-{"id": "dm-01", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Hey, do you have a minute to discuss the API changes?"}
-{"id": "dm-02", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "I've reviewed the pull request and left a few comments"}
-{"id": "dm-03", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "The staging deploy went through cleanly", "isRead": true}
-{"id": "dm-04", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Can you check if the test suite passes on your end?"}
-{"id": "dm-05", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "I'll handle the migration script, don't worry about it", "isRead": true}
-{"id": "dm-06", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Let me know when you're done with the code review"}
+{"id": "dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Hey, do you have a minute to discuss the API changes?"}
+{"id": "dm-02", "sender_id": "user001", "conversation_id": "direct-alex", "content": "I've reviewed the pull request and left a few comments"}
+{"id": "dm-03", "sender_id": "user001", "conversation_id": "direct-alex", "content": "The staging deploy went through cleanly", "isRead": true}
+{"id": "dm-04", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Can you check if the test suite passes on your end?"}
+{"id": "dm-05", "sender_id": "user001", "conversation_id": "direct-alex", "content": "I'll handle the migration script, don't worry about it", "isRead": true}
+{"id": "dm-06", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Let me know when you're done with the code review"}
 {"id": "dm-07", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "Did you get a chance to look at the design specs?"}
 {"id": "dm-08", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "The stakeholders approved the new dashboard layout"}
 {"id": "dm-09", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "I've updated the project timeline in Notion", "isRead": true}
@@ -22,22 +22,22 @@
 {"id": "dm-22", "sender_id": "user005", "conversation_id": "direct-edward", "content": "The design review went well, only minor feedback", "isRead": true}
 {"id": "dm-23", "sender_id": "user005", "conversation_id": "direct-edward", "content": "I shared the prototype link in the design channel", "isRead": true}
 {"id": "dm-24", "sender_id": "user005", "conversation_id": "direct-edward", "content": "Let me know your thoughts on the color scheme"}
-{"id": "dm-25", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "The quarterly review deck needs one more section"}
-{"id": "dm-26", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "Leadership approved the headcount request"}
-{"id": "dm-27", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "Can we discuss the roadmap changes this week?"}
-{"id": "dm-28", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "The board meeting summary is ready for your review", "isRead": true}
-{"id": "dm-29", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "I've shared the OKRs draft with the team", "isRead": true}
-{"id": "dm-30", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "The data pipeline is running smoothly after the fix"}
-{"id": "dm-31", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "I found an interesting pattern in the usage metrics"}
-{"id": "dm-32", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "Can you take a look at the query optimization I pushed?"}
-{"id": "dm-33", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "The ML model accuracy improved by 3% with the new features", "isRead": true}
-{"id": "dm-34", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "I'll set up the A/B test framework this afternoon", "isRead": true}
-{"id": "dm-35", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "Quick thought on the data warehouse migration"}
-{"id": "dm-36", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "The server migration is scheduled for this weekend"}
-{"id": "dm-37", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "I've patched the security vulnerability in the auth module"}
-{"id": "dm-38", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "Can you verify the SSL cert renewal went through?"}
-{"id": "dm-39", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "The load balancer config looks good now", "isRead": true}
-{"id": "dm-40", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "Monitoring shows zero downtime since the last deploy", "isRead": true}
+{"id": "dm-25", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "The quarterly review deck needs one more section"}
+{"id": "dm-26", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "Leadership approved the headcount request"}
+{"id": "dm-27", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "Can we discuss the roadmap changes this week?"}
+{"id": "dm-28", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "The board meeting summary is ready for your review", "isRead": true}
+{"id": "dm-29", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "I've shared the OKRs draft with the team", "isRead": true}
+{"id": "dm-30", "sender_id": "user003", "conversation_id": "direct-charles", "content": "The data pipeline is running smoothly after the fix"}
+{"id": "dm-31", "sender_id": "user003", "conversation_id": "direct-charles", "content": "I found an interesting pattern in the usage metrics"}
+{"id": "dm-32", "sender_id": "user003", "conversation_id": "direct-charles", "content": "Can you take a look at the query optimization I pushed?"}
+{"id": "dm-33", "sender_id": "user003", "conversation_id": "direct-charles", "content": "The ML model accuracy improved by 3% with the new features", "isRead": true}
+{"id": "dm-34", "sender_id": "user003", "conversation_id": "direct-charles", "content": "I'll set up the A/B test framework this afternoon", "isRead": true}
+{"id": "dm-35", "sender_id": "user003", "conversation_id": "direct-charles", "content": "Quick thought on the data warehouse migration"}
+{"id": "dm-36", "sender_id": "user009", "conversation_id": "direct-ian", "content": "The server migration is scheduled for this weekend"}
+{"id": "dm-37", "sender_id": "user009", "conversation_id": "direct-ian", "content": "I've patched the security vulnerability in the auth module"}
+{"id": "dm-38", "sender_id": "user009", "conversation_id": "direct-ian", "content": "Can you verify the SSL cert renewal went through?"}
+{"id": "dm-39", "sender_id": "user009", "conversation_id": "direct-ian", "content": "The load balancer config looks good now", "isRead": true}
+{"id": "dm-40", "sender_id": "user009", "conversation_id": "direct-ian", "content": "Monitoring shows zero downtime since the last deploy", "isRead": true}
 {"id": "grp-01", "sender_id": "user001", "conversation_id": "group-platform-team", "content": "Just pushed the new caching layer, please pull and test"}
 {"id": "grp-02", "sender_id": "user009", "conversation_id": "group-platform-team", "content": "Looks good, I'll run the integration tests now"}
 {"id": "grp-03", "sender_id": "user013", "conversation_id": "group-platform-team", "content": "Can we get this into the release branch by EOD?"}
@@ -113,14 +113,14 @@
 {"id": "mtg-23", "sender_id": "user023", "conversation_id": "meeting-incident-response", "content": "Root cause was a memory leak in the cache layer, patched now", "isRead": true}
 {"id": "mtg-24", "sender_id": "user015", "conversation_id": "meeting-budget-planning", "content": "We have 15% more budget for tooling this quarter"}
 {"id": "mtg-25", "sender_id": "user018", "conversation_id": "meeting-budget-planning", "content": "Let's allocate a portion to the observability stack upgrade", "isRead": true}
-{"id": "urg-dm-01", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Production is throwing 500 errors on the checkout endpoint, need to look at this now", "isUrgent": true}
+{"id": "urg-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Production is throwing 500 errors. Please look at this now.", "isUrgent": true}
 {"id": "urg-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "The client demo is in 30 minutes and the staging server is down", "isUrgent": true}
 {"id": "urg-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "We need to roll back the last deploy immediately, it broke the login flow", "isUrgent": true}
 {"id": "urg-dm-04", "sender_id": "user005", "conversation_id": "direct-edward", "content": "The design assets for tomorrow's launch are still missing, need them ASAP", "isUrgent": true}
-{"id": "urg-dm-05", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "Board meeting moved to today at 3 PM, need the deck updated now", "isUrgent": true}
-{"id": "urg-dm-06", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "The data pipeline is corrupting records, shut it down immediately", "isUrgent": true}
-{"id": "urg-dm-07", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "Critical security vulnerability found in the auth library, patch needed today", "isUrgent": true}
-{"id": "urg-dm-08", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Customer escalation from our biggest account, they need a response within the hour", "isUrgent": true}
+{"id": "urg-dm-05", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "Board meeting moved to today at 3 PM, need the deck updated now", "isUrgent": true}
+{"id": "urg-dm-06", "sender_id": "user003", "conversation_id": "direct-charles", "content": "The data pipeline is corrupting records, shut it down immediately", "isUrgent": true}
+{"id": "urg-dm-07", "sender_id": "user009", "conversation_id": "direct-ian", "content": "Critical security vulnerability found in the auth library, patch needed today", "isUrgent": true}
+{"id": "urg-dm-08", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Customer escalation from our biggest account, they need a response within the hour", "isUrgent": true}
 {"id": "urg-dm-09", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "The investor meeting got pushed up to tomorrow, we need the financials ready tonight", "isUrgent": true}
 {"id": "urg-dm-10", "sender_id": "user013", "conversation_id": "direct-michael", "content": "CI pipeline is completely broken, no one can merge. Looking into it now", "isUrgent": true}
 {"id": "urg-grp-01", "sender_id": "user001", "conversation_id": "group-platform-team", "content": "Alert: API latency spiked to 5 seconds, investigating root cause now", "isUrgent": true}
@@ -133,14 +133,14 @@
 {"id": "urg-grp-08", "sender_id": "user002", "conversation_id": "group-q4-planning", "content": "The CEO wants revised Q4 projections by end of day, all hands needed", "isUrgent": true}
 {"id": "urg-grp-09", "sender_id": "user009", "conversation_id": "group-backend-guild", "content": "Memory leak in production causing OOM kills every 2 hours, need to triage", "isUrgent": true}
 {"id": "urg-grp-10", "sender_id": "user019", "conversation_id": "group-mobile-team", "content": "App store rejected our latest build, we need to fix and resubmit today", "isUrgent": true}
-{"id": "mention-dm-01", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Hey @you, can you review my PR before the cutoff? You have the most context on the payments module", "mentionsMe": true}
+{"id": "mention-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Hey @you, can you review my PR before the cutoff? You have the most context on the payments module", "mentionsMe": true}
 {"id": "mention-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "@you I need your sign-off on the product spec before I send it to engineering", "mentionsMe": true}
 {"id": "mention-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "@you you're the DRI for the API migration, can you share the status update?", "mentionsMe": true}
 {"id": "mention-dm-04", "sender_id": "user005", "conversation_id": "direct-edward", "content": "Hey @you, the design review needs your feedback on the accessibility improvements", "mentionsMe": true}
-{"id": "mention-dm-05", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "@you can you present the engineering metrics at the all-hands next week?", "mentionsMe": true}
-{"id": "mention-dm-06", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "@you the data team needs your help setting up the feature store permissions", "mentionsMe": true}
-{"id": "mention-dm-07", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "Hey @you, you need to rotate your AWS credentials, they expire tomorrow", "mentionsMe": true}
-{"id": "mention-dm-08", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "@you the tech lead meeting is asking for your input on the microservices proposal", "mentionsMe": true}
+{"id": "mention-dm-05", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "@you can you present the engineering metrics at the all-hands next week?", "mentionsMe": true}
+{"id": "mention-dm-06", "sender_id": "user003", "conversation_id": "direct-charles", "content": "@you the data team needs your help setting up the feature store permissions", "mentionsMe": true}
+{"id": "mention-dm-07", "sender_id": "user009", "conversation_id": "direct-ian", "content": "Hey @you, you need to rotate your AWS credentials, they expire tomorrow", "mentionsMe": true}
+{"id": "mention-dm-08", "sender_id": "user001", "conversation_id": "direct-alex", "content": "@you the tech lead meeting is asking for your input on the microservices proposal", "mentionsMe": true}
 {"id": "mention-dm-09", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "@you can you draft the user story for the notification feature? You had the best ideas in the brainstorm", "mentionsMe": true}
 {"id": "mention-dm-10", "sender_id": "user013", "conversation_id": "direct-michael", "content": "Hey @you, can you join the incident bridge? We need someone from your team", "mentionsMe": true}
 {"id": "mention-grp-01", "sender_id": "user001", "conversation_id": "group-platform-team", "content": "@you can you take point on the database sharding investigation?", "mentionsMe": true}
@@ -158,14 +158,14 @@
 {"id": "mention-grp-13", "sender_id": "user009", "conversation_id": "group-platform-team", "content": "@you the rate limiter config needs your review, it's blocking the partner integration", "mentionsMe": true}
 {"id": "mention-grp-14", "sender_id": "user020", "conversation_id": "group-external-partners", "content": "@you the partner is asking about the API changes you mentioned in the call", "mentionsMe": true}
 {"id": "mention-grp-15", "sender_id": "user013", "conversation_id": "group-q4-planning", "content": "@you leadership wants your perspective on the build-vs-buy analysis for the analytics tool", "mentionsMe": true}
-{"id": "att-dm-01", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Here's the architecture diagram I mentioned", "hasAttachment": true}
+{"id": "att-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Here's the architecture diagram I mentioned", "hasAttachment": true}
 {"id": "att-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "Sharing the updated project timeline spreadsheet", "hasAttachment": true}
 {"id": "att-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "Attached the sprint retrospective notes from today", "hasAttachment": true}
 {"id": "att-dm-04", "sender_id": "user005", "conversation_id": "direct-edward", "content": "Here are the final mockups for the settings page", "hasAttachment": true}
-{"id": "att-dm-05", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "The quarterly report draft is attached for your review", "hasAttachment": true}
-{"id": "att-dm-06", "sender_id": "user003", "conversation_id": "direct-carlos", "content": "Sharing the data analysis results in the attached PDF", "hasAttachment": true}
-{"id": "att-dm-07", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "Here's the server monitoring report for this week", "hasAttachment": true}
-{"id": "att-dm-08", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "Attached the performance profiling results", "hasAttachment": true}
+{"id": "att-dm-05", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "The quarterly report draft is attached for your review", "hasAttachment": true}
+{"id": "att-dm-06", "sender_id": "user003", "conversation_id": "direct-charles", "content": "Sharing the data analysis results in the attached PDF", "hasAttachment": true}
+{"id": "att-dm-07", "sender_id": "user009", "conversation_id": "direct-ian", "content": "Here's the server monitoring report for this week", "hasAttachment": true}
+{"id": "att-dm-08", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Attached the performance profiling results", "hasAttachment": true}
 {"id": "att-dm-09", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "Here's the competitive analysis document", "hasAttachment": true}
 {"id": "att-dm-10", "sender_id": "user013", "conversation_id": "direct-michael", "content": "Sharing the release notes draft for your review", "hasAttachment": true}
 {"id": "att-grp-01", "sender_id": "user001", "conversation_id": "group-platform-team", "content": "Uploading the system design doc for the new API gateway", "hasAttachment": true}
@@ -178,21 +178,21 @@
 {"id": "att-grp-08", "sender_id": "user023", "conversation_id": "group-security-team", "content": "Uploading the vulnerability scan results from this week", "hasAttachment": true}
 {"id": "att-grp-09", "sender_id": "user033", "conversation_id": "group-backend-guild", "content": "Attached the API benchmarking results spreadsheet", "hasAttachment": true}
 {"id": "att-grp-10", "sender_id": "user016", "conversation_id": "group-ux-research", "content": "Here's the compiled user interview transcript document", "hasAttachment": true}
-{"id": "urg-mention-dm-01", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "@you URGENT: the payment processing service is down and customers are reporting failed transactions. Need you to investigate now", "isUrgent": true, "mentionsMe": true}
+{"id": "urg-mention-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "@you URGENT: the payment processing service is down and customers are reporting failed transactions. Need you to investigate now", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "@you the VP just asked for the product roadmap and it has errors. Need you to fix it in the next 20 minutes", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "@you critical: your service is throwing unhandled exceptions in production. Customers are affected. Please fix ASAP", "isUrgent": true, "mentionsMe": true}
-{"id": "urg-mention-dm-04", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "@you the SSL certificate expired on the main domain. Site is showing security warnings. Need you to renew immediately", "isUrgent": true, "mentionsMe": true}
-{"id": "urg-mention-dm-05", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "@you the board is asking about the engineering budget overrun. Need your explanation within the hour", "isUrgent": true, "mentionsMe": true}
+{"id": "urg-mention-dm-04", "sender_id": "user009", "conversation_id": "direct-ian", "content": "@you the SSL certificate expired on the main domain. Site is showing security warnings. Need you to renew immediately", "isUrgent": true, "mentionsMe": true}
+{"id": "urg-mention-dm-05", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "@you the board is asking about the engineering budget overrun. Need your explanation within the hour", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-grp-01", "sender_id": "user009", "conversation_id": "group-platform-team", "content": "@you the API is returning incorrect data for the billing endpoint. Customers are being overcharged. Fix this NOW", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-grp-02", "sender_id": "user042", "conversation_id": "group-frontend-crew", "content": "@you the login page is completely broken on production. Users can't sign in. This is a P0", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-grp-03", "sender_id": "user007", "conversation_id": "group-devops", "content": "CRITICAL: @you the deployment you pushed is causing cascading failures. We need a rollback immediately", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-grp-04", "sender_id": "user003", "conversation_id": "group-data-science", "content": "@you the data pipeline you own is duplicating records into the production database. Stop it and fix ASAP", "isUrgent": true, "mentionsMe": true}
 {"id": "urg-mention-grp-05", "sender_id": "user023", "conversation_id": "group-security-team", "content": "@you we detected unauthorized access attempts using credentials from your service. Need you to investigate immediately", "isUrgent": true, "mentionsMe": true}
-{"id": "urg-att-dm-01", "sender_id": "user001", "conversation_id": "direct-aaron", "content": "URGENT: attached the incident report, need your review before we send to the client in 1 hour", "isUrgent": true, "hasAttachment": true}
+{"id": "urg-att-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "URGENT: attached the incident report, need your review before we send to the client in 1 hour", "isUrgent": true, "hasAttachment": true}
 {"id": "urg-att-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "The revised proposal is attached, client needs it by noon today. Please review immediately", "isUrgent": true, "hasAttachment": true}
 {"id": "urg-att-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "Critical bug report attached. The repro steps are clear, need a fix before the next deploy window", "isUrgent": true, "hasAttachment": true}
-{"id": "urg-att-dm-04", "sender_id": "user015", "conversation_id": "direct-olivia", "content": "URGENT: attached the updated board presentation. Need final approval in the next 30 minutes", "isUrgent": true, "hasAttachment": true}
-{"id": "urg-att-dm-05", "sender_id": "user009", "conversation_id": "direct-ivan", "content": "Sharing the security audit findings, several critical items need immediate remediation", "isUrgent": true, "hasAttachment": true}
+{"id": "urg-att-dm-04", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "URGENT: attached the updated board presentation. Need final approval in the next 30 minutes", "isUrgent": true, "hasAttachment": true}
+{"id": "urg-att-dm-05", "sender_id": "user009", "conversation_id": "direct-ian", "content": "Sharing the security audit findings, several critical items need immediate remediation", "isUrgent": true, "hasAttachment": true}
 {"id": "urg-att-grp-01", "sender_id": "user007", "conversation_id": "group-devops", "content": "URGENT: attached the post-mortem from last night's outage. Action items need owners by EOD", "isUrgent": true, "hasAttachment": true}
 {"id": "urg-att-grp-02", "sender_id": "user013", "conversation_id": "group-platform-team", "content": "Critical: attached the performance degradation analysis. We need to fix this before the traffic spike tomorrow", "isUrgent": true, "hasAttachment": true}
 {"id": "urg-att-grp-03", "sender_id": "user002", "conversation_id": "group-product-launch", "content": "URGENT: the launch FAQ document needs immediate review. Attached the latest version, PR goes out in 2 hours", "isUrgent": true, "hasAttachment": true}

@@ -2,7 +2,7 @@
   "id": "microgram-follows-absolute-active",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
-  "prompt": "As new creators show up in my feed, open their profiles and follow the first 3.",
+  "prompt": "For the next 3 new creators to appear in my feed, open their profiles and follow them.",
   "condition_at": 80.04,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -65,7 +65,7 @@
       }
     },
     {
-      "time": 222.96,
+      "time": 720.0,
       "type": "new_post",
       "payload": {
         "post_id": "post-karachi-clifton-beach-sunset"

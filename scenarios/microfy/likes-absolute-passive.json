@@ -2,7 +2,7 @@
   "id": "microfy-likes-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "Keep checking for new songs, and like the first 4 that show up.",
+  "prompt": "Keep checking for new trending songs. Like the next 4 new songs to appear.",
   "condition_at": 92.37,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -79,14 +79,14 @@
       }
     },
     {
-      "time": 249.28,
+      "time": 406.18,
       "type": "new_track",
       "payload": {
         "track_id": "track-045"
       }
     },
     {
-      "time": 406.19,
+      "time": 720.0,
       "type": "new_track",
       "payload": {
         "track_id": "track-046"

@@ -31,7 +31,7 @@ This benchmark provides a controlled testbed to evaluate these failure modes and
 
 ## Benchmark Structure
 
-The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with a set of monitoring scenarios at configurable durations. The target matrix is **8 scenarios per environment** (80 total when fully populated); see [Task Dimensions](#task-dimensions) below.
+The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with a set of monitoring scenarios. Every scenario shares a fixed event-timeline budget; per-scenario variation comes from a randomized `condition_at` target and a runtime `speed_factor` that scales wall-clock time. The target matrix is **8 scenarios per environment** (80 total when fully populated); see [Task Dimensions](#task-dimensions) below.
 
 ### Environments
 
@@ -67,9 +67,17 @@ The four cells are `passive-absolute`, `passive-relative`, `active-absolute`, `a
 
 Scenario filenames follow `<target>-<criteria>-<activity>.json` under `scenarios/<env>/`. Each scenario's internal `id` is env-prefixed (e.g. `micromail-body-keyword-absolute-active`). Present-day scenario counts per environment are uneven while the matrix is still being filled out.
 
-### Durations
+### Timing
 
-All tasks are **time-based**: the success condition becomes satisfiable at `condition_at` seconds of simulation time, and the task times out at `duration` seconds. Tasks cannot complete early. Both fields are configurable per scenario -- scale up for stress-testing persistence or scale down for rapid iteration.
+All tasks are **time-based**. Each benchmark scenario carries three timing fields (all in simulation-seconds):
+
+- **`condition_at`** -- the earliest sim-time at which the success condition can become true. Randomized per scenario in `[10, 600]`, deterministic from `scenario_id` (so adding a new scenario never reshuffles existing ones). Tasks cannot complete before this point.
+- **`kill_at`** -- sim-time at which the harness terminates the agent's run. Constant across all scenarios (`630`). The agent's observable window is `[0, kill_at]`.
+- **`event_timeline_end`** -- right-edge of the authored event timeline (`720`). Constant across all scenarios.
+
+Invariant: `0 < condition_at <= kill_at <= event_timeline_end`. Enforced by `tests/test_scenario_schema.py`.
+
+The knob for wall-clock scaling is not in the scenario JSON -- it's the runtime **`speed_factor`** (see [Runtime tuning](#runtime-tuning)).
 
 ### Example Scenario
 
@@ -80,15 +88,15 @@ Each task is defined as a JSON file in `scenarios/<env>/`:
   "id": "micromail-junk-relative-passive",
   "environment": "micromail",
   "prompt": "Keep an eye on the junk folder for me, tell me when 3 more emails end up there.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 312.47,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [ { "time": 0, "type": "preload_emails", "payload": { ... } }, ... ],
   "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_junk_count') + 3"
 }
 ```
 
-- `condition_at` -- simulation-time (seconds) at which the success condition first becomes satisfiable.
-- `duration` -- total simulation-time budget before the task times out.
+- `condition_at`, `kill_at`, `event_timeline_end` -- as above. Don't hand-edit; re-run `python server/scripts/randomize_condition_at.py` if `scenario_id` changes.
 - `events` -- deterministic list of state changes; `time` is in simulation-seconds.
 - `eval_sql` -- the SQL query run against a materialized snapshot of session state at `/evaluate`; a truthy result counts as success.
 
@@ -113,7 +121,7 @@ The `eval_sql` is orthogonal to passive/active: it always checks the monitored c
 ### Anti-Gaming Measures
 
 - **Server-side state**: All task state is managed by the API server, not exposed to the agent
-- **Deterministic timing**: Events occur at predictable intervals based on scenario duration
+- **Deterministic timing**: Events fire at fixed sim-times; `condition_at` is randomized per scenario (seeded by `scenario_id`) so a single "sleep until t=X" strategy cannot win the suite
 - **SQL-based evaluation**: Success is determined by `eval_sql` queries against materialized session state
 
 ### Recommended Dataset Splits
@@ -126,7 +134,7 @@ For system development, split at the **environment level**:
 | Validation | 2 | 16 | System selection/tuning |
 | Held-out Test | 1 | 8 | Blind evaluation (not released) |
 
-Scenario counts assume the 8-per-env target matrix. Per-environment scaling comes from configurable scenario durations, not from adding more variants.
+Scenario counts assume the 8-per-env target matrix. Wall-clock scaling comes from the runtime `speed_factor` knob, not from per-scenario duration fields.
 
 ## Quick Start
 
@@ -189,6 +197,11 @@ The eval harness discovers all scenario JSON files, runs each against an agent s
 ```yaml
 host: http://localhost:8000
 
+# Wall-clock vs sim-clock exchange rate. 1.0 = real-time (default), >1 is slower,
+# <1 is faster, floor is 0.25. Harness sizes the per-task subprocess timeout as
+# MAX_CONDITION_AT * speed_factor + REACTION_WINDOW (see Runtime tuning below).
+speed_factor: 1.0
+
 # Command to launch your agent. Placeholders:
 #   __TASK_URL__    - replaced with the task start URL (GET triggers simulation start + redirect)
 #   __TASK_PROMPT__ - replaced with the task's natural language prompt
@@ -197,17 +210,31 @@ host: http://localhost:8000
 agent_subprocess: ["your-agent-command", "--url", "__TASK_URL__", "--prompt", "__TASK_PROMPT__"]
 ```
 
+### Runtime tuning
+
+`speed_factor` controls the exchange rate between wall-clock time and simulation time: `sim_time = wall_elapsed / speed_factor`. It's a top-level key in `eval_config.yaml` (and `run_simulation --speed` for local playback) -- never stored in scenario JSON.
+
+| speed_factor | Effect | kill_at_wall (subprocess timeout) |
+|--------------|--------|-----------------------------------|
+| `1.0` (default) | Real-time | 630s |
+| `2.0` | 1 sim-sec = 2 wall-sec (slower) | 1230s |
+| `0.25` (floor) | 1 wall-sec = 4 sim-sec (fastest allowed) | 180s |
+
+The 30-second reaction window past `condition_at` stays constant in wall-clock across all speeds; only the pre-target portion scales. All constants live in `server/timing.py`.
+
+The harness exposes two subcommands: `run` (execute scenarios) and `grade` (summarize a completed run).
+
 **Run:**
 
 ```bash
-python -m server.eval_harness <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
+python -m server.eval_harness run <run_name> [--config eval_config.yaml] [--api-url http://localhost:8000]
 ```
 
 Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
 
 | File | Description |
 |------|-------------|
-| `results.json` | Evaluation result (`success`, `detail`) |
+| `results.json` | Evaluation result (`success`, `detail`, `simulation_time`, `condition_at`) |
 | `output.txt` | Agent subprocess stdout/stderr |
 | `error.txt` | Harness error traceback (if the task failed to run) |
 
@@ -216,12 +243,20 @@ Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be
 **Example:**
 
 ```bash
-python -m server.eval_harness my_first_run
+python -m server.eval_harness run my_first_run
 # Found 32 tasks. Results -> results/my_first_run
 #   Running micromail-attachment-name-absolute-active ...
 #   Running micromail-body-december-relative-active ...
 #   ...
 # Done.
+```
+
+**Grade:**
+
+Summarize a completed run by printing a per-task table and aggregate stats:
+
+```bash
+python -m server.eval_harness grade <run_name>
 ```
 
 ## System Requirements

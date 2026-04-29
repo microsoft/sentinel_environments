@@ -12,6 +12,7 @@ export interface ApiPaper {
   year: number;
   snippet: string;
   citedBy: number;
+  versions: number;
   pdfLink: string;
   pdfSource: string;
   isBook: boolean;
@@ -44,7 +45,7 @@ export interface ApiCoauthor {
 
 export interface ApiTaskConfig {
   environment: string;
-  duration: number;
+  event_timeline_end: number;
   selfUser?: ApiSelfUser;
 }
 

@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useMicrofyData } from "../hooks/useMicrofyData";
 import type { ApiTrack, ApiPlaylist } from "../hooks/useMicrofyData";
+import { useHashRoute } from "../hooks/useHashRoute";
+
+type ViewType = "home" | "artist" | "playlist";
+const VIEWS: readonly ViewType[] = ["home", "artist", "playlist"] as const;
+interface HistoryEntry { view: ViewType; id: string | null }
 import {
   Monitor,
   Laptop,
@@ -155,7 +160,23 @@ const MicroFy = () => {
     [apiMoods]
   );
 
-  const songOrder = useMemo<Song[]>(() => shuffle(songs), [songs]);
+  const songOrderRef = useRef<Song[]>([]);
+  const songOrderIdsRef = useRef<Set<string>>(new Set());
+  const songOrder = useMemo<Song[]>(() => {
+    const newSongs = songs.filter(s => !songOrderIdsRef.current.has(s.id));
+    if (songOrderRef.current.length === 0) {
+      songOrderRef.current = shuffle(songs);
+    } else if (newSongs.length > 0) {
+      songOrderRef.current = [...newSongs, ...songOrderRef.current];
+    }
+    songOrderIdsRef.current = new Set(songOrderRef.current.map(s => s.id));
+    // Update song data (e.g. isLiked) while preserving order
+    const songMap = new Map(songs.map(s => [s.id, s]));
+    songOrderRef.current = songOrderRef.current
+      .map(s => songMap.get(s.id) ?? s)
+      .filter(s => songMap.has(s.id));
+    return songOrderRef.current;
+  }, [songs]);
 
   // Derive favoriteSongs from API track states
   const favoriteSongs = useMemo<string[]>(
@@ -206,12 +227,23 @@ const MicroFy = () => {
   // Additional functionality states
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [email, setEmail] = useState(selfUser?.email ?? "");
-  const [selectedArtistId, setSelectedArtistId] = useState<string | null>(null);
-  const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
 
-  // Navigation history for back/forward
-  const [navigationHistory, setNavigationHistory] = useState<Array<{type: 'home' | 'song' | 'artist' | 'playlist', id: string | null}>>([{type: 'home', id: null}]);
+  // URL-driven navigation. Refresh, browser Back/Forward, and shareable
+  // links (#artist/{id}, #playlist/{id}) all flow through `route`.
+  const [route, setRoute] = useHashRoute<ViewType>(VIEWS, "home");
+  const currentView = route.view;
+  const selectedArtistId = currentView === "artist" ? route.id : null;
+  const selectedPlaylistId = currentView === "playlist" ? route.id : null;
+
+  // In-app ‹/› chrome stack. Source of truth for the current view is `route`;
+  // this stack only powers the disabled-state and target lookup of the chrome
+  // back/forward buttons. Reset whenever the route changes from outside the
+  // app (refresh, browser Back, shareable URL paste).
+  const [navigationHistory, setNavigationHistory] = useState<HistoryEntry[]>(
+    () => [{ view: route.view, id: route.id }]
+  );
   const [historyIndex, setHistoryIndex] = useState(0);
+  const internalNavRef = useRef(false);
 
   // Playback settings
   const [volume, setVolume] = useState(70);
@@ -443,82 +475,56 @@ const MicroFy = () => {
     setSearchQuery(event.target.value);
   }, []);
 
-  // Navigation helpers
-  const navigateTo = useCallback((type: 'home' | 'song' | 'artist' | 'playlist', id: string | null) => {
-    // Clear other selections based on navigation type
-    if (type === 'home') {
+  // Navigation helpers — single entry point that updates both the URL
+  // (so refresh/browser-Back/share work) and the in-app ‹/› chrome stack.
+  const navigateTo = useCallback((view: ViewType, id: string | null = null) => {
+    if (view !== "playlist") {
       setSelectedSongId(null);
-      setSelectedArtistId(null);
-      setSelectedPlaylistId(null);
-    } else if (type === 'song') {
-      setSelectedArtistId(null);
-      setSelectedPlaylistId(null);
-    } else if (type === 'artist') {
-      setSelectedSongId(null);
-      setSelectedPlaylistId(null);
-      setSelectedArtistId(id);
-    } else if (type === 'playlist') {
-      setSelectedSongId(null);
-      setSelectedArtistId(null);
-      setSelectedPlaylistId(id);
     }
-
-    // Add to navigation history
-    const newHistory = navigationHistory.slice(0, historyIndex + 1);
-    newHistory.push({ type, id });
-    setNavigationHistory(newHistory);
-    setHistoryIndex(newHistory.length - 1);
-  }, [navigationHistory, historyIndex]);
+    internalNavRef.current = true;
+    setRoute(view, id);
+    setNavigationHistory(prev => {
+      const truncated = prev.slice(0, historyIndex + 1);
+      return [...truncated, { view, id }];
+    });
+    setHistoryIndex(prev => prev + 1);
+  }, [setRoute, historyIndex]);
 
   const handleNavigateBack = useCallback(() => {
     if (historyIndex > 0) {
-      const newIndex = historyIndex - 1;
-      setHistoryIndex(newIndex);
-      const prev = navigationHistory[newIndex];
-      if (prev.type === 'home') {
+      const target = navigationHistory[historyIndex - 1];
+      internalNavRef.current = true;
+      setRoute(target.view, target.id);
+      setHistoryIndex(historyIndex - 1);
+      if (target.view !== "playlist") {
         setSelectedSongId(null);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (prev.type === 'song') {
-        setSelectedSongId(prev.id);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (prev.type === 'artist') {
-        setSelectedArtistId(prev.id);
-        setSelectedSongId(null);
-        setSelectedPlaylistId(null);
-      } else if (prev.type === 'playlist') {
-        setSelectedPlaylistId(prev.id);
-        setSelectedSongId(null);
-        setSelectedArtistId(null);
       }
     }
-  }, [historyIndex, navigationHistory]);
+  }, [historyIndex, navigationHistory, setRoute]);
 
   const handleNavigateForward = useCallback(() => {
     if (historyIndex < navigationHistory.length - 1) {
-      const newIndex = historyIndex + 1;
-      setHistoryIndex(newIndex);
-      const next = navigationHistory[newIndex];
-      if (next.type === 'home') {
+      const target = navigationHistory[historyIndex + 1];
+      internalNavRef.current = true;
+      setRoute(target.view, target.id);
+      setHistoryIndex(historyIndex + 1);
+      if (target.view !== "playlist") {
         setSelectedSongId(null);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (next.type === 'song') {
-        setSelectedSongId(next.id);
-        setSelectedArtistId(null);
-        setSelectedPlaylistId(null);
-      } else if (next.type === 'artist') {
-        setSelectedArtistId(next.id);
-        setSelectedSongId(null);
-        setSelectedPlaylistId(null);
-      } else if (next.type === 'playlist') {
-        setSelectedPlaylistId(next.id);
-        setSelectedSongId(null);
-        setSelectedArtistId(null);
       }
     }
-  }, [historyIndex, navigationHistory]);
+  }, [historyIndex, navigationHistory, setRoute]);
+
+  // External URL changes (refresh, browser Back/Forward, paste) rebase the
+  // in-app stack at the new route. The internal ref short-circuits this for
+  // navigations we initiated ourselves.
+  useEffect(() => {
+    if (internalNavRef.current) {
+      internalNavRef.current = false;
+      return;
+    }
+    setNavigationHistory([{ view: route.view, id: route.id }]);
+    setHistoryIndex(0);
+  }, [route.view, route.id]);
 
   const handleSelectPlaylist = useCallback((playlistId: string) => {
     navigateTo('playlist', playlistId);
@@ -563,22 +569,19 @@ const MicroFy = () => {
   }, []);
 
   const handleHome = useCallback(() => {
-    setSelectedSongId(null);
-    setSelectedArtistId(null);
-    setSelectedPlaylistId(null);
+    navigateTo("home", null);
     setLyricsExpanded(false);
     setPendingAutoplay(false);
     setPlaybarVisible(false);
     stopPlayback();
-  }, [stopPlayback]);
+  }, [navigateTo, stopPlayback]);
 
   const handleSelectArtist = useCallback((artistId: string) => {
-    setSelectedArtistId(artistId);
-    setSelectedSongId(null);
+    navigateTo("artist", artistId);
     setLyricsExpanded(false);
     setPendingAutoplay(false);
     stopPlayback();
-  }, [stopPlayback]);
+  }, [navigateTo, stopPlayback]);
 
   const scrollContainer = useCallback(
     (ref: React.RefObject<HTMLDivElement>, direction: "left" | "right") => {
@@ -774,7 +777,7 @@ const MicroFy = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
+    <div className="microfy-root min-h-screen bg-black text-white font-sans">
       {/* Hidden audio element for actual playback */}
       <audio ref={audioRef} preload="metadata" />
 
@@ -898,31 +901,6 @@ const MicroFy = () => {
                 >
                   Create playlist
                 </button>
-              </div>
-            )}
-
-            {/* Favorites */}
-            {favoriteSongs.length > 0 && (
-              <div className="bg-[#242424] rounded-lg p-4">
-                <h3 className="text-white font-semibold mb-4">Liked Songs</h3>
-                <div className="flex flex-col gap-3 max-h-64 overflow-y-auto">
-                  {favoriteSongs.map((songId) => {
-                    const song = songs.find(s => s.id === songId);
-                    return song ? (
-                      <div
-                        key={song.id}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-[#3e3e3e] p-2 rounded transition"
-                        onClick={() => handleSelectSong(song, false)}
-                      >
-                        <img src={song.coverUrl} alt={song.title} className="w-12 h-12 rounded" />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-white text-sm font-semibold truncate">{song.title}</h4>
-                          <p className="text-[#b3b3b3] text-xs truncate">{song.artist}</p>
-                        </div>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
               </div>
             )}
 
@@ -1084,11 +1062,19 @@ const MicroFy = () => {
             <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ backgroundColor: "rgba(0,0,0,0.7)", backdropFilter: "blur(6px)" }}>
               <div className="rounded-lg shadow-2xl p-8 w-[360px] flex flex-col items-center" style={{ backgroundColor: "#282828" }}>
                 <div className="text-2xl font-bold mb-6" style={{ color: "#1DB954" }}>MicroFy</div>
-                <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#1DB954" }}>
-                  {selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
-                </div>
+                {selfUser?.avatarUrl ? (
+                  <img
+                    src={selfUser.avatarUrl}
+                    alt={selfUser?.name ?? "User"}
+                    className="w-20 h-20 rounded-full object-cover mb-4"
+                  />
+                ) : (
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4" style={{ backgroundColor: "#1DB954" }}>
+                    {selfUser?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
+                  </div>
+                )}
                 <div className="text-lg font-semibold text-white mb-1">{selfUser?.name || "User"}</div>
-                <div className="text-sm mb-6" style={{ color: "#b3b3b3" }}>{email || "user@microfy.com"}</div>
+                <div className="text-sm mb-6" style={{ color: "#b3b3b3" }}>{selfUser?.email || "user@microfy.com"}</div>
                 <input type="password" readOnly value="••••••••" className="w-full px-4 py-2 rounded mb-4 text-center" style={{ backgroundColor: "#3E3E3E", color: "#b3b3b3", border: "none" }} />
                 <button onClick={() => setIsSignedOut(false)} className="w-full py-2 text-black rounded-full font-semibold hover:opacity-90 transition-opacity" style={{ backgroundColor: "#1DB954" }}>
                   Sign in
@@ -1805,11 +1791,7 @@ const MicroFy = () => {
                       <div
                         key={relatedArtist.id}
                         className="bg-[#181818] p-4 rounded-lg hover:bg-[#282828] transition cursor-pointer group"
-                        onClick={() => {
-                          setSelectedArtistId(relatedArtist.id);
-                          setSelectedSongId(null);
-                          setSelectedPlaylistId(null);
-                        }}
+                        onClick={() => handleSelectArtist(relatedArtist.id)}
                       >
                         <div className="relative mb-4">
                           <img

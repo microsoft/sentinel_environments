@@ -23,7 +23,7 @@ export interface ApiEmail {
 
 export interface ApiTaskConfig {
   environment: string;
-  duration: number;
+  event_timeline_end: number;
   selfUser?: ApiSelfUser;
 }
 
@@ -160,6 +160,10 @@ export function useMicromailData() {
     return res.json();
   }, []);
 
+  const deleteEmail = useCallback(async (emailId: string) => {
+    await fetch(`/api/data/micromail-emails/${emailId}`, { method: "DELETE" }).catch(() => {});
+  }, []);
+
   return {
     emails,
     config,
@@ -171,5 +175,6 @@ export function useMicromailData() {
     moveEmail,
     pinEmail,
     sendEmail,
+    deleteEmail,
   };
 }

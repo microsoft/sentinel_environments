@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
+import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicroscholarData, type ApiPaper, type ApiCoauthor, type ApiScholarUser } from "../hooks/useMicroscholarData";
 import {
   Menu,
@@ -20,8 +21,6 @@ import {
   Beaker,
   MoreVertical,
   ChevronRight,
-  Pencil,
-
   Trash2,
   UserPlus,
 } from "lucide-react";
@@ -186,7 +185,14 @@ const MicroScholar = () => {
   const [searchType, setSearchType] = useState<"articles" | "caselaw">("articles");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [currentView, setCurrentView] = useState<ViewType>("home");
+  const [route, setRoute] = useHashRoute<ViewType>([
+    "home", "profile", "library", "labs", "settings", "help", "alerts", "metrics",
+    "scholar-profile", "paper-detail", "ai-search", "citation-graph", "privacy", "terms",
+  ] as const, "home");
+  const currentView = route.view;
+  const viewingScholarId = currentView === "scholar-profile" ? route.id : null;
+  const viewingPaperId = currentView === "paper-detail" ? route.id : null;
+  const citationGraphPaperId = currentView === "citation-graph" ? route.id : null;
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [libraryView, setLibraryView] = useState<"list" | "grid">("list");
   const [settingsSection, setSettingsSection] = useState<"search" | "languages" | "library" | "account">("search");
@@ -213,8 +219,6 @@ const MicroScholar = () => {
   const [includeBooks, setIncludeBooks] = useState(true);
 
   // New state for viewing other scholars and managing coauthors
-  const [viewingScholarId, setViewingScholarId] = useState<string | null>(null);
-  const [viewingPaperId, setViewingPaperId] = useState<string | null>(null);
   const [showEditCoauthorsModal, setShowEditCoauthorsModal] = useState(false);
   const [userCoauthorIds, setUserCoauthorIds] = useState<string[]>([]);
   const [showAllPapers, setShowAllPapers] = useState(false);
@@ -226,17 +230,11 @@ const MicroScholar = () => {
   const [aiSearchResults, setAiSearchResults] = useState<Paper[]>([]);
   const [aiSearchLoading, setAiSearchLoading] = useState(false);
 
-  // Citation graph state
-  const [citationGraphPaperId, setCitationGraphPaperId] = useState<string | null>(null);
+  // Citation graph state is derived from route (see useHashRoute above).
 
   // Library filter state
   const [libraryFilter, setLibraryFilter] = useState<"all" | "to-read" | "important">("all");
   const [paperLabels, setPaperLabels] = useState<Record<string, string[]>>({});
-
-  // Edit profile modal state
-  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
-  const [editProfileName, setEditProfileName] = useState("");
-  const [editProfileAffiliation, setEditProfileAffiliation] = useState("");
 
   // Create alert form state
   const [newAlertType, setNewAlertType] = useState<"citation" | "keyword" | "new_paper">("citation");
@@ -421,22 +419,126 @@ const MicroScholar = () => {
 
 
   // ---------------------------------------------------------------------------
+  // Cite modal — declared once so every view can render it. Without this, the
+  // modal JSX only lived inside the home/search return, so clicking Cite on
+  // paper-detail/library/ai-search set state but showed nothing until the
+  // user navigated back to home.
+  // ---------------------------------------------------------------------------
+  const citeModal = showCiteModal && selectedPaper ? (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={() => setShowCiteModal(false)}
+    >
+      <div
+        className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-medium">Cite</h2>
+          <button
+            onClick={() => setShowCiteModal(false)}
+            className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
+          >
+            ×
+          </button>
+        </div>
+        <div className="p-4 space-y-4">
+          {getCitationFormats(selectedPaper).map((format) => (
+            <div key={format.name}>
+              <div className="font-medium text-sm text-gray-700 mb-1">{format.name}</div>
+              <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded border select-all">
+                {format.citation}
+              </div>
+            </div>
+          ))}
+
+          <div className="pt-4 border-t">
+            <div className="text-sm text-gray-500 mb-2">Export to:</div>
+            <div className="flex space-x-3 text-sm">
+              <button
+                onClick={() => {
+                  const bibtex = `@article{${selectedPaper.id},
+  title={${selectedPaper.title}},
+  author={${selectedPaper.authors}},
+  year={${selectedPaper.year}},
+  journal={${selectedPaper.source}}
+}`;
+                  navigator.clipboard.writeText(bibtex);
+                  showToast("BibTeX copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                BibTeX
+              </button>
+              <button
+                onClick={() => {
+                  const endnote = `%0 Journal Article
+%T ${selectedPaper.title}
+%A ${selectedPaper.authors}
+%D ${selectedPaper.year}
+%J ${selectedPaper.source}`;
+                  navigator.clipboard.writeText(endnote);
+                  showToast("EndNote format copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                EndNote
+              </button>
+              <button
+                onClick={() => {
+                  const refman = `TY  - JOUR
+TI  - ${selectedPaper.title}
+AU  - ${selectedPaper.authors}
+PY  - ${selectedPaper.year}
+JO  - ${selectedPaper.source}
+ER  -`;
+                  navigator.clipboard.writeText(refman);
+                  showToast("RefMan format copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                RefMan
+              </button>
+              <button
+                onClick={() => {
+                  const refworks = `RT Journal
+T1 ${selectedPaper.title}
+A1 ${selectedPaper.authors}
+YR ${selectedPaper.year}
+JF ${selectedPaper.source}`;
+                  navigator.clipboard.writeText(refworks);
+                  showToast("RefWorks format copied to clipboard");
+                }}
+                className="text-[#1a0dab] hover:underline"
+              >
+                RefWorks
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  // ---------------------------------------------------------------------------
   // Back Header Component (reused across views)
   // ---------------------------------------------------------------------------
   const BackHeader = () => (
-    <header className="border-b border-gray-200 bg-white">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <button
-          onClick={() => setCurrentView("home")}
-          className="text-[#1a73e8] hover:underline text-sm flex items-center space-x-1"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Scholar</span>
-        </button>
-        <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
-        <div className="w-32"></div>
-      </div>
-    </header>
+    <>
+      <header className="border-b border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <button
+            onClick={() => setRoute("home")}
+            className="text-[#1a73e8] hover:underline text-sm flex items-center space-x-1"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Scholar</span>
+          </button>
+          <div className="w-32"></div>
+        </div>
+      </header>
+      {citeModal}
+    </>
   );
 
   // ---------------------------------------------------------------------------
@@ -476,13 +578,13 @@ const MicroScholar = () => {
         <header className="border-b border-gray-200 bg-white">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <button
-              onClick={() => setCurrentView("home")}
+              onClick={() => setRoute("home")}
               className="text-[#1a73e8] hover:underline text-sm flex items-center space-x-1"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Scholar</span>
             </button>
-            <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
+            <div className="flex-1"></div>
             <div className="relative">
               <button
                 onClick={() => setShowProfileDropdown(!showProfileDropdown)}
@@ -503,7 +605,7 @@ const MicroScholar = () => {
                   </div>
                   <button
                     onClick={() => {
-                      setCurrentView("settings");
+                      setRoute("settings");
                       setShowProfileDropdown(false);
                     }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
@@ -542,22 +644,7 @@ const MicroScholar = () => {
                   </div>
                 )}
                 <div className="flex-1 pt-2">
-                  <div className="flex items-center">
-                    <h2 className="text-2xl font-normal mb-1">{user.name}</h2>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditProfileName(user.name);
-                        setEditProfileAffiliation(user.affiliation);
-                        setShowEditProfileModal(true);
-                      }}
-                      className="ml-3 text-gray-500 hover:text-gray-700"
-                      title="Edit profile"
-                    >
-                      <Pencil className="w-4 h-4"/>
-                    </button>
-                  </div>
+                  <h2 className="text-2xl font-normal mb-1">{user.name}</h2>
                   <p className="text-gray-600 mb-2">{user.title}, {user.affiliation}</p>
                   <p className="text-sm text-gray-500">Verified email at {user.email.split('@')[1]}</p>
                   <div className="flex flex-wrap gap-2 mt-3">
@@ -584,8 +671,7 @@ const MicroScholar = () => {
                         <div>
                           <button
                             onClick={() => {
-                              setViewingPaperId(paper.id);
-                              setCurrentView("paper-detail");
+                              setRoute("paper-detail", paper.id);
                             }}
                             className="text-blue-800 hover:underline text-left"
                           >
@@ -603,9 +689,8 @@ const MicroScholar = () => {
                                   ) : (
                                     <button
                                       onClick={() => {
-                                        setViewingScholarId(author.id);
+                                        setRoute("scholar-profile", author.id);
                                         setShowAllViewingScholarPapers(false);
-                                        setCurrentView("scholar-profile");
                                       }}
                                       className="text-blue-700 hover:underline"
                                     >
@@ -740,9 +825,8 @@ const MicroScholar = () => {
                     <button
                       key={coauthor.id}
                       onClick={() => {
-                        setViewingScholarId(coauthor.id);
+                        setRoute("scholar-profile", coauthor.id);
                         setShowAllViewingScholarPapers(false);
-                        setCurrentView("scholar-profile");
                       }}
                       className="flex items-center space-x-3 group w-full text-left"
                     >
@@ -798,15 +882,13 @@ const MicroScholar = () => {
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <button
               onClick={() => {
-                setViewingScholarId(null);
-                setCurrentView("profile");
+                setRoute("profile");
               }}
               className="text-[#1a73e8] hover:underline text-sm flex items-center space-x-1"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to my profile</span>
             </button>
-            <img src="desktop/microscholar-icon.png" alt="MicroScholar" className="h-6 object-contain" />
             <div className="w-32"></div>
           </div>
         </header>
@@ -856,8 +938,7 @@ const MicroScholar = () => {
                         <div>
                           <button
                             onClick={() => {
-                              setViewingPaperId(paper.id);
-                              setCurrentView("paper-detail");
+                              setRoute("paper-detail", paper.id);
                             }}
                             className="text-blue-800 hover:underline text-left"
                           >
@@ -875,8 +956,7 @@ const MicroScholar = () => {
                                   ) : author.id === user?.id ? (
                                     <button
                                       onClick={() => {
-                                        setViewingScholarId(null);
-                                        setCurrentView("profile");
+                                        setRoute("profile");
                                       }}
                                       className="text-blue-700 hover:underline"
                                     >
@@ -885,7 +965,7 @@ const MicroScholar = () => {
                                   ) : (
                                     <button
                                       onClick={() => {
-                                        setViewingScholarId(author.id);
+                                        setRoute("scholar-profile", author.id);
                                         setShowAllViewingScholarPapers(false);
                                       }}
                                       className="text-blue-700 hover:underline"
@@ -1013,11 +1093,10 @@ const MicroScholar = () => {
                       onClick={() => {
                         if (coauthor.id === user?.id) {
                           // Navigate to own profile
-                          setViewingScholarId(null);
-                          setCurrentView("profile");
+                          setRoute("profile");
                         } else {
                           // Navigate to other scholar's profile
-                          setViewingScholarId(coauthor.id);
+                          setRoute("scholar-profile", coauthor.id);
                           setShowAllViewingScholarPapers(false);
                         }
                       }}
@@ -1082,36 +1161,8 @@ const MicroScholar = () => {
                 >
                   Important
                 </button>
-                <button
-                  onClick={() => showToast("Trash is empty")}
-                  className="w-full text-left px-3 py-2 rounded text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Trash
-                </button>
               </div>
 
-              <button
-                onClick={() => {
-                  const label = prompt("Enter new label name:");
-                  if (label && label.trim()) {
-                    showToast(`Label "${label}" created`);
-                  }
-                }}
-                className="text-sm text-[#1a73e8] hover:underline"
-              >
-                Manage labels...
-              </button>
-
-              {/* Date filters */}
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="text-xs text-gray-500 mb-2">Any time</div>
-                <div className="space-y-1 text-sm">
-                  <button className="block text-[#1a73e8] hover:underline">Since 2024</button>
-                  <button className="block text-[#1a73e8] hover:underline">Since 2023</button>
-                  <button className="block text-[#1a73e8] hover:underline">Since 2020</button>
-                  <button className="block text-[#1a73e8] hover:underline">Custom range...</button>
-                </div>
-              </div>
             </div>
 
             {/* Main Content */}
@@ -1144,7 +1195,7 @@ const MicroScholar = () => {
               <h3 className="text-xl text-gray-700 mb-2">Your library is empty</h3>
               <p className="text-gray-600 mb-4">Save articles to your library for easy access later</p>
               <button
-                onClick={() => setCurrentView("home")}
+                onClick={() => setRoute("home")}
                 className="px-6 py-2 bg-[#4285F4] text-white rounded hover:bg-[#3367D6]"
               >
                 Search for articles
@@ -1169,8 +1220,7 @@ const MicroScholar = () => {
                     <h3 className="text-lg mb-1">
                       <button
                         onClick={() => {
-                          setViewingPaperId(paper.id);
-                          setCurrentView("paper-detail");
+                          setRoute("paper-detail", paper.id);
                         }}
                         className="text-[#1a0dab] hover:underline text-left"
                       >
@@ -1183,8 +1233,7 @@ const MicroScholar = () => {
                       <button onClick={() => handleCiteClick(paper)} className="text-[#1a0dab] hover:underline">Cite</button>
                       <button
                         onClick={() => {
-                          setViewingPaperId(paper.id);
-                          setCurrentView("paper-detail");
+                          setRoute("paper-detail", paper.id);
                         }}
                         className="text-[#1a0dab] hover:underline"
                       >
@@ -1260,7 +1309,7 @@ const MicroScholar = () => {
                     Use natural language to find relevant papers. Ask questions like "papers about transformer architectures for vision"
                   </p>
                   <button
-                    onClick={() => setCurrentView("ai-search")}
+                    onClick={() => setRoute("ai-search")}
                     className="text-[#1a73e8] text-sm hover:underline"
                   >
                     Try it now →
@@ -1281,7 +1330,7 @@ const MicroScholar = () => {
                     Visualize the citation network of any paper. Discover influential works and research trends.
                   </p>
                   <button
-                    onClick={() => setCurrentView("citation-graph")}
+                    onClick={() => setRoute("citation-graph")}
                     className="text-[#1a73e8] text-sm hover:underline"
                   >
                     Explore →
@@ -1302,7 +1351,7 @@ const MicroScholar = () => {
                     Get notified when new papers match your research interests or when your papers get cited.
                   </p>
                   <button
-                    onClick={() => setCurrentView("alerts")}
+                    onClick={() => setRoute("alerts")}
                     className="text-[#1a73e8] text-sm hover:underline"
                   >
                     Set up alerts →
@@ -1376,8 +1425,7 @@ const MicroScholar = () => {
                 <div key={paper.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                   <button
                     onClick={() => {
-                      setViewingPaperId(paper.id);
-                      setCurrentView("paper-detail");
+                      setRoute("paper-detail", paper.id);
                     }}
                     className="text-[#1a0dab] hover:underline text-left font-medium"
                   >
@@ -1453,7 +1501,7 @@ const MicroScholar = () => {
                 {papers.slice(0, 8).map(paper => (
                   <button
                     key={paper.id}
-                    onClick={() => setCitationGraphPaperId(paper.id)}
+                    onClick={() => setRoute("citation-graph", paper.id)}
                     className="text-left border border-gray-200 rounded-lg p-4 hover:border-purple-400 hover:shadow-md transition-all"
                   >
                     <p className="text-[#1a0dab] font-medium">{paper.title}</p>
@@ -1474,7 +1522,7 @@ const MicroScholar = () => {
                     <p className="text-sm text-purple-600 mt-1">{selectedPaperForGraph.source}, {selectedPaperForGraph.year}</p>
                   </div>
                   <button
-                    onClick={() => setCitationGraphPaperId(null)}
+                    onClick={() => setRoute("citation-graph", null)}
                     className="text-purple-600 hover:underline text-sm"
                   >
                     Change paper
@@ -1491,7 +1539,7 @@ const MicroScholar = () => {
                     {citedPapers.map(paper => (
                       <button
                         key={paper.id}
-                        onClick={() => setCitationGraphPaperId(paper.id)}
+                        onClick={() => setRoute("citation-graph", paper.id)}
                         className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-all text-sm"
                       >
                         <p className="text-[#1a0dab] font-medium line-clamp-2">{paper.title}</p>
@@ -1512,8 +1560,7 @@ const MicroScholar = () => {
                   </div>
                   <button
                     onClick={() => {
-                      setViewingPaperId(selectedPaperForGraph.id);
-                      setCurrentView("paper-detail");
+                      setRoute("paper-detail", selectedPaperForGraph.id);
                     }}
                     className="text-[#1a0dab] hover:underline text-sm"
                   >
@@ -1528,7 +1575,7 @@ const MicroScholar = () => {
                     {citingPapers.map(paper => (
                       <button
                         key={paper.id}
-                        onClick={() => setCitationGraphPaperId(paper.id)}
+                        onClick={() => setRoute("citation-graph", paper.id)}
                         className="w-full text-left p-3 border border-gray-200 rounded-lg hover:border-green-400 hover:bg-green-50 transition-all text-sm"
                       >
                         <p className="text-[#1a0dab] font-medium line-clamp-2">{paper.title}</p>
@@ -1845,7 +1892,6 @@ const MicroScholar = () => {
                     <p className="text-sm text-gray-600">{user?.email}</p>
                   </div>
                 </div>
-                <button className="text-[#1a73e8] hover:underline text-sm">Manage Account</button>
               </div>
             </div>
           )}
@@ -2014,8 +2060,7 @@ const MicroScholar = () => {
       .sort((a, b) => b.citedBy - a.citedBy)
       .slice(0, 20);
 
-    // Get versions (mock - show same paper from different sources)
-    const allVersions = 3 + Math.floor(Math.random() * 5);
+    const allVersions = paper.versions;
 
     return (
       <div className="min-h-screen bg-white">
@@ -2036,8 +2081,7 @@ const MicroScholar = () => {
                     {author ? (
                       <button
                         onClick={() => {
-                          setViewingScholarId(authorId);
-                          setCurrentView("scholar-profile");
+                          setRoute("scholar-profile", authorId);
                         }}
                         className="hover:underline text-[#006621]"
                       >
@@ -2087,8 +2131,7 @@ const MicroScholar = () => {
                 {/* Title - navigate to paper detail view */}
                 <button
                   onClick={() => {
-                    setViewingPaperId(result.id);
-                    setCurrentView("paper-detail");
+                    setRoute("paper-detail", result.id);
                   }}
                   className="text-lg text-[#1a0dab] hover:underline block text-left leading-snug"
                   dangerouslySetInnerHTML={{ __html: result.titleHtml }}
@@ -2104,8 +2147,7 @@ const MicroScholar = () => {
                         {idx > 0 && ", "}
                         <button
                           onClick={() => {
-                            setViewingScholarId(authorId);
-                            setCurrentView("scholar-profile");
+                            setRoute("scholar-profile", authorId);
                           }}
                           className="hover:underline"
                         >
@@ -2162,7 +2204,7 @@ const MicroScholar = () => {
                   {/* Cited by */}
                   <button
                     onClick={() => {
-                      setViewingPaperId(result.id);
+                      setRoute("paper-detail", result.id);
                     }}
                     className="text-[#1a0dab] hover:underline"
                   >
@@ -2177,7 +2219,7 @@ const MicroScholar = () => {
                       hookSearchPapers(authorNames).then(results => {
                         setSearchResults(results.length > 0 ? results as Paper[] : papers.slice(0, 10));
                         setCurrentPage(1);
-                        setCurrentView("home");
+                        setRoute("home");
                       });
                     }}
                     className="text-[#1a0dab] hover:underline"
@@ -2406,7 +2448,7 @@ const MicroScholar = () => {
                 <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 w-56">
                   <button
                     onClick={() => {
-                      setCurrentView("settings");
+                      setRoute("settings");
                       setShowMenu(false);
                     }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
@@ -2427,7 +2469,7 @@ const MicroScholar = () => {
                   <hr className="my-2" />
                   <button
                     onClick={() => {
-                      setCurrentView("help");
+                      setRoute("help");
                       setShowMenu(false);
                     }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
@@ -2441,7 +2483,7 @@ const MicroScholar = () => {
 
             {/* My profile */}
             <button
-              onClick={() => setCurrentView("profile")}
+              onClick={() => setRoute("profile")}
               className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded text-sm"
             >
               <GraduationCap className="w-5 h-5" />
@@ -2450,7 +2492,7 @@ const MicroScholar = () => {
 
             {/* My library */}
             <button
-              onClick={() => setCurrentView("library")}
+              onClick={() => setRoute("library")}
               className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded text-sm"
             >
               <Star className="w-5 h-5" />
@@ -2459,7 +2501,7 @@ const MicroScholar = () => {
 
             {/* Labs - NEW! */}
             <button
-              onClick={() => setCurrentView("labs")}
+              onClick={() => setRoute("labs")}
               className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded text-sm"
             >
               <FlaskConical className="w-5 h-5" />
@@ -2491,7 +2533,7 @@ const MicroScholar = () => {
                 </div>
                 <button
                   onClick={() => {
-                    setCurrentView("profile");
+                    setRoute("profile");
                     setShowProfileDropdown(false);
                   }}
                   className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
@@ -2501,7 +2543,7 @@ const MicroScholar = () => {
                 </button>
                 <button
                   onClick={() => {
-                    setCurrentView("settings");
+                    setRoute("settings");
                     setShowProfileDropdown(false);
                   }}
                   className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
@@ -2592,7 +2634,7 @@ const MicroScholar = () => {
             <div className="text-center mb-4">
               <span className="text-[#EA4335] font-medium">New!</span>{" "}
               <button
-                onClick={() => setCurrentView("labs")}
+                onClick={() => setRoute("labs")}
                 className="text-[#1a73e8] hover:underline"
               >
                 Scholar Labs: An AI Powered Scholar Search
@@ -2608,7 +2650,7 @@ const MicroScholar = () => {
               <div className="inline-block bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-8 text-white text-center shadow-lg">
                 <p className="font-semibold mb-3">A new way to search</p>
                 <button
-                  onClick={() => setCurrentView("labs")}
+                  onClick={() => setRoute("labs")}
                   className="bg-white text-blue-600 font-semibold rounded-full px-6 py-2 flex items-center space-x-2 shadow-md hover:bg-gray-100 transition-all"
                 >
                   <Beaker className="w-5 h-5" />
@@ -2634,7 +2676,7 @@ const MicroScholar = () => {
                     <Grid3X3 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => setCurrentView("settings")}
+                    onClick={() => setRoute("settings")}
                     className="p-2 hover:bg-gray-100 rounded-full text-gray-500"
                     title="Customize recommendations"
                   >
@@ -2656,8 +2698,7 @@ const MicroScholar = () => {
                       <div className="flex-1">
                         <button
                           onClick={() => {
-                            setViewingPaperId(paper.id);
-                            setCurrentView("paper-detail");
+                            setRoute("paper-detail", paper.id);
                           }}
                           className="text-blue-800 hover:underline text-base text-left"
                         >
@@ -2669,8 +2710,7 @@ const MicroScholar = () => {
                       <div className="ml-4 flex-shrink-0">
                         <button
                           onClick={() => {
-                            setViewingPaperId(paper.id);
-                            setCurrentView("paper-detail");
+                            setRoute("paper-detail", paper.id);
                           }}
                           className="text-sm text-green-700 font-medium hover:underline"
                           title="View paper"
@@ -2844,7 +2884,7 @@ const MicroScholar = () => {
 
                   {/* Create alert */}
                   <button
-                    onClick={() => setCurrentView("alerts")}
+                    onClick={() => setRoute("alerts")}
                     className="text-sm text-[#1a0dab] hover:underline"
                   >
                     Create alert
@@ -2876,8 +2916,7 @@ const MicroScholar = () => {
                         {/* Title - navigate to paper detail view */}
                         <button
                           onClick={() => {
-                            setViewingPaperId(result.id);
-                            setCurrentView("paper-detail");
+                            setRoute("paper-detail", result.id);
                           }}
                           className="text-lg text-[#1a0dab] hover:underline text-left"
                           dangerouslySetInnerHTML={{ __html: result.titleHtml }}
@@ -2888,8 +2927,7 @@ const MicroScholar = () => {
                       {result.pdfLink && (
                         <button
                           onClick={() => {
-                            setViewingPaperId(result.id);
-                            setCurrentView("paper-detail");
+                            setRoute("paper-detail", result.id);
                           }}
                           className="flex-shrink-0 text-xs border border-gray-200 rounded px-2 py-1 hover:bg-gray-50"
                         >
@@ -2909,8 +2947,7 @@ const MicroScholar = () => {
                             {author ? (
                               <button
                                 onClick={() => {
-                                  setViewingScholarId(authorId);
-                                  setCurrentView("scholar-profile");
+                                  setRoute("scholar-profile", authorId);
                                 }}
                                 className="hover:underline text-[#006621]"
                               >
@@ -2970,8 +3007,7 @@ const MicroScholar = () => {
                       {/* Cited by */}
                       <button
                         onClick={() => {
-                          setViewingPaperId(result.id);
-                          setCurrentView("paper-detail");
+                          setRoute("paper-detail", result.id);
                         }}
                         className="text-[#1a0dab] hover:underline"
                       >
@@ -2997,12 +3033,11 @@ const MicroScholar = () => {
                       {/* All versions */}
                       <button
                         onClick={() => {
-                          setViewingPaperId(result.id);
-                          setCurrentView("paper-detail");
+                          setRoute("paper-detail", result.id);
                         }}
                         className="text-[#1a0dab] hover:underline"
                       >
-                        All {Math.floor(result.citedBy / 100) + 2} versions
+                        All {result.versions} versions
                       </button>
                     </div>
                   </div>
@@ -3069,105 +3104,7 @@ const MicroScholar = () => {
 
 
 
-      {/* ===================================================================== */}
-      {/* CITE MODAL                                                           */}
-      {/* ===================================================================== */}
-      {showCiteModal && selectedPaper && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setShowCiteModal(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-medium">Cite</h2>
-              <button
-                onClick={() => setShowCiteModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-2xl leading-none"
-              >
-                ×
-              </button>
-            </div>
-            <div className="p-4 space-y-4">
-              {getCitationFormats(selectedPaper).map((format) => (
-                <div key={format.name}>
-                  <div className="font-medium text-sm text-gray-700 mb-1">{format.name}</div>
-                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded border select-all">
-                    {format.citation}
-                  </div>
-                </div>
-              ))}
-
-              {/* Export options */}
-              <div className="pt-4 border-t">
-                <div className="text-sm text-gray-500 mb-2">Export to:</div>
-                <div className="flex space-x-3 text-sm">
-                  <button
-                    onClick={() => {
-                      const bibtex = `@article{${selectedPaper.id},
-  title={${selectedPaper.title}},
-  author={${selectedPaper.authors}},
-  year={${selectedPaper.year}},
-  journal={${selectedPaper.source}}
-}`;
-                      navigator.clipboard.writeText(bibtex);
-                      showToast("BibTeX copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    BibTeX
-                  </button>
-                  <button
-                    onClick={() => {
-                      const endnote = `%0 Journal Article
-%T ${selectedPaper.title}
-%A ${selectedPaper.authors}
-%D ${selectedPaper.year}
-%J ${selectedPaper.source}`;
-                      navigator.clipboard.writeText(endnote);
-                      showToast("EndNote format copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    EndNote
-                  </button>
-                  <button
-                    onClick={() => {
-                      const refman = `TY  - JOUR
-TI  - ${selectedPaper.title}
-AU  - ${selectedPaper.authors}
-PY  - ${selectedPaper.year}
-JO  - ${selectedPaper.source}
-ER  -`;
-                      navigator.clipboard.writeText(refman);
-                      showToast("RefMan format copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    RefMan
-                  </button>
-                  <button
-                    onClick={() => {
-                      const refworks = `RT Journal
-T1 ${selectedPaper.title}
-A1 ${selectedPaper.authors}
-YR ${selectedPaper.year}
-JF ${selectedPaper.source}`;
-                      navigator.clipboard.writeText(refworks);
-                      showToast("RefWorks format copied to clipboard");
-                    }}
-                    className="text-[#1a0dab] hover:underline"
-                  >
-                    RefWorks
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {citeModal}
 
       {/* ===================================================================== */}
       {/* EDIT COAUTHORS MODAL                                                 */}
@@ -3279,71 +3216,6 @@ JF ${selectedPaper.source}`;
       )}
 
       {/* ===================================================================== */}
-      {/* EDIT PROFILE MODAL                                                   */}
-      {/* ===================================================================== */}
-      {showEditProfileModal && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setShowEditProfileModal(false)}
-        >
-          <div
-            className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="text-lg font-medium">Edit Profile</h3>
-              <button
-                onClick={() => setShowEditProfileModal(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  value={editProfileName}
-                  onChange={(e) => setEditProfileName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Affiliation</label>
-                <input
-                  type="text"
-                  value={editProfileAffiliation}
-                  onChange={(e) => setEditProfileAffiliation(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <p className="text-sm text-gray-500">
-                Note: Profile changes are temporary and will reset on page refresh.
-              </p>
-            </div>
-            <div className="p-4 border-t bg-gray-50 flex space-x-3">
-              <button
-                onClick={() => setShowEditProfileModal(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  // In a real app, this would save to backend
-                  setShowEditProfileModal(false);
-                }}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===================================================================== */}
       {/* ADVANCED SEARCH MODAL                                                */}
       {/* ===================================================================== */}
       {showAdvancedSearch && <AdvancedSearchModal />}
@@ -3388,9 +3260,9 @@ JF ${selectedPaper.source}`;
               </div>
             </div>
             <div className="flex items-center space-x-6">
-              <button onClick={() => setCurrentView("privacy")} className="hover:underline">Privacy</button>
-              <button onClick={() => setCurrentView("terms")} className="hover:underline">Terms</button>
-              <button onClick={() => setCurrentView("help")} className="hover:underline">Help</button>
+              <button onClick={() => setRoute("privacy")} className="hover:underline">Privacy</button>
+              <button onClick={() => setRoute("terms")} className="hover:underline">Terms</button>
+              <button onClick={() => setRoute("help")} className="hover:underline">Help</button>
             </div>
           </div>
         </div>
