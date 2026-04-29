@@ -16,6 +16,7 @@ import argparse
 import json
 import sys
 import time
+import random
 from pathlib import Path
 
 import requests
@@ -29,6 +30,7 @@ NEEDS_USER_ACTION = {
     "microdin-notifications-absolute-active",
     "microdin-documentation-absolute-active",
     "microdin-python-relative-active",
+    "microdin-react-relative-active",
     "microhub-contribute-absolute-active",
     "microhood-orders-absolute-active",
     "microgram-follows-absolute-active",
@@ -113,6 +115,13 @@ def simulate_actions(scenario_id):
         # Apply to the two Python role after they appears.
         post("/data/microdin-jobs/job-4/apply")
         post("/data/microdin-jobs/job-9/apply")
+
+    elif scenario_id == "microdin-react-relative-active":
+        # Apply to between 2 and 3 React roles after they appear.
+        react_jobs = ["job-1", "job-5", "job-19"]
+        sample = random.sample(react_jobs, random.randint(2, len(react_jobs)))
+        for job in sample:
+            post(f"/data/microdin-jobs/{job}/apply")
 
     elif scenario_id == "microhub-contribute-absolute-active":
         # Comment on the target TOTP issue.
