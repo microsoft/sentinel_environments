@@ -28,6 +28,7 @@ TIMEOUT = 10
 NEEDS_USER_ACTION = {
     "microdin-notifications-absolute-active",
     "microdin-documentation-absolute-active",
+    "microdin-python-relative-active",
     "microhub-contribute-absolute-active",
     "microhood-orders-absolute-active",
     "microgram-follows-absolute-active",
@@ -107,6 +108,11 @@ def simulate_actions(scenario_id):
     elif scenario_id == "microdin-documentation-absolute-active":
         # Apply to the API Documentation role after it appears.
         post("/data/microdin-jobs/job-11/apply")
+
+    elif scenario_id == "microdin-python-relative-active":
+        # Apply to the two Python role after they appears.
+        post("/data/microdin-jobs/job-4/apply")
+        post("/data/microdin-jobs/job-9/apply")
 
     elif scenario_id == "microhub-contribute-absolute-active":
         # Comment on the target TOTP issue.
