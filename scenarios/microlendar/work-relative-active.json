@@ -1,8 +1,8 @@
 {
   "id": "microlendar-work-relative-active",
   "environment": "microlendar",
-  "start_page": "HOST_ADDRESS/microlendar",
-  "prompt": "I already have a few work events on my calendar. Tell me when 4 more work events get added.",
+  "start_page": "HOST_ADDRESS/microlendar#week",
+  "prompt": "I already have a few work events on my calendar. Tell me when 4 more work events get added in the next two weeks.",
   "condition_at": 125.93,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -11,8 +11,8 @@
       "time": 0.0,
       "type": "preload_events",
       "payload": {
-        "today": "2026-03-18",
-        "initial_date": "2026-03-18",
+        "today": "2024-07-18",
+        "initial_date": "2024-07-18",
         "event_ids": [
           "work01",
           "work02",
@@ -56,10 +56,24 @@
       }
     },
     {
+      "time": 120.44,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise04"
+      }
+    },
+    {
       "time": 125.93,
       "type": "new_event",
       "payload": {
         "event_id": "work09"
+      }
+    },
+    {
+      "time": 223.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise05"
       }
     },
     {
