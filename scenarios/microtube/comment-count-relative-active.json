@@ -25,6 +25,11 @@
         "comment_ids": [
           "cmt-01",
           "cmt-04"
+        ],
+        "subscribed_channel_ids": [
+          "ch-lifestyle",
+          "ch-auto",
+          "ch-gaming"
         ]
       }
     },

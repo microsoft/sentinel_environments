@@ -34,6 +34,13 @@
           "notif-06",
           "notif-09",
           "notif-10"
+        ],
+        "subscribed_channel_ids": [
+          "ch-beauty",
+          "ch-fitness",
+          "ch-pets",
+          "ch-music",
+          "ch-history"
         ]
       }
     },

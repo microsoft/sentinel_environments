@@ -28,6 +28,14 @@
         "notification_ids": [
           "notif-06",
           "notif-09"
+        ],
+        "subscribed_channel_ids": [
+          "ch-auto",
+          "ch-history",
+          "ch-pets",
+          "ch-fitness",
+          "ch-lifestyle",
+          "ch-cooking"
         ]
       }
     },

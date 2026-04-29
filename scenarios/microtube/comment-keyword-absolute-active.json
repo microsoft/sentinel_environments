@@ -24,7 +24,14 @@
           "ch-language",
           "ch-gaming"
         ],
-        "comment_ids": []
+        "comment_ids": [],
+        "subscribed_channel_ids": [
+          "ch-fitness",
+          "ch-history",
+          "ch-auto",
+          "ch-language",
+          "ch-gaming"
+        ]
       }
     },
     {

@@ -25,6 +25,16 @@
           "ch-movies",
           "ch-history",
           "ch-diy"
+        ],
+        "subscribed_channel_ids": [
+          "ch-pets",
+          "ch-language",
+          "ch-finance",
+          "ch-music",
+          "ch-fitness",
+          "ch-movies",
+          "ch-history",
+          "ch-diy"
         ]
       }
     },
