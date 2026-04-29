@@ -1,0 +1,87 @@
+{
+  "id": "microlendar-today-events-relative-passive",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "I already have a few things scheduled for today -- let me know when 3 more events get added to today's schedule.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_events",
+      "payload": {
+        "event_ids": [
+          "today01",
+          "today02",
+          "today03",
+          "today04",
+          "today05",
+          "evt001",
+          "evt002"
+        ],
+        "task_ids": [
+          "task01",
+          "task02"
+        ]
+      }
+    },
+    {
+      "time": 80,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt003"
+      }
+    },
+    {
+      "time": 160,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today06"
+      }
+    },
+    {
+      "time": 200,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt004"
+      }
+    },
+    {
+      "time": 250,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today07"
+      }
+    },
+    {
+      "time": 300,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today08"
+      }
+    },
+    {
+      "time": 450,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today09"
+      }
+    },
+    {
+      "time": 600,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt005"
+      }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT ((SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.start_time LIKE '2024-07-18%') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND date='2024-07-18')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_today_event_count') AS REAL) + 3"
+}
