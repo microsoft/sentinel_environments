@@ -2,7 +2,7 @@
   "id": "microhub-stars-absolute-passive",
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
-  "prompt": "Watch the star count on this repo and let me know when it hits 2,000.",
+  "prompt": "Watch the star count on this repo and let me know when it hits at least 2,000.",
   "condition_at": 587.31,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

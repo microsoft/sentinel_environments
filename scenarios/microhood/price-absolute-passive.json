@@ -2,7 +2,7 @@
   "id": "microhood-price-absolute-passive",
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
-  "prompt": "Watch ChipForge Industries (CHIP) for me and let me know when it reaches $520.",
+  "prompt": "Watch ChipForge Industries (CHIP) for me and let me know when it reaches at least $520.",
   "condition_at": 457.08,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

@@ -2,7 +2,7 @@
   "id": "microfy-lyric-golden-relative-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "I'm collecting songs that mention 'golden' in their lyrics. Watch for new releases that fit \u2014 when two more come in, play both to confirm they match.",
+  "prompt": "I'm collecting songs that mention 'golden' in their lyrics. Watch for new trending songs that fit \u2014 when two more come in, play both to confirm they match.",
   "condition_at": 513.25,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
