@@ -2,11 +2,19 @@
 # reads immutable stock/news data from catalogs.py, mutable state from session.py.
 # provides functions for listing stocks, portfolio, watchlist, news, and placing orders.
 #
+# prices are event-driven: each symbol has a list of (time, price) waypoints in
+# session state. between waypoints the server linearly interpolates, so prices
+# feel continuous while staying fully authoritative (no frontend math). at t=0
+# price = catalog starting_price; scenarios add later waypoints via
+# preload_stocks.payload.price_waypoints (bulk) or set_price events (discrete).
+# symbols without waypoints stay flat at their starting_price.
+#
 # flow: server.py route -> microhood handler -> reads MICROHOOD_*_CATALOG + session -> returns data
-# example: POST /microhood/stocks/AAPL/order -> place_order() -> updates session buying_power + stock_states
+# example: POST /microhood/stocks/AAPL/order -> place_order() -> fills at server-computed current price
 
 from __future__ import annotations
 
+import bisect
 import json
 import sqlite3
 from typing import TYPE_CHECKING
@@ -14,7 +22,6 @@ from typing import TYPE_CHECKING
 from server.catalogs import (
     MICROHOOD_NEWS_CATALOG,
     MICROHOOD_STOCK_CATALOG,
-    MICROHOOD_TRACE_CATALOG,
     MICROHOOD_WATCHLIST_CATALOG,
 )
 
@@ -23,33 +30,43 @@ if TYPE_CHECKING:
 
 
 # ---------------------------------------------------------------------------
-# Price interpolation
+# Price interpolation (event-driven waypoints)
 # ---------------------------------------------------------------------------
 
+def _interpolate(waypoints: list[list[float]], sim_time: float) -> float:
+    """Linearly interpolate price at sim_time given sorted waypoints."""
+    if sim_time <= waypoints[0][0]:
+        return waypoints[0][1]
+    if sim_time >= waypoints[-1][0]:
+        return waypoints[-1][1]
+    times = [w[0] for w in waypoints]
+    idx = bisect.bisect_right(times, sim_time) - 1
+    t0, p0 = waypoints[idx]
+    t1, p1 = waypoints[idx + 1]
+    return p0 + (p1 - p0) * (sim_time - t0) / (t1 - t0)
+
+
 def get_current_prices(session: Session) -> dict[str, float]:
-    """Interpolate stock prices from traces based on simulation_time / duration.
-
-    Each stock has 11 price points (indices 0-10) representing 0%-100% progress
-    through the simulation duration.  We linearly interpolate between adjacent
-    points based on the current progress.
-    """
-    progress = min(session.simulation_time / max(session.event_timeline_end, 1), 1.0)
+    """Return current price for every loaded stock based on session waypoints."""
     prices: dict[str, float] = {}
-
-    for symbol, trace in MICROHOOD_TRACE_CATALOG.items():
-        if not trace:
+    for symbol, starting_price in session.microhood_starting_prices.items():
+        waypoints = session.microhood_price_waypoints.get(symbol)
+        if not waypoints:
+            prices[symbol] = starting_price
             continue
-        if len(trace) == 1:
-            prices[symbol] = trace[0]
-            continue
-
-        trace_progress = progress * (len(trace) - 1)
-        lower_index = int(trace_progress)
-        upper_index = min(lower_index + 1, len(trace) - 1)
-        fraction = trace_progress - lower_index
-        prices[symbol] = trace[lower_index] + (trace[upper_index] - trace[lower_index]) * fraction
-
+        prices[symbol] = _interpolate(waypoints, session.simulation_time)
     return prices
+
+
+def _add_waypoint(session: Session, symbol: str, time: float, price: float) -> None:
+    """Insert (time, price) into the symbol's waypoint list, kept sorted by time."""
+    waypoints = session.microhood_price_waypoints.setdefault(symbol, [])
+    # Seed with (0, starting_price) if this is the first explicit waypoint and t>0.
+    if not waypoints and time > 0 and symbol in session.microhood_starting_prices:
+        waypoints.append([0.0, session.microhood_starting_prices[symbol]])
+    entry = [float(time), float(price)]
+    idx = bisect.bisect_right([w[0] for w in waypoints], entry[0])
+    waypoints.insert(idx, entry)
 
 
 # ---------------------------------------------------------------------------
@@ -98,6 +115,7 @@ def process_event(session: Session, event: dict) -> None:
         watchlist_symbols = payload.get("watchlist_symbols", [])
         news_ids = payload.get("news_ids", [])
         buying_power = payload.get("buying_power", 10000.0)
+        price_waypoints = payload.get("price_waypoints", {})
 
         # Load stocks -- "*" means all
         if stock_symbols == ["*"]:
@@ -118,6 +136,7 @@ def process_event(session: Session, event: dict) -> None:
                 "shares": raw.get("shares", 0),
                 "avgCost": raw.get("avg_cost", 0),
             }
+            session.microhood_starting_prices[symbol] = float(raw.get("current_price", 0))
 
         # Load watchlist -- "*" means all
         if watchlist_symbols == ["*"]:
@@ -140,6 +159,13 @@ def process_event(session: Session, event: dict) -> None:
 
         session.microhood_buying_power = buying_power
 
+        # Install bulk price waypoints from the scenario. Each entry is a list
+        # of [time, price] pairs. We seed (0, starting_price) via _add_waypoint
+        # if the scenario's first declared time is > 0.
+        for symbol, points in price_waypoints.items():
+            for time, price in points:
+                _add_waypoint(session, symbol, float(time), float(price))
+
         # Capture baseline after preload
         session.baseline_metrics = compute_current_metrics(session)
 
@@ -149,10 +175,13 @@ def process_event(session: Session, event: dict) -> None:
         if raw:
             session.microhood_news.append(dict(raw))
 
-
-# ---------------------------------------------------------------------------
-# Bulk actions
-# ---------------------------------------------------------------------------
+    elif etype == "set_price":
+        payload = event.get("payload", {})
+        symbol = payload.get("symbol")
+        price = payload.get("price")
+        if symbol is None or price is None:
+            return
+        _add_waypoint(session, symbol, float(event["time"]), float(price))
 
 
 # ---------------------------------------------------------------------------
@@ -202,7 +231,7 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         ],
     )
 
-    # Current prices from trace interpolation
+    # Current prices from waypoint interpolation
     prices = get_current_prices(session)
     conn.execute("CREATE TABLE current_prices (symbol TEXT, price REAL)")
     conn.executemany(

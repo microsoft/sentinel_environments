@@ -85,6 +85,8 @@ class Session:
     microhood_news: list[dict] = field(default_factory=list)
     microhood_buying_power: float = 10000.0
     microhood_orders: list[dict] = field(default_factory=list)
+    microhood_price_waypoints: dict[str, list[list[float]]] = field(default_factory=dict)
+    microhood_starting_prices: dict[str, float] = field(default_factory=dict)
 
     # MicroHub
     microhub_repository: dict = field(default_factory=dict)

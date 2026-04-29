@@ -25,7 +25,6 @@ from server.catalogs import (
     MICRODIN_COMPANY_CATALOG,
     MICROFY_ARTIST_CATALOG,
     MICROHOOD_STOCK_CATALOG,
-    MICROHOOD_TRACE_CATALOG,
     USER_CATALOG,
     load_catalogs,
 )
@@ -1156,9 +1155,7 @@ async def data_hood_stocks() -> MicrohoodStocksResponse:
         symbol = stock["symbol"]
         st = states.get(symbol, {})
         current_price = prices.get(symbol, 0)
-        # Compute change from starting price (trace index 0)
-        trace = MICROHOOD_TRACE_CATALOG.get(symbol, [])
-        starting_price = trace[0] if trace else current_price
+        starting_price = session.microhood_starting_prices.get(symbol, current_price)
         change = current_price - starting_price
         change_percent = (change / starting_price * 100) if starting_price else 0
         result.append({
@@ -1183,8 +1180,7 @@ async def data_hood_watchlist() -> MicrohoodWatchlistResponse:
         st = session.microhood_watchlist_states.get(symbol, {})
         if st.get("inWatchlist", True):
             current_price = prices.get(symbol, item.get("price", 0))
-            trace = MICROHOOD_TRACE_CATALOG.get(symbol, [])
-            starting_price = trace[0] if trace else current_price
+            starting_price = session.microhood_starting_prices.get(symbol, current_price)
             change = current_price - starting_price
             change_percent = (change / starting_price * 100) if starting_price else 0
             result.append({
