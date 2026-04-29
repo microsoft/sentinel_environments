@@ -171,6 +171,7 @@ def compute_current_metrics(session: Session) -> dict:
 
     post_count = len(session.microgram_posts)
     story_count = len(session.microgram_stories)
+    activity_count = len(session.microgram_activity)
 
     return {
         "liked_count": liked_count,
@@ -179,6 +180,7 @@ def compute_current_metrics(session: Session) -> dict:
         "followed_count": followed_count,
         "story_viewed_count": story_viewed_count,
         "post_count": post_count,
+        "activity_count": activity_count,
         "story_count": story_count,
     }
 
