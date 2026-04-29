@@ -54,7 +54,22 @@ interface CalendarCategory {
   checked: boolean;
 }
 
-type ViewMode = 'month' | 'week' | 'day' | 'year' | 'schedule' | '4days';
+const VIEW = {
+  MONTH: 'month',
+  WEEK: 'week',
+  DAY: 'day',
+  YEAR: 'year',
+  SCHEDULE: 'schedule',
+  FOUR_DAYS: '4days',
+} as const;
+
+type ViewMode = (typeof VIEW)[keyof typeof VIEW];
+
+const DAY_OFFSETS: Partial<Record<ViewMode, number>> = {
+  [VIEW.DAY]: 1,
+  [VIEW.WEEK]: 7,
+  [VIEW.FOUR_DAYS]: 4,
+};
 
 type Task = ApiTask;
 
@@ -226,7 +241,7 @@ const MicroLendar = () => {
   const [calendarDropdown, setCalendarDropdown] = useState<{ id: string; x: number; y: number } | null>(null);
 
   // Calendar / navigation state
-  const [lendarRoute, setLendarRoute] = useHashRoute<ViewMode>(['month', 'week', 'day', 'year', 'schedule', '4days'] as const, 'month');
+  const [lendarRoute, setLendarRoute] = useHashRoute<ViewMode>([VIEW.MONTH, VIEW.WEEK, VIEW.DAY, VIEW.YEAR, VIEW.SCHEDULE, VIEW.FOUR_DAYS] as const, VIEW.MONTH);
   const viewMode = lendarRoute.view;
   const setViewMode = useCallback((mode: ViewMode) => setLendarRoute(mode), [setLendarRoute]);
   const [selectedDate, setSelectedDate] = useState(FALLBACK_INITIAL_DATE);
@@ -275,7 +290,7 @@ const MicroLendar = () => {
 
   // Settings state
   const [settings, setSettings] = useState({
-    defaultView: 'month' as ViewMode,
+    defaultView: VIEW.MONTH as ViewMode,
     weekStartsOn: 'sunday' as 'sunday' | 'monday',
     timeFormat: '12h' as '12h' | '24h',
     defaultEventDuration: 60,
@@ -304,41 +319,22 @@ const MicroLendar = () => {
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const navigatePrevious = useCallback(() => {
-    if (viewMode === 'month') {
-      setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
-    } else if (viewMode === 'week') {
-      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() - 7));
-      setCurrentMonth(() => {
-        const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - 7);
-        return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-      });
-    } else if (viewMode === 'day') {
-      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() - 1));
-      setCurrentMonth(() => {
-        const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - 1);
-        return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-      });
+  const navigate = useCallback((direction: 1 | -1) => {
+    const dayOffset = DAY_OFFSETS[viewMode];
+    if (dayOffset) {
+      const offset = direction * dayOffset;
+      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + offset));
+      const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + offset);
+      setCurrentMonth(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
+    } else if (viewMode === VIEW.YEAR) {
+      setCurrentMonth(prev => new Date(prev.getFullYear() + direction, prev.getMonth(), 1));
+    } else {
+      setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + direction, 1));
     }
   }, [viewMode, selectedDate]);
 
-  const navigateNext = useCallback(() => {
-    if (viewMode === 'month') {
-      setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
-    } else if (viewMode === 'week') {
-      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 7));
-      setCurrentMonth(() => {
-        const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 7);
-        return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-      });
-    } else if (viewMode === 'day') {
-      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 1));
-      setCurrentMonth(() => {
-        const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 1);
-        return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
-      });
-    }
-  }, [viewMode, selectedDate]);
+  const navigatePrevious = useCallback(() => navigate(-1), [navigate]);
+  const navigateNext = useCallback(() => navigate(1), [navigate]);
 
   const goToToday = useCallback(() => {
     setCurrentMonth(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1));
@@ -644,17 +640,36 @@ const MicroLendar = () => {
 
   const getVisibleMonthEventCount = useCallback(() => {
     const visibleCalendars = calendars.filter(c => c.checked).map(c => c.name);
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
 
     return events.filter(e => {
       if (e.isTask) return false;
-      const eventDate = new Date(e.date);
-      return eventDate.getFullYear() === year &&
-             eventDate.getMonth() === month &&
-             visibleCalendars.includes(e.calendar);
+      if (!visibleCalendars.includes(e.calendar)) return false;
+      const [eYear, eMonth] = e.date.split('-').map(Number);
+
+      if (viewMode === VIEW.DAY) {
+        return e.date === selectedDateStr;
+      } else if (viewMode === VIEW.WEEK) {
+        const weekStart = new Date(selectedDate);
+        weekStart.setDate(selectedDate.getDate() - selectedDate.getDay());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        const startStr = weekStart.toISOString().split('T')[0];
+        const endStr = weekEnd.toISOString().split('T')[0];
+        return e.date >= startStr && e.date <= endStr;
+      } else if (viewMode === VIEW.FOUR_DAYS) {
+        const rangeEnd = new Date(selectedDate);
+        rangeEnd.setDate(selectedDate.getDate() + 3);
+        const startStr = selectedDateStr;
+        const endStr = rangeEnd.toISOString().split('T')[0];
+        return e.date >= startStr && e.date <= endStr;
+      } else if (viewMode === VIEW.YEAR) {
+        return eYear === currentMonth.getFullYear();
+      } else {
+        return eYear === currentMonth.getFullYear() && eMonth === currentMonth.getMonth() + 1;
+      }
     }).length;
-  }, [events, calendars, currentMonth]);
+  }, [events, calendars, currentMonth, viewMode, selectedDate]);
 
   const searchEvents = useCallback(() => {
     if (!searchQuery.trim()) return events.filter(e => !e.isTask);
@@ -753,8 +768,8 @@ const MicroLendar = () => {
 
             <div className="flex items-center gap-3">
               <span className="text-xl text-gray-700">
-                {viewMode === 'month' && monthName}
-                {viewMode === 'week' && (() => {
+                {viewMode === VIEW.MONTH && monthName}
+                {viewMode === VIEW.WEEK && (() => {
                   const weekStart = new Date(selectedDate);
                   weekStart.setDate(selectedDate.getDate() - selectedDate.getDay());
                   const weekEnd = new Date(weekStart);
@@ -764,7 +779,17 @@ const MicroLendar = () => {
                   }
                   return `${weekStart.toLocaleDateString('en-US', { month: 'short' })} ${weekStart.getDate()} - ${weekEnd.toLocaleDateString('en-US', { month: 'short' })} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
                 })()}
-                {viewMode === 'day' && selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                {viewMode === VIEW.DAY && selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                {viewMode === VIEW.FOUR_DAYS && (() => {
+                  const rangeEnd = new Date(selectedDate);
+                  rangeEnd.setDate(selectedDate.getDate() + 3);
+                  if (selectedDate.getMonth() === rangeEnd.getMonth()) {
+                    return `${selectedDate.toLocaleDateString('en-US', { month: 'long' })} ${selectedDate.getDate()} - ${rangeEnd.getDate()}, ${selectedDate.getFullYear()}`;
+                  }
+                  return `${selectedDate.toLocaleDateString('en-US', { month: 'short' })} ${selectedDate.getDate()} - ${rangeEnd.toLocaleDateString('en-US', { month: 'short' })} ${rangeEnd.getDate()}, ${rangeEnd.getFullYear()}`;
+                })()}
+                {viewMode === VIEW.YEAR && currentMonth.getFullYear()}
+                {viewMode === VIEW.SCHEDULE && monthName}
               </span>
               <span className="text-sm text-gray-500 font-medium px-3 py-1 bg-gray-100 rounded-full">
                 {getVisibleMonthEventCount()} {getVisibleMonthEventCount() === 1 ? 'event' : 'events'}
@@ -792,12 +817,12 @@ const MicroLendar = () => {
               {showViewDropdown && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   {([
-                    { value: 'day', label: 'Day' },
-                    { value: 'week', label: 'Week' },
-                    { value: 'month', label: 'Month' },
-                    { value: 'year', label: 'Year' },
-                    { value: 'schedule', label: 'Schedule' },
-                    { value: '4days', label: '4 Days' },
+                    { value: VIEW.DAY, label: 'Day' },
+                    { value: VIEW.WEEK, label: 'Week' },
+                    { value: VIEW.MONTH, label: 'Month' },
+                    { value: VIEW.YEAR, label: 'Year' },
+                    { value: VIEW.SCHEDULE, label: 'Schedule' },
+                    { value: VIEW.FOUR_DAYS, label: '4 Days' },
                   ] as { value: ViewMode; label: string }[]).map(({ value, label }) => (
                     <button
                       key={value}
@@ -1135,7 +1160,7 @@ const MicroLendar = () => {
       <div className={`flex-1 ${showSidebar ? 'ml-64' : 'ml-0'} mt-14 p-4`}>
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {/* Month View */}
-          {viewMode === 'month' && (
+          {viewMode === VIEW.MONTH && (
             <>
               {/* Weekday headers */}
               <div className="grid grid-cols-7 border-b border-gray-200">
@@ -1226,7 +1251,7 @@ const MicroLendar = () => {
           )}
 
           {/* Week View */}
-          {viewMode === 'week' && (
+          {viewMode === VIEW.WEEK && (
             <>
               {/* Time + Weekday headers */}
               <div className="flex border-b border-gray-200">
@@ -1312,7 +1337,7 @@ const MicroLendar = () => {
           )}
 
           {/* Day View */}
-          {viewMode === 'day' && (
+          {viewMode === VIEW.DAY && (
             <>
               {/* Day header */}
               <div className="p-4 border-b border-gray-200 bg-gray-50">
@@ -1413,7 +1438,7 @@ const MicroLendar = () => {
           )}
 
           {/* Year View */}
-          {viewMode === 'year' && (
+          {viewMode === VIEW.YEAR && (
             <div className="p-4">
               <div className="grid grid-cols-4 gap-4">
                 {Array.from({ length: 12 }, (_, monthIndex) => {
@@ -1465,7 +1490,7 @@ const MicroLendar = () => {
                               onClick={() => {
                                 setSelectedDate(day.fullDate);
                                 setCurrentMonth(new Date(year, monthIndex, 1));
-                                setViewMode('day');
+                                setViewMode(VIEW.DAY);
                               }}
                               className={`py-0.5 text-[10px] rounded-full w-5 h-5 mx-auto flex items-center justify-center
                                 ${isToday ? 'bg-blue-600 text-white font-bold' : 'text-gray-700'}
@@ -1491,11 +1516,15 @@ const MicroLendar = () => {
           )}
 
           {/* Schedule/Agenda View */}
-          {viewMode === 'schedule' && (
+          {viewMode === VIEW.SCHEDULE && (
             <div className="p-4">
               <h3 className="text-lg font-semibold mb-4">Upcoming Events</h3>
               {(() => {
                 const sortedEvents = [...events]
+                  .filter(e => {
+                    const d = new Date(e.date);
+                    return d.getFullYear() === currentMonth.getFullYear() && d.getMonth() === currentMonth.getMonth();
+                  })
                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 const groupedByDate: { [key: string]: CalendarEvent[] } = {};
 
@@ -1564,7 +1593,7 @@ const MicroLendar = () => {
           )}
 
           {/* 4 Days View */}
-          {viewMode === '4days' && (
+          {viewMode === VIEW.FOUR_DAYS && (
             <>
               {/* Time + Day headers */}
               <div className="flex border-b border-gray-200">
@@ -2441,7 +2470,7 @@ const MicroLendar = () => {
                 <button
                   onClick={() => {
                     setSettings({
-                      defaultView: 'month',
+                      defaultView: VIEW.MONTH,
                       weekStartsOn: 'sunday',
                       timeFormat: '12h',
                       defaultEventDuration: 60,
