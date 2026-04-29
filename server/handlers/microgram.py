@@ -302,6 +302,13 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         ],
     )
 
+    conn.execute("CREATE TABLE comments (id TEXT, post_id TEXT, authorId TEXT, text TEXT)")
+    conn.executemany(
+        "INSERT INTO comments VALUES (?,?,?,?)",
+        [(c.get("id"), p.get("id"), c.get("authorId", c.get("author_id", "")), c.get("text", ""))
+         for p in session.microgram_posts for c in p.get("comments", [])],
+    )
+
     conn.execute("CREATE TABLE post_states (post_id TEXT, isLiked INT, isSaved INT)")
     conn.executemany(
         "INSERT INTO post_states VALUES (?,?,?)",

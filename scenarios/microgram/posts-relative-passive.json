@@ -1,0 +1,95 @@
+{
+  "id": "microgram-posts-relative-passive",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "I already have a bunch of posts in my feed -- let me know when 5 more new posts show up.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-sailing-sunset",
+          "post-rock-climbing",
+          "post-beach-sunrise",
+          "post-camping-tent",
+          "post-pottery-wheel",
+          "post-skydiving",
+          "post-book-club",
+          "post-skateboard-park"
+        ],
+        "story_ids": [
+          "story-dubai-skyline-sunset",
+          "story-robotics-lab-prototype"
+        ],
+        "message_ids": [
+          "dm-4"
+        ],
+        "activity_ids": [
+          "act-9",
+          "act-10"
+        ]
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-marathon-finish"
+      }
+    },
+    {
+      "time": 120,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-studio-session"
+      }
+    },
+    {
+      "time": 180,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-mountain-bike"
+      }
+    },
+    {
+      "time": 240,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-code-conference"
+      }
+    },
+    {
+      "time": 300,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-street-food"
+      }
+    },
+    {
+      "time": 400,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-basketball-court"
+      }
+    },
+    {
+      "time": 550,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-art-gallery"
+      }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM posts) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_post_count') + 5"
+}
