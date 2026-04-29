@@ -71,9 +71,14 @@
       }
     }
   ],
+  "annotator_notes": "",
   "taxonomy": {
+    "criteria": "objective",
     "milestone_type": "absolute",
-    "monitoring_approach": "active"
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
   },
   "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE attachment_name LIKE '%mobile-app-mockups%') >= 1"
 }

@@ -78,9 +78,14 @@
       }
     }
   ],
+  "annotator_notes": "",
   "taxonomy": {
+    "criteria": "objective",
     "milestone_type": "absolute",
-    "monitoring_approach": "passive"
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "medium"
   },
   "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states es ON e.id=es.email_id WHERE e.sender_name='Kevin Lee' AND es.folder='inbox') >= 1"
 }
