@@ -27,6 +27,7 @@ TIMEOUT = 10
 # The agent must interact with items delivered by events to meet these thresholds.
 NEEDS_USER_ACTION = {
     "microdin-notifications-absolute-active",
+    "microdin-documentation-absolute-active",
     "microhub-contribute-absolute-active",
     "microhood-orders-absolute-active",
     "microgram-follows-absolute-active",
@@ -102,6 +103,10 @@ def simulate_actions(scenario_id):
     if scenario_id == "microdin-notifications-absolute-active":
         # Apply to the Kubernetes role after it appears.
         post("/data/microdin-jobs/job-6/apply")
+
+    elif scenario_id == "microdin-documentation-absolute-active":
+        # Apply to the API Documentation role after it appears.
+        post("/data/microdin-jobs/job-11/apply")
 
     elif scenario_id == "microhub-contribute-absolute-active":
         # Comment on the target TOTP issue.
