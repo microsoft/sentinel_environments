@@ -2,7 +2,7 @@
   "id": "microfy-new-releases-relative-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "Keep an eye on the trending feed today \u2014 once at least 5 new tracks have dropped since I logged in, save them all to my Liked Songs.",
+  "prompt": "Keep an eye on the trending feed today -- once at least 5 new tracks have dropped since I logged in, save them all to my Liked Songs.",
   "condition_at": 10.69,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
