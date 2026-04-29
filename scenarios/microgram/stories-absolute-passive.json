@@ -78,5 +78,5 @@
     "difficulty": "easy",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM story_states WHERE story_id IN ('story-drone-sunset-photography','story-user-interview-session','story-coffee-roasting-home') AND isViewed=1) >= 3"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM stories WHERE id IN ('story-drone-sunset-photography','story-user-interview-session','story-coffee-roasting-home')) >= 3"
 }
