@@ -1,0 +1,98 @@
+{
+  "id": "microtube-notification-count-absolute-passive",
+  "environment": "microtube",
+  "start_page": "HOST_ADDRESS/microtube",
+  "prompt": "Watch my notifications for me and let me know when I have at least 8.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "vid-beauty-01",
+          "vid-beauty-02",
+          "vid-fitness-01",
+          "vid-fitness-02",
+          "vid-pets-01",
+          "vid-pets-02",
+          "vid-music-01",
+          "vid-music-02",
+          "vid-history-01",
+          "vid-history-02"
+        ],
+        "channel_ids": [
+          "ch-beauty",
+          "ch-fitness",
+          "ch-pets",
+          "ch-music",
+          "ch-history"
+        ],
+        "notification_ids": [
+          "notif-06",
+          "notif-09",
+          "notif-10"
+        ]
+      }
+    },
+    {
+      "time": 50,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-01"
+      }
+    },
+    {
+      "time": 100,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-02"
+      }
+    },
+    {
+      "time": 160,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-04"
+      }
+    },
+    {
+      "time": 220,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-05"
+      }
+    },
+    {
+      "time": 300,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-08"
+      }
+    },
+    {
+      "time": 400,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-fitness-03"
+      }
+    },
+    {
+      "time": 500,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-history-03"
+      }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM notifications n JOIN notification_states ns ON n.id=ns.notification_id WHERE ns.isDismissed=0) >= 8"
+}
