@@ -1292,7 +1292,7 @@ async def data_hood_toggle_watchlist(symbol: str) -> dict:
 async def data_hub_repository() -> MicrohubRepositoryResponse:
     session = _require_session()
     repo = dict(session.microhub_repository)
-    repo["stars"] = session.microhub_star_count
+    repo["stars"] = microhub_handler._interpolate_star_count(session)
     repo["forks"] = session.microhub_fork_count
     repo["watchers"] = session.microhub_watch_count
     repo["isStarred"] = session.microhub_starred

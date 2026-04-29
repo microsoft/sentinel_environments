@@ -109,6 +109,7 @@ class Session:
     microhub_watched: bool = False
     microhub_forked: bool = False
     microhub_star_count: int = 0
+    microhub_star_waypoints: list[list] = field(default_factory=list)  # [[time, count], ...] for interpolation
     microhub_fork_count: int = 0
     microhub_watch_count: int = 0
     microhub_user_created_comments: list[dict] = field(default_factory=list)  # user-added comments on issues/PRs

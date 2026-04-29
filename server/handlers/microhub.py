@@ -286,12 +286,40 @@ def _build_package_row(raw: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# Star interpolation
+# ---------------------------------------------------------------------------
+
+def _interpolate_star_count(session: Session) -> int:
+    """Return star count at current simulation_time by linear interpolation of waypoints."""
+    waypoints = session.microhub_star_waypoints
+    if not waypoints:
+        return session.microhub_star_count
+    t = session.simulation_time
+    # Before first waypoint
+    if t <= waypoints[0][0]:
+        return waypoints[0][1]
+    # After last waypoint
+    if t >= waypoints[-1][0]:
+        return waypoints[-1][1]
+    # Find bracketing pair
+    for i in range(len(waypoints) - 1):
+        t0, c0 = waypoints[i]
+        t1, c1 = waypoints[i + 1]
+        if t0 <= t <= t1:
+            if t1 == t0:
+                return c1
+            frac = (t - t0) / (t1 - t0)
+            return int(c0 + frac * (c1 - c0))
+    return waypoints[-1][1]
+
+
+# ---------------------------------------------------------------------------
 # Metrics
 # ---------------------------------------------------------------------------
 
 def compute_current_metrics(session: Session) -> dict:
     return {
-        "star_count": session.microhub_star_count,
+        "star_count": _interpolate_star_count(session),
         "fork_count": session.microhub_fork_count,
         "watch_count": session.microhub_watch_count,
         "issue_count": len(session.microhub_issues),
@@ -320,6 +348,11 @@ def process_event(session: Session, event: dict) -> None:
         session.microhub_star_count = repo.get("stars", 0)
         session.microhub_fork_count = repo.get("forks", 0)
         session.microhub_watch_count = repo.get("watchers", 0)
+
+        # Star waypoints for time-based interpolation
+        star_waypoints = payload.get("star_waypoints")
+        if star_waypoints:
+            session.microhub_star_waypoints = [list(wp) for wp in star_waypoints]
 
         # Load files
         file_ids = payload.get("file_ids", ["*"])
@@ -485,6 +518,14 @@ def process_event(session: Session, event: dict) -> None:
             session.microhub_issues.append(row)
             session.microhub_issue_states[issue_id] = {"state": row["state"]}
 
+    elif etype == "stars_waypoint":
+        delta = event.get("payload", {}).get("delta", 0)
+        t = event.get("time", 0)
+        if session.microhub_star_waypoints:
+            last_count = session.microhub_star_waypoints[-1][1]
+        else:
+            last_count = session.microhub_star_count
+        session.microhub_star_waypoints.append([t, last_count + delta])
 
 
 # ---------------------------------------------------------------------------
@@ -582,7 +623,7 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         ("starred", "1" if session.microhub_starred else "0"),
         ("watched", "1" if session.microhub_watched else "0"),
         ("forked", "1" if session.microhub_forked else "0"),
-        ("star_count", str(session.microhub_star_count)),
+        ("star_count", str(_interpolate_star_count(session))),
         ("fork_count", str(session.microhub_fork_count)),
         ("watch_count", str(session.microhub_watch_count)),
     ]:
