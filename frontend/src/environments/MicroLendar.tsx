@@ -65,6 +65,12 @@ const VIEW = {
 
 type ViewMode = (typeof VIEW)[keyof typeof VIEW];
 
+const DAY_OFFSETS: Partial<Record<ViewMode, number>> = {
+  [VIEW.DAY]: 1,
+  [VIEW.WEEK]: 7,
+  [VIEW.FOUR_DAYS]: 4,
+};
+
 type Task = ApiTask;
 
 
@@ -312,12 +318,6 @@ const MicroLendar = () => {
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
-
-  const DAY_OFFSETS: Partial<Record<ViewMode, number>> = {
-    [VIEW.DAY]: 1,
-    [VIEW.WEEK]: 7,
-    [VIEW.FOUR_DAYS]: 4,
-  };
 
   const navigate = useCallback((direction: 1 | -1) => {
     const dayOffset = DAY_OFFSETS[viewMode];
