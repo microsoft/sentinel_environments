@@ -33,13 +33,22 @@ NEEDS_USER_ACTION = {
     "microdin-react-relative-active",
     "microhub-contribute-absolute-active",
     "microhood-orders-absolute-active",
+    "microhood-buy-dip-relative-active",
+    "microhood-rebalance-relative-active",
+    "microhood-sell-order-absolute-active",
+    "microhub-body-compliance-absolute-active",
     "microgram-follows-absolute-active",
     "microgram-likes-absolute-passive",
     "microgram-stories-absolute-passive",
     "microfy-followers-absolute-active",
     "microfy-likes-absolute-passive",
     "microfy-plays-absolute-passive",
+    "microfy-lyric-golden-relative-active",
+    "microfy-lyric-subway-absolute-active",
+    "microfy-lyric-whiskey-absolute-active",
+    "microfy-new-releases-relative-passive",
     "microscholar-search-absolute-active",
+    "microscholar-save-relative-active",
     "microtube-notifications-absolute-active",
     "microtube-views-relative-active",
 }
@@ -132,6 +141,25 @@ def simulate_actions(scenario_id):
         post("/data/microhood-stocks/DRNE/order",
              {"action": "buy", "quantity": 2, "type": "market"})
 
+    elif scenario_id == "microhood-buy-dip-relative-active":
+        # Buy 3 shares of VOLT at market price after the >10% dip.
+        post("/data/microhood-stocks/VOLT/order",
+             {"action": "buy", "quantity": 3, "type": "market"})
+
+    elif scenario_id == "microhood-rebalance-relative-active":
+        # Sell all 12 NEOS shares at market price after the >=15% gain.
+        post("/data/microhood-stocks/NEOS/order",
+             {"action": "sell", "quantity": 12, "type": "market"})
+
+    elif scenario_id == "microhood-sell-order-absolute-active":
+        # Sell 5 MCRO shares at market price after price clears $480.
+        post("/data/microhood-stocks/MCRO/order",
+             {"action": "sell", "quantity": 5, "type": "market"})
+
+    elif scenario_id == "microhub-body-compliance-absolute-active":
+        # Comment on the compliance issue (i20).
+        post("/data/microhub-issues/i20/comment", {"body": "test comment"})
+
     elif scenario_id == "microgram-follows-absolute-active":
         # Follow the 3 target creators.
         for user_id in ("user097", "user098", "user099"):
@@ -170,9 +198,33 @@ def simulate_actions(scenario_id):
         for track_id in ("track-061", "track-062", "track-063"):
             post(f"/data/microfy-tracks/{track_id}/play")
 
+    elif scenario_id == "microfy-lyric-golden-relative-active":
+        # Play the existing 'golden' track plus the two new 'golden' tracks
+        # delivered by events to reach the >=3 played-golden threshold.
+        for track_id in ("track-001", "track-060", "track-075"):
+            post(f"/data/microfy-tracks/{track_id}/play")
+
+    elif scenario_id == "microfy-lyric-subway-absolute-active":
+        # Like the new track whose lyrics mention 'subway'.
+        post("/data/microfy-tracks/track-013/like")
+
+    elif scenario_id == "microfy-lyric-whiskey-absolute-active":
+        # Like the new track whose lyrics mention 'whiskey'.
+        post("/data/microfy-tracks/track-020/like")
+
+    elif scenario_id == "microfy-new-releases-relative-passive":
+        # Like 5 of the new trending tracks delivered by events.
+        for track_id in ("track-031", "track-032", "track-033", "track-034", "track-035"):
+            post(f"/data/microfy-tracks/{track_id}/like")
+
     elif scenario_id == "microscholar-search-absolute-active":
         # Cite the target paper once it appears.
         post("/data/microscholar-papers/paper-target-1/cite")
+
+    elif scenario_id == "microscholar-save-relative-active":
+        # Save 3 D Jackson papers as they're indexed.
+        for paper_id in ("paper-067", "paper-068", "paper-069"):
+            post(f"/data/microscholar-papers/{paper_id}/save")
 
     elif scenario_id == "microtube-notifications-absolute-active":
         # Like the new Science Explained upload.
