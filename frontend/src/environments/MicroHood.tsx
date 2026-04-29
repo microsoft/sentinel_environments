@@ -357,7 +357,9 @@ const MicroHood = () => {
     if (!s) return null;
     // Deterministic hash so each stock gets stable but different values.
     let h = 0;
-    for (let i = 0; i < s.symbol.length; i++) h = (h * 31 + s.symbol.charCodeAt(i)) & 0xffff;
+    for (let i = 0; i < s.symbol.length; i++) {
+      h = (h * 31 + s.symbol.charCodeAt(i)) & 0xffff;
+    }
     const h1 = h & 0xff;
     const h2 = (h >> 4) & 0xff;
     const price = s.price;
@@ -369,6 +371,7 @@ const MicroHood = () => {
     const buyPct = 52 + (h1 % 30);
     const sellPct = 5 + (h2 % 15);
     const holdPct = 100 - buyPct - sellPct;
+    
     return {
       open,
       high: Math.max(open + dailySwing, price),
