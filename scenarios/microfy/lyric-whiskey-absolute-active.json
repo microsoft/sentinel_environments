@@ -52,6 +52,14 @@
           "mood-002",
           "mood-003",
           "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-003",
+          "track-015",
+          "track-020"
+        ],
+        "followed_artist_ids": [
+          "artist-005"
         ]
       }
     },
