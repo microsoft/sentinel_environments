@@ -3,11 +3,12 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Watch MCRO for me. If it goes above $480, sell 5 shares at market price and let me know.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 226.68,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_stocks",
       "payload": {
         "stock_symbols": [
@@ -28,28 +29,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 75.56,
       "type": "new_news",
       "payload": {
         "news_id": "7"
       }
     },
     {
-      "time": 200,
+      "time": 151.12,
       "type": "new_news",
       "payload": {
         "news_id": "8"
       }
     },
     {
-      "time": 420,
+      "time": 424.01,
       "type": "new_news",
       "payload": {
         "news_id": "9"
       }
     },
     {
-      "time": 560,
+      "time": 654.22,
       "type": "new_news",
       "payload": {
         "news_id": "10"

@@ -3,11 +3,12 @@
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
   "prompt": "Some papers by Deborah Jackson should be getting indexed soon -- save each one to your library as it appears, and let me know once you've saved 3 of her papers.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 256.14,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_papers",
       "payload": {
         "paper_ids": [
@@ -20,49 +21,49 @@
       }
     },
     {
-      "time": 70,
+      "time": 59.77,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-088"
       }
     },
     {
-      "time": 140,
+      "time": 119.53,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-067"
       }
     },
     {
-      "time": 210,
+      "time": 179.3,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-089"
       }
     },
     {
-      "time": 250,
+      "time": 213.45,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-068"
       }
     },
     {
-      "time": 300,
+      "time": 256.14,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-069"
       }
     },
     {
-      "time": 400,
+      "time": 410.76,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-070"
       }
     },
     {
-      "time": 550,
+      "time": 642.69,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-090"

@@ -2,18 +2,67 @@
   "id": "micromail-body-keyword-absolute-active",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I'm expecting an email about platform scalability — it might not be in the subject line, so you'll need to read through the emails.",
-  "condition_at": 300,
-  "duration": 600,
+  "prompt": "I'm expecting an email about platform scalability \u2014 it might not be in the subject line, so you'll need to read through the emails.",
+  "condition_at": 484.76,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
-    {"time": 40, "type": "new_email", "payload": {"email_id": "base-01"}},
-    {"time": 100, "type": "new_email", "payload": {"email_id": "base-02"}},
-    {"time": 160, "type": "new_email", "payload": {"email_id": "base-04"}},
-    {"time": 220, "type": "new_email", "payload": {"email_id": "base-05"}},
-    {"time": 300, "type": "new_email", "payload": {"email_id": "base-13"}},
-    {"time": 380, "type": "new_email", "payload": {"email_id": "base-06"}},
-    {"time": 460, "type": "new_email", "payload": {"email_id": "base-07"}},
-    {"time": 540, "type": "new_email", "payload": {"email_id": "base-08"}}
+    {
+      "time": 64.63,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-01"
+      }
+    },
+    {
+      "time": 161.59,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-02"
+      }
+    },
+    {
+      "time": 258.54,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 355.49,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 484.76,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-13"
+      }
+    },
+    {
+      "time": 547.49,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    },
+    {
+      "time": 610.22,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-07"
+      }
+    },
+    {
+      "time": 672.95,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-08"
+      }
+    }
   ],
   "taxonomy": {
     "milestone_type": "absolute",

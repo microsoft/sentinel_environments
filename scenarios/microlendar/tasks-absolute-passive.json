@@ -3,11 +3,12 @@
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
   "prompt": "Keep an eye on my tasks and tell me when the list reaches 10 items.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 221.51,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_events",
       "payload": {
         "event_ids": [
@@ -35,35 +36,35 @@
       }
     },
     {
-      "time": 150,
+      "time": 110.75,
       "type": "new_task",
       "payload": {
         "event_id": "task09"
       }
     },
     {
-      "time": 250,
+      "time": 184.59,
       "type": "new_event",
       "payload": {
         "event_id": "noise01"
       }
     },
     {
-      "time": 300,
+      "time": 221.51,
       "type": "new_task",
       "payload": {
         "event_id": "task10"
       }
     },
     {
-      "time": 375,
+      "time": 346.13,
       "type": "new_event",
       "payload": {
         "event_id": "today01"
       }
     },
     {
-      "time": 450,
+      "time": 470.75,
       "type": "new_event",
       "payload": {
         "event_id": "today02"

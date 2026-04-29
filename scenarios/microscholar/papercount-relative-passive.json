@@ -3,11 +3,12 @@
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
   "prompt": "I already have a bunch of papers in my results -- keep an eye out and let me know when 5 more show up.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 199.94,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_papers",
       "payload": {
         "paper_ids": [
@@ -26,49 +27,49 @@
       }
     },
     {
-      "time": 50,
+      "time": 33.32,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-057"
       }
     },
     {
-      "time": 120,
+      "time": 79.98,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-058"
       }
     },
     {
-      "time": 180,
+      "time": 119.96,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-059"
       }
     },
     {
-      "time": 240,
+      "time": 159.95,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-060"
       }
     },
     {
-      "time": 300,
+      "time": 199.94,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-061"
       }
     },
     {
-      "time": 400,
+      "time": 373.29,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-062"
       }
     },
     {
-      "time": 550,
+      "time": 633.32,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-063"

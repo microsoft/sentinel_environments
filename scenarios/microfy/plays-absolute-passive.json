@@ -3,11 +3,12 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "Keep checking for new songs, and play the first 3 that show up.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 187.58,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_tracks",
       "payload": {
         "track_ids": [
@@ -53,35 +54,35 @@
       }
     },
     {
-      "time": 100,
+      "time": 62.53,
       "type": "new_track",
       "payload": {
         "track_id": "track-061"
       }
     },
     {
-      "time": 200,
+      "time": 125.05,
       "type": "new_track",
       "payload": {
         "track_id": "track-062"
       }
     },
     {
-      "time": 300,
+      "time": 187.58,
       "type": "new_track",
       "payload": {
         "track_id": "track-063"
       }
     },
     {
-      "time": 450,
+      "time": 453.79,
       "type": "new_track",
       "payload": {
         "track_id": "track-064"
       }
     },
     {
-      "time": 550,
+      "time": 631.26,
       "type": "new_track",
       "payload": {
         "track_id": "track-065"

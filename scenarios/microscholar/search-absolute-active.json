@@ -3,11 +3,12 @@
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
   "prompt": "Keep an eye on these search results. If 'Autonomous AI Agents for Complex Task Execution' shows up, cite it for me and let me know.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 231.83,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_papers",
       "payload": {
         "paper_ids": [
@@ -35,28 +36,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 77.28,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-044"
       }
     },
     {
-      "time": 200,
+      "time": 154.55,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-045"
       }
     },
     {
-      "time": 300,
+      "time": 231.83,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-target-1"
       }
     },
     {
-      "time": 450,
+      "time": 475.91,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-046"

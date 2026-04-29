@@ -3,11 +3,12 @@
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "I saw a few comments on the gaming videos earlier. Keep checking and let me know when 3 more comments have been posted on them.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 367.73,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_videos",
       "payload": {
         "video_ids": [
@@ -28,42 +29,42 @@
       }
     },
     {
-      "time": 70,
+      "time": 85.8,
       "type": "new_video",
       "payload": {
         "video_id": "vid-lifestyle-01"
       }
     },
     {
-      "time": 140,
+      "time": 171.61,
       "type": "new_comment",
       "payload": {
         "comment_id": "cmt-05"
       }
     },
     {
-      "time": 230,
+      "time": 281.93,
       "type": "new_comment",
       "payload": {
         "comment_id": "cmt-03"
       }
     },
     {
-      "time": 300,
+      "time": 367.73,
       "type": "new_comment",
       "payload": {
         "comment_id": "cmt-06"
       }
     },
     {
-      "time": 420,
+      "time": 508.64,
       "type": "new_comment",
       "payload": {
         "comment_id": "cmt-07"
       }
     },
     {
-      "time": 550,
+      "time": 661.29,
       "type": "new_comment",
       "payload": {
         "comment_id": "cmt-02"

@@ -3,46 +3,52 @@
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
   "prompt": "One of the existing issues has detailed steps to reproduce the bug. Watch for new issues, and let me know if another one comes in that also includes steps to reproduce -- you'll need to read the issue descriptions to find it.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 232.73,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_repo",
       "payload": {
-        "issue_ids": ["i1", "i8", "i12", "i15"]
+        "issue_ids": [
+          "i1",
+          "i8",
+          "i12",
+          "i15"
+        ]
       }
     },
     {
-      "time": 75,
+      "time": 58.18,
       "type": "new_issue",
       "payload": {
         "issue_id": "i16"
       }
     },
     {
-      "time": 160,
+      "time": 124.12,
       "type": "new_issue",
       "payload": {
         "issue_id": "i18"
       }
     },
     {
-      "time": 240,
+      "time": 186.18,
       "type": "new_issue",
       "payload": {
         "issue_id": "i20"
       }
     },
     {
-      "time": 300,
+      "time": 232.73,
       "type": "new_issue",
       "payload": {
         "issue_id": "i11"
       }
     },
     {
-      "time": 420,
+      "time": 427.64,
       "type": "new_issue",
       "payload": {
         "issue_id": "i17"

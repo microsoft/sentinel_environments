@@ -3,11 +3,12 @@
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
   "prompt": "I already have a few work events on my calendar. Tell me when 4 more work events get added.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 125.93,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_events",
       "payload": {
         "event_ids": [
@@ -25,49 +26,49 @@
       }
     },
     {
-      "time": 75,
+      "time": 31.48,
       "type": "new_event",
       "payload": {
         "event_id": "work06"
       }
     },
     {
-      "time": 150,
+      "time": 62.97,
       "type": "new_event",
       "payload": {
         "event_id": "work07"
       }
     },
     {
-      "time": 225,
+      "time": 94.45,
       "type": "new_event",
       "payload": {
         "event_id": "work08"
       }
     },
     {
-      "time": 275,
+      "time": 115.44,
       "type": "new_event",
       "payload": {
         "event_id": "noise01"
       }
     },
     {
-      "time": 300,
+      "time": 125.93,
       "type": "new_event",
       "payload": {
         "event_id": "work09"
       }
     },
     {
-      "time": 375,
+      "time": 274.45,
       "type": "new_event",
       "payload": {
         "event_id": "work10"
       }
     },
     {
-      "time": 450,
+      "time": 422.96,
       "type": "new_event",
       "payload": {
         "event_id": "noise02"

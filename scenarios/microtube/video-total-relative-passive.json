@@ -3,11 +3,12 @@
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "I can see a few videos on the home page already. Let me know when 5 more new ones have shown up.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 256.69,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_videos",
       "payload": {
         "video_ids": [
@@ -28,49 +29,49 @@
       }
     },
     {
-      "time": 50,
+      "time": 42.78,
       "type": "new_video",
       "payload": {
         "video_id": "vid-music-02"
       }
     },
     {
-      "time": 110,
+      "time": 94.12,
       "type": "new_video",
       "payload": {
         "video_id": "vid-fitness-03"
       }
     },
     {
-      "time": 170,
+      "time": 145.46,
       "type": "new_video",
       "payload": {
         "video_id": "vid-movies-02"
       }
     },
     {
-      "time": 230,
+      "time": 196.8,
       "type": "new_video",
       "payload": {
         "video_id": "vid-history-02"
       }
     },
     {
-      "time": 300,
+      "time": 256.69,
       "type": "new_video",
       "payload": {
         "video_id": "vid-diy-02"
       }
     },
     {
-      "time": 420,
+      "time": 442.01,
       "type": "new_video",
       "payload": {
         "video_id": "vid-finance-02"
       }
     },
     {
-      "time": 550,
+      "time": 642.78,
       "type": "new_video",
       "payload": {
         "video_id": "vid-language-02"

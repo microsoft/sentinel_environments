@@ -3,11 +3,12 @@
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
   "prompt": "Keep an eye on my calendar and tell me when it reaches 24 events.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 20.59,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_events",
       "payload": {
         "event_ids": [
@@ -42,49 +43,49 @@
       }
     },
     {
-      "time": 100,
+      "time": 6.86,
       "type": "new_event",
       "payload": {
         "event_id": "today01"
       }
     },
     {
-      "time": 175,
+      "time": 12.01,
       "type": "new_event",
       "payload": {
         "event_id": "today02"
       }
     },
     {
-      "time": 250,
+      "time": 17.16,
       "type": "new_event",
       "payload": {
         "event_id": "today03"
       }
     },
     {
-      "time": 300,
+      "time": 20.59,
       "type": "new_event",
       "payload": {
         "event_id": "today04"
       }
     },
     {
-      "time": 375,
+      "time": 195.44,
       "type": "new_event",
       "payload": {
         "event_id": "today05"
       }
     },
     {
-      "time": 425,
+      "time": 312.01,
       "type": "new_event",
       "payload": {
         "event_id": "noise01"
       }
     },
     {
-      "time": 475,
+      "time": 428.58,
       "type": "new_event",
       "payload": {
         "event_id": "noise02"

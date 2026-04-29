@@ -3,59 +3,87 @@
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
   "prompt": "Keep an eye on my calls tab and let me know when I've missed at least 3 calls.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 99.9,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_messages",
       "payload": {
         "message_ids": [
-          "dm-03", "dm-11", "dm-15", "dm-29", "dm-33", "dm-39",
-          "grp-04", "grp-12", "grp-20", "mtg-03"
+          "dm-03",
+          "dm-11",
+          "dm-15",
+          "dm-29",
+          "dm-33",
+          "dm-39",
+          "grp-04",
+          "grp-12",
+          "grp-20",
+          "mtg-03"
         ],
-        "call_ids": ["call-in-02", "call-out-01"]
+        "call_ids": [
+          "call-in-02",
+          "call-out-01"
+        ]
       }
     },
     {
-      "time": 75,
+      "time": 24.98,
       "type": "new_call",
-      "payload": { "call_id": "call-in-04" }
+      "payload": {
+        "call_id": "call-in-04"
+      }
     },
     {
-      "time": 135,
+      "time": 44.96,
       "type": "new_call",
-      "payload": { "call_id": "call-missed-02" }
+      "payload": {
+        "call_id": "call-missed-02"
+      }
     },
     {
-      "time": 195,
+      "time": 64.94,
       "type": "new_call",
-      "payload": { "call_id": "call-out-04" }
+      "payload": {
+        "call_id": "call-out-04"
+      }
     },
     {
-      "time": 235,
+      "time": 78.26,
       "type": "new_call",
-      "payload": { "call_id": "call-missed-03" }
+      "payload": {
+        "call_id": "call-missed-03"
+      }
     },
     {
-      "time": 300,
+      "time": 99.9,
       "type": "new_call",
-      "payload": { "call_id": "call-missed-04" }
+      "payload": {
+        "call_id": "call-missed-04"
+      }
     },
     {
-      "time": 380,
+      "time": 265.26,
       "type": "new_call",
-      "payload": { "call_id": "call-out-03" }
+      "payload": {
+        "call_id": "call-out-03"
+      }
     },
     {
-      "time": 460,
+      "time": 430.62,
       "type": "new_call",
-      "payload": { "call_id": "call-missed-05" }
+      "payload": {
+        "call_id": "call-missed-05"
+      }
     },
     {
-      "time": 540,
+      "time": 595.98,
       "type": "new_call",
-      "payload": { "call_id": "call-missed-group-01" }
+      "payload": {
+        "call_id": "call-missed-group-01"
+      }
     }
   ],
   "taxonomy": {

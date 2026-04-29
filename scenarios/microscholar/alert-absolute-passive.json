@@ -3,11 +3,12 @@
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
   "prompt": "Keep an eye on my alerts and let me know if one comes in about large language models.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 50.83,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_papers",
       "payload": {
         "alert_ids": [
@@ -20,14 +21,14 @@
       }
     },
     {
-      "time": 300,
+      "time": 50.83,
       "type": "new_alert",
       "payload": {
         "alert_id": "alert-6"
       }
     },
     {
-      "time": 450,
+      "time": 385.41,
       "type": "new_alert",
       "payload": {
         "alert_id": "alert-7"

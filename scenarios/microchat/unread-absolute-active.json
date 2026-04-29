@@ -3,11 +3,12 @@
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
   "prompt": "Keep an eye on my chat with Aaron Chen. If he says the payment processing service is down, let me know right away.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 374.51,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_messages",
       "payload": {
         "message_ids": [
@@ -52,84 +53,84 @@
       }
     },
     {
-      "time": 40,
+      "time": 49.93,
       "type": "new_message",
       "payload": {
         "message_id": "dm-01"
       }
     },
     {
-      "time": 90,
+      "time": 112.35,
       "type": "new_message",
       "payload": {
         "message_id": "grp-01"
       }
     },
     {
-      "time": 135,
+      "time": 168.53,
       "type": "new_message",
       "payload": {
         "message_id": "urg-dm-01"
       }
     },
     {
-      "time": 175,
+      "time": 218.46,
       "type": "new_message",
       "payload": {
         "message_id": "mention-grp-01"
       }
     },
     {
-      "time": 220,
+      "time": 274.64,
       "type": "new_message",
       "payload": {
         "message_id": "dm-07"
       }
     },
     {
-      "time": 275,
+      "time": 343.3,
       "type": "new_message",
       "payload": {
         "message_id": "grp-05"
       }
     },
     {
-      "time": 300,
+      "time": 374.51,
       "type": "new_message",
       "payload": {
         "message_id": "urg-mention-dm-01"
       }
     },
     {
-      "time": 300,
+      "time": 374.51,
       "type": "new_message",
       "payload": {
         "message_id": "att-dm-08"
       }
     },
     {
-      "time": 425,
+      "time": 518.46,
       "type": "new_message",
       "payload": {
         "message_id": "att-dm-01"
       }
     },
     {
-      "time": 475,
+      "time": 576.05,
       "type": "new_message",
       "payload": {
         "message_id": "dm-13"
       }
     },
     {
-      "time": 525,
+      "time": 633.63,
       "type": "new_message",
       "payload": {
         "message_id": "grp-09"
       }
     },
     {
-      "time": 575,
+      "time": 691.21,
       "type": "new_message",
       "payload": {
         "message_id": "mention-grp-13"

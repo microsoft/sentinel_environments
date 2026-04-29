@@ -3,11 +3,12 @@
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
   "prompt": "I'm tracking papers that mention 'unstructured environments' in their abstract -- there's already one in the results, so let me know when 2 more show up.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 375.19,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_papers",
       "payload": {
         "paper_ids": [
@@ -23,42 +24,42 @@
       }
     },
     {
-      "time": 70,
+      "time": 87.54,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-097"
       }
     },
     {
-      "time": 150,
+      "time": 187.59,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-072"
       }
     },
     {
-      "time": 230,
+      "time": 287.65,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-098"
       }
     },
     {
-      "time": 300,
+      "time": 375.19,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-073"
       }
     },
     {
-      "time": 420,
+      "time": 513.11,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-074"
       }
     },
     {
-      "time": 550,
+      "time": 662.53,
       "type": "new_paper",
       "payload": {
         "paper_id": "paper-081"

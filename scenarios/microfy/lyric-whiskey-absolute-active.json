@@ -3,11 +3,12 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "I'm watching for a new blues track. When one of the new releases has 'whiskey' in the lyrics, like it.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 217.93,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_tracks",
       "payload": {
         "track_ids": [
@@ -55,28 +56,28 @@
       }
     },
     {
-      "time": 90,
+      "time": 65.38,
       "type": "new_track",
       "payload": {
         "track_id": "track-065"
       }
     },
     {
-      "time": 160,
+      "time": 116.23,
       "type": "new_track",
       "payload": {
         "track_id": "track-066"
       }
     },
     {
-      "time": 240,
+      "time": 174.34,
       "type": "new_track",
       "payload": {
         "track_id": "track-020"
       }
     },
     {
-      "time": 420,
+      "time": 418.76,
       "type": "new_track",
       "payload": {
         "track_id": "track-067"

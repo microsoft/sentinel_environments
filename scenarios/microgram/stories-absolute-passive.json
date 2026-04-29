@@ -3,11 +3,12 @@
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "Keep an eye on the story bar and watch the first 3 new stories that appear.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 296.12,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -40,28 +41,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 98.71,
       "type": "new_story",
       "payload": {
         "story_id": "story-drone-sunset-photography"
       }
     },
     {
-      "time": 200,
+      "time": 197.41,
       "type": "new_story",
       "payload": {
         "story_id": "story-user-interview-session"
       }
     },
     {
-      "time": 300,
+      "time": 296.12,
       "type": "new_story",
       "payload": {
         "story_id": "story-coffee-roasting-home"
       }
     },
     {
-      "time": 450,
+      "time": 508.06,
       "type": "new_story",
       "payload": {
         "story_id": "story-rock-concert-frontrow"

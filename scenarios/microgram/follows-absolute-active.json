@@ -3,11 +3,12 @@
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "As new creators show up in my feed, open their profiles and follow the first 3.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 80.04,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -43,28 +44,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 26.68,
       "type": "new_post",
       "payload": {
         "post_id": "post-phoenix-camelback-mountain-sunrise"
       }
     },
     {
-      "time": 200,
+      "time": 53.36,
       "type": "new_post",
       "payload": {
         "post_id": "post-urdu-calligraphy-practice"
       }
     },
     {
-      "time": 300,
+      "time": 80.04,
       "type": "new_post",
       "payload": {
         "post_id": "post-vienna-state-opera-interior"
       }
     },
     {
-      "time": 367,
+      "time": 222.96,
       "type": "new_post",
       "payload": {
         "post_id": "post-karachi-clifton-beach-sunset"

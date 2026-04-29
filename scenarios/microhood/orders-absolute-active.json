@@ -3,11 +3,12 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Keep an eye on DRNE for me. If it hits $42.20 or higher, place a market order to buy 2 shares and let me know once it's done.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 100.52,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_stocks",
       "payload": {
         "stock_symbols": [
@@ -32,21 +33,21 @@
       }
     },
     {
-      "time": 100,
+      "time": 33.51,
       "type": "new_news",
       "payload": {
         "news_id": "14"
       }
     },
     {
-      "time": 250,
+      "time": 83.77,
       "type": "new_news",
       "payload": {
         "news_id": "15"
       }
     },
     {
-      "time": 400,
+      "time": 307.01,
       "type": "new_news",
       "payload": {
         "news_id": "16"

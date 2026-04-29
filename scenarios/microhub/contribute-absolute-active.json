@@ -3,11 +3,12 @@
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
   "prompt": "Keep an eye on new issues. If one shows up that mentions TOTP as a supported 2FA method, leave a comment on it and let me know.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 526.85,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_repo",
       "payload": {
         "issue_ids": [
@@ -20,28 +21,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 175.62,
       "type": "new_issue",
       "payload": {
         "issue_id": "i6"
       }
     },
     {
-      "time": 200,
+      "time": 351.23,
       "type": "new_issue",
       "payload": {
         "issue_id": "i11"
       }
     },
     {
-      "time": 300,
+      "time": 526.85,
       "type": "new_issue",
       "payload": {
         "issue_id": "i14"
       }
     },
     {
-      "time": 450,
+      "time": 623.42,
       "type": "new_issue",
       "payload": {
         "issue_id": "i13"

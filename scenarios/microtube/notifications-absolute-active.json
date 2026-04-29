@@ -3,11 +3,12 @@
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "Keep an eye on Science Explained for me. If they post a new video, open it and like it.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 350.12,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_videos",
       "payload": {
         "video_ids": [
@@ -33,28 +34,28 @@
       }
     },
     {
-      "time": 300,
+      "time": 350.12,
       "type": "new_video",
       "payload": {
         "video_id": "vid-science-03"
       }
     },
     {
-      "time": 300,
+      "time": 350.12,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-07"
       }
     },
     {
-      "time": 480,
+      "time": 572.05,
       "type": "new_video",
       "payload": {
         "video_id": "vid-gaming-03"
       }
     },
     {
-      "time": 480,
+      "time": 572.05,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-08"

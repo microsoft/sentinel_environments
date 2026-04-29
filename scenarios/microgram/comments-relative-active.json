@@ -3,11 +3,12 @@
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "I've noticed @ahall has been commenting on posts in my feed -- keep checking new posts as they come in, and let me know when 3 more posts show up that have a comment from @ahall (you'll need to open each post to see who commented).",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 337.76,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -32,49 +33,49 @@
       }
     },
     {
-      "time": 75,
+      "time": 84.44,
       "type": "new_post",
       "payload": {
         "post_id": "post-code-conference"
       }
     },
     {
-      "time": 140,
+      "time": 157.62,
       "type": "new_post",
       "payload": {
         "post_id": "post-skydiving"
       }
     },
     {
-      "time": 200,
+      "time": 225.17,
       "type": "new_post",
       "payload": {
         "post_id": "post-art-gallery"
       }
     },
     {
-      "time": 250,
+      "time": 281.47,
       "type": "new_post",
       "payload": {
         "post_id": "post-hiking-summit"
       }
     },
     {
-      "time": 300,
+      "time": 337.76,
       "type": "new_post",
       "payload": {
         "post_id": "post-temple-visit"
       }
     },
     {
-      "time": 400,
+      "time": 465.17,
       "type": "new_post",
       "payload": {
         "post_id": "post-aurora"
       }
     },
     {
-      "time": 550,
+      "time": 656.29,
       "type": "new_post",
       "payload": {
         "post_id": "post-yoga-retreat"

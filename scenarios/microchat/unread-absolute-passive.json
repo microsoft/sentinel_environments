@@ -3,11 +3,12 @@
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
   "prompt": "Keep an eye on my chats and let me know when I have 10 unread messages.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 407.89,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_messages",
       "payload": {
         "message_ids": [
@@ -40,70 +41,70 @@
       }
     },
     {
-      "time": 50,
+      "time": 67.98,
       "type": "new_message",
       "payload": {
         "message_id": "grp-01"
       }
     },
     {
-      "time": 110,
+      "time": 149.56,
       "type": "new_message",
       "payload": {
         "message_id": "grp-05"
       }
     },
     {
-      "time": 170,
+      "time": 231.14,
       "type": "new_message",
       "payload": {
         "message_id": "dm-13"
       }
     },
     {
-      "time": 240,
+      "time": 326.31,
       "type": "new_message",
       "payload": {
         "message_id": "grp-09"
       }
     },
     {
-      "time": 300,
+      "time": 407.89,
       "type": "new_message",
       "payload": {
         "message_id": "dm-19"
       }
     },
     {
-      "time": 375,
+      "time": 485.92,
       "type": "new_message",
       "payload": {
         "message_id": "grp-13"
       }
     },
     {
-      "time": 440,
+      "time": 553.54,
       "type": "new_message",
       "payload": {
         "message_id": "dm-25"
       }
     },
     {
-      "time": 500,
+      "time": 615.96,
       "type": "new_message",
       "payload": {
         "message_id": "grp-17"
       }
     },
     {
-      "time": 525,
+      "time": 641.97,
       "type": "new_message",
       "payload": {
         "message_id": "dm-30"
       }
     },
     {
-      "time": 560,
+      "time": 678.39,
       "type": "new_message",
       "payload": {
         "message_id": "grp-21"

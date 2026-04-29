@@ -3,11 +3,12 @@
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "I already watched a couple videos from my subscriptions earlier. Keep watching that feed and watch 3 more new uploads for me as they appear.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 242.0,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_videos",
       "payload": {
         "video_ids": [
@@ -39,28 +40,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 80.67,
       "type": "new_video",
       "payload": {
         "video_id": "vid-news-03"
       }
     },
     {
-      "time": 200,
+      "time": 161.33,
       "type": "new_video",
       "payload": {
         "video_id": "vid-self-03"
       }
     },
     {
-      "time": 300,
+      "time": 242.0,
       "type": "new_video",
       "payload": {
         "video_id": "vid-travel-03"
       }
     },
     {
-      "time": 400,
+      "time": 401.33,
       "type": "new_video",
       "payload": {
         "video_id": "vid-comedy-03"

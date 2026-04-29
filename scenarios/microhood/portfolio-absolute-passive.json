@@ -3,11 +3,12 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Keep an eye on my portfolio and tell me when it reaches $108,837.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 422.34,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_stocks",
       "payload": {
         "stock_symbols": [
@@ -32,21 +33,21 @@
       }
     },
     {
-      "time": 150,
+      "time": 211.17,
       "type": "new_news",
       "payload": {
         "news_id": "11"
       }
     },
     {
-      "time": 300,
+      "time": 422.34,
       "type": "new_news",
       "payload": {
         "news_id": "12"
       }
     },
     {
-      "time": 450,
+      "time": 571.17,
       "type": "new_news",
       "payload": {
         "news_id": "13"

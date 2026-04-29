@@ -14,15 +14,17 @@ from pydantic import BaseModel
 
 
 class EventPayload(BaseModel):
-    time: int
+    time: float
     type: str
     payload: dict = {}
 
 
 class InitPayload(BaseModel):
     environment: str
-    duration: int
+    event_timeline_end: float
     eval_sql: str = ""
+    condition_at: Optional[float] = None
+    speed_factor: float = 1.0
     events: list[EventPayload]
 
 
@@ -32,7 +34,8 @@ class InitPayload(BaseModel):
 
 class ConfigResponse(BaseModel):
     environment: str
-    duration: int
+    event_timeline_end: float
+    speed_factor: float = 1.0
     selfUser: Optional[dict] = None
 
 

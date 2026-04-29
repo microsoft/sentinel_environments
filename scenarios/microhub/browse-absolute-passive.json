@@ -3,11 +3,12 @@
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
   "prompt": "Keep an eye on the Issues tab and tell me when there are 8 open issues.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 366.23,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_repo",
       "payload": {
         "issue_ids": [
@@ -20,28 +21,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 122.08,
       "type": "new_issue",
       "payload": {
         "issue_id": "i6"
       }
     },
     {
-      "time": 200,
+      "time": 244.15,
       "type": "new_issue",
       "payload": {
         "issue_id": "i7"
       }
     },
     {
-      "time": 300,
+      "time": 366.23,
       "type": "new_issue",
       "payload": {
         "issue_id": "i9"
       }
     },
     {
-      "time": 450,
+      "time": 543.12,
       "type": "new_issue",
       "payload": {
         "issue_id": "i10"

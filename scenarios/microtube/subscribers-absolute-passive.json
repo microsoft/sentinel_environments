@@ -3,11 +3,12 @@
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "Keep the Subscriptions feed open and tell me when 3 new videos from channels I already follow have appeared.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 31.76,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_videos",
       "payload": {
         "video_ids": [
@@ -35,28 +36,28 @@
       }
     },
     {
-      "time": 129,
+      "time": 13.66,
       "type": "new_video",
       "payload": {
         "video_id": "vid-tech-03"
       }
     },
     {
-      "time": 214,
+      "time": 22.66,
       "type": "new_video",
       "payload": {
         "video_id": "vid-science-03"
       }
     },
     {
-      "time": 300,
+      "time": 31.76,
       "type": "new_video",
       "payload": {
         "video_id": "vid-cooking-03"
       }
     },
     {
-      "time": 386,
+      "time": 229.06,
       "type": "new_video",
       "payload": {
         "video_id": "vid-gaming-03"

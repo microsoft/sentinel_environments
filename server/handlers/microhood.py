@@ -33,7 +33,7 @@ def get_current_prices(session: Session) -> dict[str, float]:
     through the simulation duration.  We linearly interpolate between adjacent
     points based on the current progress.
     """
-    progress = min(session.simulation_time / max(session.duration, 1), 1.0)
+    progress = min(session.simulation_time / max(session.event_timeline_end, 1), 1.0)
     prices: dict[str, float] = {}
 
     for symbol, trace in MICROHOOD_TRACE_CATALOG.items():

@@ -3,53 +3,58 @@
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
   "prompt": "I already have a few open issues. Let me know when 4 more get filed.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 564.68,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_repo",
       "payload": {
-        "issue_ids": ["i8", "i12", "i15"]
+        "issue_ids": [
+          "i8",
+          "i12",
+          "i15"
+        ]
       }
     },
     {
-      "time": 60,
+      "time": 112.94,
       "type": "new_issue",
       "payload": {
         "issue_id": "i16"
       }
     },
     {
-      "time": 140,
+      "time": 263.52,
       "type": "new_issue",
       "payload": {
         "issue_id": "i17"
       }
     },
     {
-      "time": 220,
+      "time": 414.1,
       "type": "new_issue",
       "payload": {
         "issue_id": "i18"
       }
     },
     {
-      "time": 300,
+      "time": 564.68,
       "type": "new_issue",
       "payload": {
         "issue_id": "i19"
       }
     },
     {
-      "time": 400,
+      "time": 616.45,
       "type": "new_issue",
       "payload": {
         "issue_id": "i20"
       }
     },
     {
-      "time": 550,
+      "time": 694.11,
       "type": "stars_waypoint",
       "payload": {
         "delta": 10

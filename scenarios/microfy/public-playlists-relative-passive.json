@@ -3,14 +3,17 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "MicroFy is rolling out playlist updates today. Once you've seen at least 3 new public playlists appear in the sidebar, let me know.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 439.05,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_tracks",
       "payload": {
-        "track_ids": ["*"],
+        "track_ids": [
+          "*"
+        ],
         "playlist_ids": [
           "playlist-001",
           "playlist-002",
@@ -27,28 +30,28 @@
       }
     },
     {
-      "time": 100,
+      "time": 146.35,
       "type": "new_playlist",
       "payload": {
         "playlist_id": "playlist-010"
       }
     },
     {
-      "time": 180,
+      "time": 263.43,
       "type": "new_playlist",
       "payload": {
         "playlist_id": "playlist-011"
       }
     },
     {
-      "time": 260,
+      "time": 380.51,
       "type": "new_playlist",
       "payload": {
         "playlist_id": "playlist-012"
       }
     },
     {
-      "time": 480,
+      "time": 607.62,
       "type": "new_playlist",
       "payload": {
         "playlist_id": "playlist-013"

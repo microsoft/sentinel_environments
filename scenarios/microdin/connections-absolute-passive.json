@@ -3,11 +3,12 @@
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
   "prompt": "Keep an eye on my network page and tell me when I have 15 pending connection requests.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 226.02,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -47,63 +48,63 @@
       }
     },
     {
-      "time": 50,
+      "time": 37.67,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-11"
       }
     },
     {
-      "time": 100,
+      "time": 75.34,
       "type": "new_post",
       "payload": {
         "post_id": "post-6"
       }
     },
     {
-      "time": 133,
+      "time": 100.2,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-12"
       }
     },
     {
-      "time": 183,
+      "time": 137.87,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-4"
       }
     },
     {
-      "time": 217,
+      "time": 163.49,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-13"
       }
     },
     {
-      "time": 260,
+      "time": 195.88,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-14"
       }
     },
     {
-      "time": 300,
+      "time": 226.02,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-15"
       }
     },
     {
-      "time": 333,
+      "time": 280.36,
       "type": "new_post",
       "payload": {
         "post_id": "post-7"
       }
     },
     {
-      "time": 367,
+      "time": 336.34,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-5"

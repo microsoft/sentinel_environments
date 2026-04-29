@@ -3,11 +3,12 @@
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
   "prompt": "I have a few personal events on my calendar already -- keep an eye out and let me know when 2 more personal events get added.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 334.87,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_events",
       "payload": {
         "event_ids": [
@@ -24,42 +25,42 @@
       }
     },
     {
-      "time": 80,
+      "time": 89.3,
       "type": "new_event",
       "payload": {
         "event_id": "evt008"
       }
     },
     {
-      "time": 160,
+      "time": 178.6,
       "type": "new_event",
       "payload": {
         "event_id": "evt009"
       }
     },
     {
-      "time": 240,
+      "time": 267.9,
       "type": "new_event",
       "payload": {
         "event_id": "evt010"
       }
     },
     {
-      "time": 300,
+      "time": 334.87,
       "type": "new_event",
       "payload": {
         "event_id": "evt012"
       }
     },
     {
-      "time": 450,
+      "time": 527.43,
       "type": "new_event",
       "payload": {
         "event_id": "evt016"
       }
     },
     {
-      "time": 600,
+      "time": 720.0,
       "type": "new_event",
       "payload": {
         "event_id": "noise03"

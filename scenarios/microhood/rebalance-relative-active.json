@@ -3,11 +3,12 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Keep an eye on Neos Pharmaceuticals (NEOS). If it goes up 15% or more from where it is now, sell all 12 of my shares to lock in the gains.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 120.45,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_stocks",
       "payload": {
         "stock_symbols": [
@@ -29,28 +30,28 @@
       }
     },
     {
-      "time": 80,
+      "time": 32.12,
       "type": "new_news",
       "payload": {
         "news_id": "8"
       }
     },
     {
-      "time": 180,
+      "time": 72.27,
       "type": "new_news",
       "payload": {
         "news_id": "12"
       }
     },
     {
-      "time": 420,
+      "time": 360.27,
       "type": "new_news",
       "payload": {
         "news_id": "18"
       }
     },
     {
-      "time": 560,
+      "time": 640.06,
       "type": "new_news",
       "payload": {
         "news_id": "19"

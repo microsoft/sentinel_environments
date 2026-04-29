@@ -2,12 +2,13 @@
   "id": "microfy-lyric-golden-relative-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "I'm collecting songs that mention 'golden' in their lyrics. Watch for new releases that fit — when two more come in, play both to confirm they match.",
-  "condition_at": 300,
-  "duration": 600,
+  "prompt": "I'm collecting songs that mention 'golden' in their lyrics. Watch for new releases that fit \u2014 when two more come in, play both to confirm they match.",
+  "condition_at": 513.25,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_tracks",
       "payload": {
         "track_ids": [
@@ -54,28 +55,28 @@
       }
     },
     {
-      "time": 90,
+      "time": 153.98,
       "type": "new_track",
       "payload": {
         "track_id": "track-077"
       }
     },
     {
-      "time": 180,
+      "time": 307.95,
       "type": "new_track",
       "payload": {
         "track_id": "track-060"
       }
     },
     {
-      "time": 280,
+      "time": 479.03,
       "type": "new_track",
       "payload": {
         "track_id": "track-075"
       }
     },
     {
-      "time": 450,
+      "time": 616.62,
       "type": "new_track",
       "payload": {
         "track_id": "track-078"

@@ -3,18 +3,73 @@
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
   "prompt": "Watch for an email with the mobile app mockups attached.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 568.27,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
-    {"time": 50, "type": "new_email", "payload": {"email_id": "att-11"}},
-    {"time": 100, "type": "new_email", "payload": {"email_id": "base-01"}},
-    {"time": 150, "type": "new_email", "payload": {"email_id": "att-16"}},
-    {"time": 200, "type": "new_email", "payload": {"email_id": "base-02"}},
-    {"time": 250, "type": "new_email", "payload": {"email_id": "att-20"}},
-    {"time": 300, "type": "new_email", "payload": {"email_id": "att-14"}},
-    {"time": 380, "type": "new_email", "payload": {"email_id": "att-24"}},
-    {"time": 460, "type": "new_email", "payload": {"email_id": "base-03"}},
-    {"time": 540, "type": "new_email", "payload": {"email_id": "base-04"}}
+    {
+      "time": 94.71,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-11"
+      }
+    },
+    {
+      "time": 189.42,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-01"
+      }
+    },
+    {
+      "time": 284.13,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-16"
+      }
+    },
+    {
+      "time": 378.85,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-02"
+      }
+    },
+    {
+      "time": 473.56,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-20"
+      }
+    },
+    {
+      "time": 568.27,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-14"
+      }
+    },
+    {
+      "time": 608.73,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-24"
+      }
+    },
+    {
+      "time": 649.19,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-03"
+      }
+    },
+    {
+      "time": 689.65,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    }
   ],
   "taxonomy": {
     "milestone_type": "absolute",

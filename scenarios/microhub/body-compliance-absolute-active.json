@@ -3,46 +3,51 @@
   "environment": "microhub",
   "start_page": "HOST_ADDRESS/microhub",
   "prompt": "Watch for new issues. If one comes in that mentions compliance in its description, leave a comment on it and let me know.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 163.85,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_repo",
       "payload": {
-        "issue_ids": ["i8", "i12", "i15"]
+        "issue_ids": [
+          "i8",
+          "i12",
+          "i15"
+        ]
       }
     },
     {
-      "time": 80,
+      "time": 43.69,
       "type": "new_issue",
       "payload": {
         "issue_id": "i16"
       }
     },
     {
-      "time": 170,
+      "time": 92.85,
       "type": "new_issue",
       "payload": {
         "issue_id": "i17"
       }
     },
     {
-      "time": 250,
+      "time": 136.54,
       "type": "new_issue",
       "payload": {
         "issue_id": "i18"
       }
     },
     {
-      "time": 300,
+      "time": 163.85,
       "type": "new_issue",
       "payload": {
         "issue_id": "i20"
       }
     },
     {
-      "time": 400,
+      "time": 349.23,
       "type": "new_issue",
       "payload": {
         "issue_id": "i19"

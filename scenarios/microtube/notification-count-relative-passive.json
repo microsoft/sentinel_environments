@@ -3,11 +3,12 @@
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "I already have a few notifications. Let me know when 4 more come in.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 12.34,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_videos",
       "payload": {
         "video_ids": [
@@ -31,49 +32,49 @@
       }
     },
     {
-      "time": 60,
+      "time": 2.47,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-01"
       }
     },
     {
-      "time": 130,
+      "time": 5.35,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-05"
       }
     },
     {
-      "time": 200,
+      "time": 8.23,
       "type": "new_video",
       "payload": {
         "video_id": "vid-pets-01"
       }
     },
     {
-      "time": 250,
+      "time": 10.28,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-10"
       }
     },
     {
-      "time": 300,
+      "time": 12.34,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-08"
       }
     },
     {
-      "time": 420,
+      "time": 295.4,
       "type": "new_video",
       "payload": {
         "video_id": "vid-fitness-01"
       }
     },
     {
-      "time": 550,
+      "time": 602.06,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-02"

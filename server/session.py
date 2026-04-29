@@ -21,15 +21,17 @@ from typing import Optional
 @dataclass
 class Session:
     status: str  # preinit | ready | running_auto | running_manual | completed
-    simulation_time: int
+    simulation_time: float
     start_wall_time: Optional[float]
     events: list[dict]
     next_event_index: int
 
     environment: str
-    duration: int
+    event_timeline_end: float
     baseline_metrics: dict
     eval_sql: str = ""
+    condition_at: Optional[float] = None
+    speed_factor: float = 1.0
 
     # MicroMail
     micromail_emails: list[dict] = field(default_factory=list)

@@ -3,59 +3,81 @@
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
   "prompt": "I've already got a couple of urgent pings this morning. Let me know when at least 3 more urgent messages arrive. Note: urgent messages are only marked as such inside the conversation, not in the sidebar.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 274.17,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_messages",
       "payload": {
         "message_ids": [
-          "urg-dm-03", "urg-grp-03",
-          "dm-03", "dm-11", "dm-33",
-          "grp-04", "grp-08", "mtg-03"
+          "urg-dm-03",
+          "urg-grp-03",
+          "dm-03",
+          "dm-11",
+          "dm-33",
+          "grp-04",
+          "grp-08",
+          "mtg-03"
         ]
       }
     },
     {
-      "time": 80,
+      "time": 73.11,
       "type": "new_message",
-      "payload": { "message_id": "dm-38" }
+      "payload": {
+        "message_id": "dm-38"
+      }
     },
     {
-      "time": 145,
+      "time": 132.52,
       "type": "new_message",
-      "payload": { "message_id": "urg-dm-04" }
+      "payload": {
+        "message_id": "urg-dm-04"
+      }
     },
     {
-      "time": 215,
+      "time": 196.49,
       "type": "new_message",
-      "payload": { "message_id": "grp-26" }
+      "payload": {
+        "message_id": "grp-26"
+      }
     },
     {
-      "time": 265,
+      "time": 242.18,
       "type": "new_message",
-      "payload": { "message_id": "urg-grp-05" }
+      "payload": {
+        "message_id": "urg-grp-05"
+      }
     },
     {
-      "time": 300,
+      "time": 274.17,
       "type": "new_message",
-      "payload": { "message_id": "urg-dm-05" }
+      "payload": {
+        "message_id": "urg-dm-05"
+      }
     },
     {
-      "time": 380,
+      "time": 393.06,
       "type": "new_message",
-      "payload": { "message_id": "urg-dm-06" }
+      "payload": {
+        "message_id": "urg-dm-06"
+      }
     },
     {
-      "time": 460,
+      "time": 511.95,
       "type": "new_message",
-      "payload": { "message_id": "grp-46" }
+      "payload": {
+        "message_id": "grp-46"
+      }
     },
     {
-      "time": 540,
+      "time": 630.83,
       "type": "new_message",
-      "payload": { "message_id": "mtg-22" }
+      "payload": {
+        "message_id": "mtg-22"
+      }
     }
   ],
   "taxonomy": {

@@ -3,11 +3,12 @@
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "I already have a bunch of posts in my feed -- let me know when 5 more new posts show up.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 200.78,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -34,49 +35,49 @@
       }
     },
     {
-      "time": 60,
+      "time": 40.16,
       "type": "new_post",
       "payload": {
         "post_id": "post-marathon-finish"
       }
     },
     {
-      "time": 120,
+      "time": 80.31,
       "type": "new_post",
       "payload": {
         "post_id": "post-studio-session"
       }
     },
     {
-      "time": 180,
+      "time": 120.47,
       "type": "new_post",
       "payload": {
         "post_id": "post-mountain-bike"
       }
     },
     {
-      "time": 240,
+      "time": 160.62,
       "type": "new_post",
       "payload": {
         "post_id": "post-code-conference"
       }
     },
     {
-      "time": 300,
+      "time": 200.78,
       "type": "new_post",
       "payload": {
         "post_id": "post-street-food"
       }
     },
     {
-      "time": 400,
+      "time": 373.85,
       "type": "new_post",
       "payload": {
         "post_id": "post-basketball-court"
       }
     },
     {
-      "time": 550,
+      "time": 633.46,
       "type": "new_post",
       "payload": {
         "post_id": "post-art-gallery"

@@ -3,11 +3,12 @@
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
   "prompt": "Keep an eye on the jobs page. If a new role mentions Kubernetes in the requirements, apply to it and let me know.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 440.6,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -39,56 +40,56 @@
       }
     },
     {
-      "time": 60,
+      "time": 88.12,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-8"
       }
     },
     {
-      "time": 100,
+      "time": 146.87,
       "type": "new_job",
       "payload": {
         "job_id": "job-9"
       }
     },
     {
-      "time": 150,
+      "time": 220.3,
       "type": "new_post",
       "payload": {
         "post_id": "post-8"
       }
     },
     {
-      "time": 200,
+      "time": 293.73,
       "type": "new_job",
       "payload": {
         "job_id": "job-10"
       }
     },
     {
-      "time": 300,
+      "time": 440.6,
       "type": "new_job",
       "payload": {
         "job_id": "job-6"
       }
     },
     {
-      "time": 400,
+      "time": 533.73,
       "type": "new_connection",
       "payload": {
         "connection_id": "conn-4"
       }
     },
     {
-      "time": 450,
+      "time": 580.3,
       "type": "new_notification",
       "payload": {
         "notification_id": "notif-9"
       }
     },
     {
-      "time": 500,
+      "time": 626.87,
       "type": "new_job",
       "payload": {
         "job_id": "job-11"

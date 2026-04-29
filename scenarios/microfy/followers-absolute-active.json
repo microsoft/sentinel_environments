@@ -3,11 +3,12 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "As new artists show up in the release feed, open their artist pages and follow the first 4 for me.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 396.19,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_tracks",
       "payload": {
         "track_ids": [
@@ -51,35 +52,35 @@
       }
     },
     {
-      "time": 75,
+      "time": 99.05,
       "type": "new_track",
       "payload": {
         "track_id": "track-041"
       }
     },
     {
-      "time": 150,
+      "time": 198.09,
       "type": "new_track",
       "payload": {
         "track_id": "track-042"
       }
     },
     {
-      "time": 225,
+      "time": 297.14,
       "type": "new_track",
       "payload": {
         "track_id": "track-043"
       }
     },
     {
-      "time": 300,
+      "time": 396.19,
       "type": "new_track",
       "payload": {
         "track_id": "track-044"
       }
     },
     {
-      "time": 375,
+      "time": 477.14,
       "type": "new_track",
       "payload": {
         "track_id": "track-045"

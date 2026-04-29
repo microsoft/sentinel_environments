@@ -3,11 +3,12 @@
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "I've already got some notifications in my activity feed -- keep an eye on it and let me know when 4 more show up.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 61.85,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -31,42 +32,42 @@
       }
     },
     {
-      "time": 75,
+      "time": 15.46,
       "type": "new_activity",
       "payload": {
         "activity_id": "act-10"
       }
     },
     {
-      "time": 150,
+      "time": 30.93,
       "type": "new_activity",
       "payload": {
         "activity_id": "act-11"
       }
     },
     {
-      "time": 225,
+      "time": 46.39,
       "type": "new_activity",
       "payload": {
         "activity_id": "act-12"
       }
     },
     {
-      "time": 300,
+      "time": 61.85,
       "type": "new_activity",
       "payload": {
         "activity_id": "act-13"
       }
     },
     {
-      "time": 400,
+      "time": 281.23,
       "type": "new_activity",
       "payload": {
         "activity_id": "act-14"
       }
     },
     {
-      "time": 550,
+      "time": 610.31,
       "type": "new_post",
       "payload": {
         "post_id": "post-road-trip"

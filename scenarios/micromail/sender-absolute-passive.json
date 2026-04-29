@@ -3,19 +3,80 @@
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
   "prompt": "Let me know when I get an email from Kevin Lee.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 19.4,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
-    {"time": 40, "type": "new_email", "payload": {"email_id": "base-01"}},
-    {"time": 90, "type": "new_email", "payload": {"email_id": "base-02"}},
-    {"time": 140, "type": "new_email", "payload": {"email_id": "base-04"}},
-    {"time": 190, "type": "new_email", "payload": {"email_id": "base-05"}},
-    {"time": 250, "type": "new_email", "payload": {"email_id": "base-06"}},
-    {"time": 300, "type": "new_email", "payload": {"email_id": "att-01"}},
-    {"time": 370, "type": "new_email", "payload": {"email_id": "base-07"}},
-    {"time": 440, "type": "new_email", "payload": {"email_id": "base-08"}},
-    {"time": 520, "type": "new_email", "payload": {"email_id": "base-09"}},
-    {"time": 580, "type": "new_email", "payload": {"email_id": "base-10"}}
+    {
+      "time": 2.59,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-01"
+      }
+    },
+    {
+      "time": 5.82,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-02"
+      }
+    },
+    {
+      "time": 9.05,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 12.29,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 16.17,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    },
+    {
+      "time": 19.4,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-01"
+      }
+    },
+    {
+      "time": 182.87,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-07"
+      }
+    },
+    {
+      "time": 346.35,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-08"
+      }
+    },
+    {
+      "time": 533.17,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-09"
+      }
+    },
+    {
+      "time": 673.29,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-10"
+      }
+    }
   ],
   "taxonomy": {
     "milestone_type": "absolute",

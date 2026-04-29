@@ -3,69 +3,106 @@
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
   "prompt": "Keep the feed open and tell me once at least 5 new posts have shown up since I left.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 29.21,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
-        "post_ids": ["post-1", "post-2", "post-3", "post-4"],
-        "connection_ids": ["conn-1", "conn-2"],
-        "conversation_ids": ["conv-1"],
-        "notification_ids": ["notif-1", "notif-2"],
-        "job_ids": ["job-2", "job-3"]
+        "post_ids": [
+          "post-1",
+          "post-2",
+          "post-3",
+          "post-4"
+        ],
+        "connection_ids": [
+          "conn-1",
+          "conn-2"
+        ],
+        "conversation_ids": [
+          "conv-1"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-2"
+        ],
+        "job_ids": [
+          "job-2",
+          "job-3"
+        ]
       }
     },
     {
-      "time": 70,
+      "time": 6.82,
       "type": "new_post",
-      "payload": { "post_id": "post-5" }
+      "payload": {
+        "post_id": "post-5"
+      }
     },
     {
-      "time": 120,
+      "time": 11.68,
       "type": "new_notification",
-      "payload": { "notification_id": "notif-4" }
+      "payload": {
+        "notification_id": "notif-4"
+      }
     },
     {
-      "time": 160,
+      "time": 15.58,
       "type": "new_post",
-      "payload": { "post_id": "post-6" }
+      "payload": {
+        "post_id": "post-6"
+      }
     },
     {
-      "time": 200,
+      "time": 19.47,
       "type": "new_connection",
-      "payload": { "connection_id": "conn-11" }
+      "payload": {
+        "connection_id": "conn-11"
+      }
     },
     {
-      "time": 235,
+      "time": 22.88,
       "type": "new_post",
-      "payload": { "post_id": "post-7" }
+      "payload": {
+        "post_id": "post-7"
+      }
     },
     {
-      "time": 275,
+      "time": 26.78,
       "type": "new_post",
-      "payload": { "post_id": "post-8" }
+      "payload": {
+        "post_id": "post-8"
+      }
     },
     {
-      "time": 300,
+      "time": 29.21,
       "type": "new_post",
-      "payload": { "post_id": "post-9" }
+      "payload": {
+        "post_id": "post-9"
+      }
     },
     {
-      "time": 380,
+      "time": 213.42,
       "type": "new_job",
-      "payload": { "job_id": "job-12" }
+      "payload": {
+        "job_id": "job-12"
+      }
     },
     {
-      "time": 460,
+      "time": 397.63,
       "type": "new_post",
-      "payload": { "post_id": "post-10" }
+      "payload": {
+        "post_id": "post-10"
+      }
     },
     {
-      "time": 540,
+      "time": 581.84,
       "type": "new_post",
-      "payload": { "post_id": "post-11" }
+      "payload": {
+        "post_id": "post-11"
+      }
     }
   ],
   "taxonomy": {

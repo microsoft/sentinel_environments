@@ -3,23 +3,108 @@
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
   "prompt": "Tell me when I have 10 unread emails.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 585.56,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
-    {"time": 20, "type": "new_email", "payload": {"email_id": "base-01"}},
-    {"time": 50, "type": "new_email", "payload": {"email_id": "base-02"}},
-    {"time": 80, "type": "new_email", "payload": {"email_id": "base-03"}},
-    {"time": 110, "type": "new_email", "payload": {"email_id": "base-04"}},
-    {"time": 140, "type": "new_email", "payload": {"email_id": "base-05"}},
-    {"time": 170, "type": "new_email", "payload": {"email_id": "base-06"}},
-    {"time": 200, "type": "new_email", "payload": {"email_id": "base-07"}},
-    {"time": 240, "type": "new_email", "payload": {"email_id": "base-08"}},
-    {"time": 270, "type": "new_email", "payload": {"email_id": "base-09"}},
-    {"time": 300, "type": "new_email", "payload": {"email_id": "base-10"}},
-    {"time": 370, "type": "new_email", "payload": {"email_id": "base-11"}},
-    {"time": 440, "type": "new_email", "payload": {"email_id": "base-12"}},
-    {"time": 510, "type": "new_email", "payload": {"email_id": "base-14"}},
-    {"time": 580, "type": "new_email", "payload": {"email_id": "base-15"}}
+    {
+      "time": 39.04,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-01"
+      }
+    },
+    {
+      "time": 97.59,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-02"
+      }
+    },
+    {
+      "time": 156.15,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-03"
+      }
+    },
+    {
+      "time": 214.71,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 273.26,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 331.82,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    },
+    {
+      "time": 390.37,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-07"
+      }
+    },
+    {
+      "time": 468.45,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-08"
+      }
+    },
+    {
+      "time": 527.0,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-09"
+      }
+    },
+    {
+      "time": 585.56,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-10"
+      }
+    },
+    {
+      "time": 616.93,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-11"
+      }
+    },
+    {
+      "time": 648.3,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-12"
+      }
+    },
+    {
+      "time": 679.67,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-14"
+      }
+    },
+    {
+      "time": 711.04,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-15"
+      }
+    }
   ],
   "taxonomy": {
     "milestone_type": "absolute",

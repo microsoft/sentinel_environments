@@ -3,11 +3,12 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Keep an eye on the news feed in MicroHood and let me know when 3 new articles have appeared since I opened the page.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 464.14,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_stocks",
       "payload": {
         "stock_symbols": [
@@ -27,42 +28,42 @@
       }
     },
     {
-      "time": 70,
+      "time": 108.3,
       "type": "new_news",
       "payload": {
         "news_id": "6"
       }
     },
     {
-      "time": 160,
+      "time": 247.54,
       "type": "new_news",
       "payload": {
         "news_id": "7"
       }
     },
     {
-      "time": 300,
+      "time": 464.14,
       "type": "new_news",
       "payload": {
         "news_id": "8"
       }
     },
     {
-      "time": 400,
+      "time": 537.24,
       "type": "new_news",
       "payload": {
         "news_id": "9"
       }
     },
     {
-      "time": 520,
+      "time": 624.97,
       "type": "new_news",
       "payload": {
         "news_id": "10"
       }
     },
     {
-      "time": 650,
+      "time": 720.0,
       "type": "new_news",
       "payload": {
         "news_id": "11"

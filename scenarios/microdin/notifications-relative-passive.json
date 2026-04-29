@@ -3,59 +3,92 @@
   "environment": "microdin",
   "start_page": "HOST_ADDRESS/microdin",
   "prompt": "Ping me once at least 3 new unread notifications come in.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 82.7,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
-        "post_ids": ["post-20", "post-21", "post-22"],
-        "connection_ids": ["conn-5", "conn-6"],
-        "conversation_ids": ["conv-2", "conv-3"],
-        "notification_ids": ["notif-1", "notif-2"],
-        "job_ids": ["job-5", "job-6"]
+        "post_ids": [
+          "post-20",
+          "post-21",
+          "post-22"
+        ],
+        "connection_ids": [
+          "conn-5",
+          "conn-6"
+        ],
+        "conversation_ids": [
+          "conv-2",
+          "conv-3"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-2"
+        ],
+        "job_ids": [
+          "job-5",
+          "job-6"
+        ]
       }
     },
     {
-      "time": 80,
+      "time": 22.05,
       "type": "new_notification",
-      "payload": { "notification_id": "notif-3" }
+      "payload": {
+        "notification_id": "notif-3"
+      }
     },
     {
-      "time": 140,
+      "time": 38.59,
       "type": "new_post",
-      "payload": { "post_id": "post-23" }
+      "payload": {
+        "post_id": "post-23"
+      }
     },
     {
-      "time": 190,
+      "time": 52.38,
       "type": "new_notification",
-      "payload": { "notification_id": "notif-5" }
+      "payload": {
+        "notification_id": "notif-5"
+      }
     },
     {
-      "time": 245,
+      "time": 67.54,
       "type": "new_job",
-      "payload": { "job_id": "job-12" }
+      "payload": {
+        "job_id": "job-12"
+      }
     },
     {
-      "time": 300,
+      "time": 82.7,
       "type": "new_notification",
-      "payload": { "notification_id": "notif-7" }
+      "payload": {
+        "notification_id": "notif-7"
+      }
     },
     {
-      "time": 380,
+      "time": 252.65,
       "type": "new_connection",
-      "payload": { "connection_id": "conn-12" }
+      "payload": {
+        "connection_id": "conn-12"
+      }
     },
     {
-      "time": 460,
+      "time": 422.59,
       "type": "new_notification",
-      "payload": { "notification_id": "notif-8" }
+      "payload": {
+        "notification_id": "notif-8"
+      }
     },
     {
-      "time": 540,
+      "time": 592.54,
       "type": "new_notification",
-      "payload": { "notification_id": "notif-10" }
+      "payload": {
+        "notification_id": "notif-10"
+      }
     }
   ],
   "taxonomy": {

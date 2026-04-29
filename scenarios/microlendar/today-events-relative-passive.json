@@ -3,11 +3,12 @@
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar",
   "prompt": "I already have a few things scheduled for today -- let me know when 3 more events get added to today's schedule.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 13.11,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_events",
       "payload": {
         "event_ids": [
@@ -26,49 +27,49 @@
       }
     },
     {
-      "time": 80,
+      "time": 3.5,
       "type": "new_event",
       "payload": {
         "event_id": "evt003"
       }
     },
     {
-      "time": 160,
+      "time": 6.99,
       "type": "new_event",
       "payload": {
         "event_id": "today06"
       }
     },
     {
-      "time": 200,
+      "time": 8.74,
       "type": "new_event",
       "payload": {
         "event_id": "evt004"
       }
     },
     {
-      "time": 250,
+      "time": 10.92,
       "type": "new_event",
       "payload": {
         "event_id": "today07"
       }
     },
     {
-      "time": 300,
+      "time": 13.11,
       "type": "new_event",
       "payload": {
         "event_id": "today08"
       }
     },
     {
-      "time": 450,
+      "time": 366.56,
       "type": "new_event",
       "payload": {
         "event_id": "today09"
       }
     },
     {
-      "time": 600,
+      "time": 720.0,
       "type": "new_event",
       "payload": {
         "event_id": "evt005"

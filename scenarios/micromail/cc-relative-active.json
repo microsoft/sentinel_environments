@@ -3,18 +3,78 @@
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
   "prompt": "I'm expecting a few more emails where I'm CC'd. Let me know when 3 more come in.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 501.63,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
-    {"time": 0, "type": "preload_emails", "payload": {"email_ids": ["cc-01", "cc-02", "base-01", "base-02"]}},
-    {"time": 40, "type": "new_email", "payload": {"email_id": "base-03"}},
-    {"time": 100, "type": "new_email", "payload": {"email_id": "cc-03"}},
-    {"time": 150, "type": "new_email", "payload": {"email_id": "base-04"}},
-    {"time": 220, "type": "new_email", "payload": {"email_id": "cc-04"}},
-    {"time": 300, "type": "new_email", "payload": {"email_id": "cc-05"}},
-    {"time": 380, "type": "new_email", "payload": {"email_id": "base-05"}},
-    {"time": 460, "type": "new_email", "payload": {"email_id": "base-06"}},
-    {"time": 540, "type": "new_email", "payload": {"email_id": "base-07"}}
+    {
+      "time": 0.0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "cc-01",
+          "cc-02",
+          "base-01",
+          "base-02"
+        ]
+      }
+    },
+    {
+      "time": 66.88,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-03"
+      }
+    },
+    {
+      "time": 167.21,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-03"
+      }
+    },
+    {
+      "time": 250.81,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 367.86,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-04"
+      }
+    },
+    {
+      "time": 501.63,
+      "type": "new_email",
+      "payload": {
+        "email_id": "cc-05"
+      }
+    },
+    {
+      "time": 559.86,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 618.09,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    },
+    {
+      "time": 676.33,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-07"
+      }
+    }
   ],
   "taxonomy": {
     "milestone_type": "relative",

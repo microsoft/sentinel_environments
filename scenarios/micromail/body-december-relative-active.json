@@ -2,18 +2,71 @@
   "id": "micromail-body-december-relative-active",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I got an email earlier mentioning a December deadline. Let me know if another one comes in that also mentions December — you'll need to read through the full emails to check.",
-  "condition_at": 300,
-  "duration": 600,
+  "prompt": "I got an email earlier mentioning a December deadline. Let me know if another one comes in that also mentions December \u2014 you'll need to read through the full emails to check.",
+  "condition_at": 370.68,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
-    {"time": 0, "type": "preload_emails", "payload": {"email_ids": ["ext-18", "base-01", "base-02"]}},
-    {"time": 60, "type": "new_email", "payload": {"email_id": "base-03"}},
-    {"time": 130, "type": "new_email", "payload": {"email_id": "ext-01"}},
-    {"time": 200, "type": "new_email", "payload": {"email_id": "base-04"}},
-    {"time": 300, "type": "new_email", "payload": {"email_id": "ext-21"}},
-    {"time": 380, "type": "new_email", "payload": {"email_id": "base-05"}},
-    {"time": 460, "type": "new_email", "payload": {"email_id": "ext-02"}},
-    {"time": 540, "type": "new_email", "payload": {"email_id": "base-06"}}
+    {
+      "time": 0.0,
+      "type": "preload_emails",
+      "payload": {
+        "email_ids": [
+          "ext-18",
+          "base-01",
+          "base-02"
+        ]
+      }
+    },
+    {
+      "time": 74.14,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-03"
+      }
+    },
+    {
+      "time": 160.63,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-01"
+      }
+    },
+    {
+      "time": 247.12,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 370.68,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-21"
+      }
+    },
+    {
+      "time": 463.83,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 556.98,
+      "type": "new_email",
+      "payload": {
+        "email_id": "ext-02"
+      }
+    },
+    {
+      "time": 650.14,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    }
   ],
   "taxonomy": {
     "milestone_type": "relative",

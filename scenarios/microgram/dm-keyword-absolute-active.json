@@ -3,11 +3,12 @@
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "Watch my DMs for a new message about a mockup -- the word might not show in the preview, so you'll need to open conversations to check.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 413.77,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_posts",
       "payload": {
         "post_ids": [
@@ -34,35 +35,35 @@
       }
     },
     {
-      "time": 100,
+      "time": 137.92,
       "type": "new_message",
       "payload": {
         "message_id": "dm-1"
       }
     },
     {
-      "time": 200,
+      "time": 275.85,
       "type": "new_post",
       "payload": {
         "post_id": "post-digital-art"
       }
     },
     {
-      "time": 300,
+      "time": 413.77,
       "type": "new_message",
       "payload": {
         "message_id": "dm-2"
       }
     },
     {
-      "time": 400,
+      "time": 515.85,
       "type": "new_post",
       "payload": {
         "post_id": "post-architecture-photo"
       }
     },
     {
-      "time": 500,
+      "time": 617.92,
       "type": "new_activity",
       "payload": {
         "activity_id": "act-8"

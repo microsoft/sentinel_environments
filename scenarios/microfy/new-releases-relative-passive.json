@@ -2,12 +2,13 @@
   "id": "microfy-new-releases-relative-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "Keep an eye on the release feed today — once at least 5 new tracks have dropped since I logged in, save them all to my Liked Songs.",
-  "condition_at": 300,
-  "duration": 600,
+  "prompt": "Keep an eye on the release feed today \u2014 once at least 5 new tracks have dropped since I logged in, save them all to my Liked Songs.",
+  "condition_at": 10.69,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_tracks",
       "payload": {
         "track_ids": [
@@ -51,42 +52,42 @@
       }
     },
     {
-      "time": 60,
+      "time": 2.14,
       "type": "new_track",
       "payload": {
         "track_id": "track-031"
       }
     },
     {
-      "time": 135,
+      "time": 4.81,
       "type": "new_track",
       "payload": {
         "track_id": "track-032"
       }
     },
     {
-      "time": 210,
+      "time": 7.48,
       "type": "new_track",
       "payload": {
         "track_id": "track-033"
       }
     },
     {
-      "time": 270,
+      "time": 9.62,
       "type": "new_track",
       "payload": {
         "track_id": "track-034"
       }
     },
     {
-      "time": 300,
+      "time": 10.69,
       "type": "new_track",
       "payload": {
         "track_id": "track-035"
       }
     },
     {
-      "time": 500,
+      "time": 483.56,
       "type": "new_track",
       "payload": {
         "track_id": "track-036"

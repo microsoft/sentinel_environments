@@ -3,11 +3,12 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Watch my portfolio value and let me know when it's up 5% from where it started.",
-  "condition_at": 300,
-  "duration": 600,
+  "condition_at": 409.93,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
   "events": [
     {
-      "time": 0,
+      "time": 0.0,
       "type": "preload_stocks",
       "payload": {
         "stock_symbols": [
@@ -27,28 +28,28 @@
       }
     },
     {
-      "time": 60,
+      "time": 81.99,
       "type": "new_news",
       "payload": {
         "news_id": "11"
       }
     },
     {
-      "time": 150,
+      "time": 204.97,
       "type": "new_news",
       "payload": {
         "news_id": "14"
       }
     },
     {
-      "time": 400,
+      "time": 513.29,
       "type": "new_news",
       "payload": {
         "news_id": "17"
       }
     },
     {
-      "time": 550,
+      "time": 668.32,
       "type": "new_news",
       "payload": {
         "news_id": "20"
