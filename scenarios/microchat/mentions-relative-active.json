@@ -1,0 +1,70 @@
+{
+  "id": "microchat-mentions-relative-active",
+  "environment": "microchat",
+  "start_page": "HOST_ADDRESS/microchat",
+  "prompt": "I'm getting a lot of @mentions today. Let me know when at least 3 more come in than I already have. Note: you'll need to open conversations to see which messages are mentions.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "mention-dm-01", "mention-grp-02",
+          "dm-03", "dm-11", "dm-33",
+          "grp-04", "grp-08", "mtg-03"
+        ]
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_message",
+      "payload": { "message_id": "dm-37" }
+    },
+    {
+      "time": 140,
+      "type": "new_message",
+      "payload": { "message_id": "mention-dm-03" }
+    },
+    {
+      "time": 205,
+      "type": "new_message",
+      "payload": { "message_id": "grp-26" }
+    },
+    {
+      "time": 250,
+      "type": "new_message",
+      "payload": { "message_id": "mention-grp-03" }
+    },
+    {
+      "time": 300,
+      "type": "new_message",
+      "payload": { "message_id": "mention-dm-05" }
+    },
+    {
+      "time": 380,
+      "type": "new_message",
+      "payload": { "message_id": "mention-dm-06" }
+    },
+    {
+      "time": 460,
+      "type": "new_message",
+      "payload": { "message_id": "grp-34" }
+    },
+    {
+      "time": 540,
+      "type": "new_message",
+      "payload": { "message_id": "mtg-20" }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages WHERE mentionsMe = 1) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_mention_total') + 3"
+}

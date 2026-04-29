@@ -1,0 +1,71 @@
+{
+  "id": "microchat-attachment-absolute-active",
+  "environment": "microchat",
+  "start_page": "HOST_ADDRESS/microchat",
+  "prompt": "Let me know the moment someone sends me a file in any of my chats. You'll need to open each conversation to check -- attachments aren't visible from the sidebar.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "dm-03", "dm-11", "dm-23", "dm-29", "dm-33", "dm-39",
+          "grp-04", "grp-08", "grp-16",
+          "mtg-03", "mtg-14"
+        ],
+        "call_ids": ["call-in-02"]
+      }
+    },
+    {
+      "time": 60,
+      "type": "new_message",
+      "payload": { "message_id": "dm-35" }
+    },
+    {
+      "time": 120,
+      "type": "new_message",
+      "payload": { "message_id": "grp-22" }
+    },
+    {
+      "time": 180,
+      "type": "new_message",
+      "payload": { "message_id": "mtg-20" }
+    },
+    {
+      "time": 240,
+      "type": "new_message",
+      "payload": { "message_id": "dm-38" }
+    },
+    {
+      "time": 300,
+      "type": "new_message",
+      "payload": { "message_id": "att-dm-04" }
+    },
+    {
+      "time": 370,
+      "type": "new_message",
+      "payload": { "message_id": "grp-30" }
+    },
+    {
+      "time": 450,
+      "type": "new_message",
+      "payload": { "message_id": "att-grp-04" }
+    },
+    {
+      "time": 540,
+      "type": "new_message",
+      "payload": { "message_id": "mtg-07" }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "high"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages WHERE hasAttachment=1)"
+}

@@ -1,0 +1,70 @@
+{
+  "id": "microchat-missed-calls-absolute-passive",
+  "environment": "microchat",
+  "start_page": "HOST_ADDRESS/microchat",
+  "prompt": "Keep an eye on my calls tab and let me know when I've missed at least 3 calls.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "dm-03", "dm-11", "dm-15", "dm-29", "dm-33", "dm-39",
+          "grp-04", "grp-12", "grp-20", "mtg-03"
+        ],
+        "call_ids": ["call-in-02", "call-out-01"]
+      }
+    },
+    {
+      "time": 75,
+      "type": "new_call",
+      "payload": { "call_id": "call-in-04" }
+    },
+    {
+      "time": 135,
+      "type": "new_call",
+      "payload": { "call_id": "call-missed-02" }
+    },
+    {
+      "time": 195,
+      "type": "new_call",
+      "payload": { "call_id": "call-out-04" }
+    },
+    {
+      "time": 235,
+      "type": "new_call",
+      "payload": { "call_id": "call-missed-03" }
+    },
+    {
+      "time": 300,
+      "type": "new_call",
+      "payload": { "call_id": "call-missed-04" }
+    },
+    {
+      "time": 380,
+      "type": "new_call",
+      "payload": { "call_id": "call-out-03" }
+    },
+    {
+      "time": 460,
+      "type": "new_call",
+      "payload": { "call_id": "call-missed-05" }
+    },
+    {
+      "time": 540,
+      "type": "new_call",
+      "payload": { "call_id": "call-missed-group-01" }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM calls WHERE missed=1) >= 3"
+}
