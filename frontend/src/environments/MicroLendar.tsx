@@ -305,8 +305,10 @@ const MicroLendar = () => {
   // ---------------------------------------------------------------------------
 
   const navigatePrevious = useCallback(() => {
-    if (viewMode === 'month') {
+    if (viewMode === 'month' || viewMode === 'schedule') {
       setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+    } else if (viewMode === 'year') {
+      setCurrentMonth(prev => new Date(prev.getFullYear() - 1, prev.getMonth(), 1));
     } else if (viewMode === 'week') {
       setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() - 7));
       setCurrentMonth(() => {
@@ -319,12 +321,20 @@ const MicroLendar = () => {
         const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - 1);
         return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
       });
+    } else if (viewMode === '4days') {
+      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() - 4));
+      setCurrentMonth(() => {
+        const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - 4);
+        return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+      });
     }
   }, [viewMode, selectedDate]);
 
   const navigateNext = useCallback(() => {
-    if (viewMode === 'month') {
+    if (viewMode === 'month' || viewMode === 'schedule') {
       setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+    } else if (viewMode === 'year') {
+      setCurrentMonth(prev => new Date(prev.getFullYear() + 1, prev.getMonth(), 1));
     } else if (viewMode === 'week') {
       setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 7));
       setCurrentMonth(() => {
@@ -335,6 +345,12 @@ const MicroLendar = () => {
       setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 1));
       setCurrentMonth(() => {
         const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 1);
+        return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
+      });
+    } else if (viewMode === '4days') {
+      setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth(), prev.getDate() + 4));
+      setCurrentMonth(() => {
+        const newDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 4);
         return new Date(newDate.getFullYear(), newDate.getMonth(), 1);
       });
     }
@@ -644,17 +660,36 @@ const MicroLendar = () => {
 
   const getVisibleMonthEventCount = useCallback(() => {
     const visibleCalendars = calendars.filter(c => c.checked).map(c => c.name);
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
+    const selectedDateStr = selectedDate.toISOString().split('T')[0];
 
     return events.filter(e => {
       if (e.isTask) return false;
-      const eventDate = new Date(e.date);
-      return eventDate.getFullYear() === year &&
-             eventDate.getMonth() === month &&
-             visibleCalendars.includes(e.calendar);
+      if (!visibleCalendars.includes(e.calendar)) return false;
+      const [eYear, eMonth] = e.date.split('-').map(Number);
+
+      if (viewMode === 'day') {
+        return e.date === selectedDateStr;
+      } else if (viewMode === 'week') {
+        const weekStart = new Date(selectedDate);
+        weekStart.setDate(selectedDate.getDate() - selectedDate.getDay());
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        const startStr = weekStart.toISOString().split('T')[0];
+        const endStr = weekEnd.toISOString().split('T')[0];
+        return e.date >= startStr && e.date <= endStr;
+      } else if (viewMode === '4days') {
+        const rangeEnd = new Date(selectedDate);
+        rangeEnd.setDate(selectedDate.getDate() + 3);
+        const startStr = selectedDateStr;
+        const endStr = rangeEnd.toISOString().split('T')[0];
+        return e.date >= startStr && e.date <= endStr;
+      } else if (viewMode === 'year') {
+        return eYear === currentMonth.getFullYear();
+      } else {
+        return eYear === currentMonth.getFullYear() && eMonth === currentMonth.getMonth() + 1;
+      }
     }).length;
-  }, [events, calendars, currentMonth]);
+  }, [events, calendars, currentMonth, viewMode, selectedDate]);
 
   const searchEvents = useCallback(() => {
     if (!searchQuery.trim()) return events.filter(e => !e.isTask);
@@ -765,6 +800,16 @@ const MicroLendar = () => {
                   return `${weekStart.toLocaleDateString('en-US', { month: 'short' })} ${weekStart.getDate()} - ${weekEnd.toLocaleDateString('en-US', { month: 'short' })} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`;
                 })()}
                 {viewMode === 'day' && selectedDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                {viewMode === '4days' && (() => {
+                  const rangeEnd = new Date(selectedDate);
+                  rangeEnd.setDate(selectedDate.getDate() + 3);
+                  if (selectedDate.getMonth() === rangeEnd.getMonth()) {
+                    return `${selectedDate.toLocaleDateString('en-US', { month: 'long' })} ${selectedDate.getDate()} - ${rangeEnd.getDate()}, ${selectedDate.getFullYear()}`;
+                  }
+                  return `${selectedDate.toLocaleDateString('en-US', { month: 'short' })} ${selectedDate.getDate()} - ${rangeEnd.toLocaleDateString('en-US', { month: 'short' })} ${rangeEnd.getDate()}, ${rangeEnd.getFullYear()}`;
+                })()}
+                {viewMode === 'year' && currentMonth.getFullYear()}
+                {viewMode === 'schedule' && monthName}
               </span>
               <span className="text-sm text-gray-500 font-medium px-3 py-1 bg-gray-100 rounded-full">
                 {getVisibleMonthEventCount()} {getVisibleMonthEventCount() === 1 ? 'event' : 'events'}
@@ -1496,6 +1541,10 @@ const MicroLendar = () => {
               <h3 className="text-lg font-semibold mb-4">Upcoming Events</h3>
               {(() => {
                 const sortedEvents = [...events]
+                  .filter(e => {
+                    const d = new Date(e.date);
+                    return d.getFullYear() === currentMonth.getFullYear() && d.getMonth() === currentMonth.getMonth();
+                  })
                   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 const groupedByDate: { [key: string]: CalendarEvent[] } = {};
 
