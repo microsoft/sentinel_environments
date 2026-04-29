@@ -326,7 +326,10 @@ def _advance_session(session: Session, up_to_time: float) -> list[dict]:
 async def _run_auto(session: Session) -> None:
     global _state, _run_task
     try:
-        while session.next_event_index < len(session.events):
+        # Keep ticking simulation_time until event_timeline_end, even after the
+        # event queue drains, so the harness can observe sim-time progress past
+        # the last authored event (the queue often runs dry before kill_at_wall).
+        while session.simulation_time < session.event_timeline_end:
             await asyncio.sleep(0.25)
             if _state == STATE_COMPLETED:
                 # Stop if we've reached a terminal state (e.g. after /evaluate or /contact)

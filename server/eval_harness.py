@@ -18,6 +18,7 @@ from urllib.parse import urlencode, urlparse, urlunparse
 import requests
 import yaml
 
+from server.server import STATE_COMPLETED, STATE_RUNNING_AUTO
 from server.timing import kill_at_wall, validate_speed_factor
 
 DEFAULT_API_URL = "http://localhost:8000"
@@ -182,21 +183,41 @@ def run_task(config, task_json_file, task_result_folder):
                 t = threading.Thread(target=_tee, args=(proc.stdout, out))
                 t.start()
                 try:
-                    proc.wait(timeout=kill_at_wall(speed_factor))
+                    proc.wait(kill_at_wall(speed_factor))
                 except subprocess.TimeoutExpired:
-                    try:
-                        resp = requests.get(f"{api_url}/status", timeout=5)
-                        server_state = resp.json().get("status") if resp.ok else None
-                    except requests.RequestException:
-                        server_state = None
+                    resp = requests.get(f"{api_url}/status", timeout=5)
+                    resp.raise_for_status()
 
-                    if server_state == "completed":
+                    # Throw errors if keys are missing, to help debugging if the server is not responding as expected.
+                    status_json = resp.json()
+                    server_state = status_json["status"]
+                    sim_time = status_json["simulation_time"]
+
+                    # Use proc.wait(timeout=...) rather than time.sleep() so the
+                    # agent can exit early if it finishes during the grace window.
+                    if server_state == STATE_COMPLETED:
                         print(
                             "Agent subprocess timed out but server is in 'completed' state; "
                             "granting 90s grace before kill...",
                             flush=True,
                         )
-                        time.sleep(90)
+                        try:
+                            proc.wait(timeout=90)
+                        except subprocess.TimeoutExpired:
+                            pass
+                    elif server_state == STATE_RUNNING_AUTO and sim_time is not None:
+                        slop = kill_at_wall(speed_factor) - float(sim_time)
+                        if slop > 0:
+                            print(
+                                f"Agent subprocess timed out but simulation_time={sim_time:.2f} "
+                                f"is short of kill_at_wall by {slop:.2f}s (startup overhead); "
+                                f"waiting for the sim clock to catch up...",
+                                flush=True,
+                            )
+                            try:
+                                proc.wait(timeout=slop)
+                            except subprocess.TimeoutExpired:
+                                pass
 
                     print("Agent subprocess timed out, killing process group...", flush=True)
                     os.killpg(proc.pid, signal.SIGKILL)
