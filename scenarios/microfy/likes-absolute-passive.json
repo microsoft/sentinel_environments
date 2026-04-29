@@ -2,7 +2,7 @@
   "id": "microfy-likes-absolute-passive",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "Keep checking for new songs. Like the next 4 new songs to appear.",
+  "prompt": "Keep checking for new trending songs. Like the next 4 new songs to appear.",
   "condition_at": 92.37,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

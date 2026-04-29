@@ -605,7 +605,7 @@ const MicroDin = () => {
   }, [apiNotifications]);
 
   const allJobListings = useMemo<JobListing[]>(() => {
-    return apiJobs.map(j => ({
+    const fromApi = apiJobs.map(j => ({
       id: j.id,
       title: j.title,
       company: companyMap.get(j.companyId)?.name || j.companyId,
@@ -617,7 +617,20 @@ const MicroDin = () => {
       requirements: j.requirements,
       companyId: j.companyId,
     }));
-  }, [apiJobs, companyMap]);
+    const fromPosted = postedJobs.map((j, idx) => ({
+      id: `posted-job-${idx}`,
+      title: j.title,
+      company: j.company,
+      location: j.location,
+      type: j.type,
+      posted: 'Just now',
+      applicants: 0,
+      description: '',
+      requirements: [] as string[],
+      companyId: '',
+    }));
+    return [...fromPosted, ...fromApi];
+  }, [apiJobs, companyMap, postedJobs]);
 
   // Use self person when viewing own profile, otherwise find in allPeople
   const viewedPerson = viewedPersonId === 'self'
@@ -2878,8 +2891,21 @@ const MicroDin = () => {
                       Apply
                     </button>
                   )}
-                  <button className="px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-full font-semibold hover:bg-gray-50 transition-colors">
-                    Save
+                  <button
+                    onClick={() => {
+                      if (savedJobs.includes(selectedJob.id)) {
+                        setSavedJobs(savedJobs.filter(id => id !== selectedJob.id));
+                      } else {
+                        setSavedJobs([...savedJobs, selectedJob.id]);
+                      }
+                    }}
+                    className={`px-6 py-2 border-2 rounded-full font-semibold transition-colors ${
+                      savedJobs.includes(selectedJob.id)
+                        ? 'border-blue-600 text-blue-600 bg-blue-50'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {savedJobs.includes(selectedJob.id) ? 'Saved' : 'Save'}
                   </button>
                 </div>
 

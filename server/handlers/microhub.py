@@ -10,6 +10,7 @@ from __future__ import annotations
 import bisect
 import json
 import sqlite3
+import time
 from typing import TYPE_CHECKING
 
 from server.catalogs import (
@@ -540,6 +541,13 @@ def process_event(session: Session, event: dict) -> None:
         raw = MICROHUB_ISSUE_CATALOG.get(issue_id)
         if raw and issue_id not in session.microhub_issue_states:
             row = _build_issue_row(raw)
+            # Issue arrives mid-session, so override its catalog ordering: bump its
+            # number above all existing issues so it sorts to the top of the list,
+            # and stamp createdAt so it displays "just now" and ages in real time.
+            existing_numbers = [i.get("number", 0) for i in session.microhub_issues]
+            existing_numbers += [i.get("number", 0) for i in session.microhub_user_created_issues]
+            row["number"] = (max(existing_numbers) if existing_numbers else 0) + 1
+            row["createdAt"] = int(time.time() * 1000)
             session.microhub_issues.append(row)
             session.microhub_issue_states[issue_id] = {"state": row["state"]}
 

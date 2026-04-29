@@ -72,54 +72,11 @@ const MicroHood = () => {
   }, [config?.selfUser]);
 
   // ===================== DERIVED FROM API =====================
-  // MCRO price from server-interpolated stocks
-  const currentPrice = useMemo(() => {
-    const mcro = stocks.find(s => s.symbol === "MCRO");
-    return mcro?.currentPrice ?? 0;
-  }, [stocks]);
-
-  // Track a sliding window of MCRO prices for chart
-  const priceHistoryRef = useRef<number[]>([]);
-  const [priceHistory, setPriceHistory] = useState<number[]>([]);
-  useEffect(() => {
-    if (currentPrice <= 0) return;
-    const hist = priceHistoryRef.current;
-    hist.push(currentPrice);
-    if (hist.length > 50) hist.shift();
-    setPriceHistory([...hist]);
-  }, [currentPrice]);
-
-  // Generate static price patterns for non-1D timeframes (cosmetic only)
-  const generatePriceHistory = (basePrice: number, points: number, volatility: number): number[] => {
-    return Array(points).fill(0).map((_, i) =>
-      basePrice - (volatility * 2) + Math.sin(i * 0.3) * volatility + Math.random() * volatility
-    );
-  };
-  const [priceHistoryByTimeframe] = useState<Record<string, number[]>>(() => ({
-    "1D": [],
-    "1W": generatePriceHistory(430, 50, 20),
-    "1M": generatePriceHistory(420, 50, 35),
-    "3M": generatePriceHistory(400, 50, 50),
-    "YTD": generatePriceHistory(370, 50, 70),
-    "1Y": generatePriceHistory(350, 50, 90),
-    "ALL": generatePriceHistory(250, 50, 150),
-  }));
-
   // Portfolio from API
   const buyingPower = portfolio?.buying_power ?? 10000;
   const portfolioValue = portfolio?.portfolio_value ?? 0;
   const portfolioChange = portfolio?.total_gain ?? 0;
   const portfolioChangePercent = portfolio?.total_gain_percent ?? 0;
-
-  // Starting price = first MCRO price we saw
-  const startingPriceRef = useRef<number>(0);
-  if (currentPrice > 0 && startingPriceRef.current === 0) {
-    startingPriceRef.current = currentPrice;
-  }
-  const startingPrice = startingPriceRef.current || currentPrice;
-
-  const priceChange = currentPrice - startingPrice;
-  const priceChangePercent = startingPrice > 0 ? (priceChange / startingPrice) * 100 : 0;
 
   // MCRO shares
   const ownedShares = useMemo(() => {
@@ -138,7 +95,6 @@ const MicroHood = () => {
 
   // ===================== UI STATE =====================
   const [toast, setToast] = useState<string | null>(null);
-  const [hasPlacedOrder, setHasPlacedOrder] = useState(false);
   const [orderType, setOrderType] = useState<"buy" | "sell" | null>(null);
   const [selectedTimeframe, setSelectedTimeframe] = useState("1D");
 
@@ -189,6 +145,80 @@ const MicroHood = () => {
     shares?: number;
     avgCost?: number;
   } | null>(null);
+  const liveSelectedStock = useMemo(() => {
+    if (!selectedStock) return null;
+    const live = allStocksWithCurrentPrices.find(s => s.symbol === selectedStock.symbol);
+    if (!live) return selectedStock;
+    return {
+      ...selectedStock,
+      price: live.currentPrice,
+      change: live.change,
+      changePercent: live.changePercent,
+      shares: live.shares,
+      avgCost: live.avgCost,
+    };
+  }, [selectedStock, allStocksWithCurrentPrices]);
+
+  // ===================== PRICE HISTORY (depends on liveSelectedStock) =====================
+  const currentPrice = useMemo(() => {
+    const symbol = liveSelectedStock?.symbol ?? "MCRO";
+    return stocks.find(s => s.symbol === symbol)?.currentPrice ?? 0;
+  }, [stocks, liveSelectedStock]);
+
+  const generatePriceHistory = (startPrice: number, points: number, volatility: number, endPrice: number, seed: number): number[] => {
+    let s = seed | 0;
+    const rand = () => { s = (Math.imul(1664525, s) + 1013904223) | 0; return (s >>> 0) / 0x100000000; };
+    const arr = Array(points).fill(0).map((_, i) =>
+      startPrice + (endPrice - startPrice) * (i / points) + Math.sin(i * 0.3) * volatility + (rand() - 0.5) * volatility
+    );
+    arr[arr.length - 1] = endPrice;
+    return arr;
+  };
+
+  const priceHistoryByTimeframe = useMemo(() => {
+    const p = liveSelectedStock?.price ?? 450;
+    const v = p * 0.015;
+    const open = p - (liveSelectedStock?.change ?? 0);
+    const sym = liveSelectedStock?.symbol ?? "";
+    const base = sym.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+    return {
+      "1D":  generatePriceHistory(open,      30, v * 0.3, p, base + 1),
+      "1W":  generatePriceHistory(p * 0.97,  50, v,       p, base + 2),
+      "1M":  generatePriceHistory(p * 0.93,  50, v * 1.5, p, base + 3),
+      "3M":  generatePriceHistory(p * 0.88,  50, v * 2.5, p, base + 4),
+      "YTD": generatePriceHistory(p * 0.82,  50, v * 3.5, p, base + 5),
+      "1Y":  generatePriceHistory(p * 0.75,  50, v * 4.5, p, base + 6),
+      "ALL": generatePriceHistory(p * 0.55,  50, v * 7,   p, base + 7),
+    };
+  }, [liveSelectedStock]);
+
+  const priceHistoryRef = useRef<number[]>([]);
+  const lastSymbolRef = useRef<string>("");
+  const [priceHistory, setPriceHistory] = useState<number[]>([]);
+  useEffect(() => {
+    if (currentPrice <= 0) return;
+    const symbol = liveSelectedStock?.symbol ?? "MCRO";
+    if (symbol !== lastSymbolRef.current) {
+      lastSymbolRef.current = symbol;
+      priceHistoryRef.current = [...priceHistoryByTimeframe["1D"]];
+    }
+    const hist = priceHistoryRef.current;
+    hist.push(currentPrice);
+    if (hist.length > 80) hist.shift();
+    setPriceHistory([...hist]);
+  }, [currentPrice, liveSelectedStock?.symbol, priceHistoryByTimeframe]);
+
+  // For non-1D timeframes use the static generated history; for 1D use the live-ticking one.
+  const chartData = selectedTimeframe === "1D"
+    ? priceHistory
+    : (priceHistoryByTimeframe[selectedTimeframe as keyof typeof priceHistoryByTimeframe] ?? []);
+
+  const startingPrice = liveSelectedStock
+    ? liveSelectedStock.price - (liveSelectedStock.change ?? 0)
+    : currentPrice;
+  const priceChange = currentPrice - startingPrice;
+  const priceChangePercent = startingPrice > 0 ? (priceChange / startingPrice) * 100 : 0;
+
   const [orderStep, setOrderStep] = useState<"quantity" | "review">("quantity");
   const [orderTypeSelection, setOrderTypeSelection] = useState<"market" | "limit">("market");
   const [limitPrice, setLimitPrice] = useState("");
@@ -290,8 +320,8 @@ const MicroHood = () => {
 
   const handleConfirmOrder = useCallback(async () => {
     const qty = parseInt(orderQuantity) || 1;
-    const tradingSymbol = selectedStock?.symbol || "MCRO";
-    const stockPrice = selectedStock?.price || currentPrice;
+    const tradingSymbol = liveSelectedStock?.symbol || "MCRO";
+    const stockPrice = liveSelectedStock?.price || currentPrice;
     const effectivePrice = orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : stockPrice;
     const orderCost = effectivePrice * qty;
 
@@ -319,19 +349,48 @@ const MicroHood = () => {
     }, ...prev]);
     showToast(`${orderType === "buy" ? "Bought" : "Sold"} ${qty} share${qty > 1 ? "s" : ""} of ${tradingSymbol}`);
 
-    setHasPlacedOrder(true);
     setShowOrderModal(false);
-  }, [orderType, orderQuantity, currentPrice, selectedStock, showToast, orderTypeSelection, limitPrice, placeOrder]);
+  }, [orderType, orderQuantity, currentPrice, liveSelectedStock, showToast, orderTypeSelection, limitPrice, placeOrder]);
+
+  const stockStats = useMemo(() => {
+    const s = liveSelectedStock;
+    if (!s) return null;
+    // Deterministic hash so each stock gets stable but different values.
+    let h = 0;
+    for (let i = 0; i < s.symbol.length; i++) {
+      h = (h * 31 + s.symbol.charCodeAt(i)) & 0xffff;
+    }
+    const h1 = h & 0xff;
+    const h2 = (h >> 4) & 0xff;
+    const price = s.price;
+    const open = price - s.change;
+    const dailySwing = price * (0.008 + (h1 % 12) * 0.001);
+    const weeklySwing = price * (0.18 + (h2 % 20) * 0.01);
+    const volumeBase = price > 300 ? 4 : price > 100 ? 12 : 28;
+    const sharesOut = (500 + (h1 % 400)) * 1e6;
+    const buyPct = 52 + (h1 % 30);
+    const sellPct = 5 + (h2 % 15);
+    const holdPct = 100 - buyPct - sellPct;
+    
+    return {
+      open,
+      high: Math.max(open + dailySwing, price),
+      low: Math.min(open - dailySwing, price),
+      volume: `${(volumeBase + (h2 % 10)).toFixed(1)}M`,
+      marketCap: `$${(price * sharesOut / 1e12).toFixed(2)}T`,
+      peRatio: (14 + (h1 % 32) + (h2 % 8) * 0.25).toFixed(2),
+      high52: price + weeklySwing,
+      low52: price - weeklySwing,
+      buyPct,
+      holdPct,
+      sellPct,
+      analystCount: 20 + (h2 % 35),
+    };
+  }, [liveSelectedStock]);
 
   const handleTimeframeChange = useCallback((tf: string) => {
     setSelectedTimeframe(tf);
-    const newHistory = priceHistoryByTimeframe[tf];
-    if (newHistory) {
-      // Keep last point as current price for continuity
-      const updatedHistory = [...newHistory.slice(0, -1), currentPrice];
-      setPriceHistory(updatedHistory);
-    }
-  }, [priceHistoryByTimeframe, currentPrice]);
+  }, []);
 
   const _handleComingSoon = useCallback((feature: string) => {
     showToast(`${feature} coming soon!`);
@@ -362,7 +421,7 @@ const MicroHood = () => {
     // Need at least two points for a polyline; otherwise the x denominator
     // (length - 1) is 0 and Math.min(...[]) is Infinity, both of which
     // produce NaN coordinates and SVG warnings.
-    if (priceHistory.length < 2) {
+    if (chartData.length < 2) {
       return (
         <svg
           width="100%"
@@ -373,12 +432,12 @@ const MicroHood = () => {
       );
     }
 
-    const minPrice = Math.min(...priceHistory) - 5;
-    const maxPrice = Math.max(...priceHistory) + 5;
+    const minPrice = Math.min(...chartData) - 5;
+    const maxPrice = Math.max(...chartData) + 5;
     const priceRange = maxPrice - minPrice;
 
-    const points = priceHistory.map((price, i) => {
-      const x = padding.left + (i / (priceHistory.length - 1)) * chartWidth;
+    const points = chartData.map((price, i) => {
+      const x = padding.left + (i / (chartData.length - 1)) * chartWidth;
       const y = padding.top + chartHeight - ((price - minPrice) / priceRange) * chartHeight;
       return `${x},${y}`;
     }).join(" ");
@@ -925,33 +984,33 @@ const MicroHood = () => {
                   <div className="flex items-center gap-3">
                     <div
                       className="w-12 h-12 rounded-full flex items-center justify-center"
-                      style={{ backgroundColor: selectedStock?.color || "#00A4EF" }}
+                      style={{ backgroundColor: liveSelectedStock?.color || "#00A4EF" }}
                     >
                       <span className="text-white font-bold text-lg">
-                        {selectedStock?.symbol?.[0] || "M"}
+                        {liveSelectedStock?.symbol?.[0] || "M"}
                       </span>
                     </div>
                     <div>
-                      <p className="font-bold text-lg">{selectedStock?.symbol || "MCRO"}</p>
-                      <p className={`text-sm ${themeClasses.textSecondary}`}>{selectedStock?.name || "MicroSystems Corp"}</p>
+                      <p className="font-bold text-lg">{liveSelectedStock?.symbol || "MCRO"}</p>
+                      <p className={`text-sm ${themeClasses.textSecondary}`}>{liveSelectedStock?.name || "MicroSystems Corp"}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {/* Watchlist Toggle Button */}
                     <button
                       onClick={() => {
-                        handleToggleWatchlist(selectedStock?.symbol || "MCRO");
+                        handleToggleWatchlist(liveSelectedStock?.symbol || "MCRO");
                       }}
                       className={`p-2 rounded-full transition-all ${
-                        isInWatchlist(selectedStock?.symbol || "MCRO")
+                        isInWatchlist(liveSelectedStock?.symbol || "MCRO")
                           ? "bg-[#00C805]/20 text-[#00C805]"
                           : `${themeClasses.bgHoverSecondary} ${themeClasses.textMuted}`
                       }`}
-                      title={isInWatchlist(selectedStock?.symbol || "MCRO") ? "Remove from watchlist" : "Add to watchlist"}
+                      title={isInWatchlist(liveSelectedStock?.symbol || "MCRO") ? "Remove from watchlist" : "Add to watchlist"}
                     >
                       <Star
                         size={20}
-                        fill={isInWatchlist(selectedStock?.symbol || "MCRO") ? "#00C805" : "none"}
+                        fill={isInWatchlist(liveSelectedStock?.symbol || "MCRO") ? "#00C805" : "none"}
                       />
                     </button>
                     <div className="relative">
@@ -965,7 +1024,7 @@ const MicroHood = () => {
                         <div className={`absolute right-0 top-full mt-2 w-48 ${themeClasses.bgTertiary} rounded-xl shadow-xl border ${themeClasses.borderSecondary} overflow-hidden z-50`}>
                           <button
                             onClick={() => {
-                              handleToggleWatchlist(selectedStock?.symbol || "MCRO");
+                              handleToggleWatchlist(liveSelectedStock?.symbol || "MCRO");
                               setShowMoreOptionsDropdown(false);
                             }}
                             className={`w-full flex items-center gap-3 px-4 py-3 ${themeClasses.bgHover} text-left`}
@@ -975,7 +1034,7 @@ const MicroHood = () => {
                           </button>
                           <button
                             onClick={() => {
-                              const symbol = selectedStock?.symbol || "MCRO";
+                              const symbol = liveSelectedStock?.symbol || "MCRO";
                               showToast(`Price alert set for ${symbol}`);
                               setShowMoreOptionsDropdown(false);
                             }}
@@ -986,7 +1045,7 @@ const MicroHood = () => {
                           </button>
                           <button
                             onClick={() => {
-                              const symbol = selectedStock?.symbol || "MCRO";
+                              const symbol = liveSelectedStock?.symbol || "MCRO";
                               navigator.clipboard.writeText(`https://microhood.app/stock/${symbol}`);
                               showToast("Link copied to clipboard!");
                               setShowMoreOptionsDropdown(false);
@@ -1014,17 +1073,17 @@ const MicroHood = () => {
 
                 <div className="flex items-baseline gap-2 mb-1">
                   <span className="text-3xl font-bold">
-                    {formatCurrency(selectedStock?.price || currentPrice)}
+                    {formatCurrency(liveSelectedStock?.price || currentPrice)}
                   </span>
                 </div>
                 <div className={`flex items-center gap-1 ${
-                  (selectedStock?.change ?? priceChange) >= 0 ? "text-[#00C805]" : "text-[#FF5000]"
+                  (liveSelectedStock?.change ?? priceChange) >= 0 ? "text-[#00C805]" : "text-[#FF5000]"
                 }`}>
-                  {(selectedStock?.change ?? priceChange) >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                  {(liveSelectedStock?.change ?? priceChange) >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
                   <span className="font-medium">
                     {formatChange(
-                      selectedStock?.change ?? priceChange,
-                      selectedStock?.changePercent ?? priceChangePercent
+                      liveSelectedStock?.change ?? priceChange,
+                      liveSelectedStock?.changePercent ?? priceChangePercent
                     )}
                   </span>
                 </div>
@@ -1032,28 +1091,18 @@ const MicroHood = () => {
                 <div className="grid grid-cols-2 gap-3 mt-5">
                   <button
                     onClick={() => handlePlaceOrder("buy")}
-                    disabled={hasPlacedOrder}
-                    className={`py-3 rounded-full font-bold text-sm transition-all ${
-                      hasPlacedOrder
-                        ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                        : "bg-[#00C805] text-black hover:bg-[#00B504] active:scale-[0.98]"
-                    }`}
+                    className="py-3 rounded-full font-bold text-sm transition-all bg-[#00C805] text-black hover:bg-[#00B504] active:scale-[0.98]"
                   >
-                    {hasPlacedOrder && orderType === "buy" ? "Bought" : "Buy"}
+                    Buy
                   </button>
                   <button
                     onClick={() => handlePlaceOrder("sell")}
-                    disabled={hasPlacedOrder}
-                    className={`py-3 rounded-full font-bold text-sm transition-all ${
-                      hasPlacedOrder
-                        ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                        : "bg-gray-800 text-white hover:bg-gray-700 active:scale-[0.98]"
-                    }`}
+                    className="py-3 rounded-full font-bold text-sm transition-all bg-gray-800 text-white hover:bg-gray-700 active:scale-[0.98]"
                   >
-                    {hasPlacedOrder && orderType === "sell" ? "Sold" : "Sell"}
+                    Sell
                   </button>
                 </div>
-                {selectedStock && (
+                {liveSelectedStock && (
                   <button
                     onClick={() => setSelectedStock(null)}
                     className="w-full mt-3 py-2 text-sm text-[#00C805] hover:underline"
@@ -1069,24 +1118,24 @@ const MicroHood = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="text-gray-500">Shares</p>
-                    <p className="font-medium">{selectedStock?.shares ?? ownedShares}</p>
+                    <p className="font-medium">{liveSelectedStock?.shares ?? ownedShares}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Market Value</p>
                     <p className="font-medium">
-                      {formatCurrency((selectedStock?.price || currentPrice) * (selectedStock?.shares ?? ownedShares))}
+                      {formatCurrency((liveSelectedStock?.price || currentPrice) * (liveSelectedStock?.shares ?? ownedShares))}
                     </p>
                   </div>
                   <div>
                     <p className="text-gray-500">Avg Cost</p>
-                    <p className="font-medium">{selectedStock?.avgCost ? formatCurrency(selectedStock.avgCost) : "$380.50"}</p>
+                    <p className="font-medium">{liveSelectedStock?.avgCost ? formatCurrency(liveSelectedStock.avgCost) : "$380.50"}</p>
                   </div>
                   <div>
                     <p className="text-gray-500">Total Return</p>
                     {(() => {
-                      const avgCost = selectedStock?.avgCost || 380.50;
-                      const price = selectedStock?.price || currentPrice;
-                      const shares = selectedStock?.shares ?? ownedShares;
+                      const avgCost = liveSelectedStock?.avgCost || 380.50;
+                      const price = liveSelectedStock?.price || currentPrice;
+                      const shares = liveSelectedStock?.shares ?? ownedShares;
                       const returnValue = (price - avgCost) * shares;
                       const returnPercent = ((price - avgCost) / avgCost) * 100;
                       return (
@@ -1100,61 +1149,65 @@ const MicroHood = () => {
               </div>
 
               {/* Stats */}
-              <div className="border-t border-gray-800 p-5">
-                <h4 className="text-sm font-medium text-gray-400 mb-3">Stats</h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-500">Open</p>
-                    <p className="font-medium">{formatCurrency(startingPrice)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">High</p>
-                    <p className="font-medium">{formatCurrency(Math.max(...priceHistory))}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Low</p>
-                    <p className="font-medium">{formatCurrency(Math.min(...priceHistory))}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Volume</p>
-                    <p className="font-medium">23.4M</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">Market Cap</p>
-                    <p className="font-medium">$3.12T</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">P/E Ratio</p>
-                    <p className="font-medium">35.24</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">52W High</p>
-                    <p className="font-medium">$468.35</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-500">52W Low</p>
-                    <p className="font-medium">$309.45</p>
+              {stockStats && (
+                <div className="border-t border-gray-800 p-5">
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">Stats</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-gray-500">Open</p>
+                      <p className="font-medium">{formatCurrency(stockStats.open)}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">High</p>
+                      <p className="font-medium">{formatCurrency(stockStats.high)}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Low</p>
+                      <p className="font-medium">{formatCurrency(stockStats.low)}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Volume</p>
+                      <p className="font-medium">{stockStats.volume}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">Market Cap</p>
+                      <p className="font-medium">{stockStats.marketCap}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">P/E Ratio</p>
+                      <p className="font-medium">{stockStats.peRatio}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">52W High</p>
+                      <p className="font-medium">{formatCurrency(stockStats.high52)}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500">52W Low</p>
+                      <p className="font-medium">{formatCurrency(stockStats.low52)}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Analyst Ratings */}
-              <div className="border-t border-gray-800 p-5">
-                <h4 className="text-sm font-medium text-gray-400 mb-3">Analyst Ratings</h4>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden flex">
-                    <div className="bg-[#00C805] h-full" style={{ width: "72%" }} />
-                    <div className="bg-gray-500 h-full" style={{ width: "20%" }} />
-                    <div className="bg-[#FF5000] h-full" style={{ width: "8%" }} />
+              {stockStats && (
+                <div className="border-t border-gray-800 p-5">
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">Analyst Ratings</h4>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden flex">
+                      <div className="bg-[#00C805] h-full" style={{ width: `${stockStats.buyPct}%` }} />
+                      <div className="bg-gray-500 h-full" style={{ width: `${stockStats.holdPct}%` }} />
+                      <div className="bg-[#FF5000] h-full" style={{ width: `${stockStats.sellPct}%` }} />
+                    </div>
                   </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#00C805]">{stockStats.buyPct}% Buy</span>
+                    <span className="text-gray-400">{stockStats.holdPct}% Hold</span>
+                    <span className="text-[#FF5000]">{stockStats.sellPct}% Sell</span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">Based on {stockStats.analystCount} analyst ratings</p>
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-[#00C805]">72% Buy</span>
-                  <span className="text-gray-400">20% Hold</span>
-                  <span className="text-[#FF5000]">8% Sell</span>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">Based on 45 analyst ratings</p>
-              </div>
+              )}
             </div>
 
             {/* Watchlist */}
@@ -1333,7 +1386,7 @@ const MicroHood = () => {
                 )}
                 <h3 className="text-xl font-bold">
                   {orderStep === "quantity"
-                    ? `${orderType === "buy" ? "Buy" : "Sell"} ${selectedStock?.symbol || "MCRO"}`
+                    ? `${orderType === "buy" ? "Buy" : "Sell"} ${liveSelectedStock?.symbol || "MCRO"}`
                     : "Review Order"}
                 </h3>
               </div>
@@ -1387,7 +1440,7 @@ const MicroHood = () => {
                         type="number"
                         value={limitPrice}
                         onChange={(e) => setLimitPrice(e.target.value)}
-                        placeholder={(selectedStock?.price || currentPrice).toFixed(2)}
+                        placeholder={(liveSelectedStock?.price || currentPrice).toFixed(2)}
                         className={`w-full ${themeClasses.bgInput} border ${themeClasses.borderSecondary} rounded-lg pl-8 pr-4 py-3 text-lg font-medium focus:border-[#00C805] focus:outline-none ${themeClasses.text}`}
                         step="0.01"
                       />
@@ -1414,14 +1467,14 @@ const MicroHood = () => {
                       {orderTypeSelection === "market" ? "Market Price" : "Limit Price"}
                     </span>
                     <span>
-                      {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice))}
+                      {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice))}
                     </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className={themeClasses.textSecondary}>Estimated {orderType === "buy" ? "Cost" : "Credit"}</span>
                     <span className="font-medium">
                       {formatCurrency(
-                        (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice)) *
+                        (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice)) *
                         parseInt(orderQuantity || "0")
                       )}
                     </span>
@@ -1450,11 +1503,11 @@ const MicroHood = () => {
                 <div className={`${themeClasses.bgTertiary} rounded-xl p-4`}>
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-10 h-10 rounded-full bg-[#00A4EF] flex items-center justify-center">
-                      <span className="text-white font-bold">M</span>
+                      <span className="text-white font-bold">{(liveSelectedStock?.symbol || "MCRO").charAt(0)}</span>
                     </div>
                     <div>
-                      <p className="font-bold">MCRO</p>
-                      <p className={`text-xs ${themeClasses.textSecondary}`}>MicroSystems Corp</p>
+                      <p className="font-bold">{liveSelectedStock?.symbol || "MCRO"}</p>
+                      <p className={`text-xs ${themeClasses.textSecondary}`}>{liveSelectedStock?.name || "MicroSystems Corp"}</p>
                     </div>
                   </div>
 
@@ -1478,7 +1531,7 @@ const MicroHood = () => {
                         {orderTypeSelection === "market" ? "Market Price" : "Limit Price"}
                       </span>
                       <span>
-                        {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice))}
+                        {formatCurrency(orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice))}
                       </span>
                     </div>
                     <div className={`flex justify-between text-sm pt-2 border-t ${themeClasses.borderSecondary}`}>
@@ -1487,7 +1540,7 @@ const MicroHood = () => {
                       </span>
                       <span className="font-bold text-lg">
                         {formatCurrency(
-                          (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (selectedStock?.price || currentPrice)) *
+                          (orderTypeSelection === "limit" && limitPrice ? parseFloat(limitPrice) : (liveSelectedStock?.price || currentPrice)) *
                           parseInt(orderQuantity || "0")
                         )}
                       </span>
