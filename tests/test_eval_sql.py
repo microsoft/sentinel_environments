@@ -56,6 +56,15 @@ NEEDS_USER_ACTION = {
 # Scenarios exempt from negative testing (eval_sql passes from preload alone by design).
 NEGATIVE_EXEMPT = set()
 
+# Scenarios where the user action must happen mid-timeline (e.g., buy during a
+# transient price dip). Maps scenario_id -> simulation time at which to pause
+# advance_all and invoke simulate_actions, before continuing on to kill_at.
+MIDFLIGHT_ACTION_TIMES = {
+    # VOLT dips to 222.0 at t=348.67 then recovers; the eval requires the buy
+    # to have been recorded at price <= 223.58, which is true within ~327-381s.
+    "microhood-buy-dip-relative-active": 360.0,
+}
+
 
 # ---------------------------------------------------------------------------
 # HTTP helpers
@@ -142,7 +151,9 @@ def simulate_actions(scenario_id):
              {"action": "buy", "quantity": 2, "type": "market"})
 
     elif scenario_id == "microhood-buy-dip-relative-active":
-        # Buy 3 shares of VOLT at market price after the >10% dip.
+        # Buy 3 VOLT at market while the dip is still active (run_one pauses
+        # advance at MIDFLIGHT_ACTION_TIMES[sid] so the recorded price is
+        # within the trough, satisfying the eval's price <= 223.58 check).
         post("/data/microhood-stocks/VOLT/order",
              {"action": "buy", "quantity": 3, "type": "market"})
 
@@ -261,10 +272,16 @@ def run_one(scenario_path: Path) -> tuple:
         if not init_resp.get("success"):
             return (sid, False, f"init failed: {init_resp}")
 
-        advance_all(scenario)
-
-        if sid in NEEDS_USER_ACTION:
+        if sid in MIDFLIGHT_ACTION_TIMES:
+            # Pause partway through the timeline so the action is recorded
+            # against the world state at that moment (e.g., a transient price).
+            get("/advance", params={"time": MIDFLIGHT_ACTION_TIMES[sid]})
             simulate_actions(sid)
+            advance_all(scenario)
+        else:
+            advance_all(scenario)
+            if sid in NEEDS_USER_ACTION:
+                simulate_actions(sid)
 
         touch_contact()  # satisfy /evaluate's contact gate
         result = post("/evaluate")

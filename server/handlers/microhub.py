@@ -588,10 +588,10 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         [(f.get("id"), f.get("name"), f.get("path"), f.get("type"), f.get("parentId")) for f in session.microhub_files],
     )
 
-    conn.execute("CREATE TABLE issues (id TEXT, number INT, title TEXT, state TEXT, author TEXT)")
+    conn.execute("CREATE TABLE issues (id TEXT, number INT, title TEXT, body TEXT, state TEXT, author TEXT)")
     conn.executemany(
-        "INSERT INTO issues VALUES (?,?,?,?,?)",
-        [(i.get("id"), int(i.get("number", 0)), i.get("title"), i.get("state"), i.get("author")) for i in session.microhub_issues],
+        "INSERT INTO issues VALUES (?,?,?,?,?,?)",
+        [(i.get("id"), int(i.get("number", 0)), i.get("title"), i.get("body", ""), i.get("state"), i.get("author")) for i in session.microhub_issues],
     )
 
     conn.execute("CREATE TABLE issue_states (issue_id TEXT, state TEXT)")
