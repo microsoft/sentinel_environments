@@ -1,0 +1,80 @@
+{
+  "id": "microscholar-snippet-absolute-active",
+  "environment": "microscholar",
+  "start_page": "HOST_ADDRESS/microscholar",
+  "prompt": "I'm looking for a paper that mentions 'downstream tasks' in its abstract -- you'll need to read through the abstracts of new papers as they come in, so let me know when you find one.",
+  "condition_at": 228.1,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_papers",
+      "payload": {
+        "paper_ids": [
+          "paper-067",
+          "paper-068",
+          "paper-069",
+          "paper-070",
+          "paper-071",
+          "paper-072",
+          "paper-073",
+          "paper-074"
+        ],
+        "alert_ids": []
+      }
+    },
+    {
+      "time": 45.62,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-075"
+      }
+    },
+    {
+      "time": 106.45,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-076"
+      }
+    },
+    {
+      "time": 167.27,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-077"
+      }
+    },
+    {
+      "time": 228.1,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-099"
+      }
+    },
+    {
+      "time": 424.86,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-078"
+      }
+    },
+    {
+      "time": 638.02,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-080"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM papers WHERE LOWER(snippet) LIKE '%downstream tasks%')"
+}

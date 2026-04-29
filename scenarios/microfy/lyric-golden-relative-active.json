@@ -1,0 +1,104 @@
+{
+  "id": "microfy-lyric-golden-relative-active",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "I'm collecting songs that mention 'golden' in their lyrics. Watch for new trending songs that fit -- when two more come in, play both to confirm they match.",
+  "condition_at": 513.25,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-021",
+          "track-022",
+          "track-023",
+          "track-024",
+          "track-025",
+          "track-026",
+          "track-027",
+          "track-028",
+          "track-029",
+          "track-030"
+        ],
+        "playlist_ids": [
+          "playlist-011",
+          "playlist-012",
+          "playlist-013"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-002",
+          "track-010",
+          "track-018"
+        ],
+        "followed_artist_ids": [
+          "artist-003"
+        ]
+      }
+    },
+    {
+      "time": 153.98,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-077"
+      }
+    },
+    {
+      "time": 307.95,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-060"
+      }
+    },
+    {
+      "time": 479.03,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-075"
+      }
+    },
+    {
+      "time": 616.62,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-078"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM tracks WHERE LOWER(lyrics) LIKE '%golden%') >= 3 AND (SELECT COUNT(*) FROM track_states ts JOIN tracks t ON t.id = ts.track_id WHERE LOWER(t.lyrics) LIKE '%golden%' AND ts.userPlayCount > 0) >= 3"
+}

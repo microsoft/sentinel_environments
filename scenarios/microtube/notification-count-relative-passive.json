@@ -1,0 +1,102 @@
+{
+  "id": "microtube-notification-count-relative-passive",
+  "environment": "microtube",
+  "start_page": "HOST_ADDRESS/microtube",
+  "prompt": "I already have a few notifications. Let me know when 4 more come in.",
+  "condition_at": 12.34,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "vid-auto-01",
+          "vid-auto-02",
+          "vid-history-01",
+          "vid-history-02"
+        ],
+        "channel_ids": [
+          "ch-auto",
+          "ch-history",
+          "ch-pets",
+          "ch-fitness",
+          "ch-lifestyle",
+          "ch-cooking"
+        ],
+        "notification_ids": [
+          "notif-06",
+          "notif-09"
+        ],
+        "subscribed_channel_ids": [
+          "ch-auto",
+          "ch-history",
+          "ch-pets",
+          "ch-fitness",
+          "ch-lifestyle",
+          "ch-cooking"
+        ]
+      }
+    },
+    {
+      "time": 2.47,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-01"
+      }
+    },
+    {
+      "time": 5.35,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-05"
+      }
+    },
+    {
+      "time": 8.23,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-pets-01"
+      }
+    },
+    {
+      "time": 10.28,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-10"
+      }
+    },
+    {
+      "time": 12.34,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-08"
+      }
+    },
+    {
+      "time": 295.4,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-fitness-01"
+      }
+    },
+    {
+      "time": 602.06,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-02"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM notifications n JOIN notification_states ns ON n.id=ns.notification_id WHERE ns.isDismissed=0) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_notification_count') + 4"
+}

@@ -1,0 +1,82 @@
+{
+  "id": "microlendar-personal-relative-passive",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "I have a few personal events on my calendar already -- keep an eye out and let me know when 2 more personal events get added.",
+  "condition_at": 334.87,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_events",
+      "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
+        "event_ids": [
+          "evt002",
+          "evt003",
+          "evt005",
+          "evt001",
+          "evt004"
+        ],
+        "task_ids": [
+          "task06",
+          "task07"
+        ]
+      }
+    },
+    {
+      "time": 89.3,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt008"
+      }
+    },
+    {
+      "time": 178.6,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt009"
+      }
+    },
+    {
+      "time": 267.9,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt010"
+      }
+    },
+    {
+      "time": 334.87,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt012"
+      }
+    },
+    {
+      "time": 527.43,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt016"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise03"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT ((SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Personal') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Personal')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_personal_event_count') AS REAL) + 2"
+}

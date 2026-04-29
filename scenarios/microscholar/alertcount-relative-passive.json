@@ -1,0 +1,69 @@
+{
+  "id": "microscholar-alertcount-relative-passive",
+  "environment": "microscholar",
+  "start_page": "HOST_ADDRESS/microscholar",
+  "prompt": "I've got a couple of unread alerts already -- let me know when 3 more unread alerts come in.",
+  "condition_at": 20.88,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_papers",
+      "payload": {
+        "paper_ids": [],
+        "alert_ids": [
+          "alert-1",
+          "alert-5",
+          "alert-8",
+          "alert-9"
+        ]
+      }
+    },
+    {
+      "time": 5.57,
+      "type": "new_alert",
+      "payload": {
+        "alert_id": "alert-10"
+      }
+    },
+    {
+      "time": 13.22,
+      "type": "new_alert",
+      "payload": {
+        "alert_id": "alert-13"
+      }
+    },
+    {
+      "time": 20.88,
+      "type": "new_alert",
+      "payload": {
+        "alert_id": "alert-14"
+      }
+    },
+    {
+      "time": 300.53,
+      "type": "new_alert",
+      "payload": {
+        "alert_id": "alert-11"
+      }
+    },
+    {
+      "time": 603.48,
+      "type": "new_alert",
+      "payload": {
+        "alert_id": "alert-12"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM alert_states WHERE isRead=0) >= (SELECT CAST(value AS INT) FROM session_meta WHERE key='baseline_unread_alert_count') + 3"
+}

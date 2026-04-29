@@ -1,0 +1,83 @@
+{
+  "id": "microhood-news-count-relative-passive",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Keep an eye on the news feed in MicroHood and let me know when 3 new articles have appeared since I opened the page.",
+  "condition_at": 464.14,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+        ],
+        "buying_power": 10000.0
+      }
+    },
+    {
+      "time": 108.3,
+      "type": "new_news",
+      "payload": {
+        "news_id": "6"
+      }
+    },
+    {
+      "time": 247.54,
+      "type": "new_news",
+      "payload": {
+        "news_id": "7"
+      }
+    },
+    {
+      "time": 464.14,
+      "type": "new_news",
+      "payload": {
+        "news_id": "8"
+      }
+    },
+    {
+      "time": 537.24,
+      "type": "new_news",
+      "payload": {
+        "news_id": "9"
+      }
+    },
+    {
+      "time": 624.97,
+      "type": "new_news",
+      "payload": {
+        "news_id": "10"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_news",
+      "payload": {
+        "news_id": "11"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM news) >= CAST((SELECT value FROM session_meta WHERE key='baseline_news_count') AS INTEGER) + 3"
+}

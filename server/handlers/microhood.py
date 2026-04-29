@@ -98,6 +98,7 @@ def compute_current_metrics(session: Session) -> dict:
         "order_count": len(session.microhood_orders),
         "watchlist_count": watchlist_count,
         "mcro_price": round(prices.get("MCRO", 0), 2),
+        "news_count": len(session.microhood_news),
     }
 
 

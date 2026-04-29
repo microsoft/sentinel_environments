@@ -1,0 +1,97 @@
+{
+  "id": "microgram-posts-relative-passive",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "I already have a bunch of posts in my feed -- let me know when 5 more new posts show up.",
+  "condition_at": 200.78,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-sailing-sunset",
+          "post-rock-climbing",
+          "post-beach-sunrise",
+          "post-camping-tent",
+          "post-pottery-wheel",
+          "post-skydiving",
+          "post-book-club",
+          "post-skateboard-park"
+        ],
+        "story_ids": [
+          "story-dubai-skyline-sunset",
+          "story-robotics-lab-prototype"
+        ],
+        "message_ids": [
+          "dm-4"
+        ],
+        "activity_ids": [
+          "act-9",
+          "act-10"
+        ]
+      }
+    },
+    {
+      "time": 40.16,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-marathon-finish"
+      }
+    },
+    {
+      "time": 80.31,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-studio-session"
+      }
+    },
+    {
+      "time": 120.47,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-mountain-bike"
+      }
+    },
+    {
+      "time": 160.62,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-code-conference"
+      }
+    },
+    {
+      "time": 200.78,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-street-food"
+      }
+    },
+    {
+      "time": 373.85,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-basketball-court"
+      }
+    },
+    {
+      "time": 633.46,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-art-gallery"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM posts) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_post_count') + 5"
+}

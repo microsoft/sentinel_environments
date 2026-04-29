@@ -127,6 +127,9 @@ def compute_current_metrics(session: Session) -> dict:
         if e.get("category") == "Work"
     )
     task_count = len(tasks)
+    personal_event_count = sum(
+        1 for e in events if e.get("category") == "Personal"
+    )
 
     # Pairwise conflict count
     conflict_count = 0
@@ -140,6 +143,7 @@ def compute_current_metrics(session: Session) -> dict:
         "today_event_count": today_event_count,
         "work_event_count": work_event_count,
         "task_count": task_count,
+        "personal_event_count": personal_event_count,
         "conflict_count": conflict_count,
     }
 
@@ -221,13 +225,13 @@ def process_event(session: Session, event: dict) -> None:
 
 def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
     conn.execute(
-        "CREATE TABLE events (id TEXT, title TEXT, start_time TEXT, end_time TEXT, category TEXT, is_task INT)"
+        "CREATE TABLE events (id TEXT, title TEXT, start_time TEXT, end_time TEXT, category TEXT, is_task INT, description TEXT)"
     )
     conn.executemany(
-        "INSERT INTO events VALUES (?,?,?,?,?,?)",
+        "INSERT INTO events VALUES (?,?,?,?,?,?,?)",
         [
             (e.get("id"), e.get("title"), e.get("start_time"), e.get("end_time"),
-             e.get("category"), int(e.get("is_task", False)))
+             e.get("category"), int(e.get("is_task", False)), e.get("description", ""))
             for e in session.microlendar_events
         ],
     )

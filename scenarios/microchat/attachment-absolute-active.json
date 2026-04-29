@@ -1,0 +1,99 @@
+{
+  "id": "microchat-attachment-absolute-active",
+  "environment": "microchat",
+  "start_page": "HOST_ADDRESS/microchat",
+  "prompt": "Let me know the moment someone sends me a file in any of my chats. You'll need to open each conversation to check -- attachments aren't visible from the sidebar.",
+  "condition_at": 192.63,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "dm-03",
+          "dm-11",
+          "dm-23",
+          "dm-29",
+          "dm-33",
+          "dm-39",
+          "grp-04",
+          "grp-08",
+          "grp-16",
+          "mtg-03",
+          "mtg-14"
+        ],
+        "call_ids": [
+          "call-in-02"
+        ]
+      }
+    },
+    {
+      "time": 38.53,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-35"
+      }
+    },
+    {
+      "time": 77.05,
+      "type": "new_message",
+      "payload": {
+        "message_id": "grp-22"
+      }
+    },
+    {
+      "time": 115.58,
+      "type": "new_message",
+      "payload": {
+        "message_id": "mtg-20"
+      }
+    },
+    {
+      "time": 154.1,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-38"
+      }
+    },
+    {
+      "time": 192.63,
+      "type": "new_message",
+      "payload": {
+        "message_id": "att-dm-04"
+      }
+    },
+    {
+      "time": 315.68,
+      "type": "new_message",
+      "payload": {
+        "message_id": "grp-30"
+      }
+    },
+    {
+      "time": 456.31,
+      "type": "new_message",
+      "payload": {
+        "message_id": "att-grp-04"
+      }
+    },
+    {
+      "time": 614.53,
+      "type": "new_message",
+      "payload": {
+        "message_id": "mtg-07"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "high"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages WHERE hasAttachment=1)"
+}

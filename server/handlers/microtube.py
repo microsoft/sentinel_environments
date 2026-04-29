@@ -179,6 +179,7 @@ def compute_current_metrics(session: Session) -> dict:
         "comment_count": comment_count,
         "notification_count": notification_count,
         "playlist_count": len(session.microtube_user_created_playlists),
+        "video_count": len(session.microtube_videos),
     }
 
 

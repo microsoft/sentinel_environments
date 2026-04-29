@@ -1,0 +1,94 @@
+{
+  "id": "microchat-missed-calls-relative-passive",
+  "environment": "microchat",
+  "start_page": "HOST_ADDRESS/microchat",
+  "prompt": "I've already missed a couple of calls this morning. Let me know when 3 more missed calls come in.",
+  "condition_at": 56.85,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "dm-03",
+          "dm-11",
+          "dm-33"
+        ],
+        "call_ids": [
+          "call-missed-01",
+          "call-missed-group-02",
+          "call-in-02",
+          "call-out-01"
+        ]
+      }
+    },
+    {
+      "time": 15.16,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-out-02"
+      }
+    },
+    {
+      "time": 26.53,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-missed-02"
+      }
+    },
+    {
+      "time": 39.8,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-in-04"
+      }
+    },
+    {
+      "time": 49.27,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-missed-03"
+      }
+    },
+    {
+      "time": 56.85,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-missed-04"
+      }
+    },
+    {
+      "time": 211.59,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-out-03"
+      }
+    },
+    {
+      "time": 388.43,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-missed-05"
+      }
+    },
+    {
+      "time": 565.26,
+      "type": "new_call",
+      "payload": {
+        "call_id": "call-missed-group-01"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM calls WHERE missed=1) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_missed_call_count') + 3"
+}

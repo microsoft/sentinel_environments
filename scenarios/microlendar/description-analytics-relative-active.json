@@ -1,0 +1,81 @@
+{
+  "id": "microlendar-description-analytics-relative-active",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "I have an event coming up that mentions analytics in its description -- let me know if another event gets added that also mentions analytics in its description, since you'll need to open each event to check.",
+  "condition_at": 168.71,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_events",
+      "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
+        "event_ids": [
+          "evt008",
+          "evt001",
+          "evt002",
+          "evt003"
+        ],
+        "task_ids": [
+          "task01",
+          "task02"
+        ]
+      }
+    },
+    {
+      "time": 42.18,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt005"
+      }
+    },
+    {
+      "time": 84.36,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt006"
+      }
+    },
+    {
+      "time": 126.53,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt010"
+      }
+    },
+    {
+      "time": 168.71,
+      "type": "new_event",
+      "payload": {
+        "event_id": "conflict02"
+      }
+    },
+    {
+      "time": 444.36,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt014"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt011"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND LOWER(e.description) LIKE '%analytics%') >= 2"
+}

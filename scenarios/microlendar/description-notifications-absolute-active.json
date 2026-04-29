@@ -1,0 +1,81 @@
+{
+  "id": "microlendar-description-notifications-absolute-active",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "I'm waiting for a meeting to be scheduled about the notifications feature -- the specifics should be in the event description, not the title, so you'll need to open each event to check.",
+  "condition_at": 68.09,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_events",
+      "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
+        "event_ids": [
+          "evt006",
+          "evt007",
+          "evt008",
+          "evt009"
+        ],
+        "task_ids": [
+          "task03",
+          "task04"
+        ]
+      }
+    },
+    {
+      "time": 17.02,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt010"
+      }
+    },
+    {
+      "time": 34.05,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt011"
+      }
+    },
+    {
+      "time": 51.07,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt019"
+      }
+    },
+    {
+      "time": 68.09,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today04"
+      }
+    },
+    {
+      "time": 394.04,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt014"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt015"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND LOWER(e.description) LIKE '%notifications%') >= 1"
+}

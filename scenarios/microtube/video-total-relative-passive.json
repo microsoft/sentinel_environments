@@ -1,0 +1,101 @@
+{
+  "id": "microtube-video-total-relative-passive",
+  "environment": "microtube",
+  "start_page": "HOST_ADDRESS/microtube",
+  "prompt": "I can see a few videos on the home page already. Let me know when 5 more new ones have shown up.",
+  "condition_at": 256.69,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "vid-pets-02",
+          "vid-language-01",
+          "vid-finance-01"
+        ],
+        "channel_ids": [
+          "ch-pets",
+          "ch-language",
+          "ch-finance",
+          "ch-music",
+          "ch-fitness",
+          "ch-movies",
+          "ch-history",
+          "ch-diy"
+        ],
+        "subscribed_channel_ids": [
+          "ch-pets",
+          "ch-language",
+          "ch-finance",
+          "ch-music",
+          "ch-fitness",
+          "ch-movies",
+          "ch-history",
+          "ch-diy"
+        ]
+      }
+    },
+    {
+      "time": 42.78,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-music-02"
+      }
+    },
+    {
+      "time": 94.12,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-fitness-03"
+      }
+    },
+    {
+      "time": 145.46,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-movies-02"
+      }
+    },
+    {
+      "time": 196.8,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-history-02"
+      }
+    },
+    {
+      "time": 256.69,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-diy-02"
+      }
+    },
+    {
+      "time": 442.01,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-finance-02"
+      }
+    },
+    {
+      "time": 642.78,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-language-02"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM videos) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_video_count') + 5"
+}

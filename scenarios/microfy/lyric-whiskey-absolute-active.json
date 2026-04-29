@@ -1,0 +1,105 @@
+{
+  "id": "microfy-lyric-whiskey-absolute-active",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "I'm watching for a new blues track. When one of the new trending songs has 'whiskey' in the lyrics, like it.",
+  "condition_at": 217.93,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-013",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-021",
+          "track-022",
+          "track-023",
+          "track-024",
+          "track-025",
+          "track-026",
+          "track-027",
+          "track-028",
+          "track-029",
+          "track-030"
+        ],
+        "playlist_ids": [
+          "playlist-004",
+          "playlist-005",
+          "playlist-006"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-003",
+          "track-015",
+          "track-020"
+        ],
+        "followed_artist_ids": [
+          "artist-005"
+        ]
+      }
+    },
+    {
+      "time": 65.38,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-065"
+      }
+    },
+    {
+      "time": 116.23,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-066"
+      }
+    },
+    {
+      "time": 174.34,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-020"
+      }
+    },
+    {
+      "time": 418.76,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-067"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states ts JOIN tracks t ON t.id = ts.track_id WHERE LOWER(t.lyrics) LIKE '%whiskey%' AND ts.isLiked = 1) >= 1"
+}

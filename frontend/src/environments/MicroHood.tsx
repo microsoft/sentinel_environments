@@ -159,6 +159,26 @@ const MicroHood = () => {
     };
   }, [selectedStock, allStocksWithCurrentPrices]);
 
+  // Restore the detail panel selection from the URL hash (#home/SYM) once
+  // stocks have loaded, so reloads — including the eval harness's wait_for
+  // periodic reload — don't snap the view back to the MCRO fallback.
+  useEffect(() => {
+    if (hoodRoute.view !== "home" || !hoodRoute.id) return;
+    if (selectedStock?.symbol === hoodRoute.id) return;
+    const live = allStocksWithCurrentPrices.find(s => s.symbol === hoodRoute.id);
+    if (!live) return;
+    setSelectedStock({
+      symbol: live.symbol,
+      name: live.name,
+      price: live.currentPrice,
+      change: live.change,
+      changePercent: live.changePercent,
+      color: live.color,
+      shares: live.shares,
+      avgCost: live.avgCost,
+    });
+  }, [hoodRoute.view, hoodRoute.id, allStocksWithCurrentPrices, selectedStock?.symbol]);
+
   // ===================== PRICE HISTORY (depends on liveSelectedStock) =====================
   const currentPrice = useMemo(() => {
     const symbol = liveSelectedStock?.symbol ?? "MCRO";
@@ -292,10 +312,11 @@ const MicroHood = () => {
     avgCost?: number;
   }) => {
     setSelectedStock(stock);
+    setHoodRoute("home", stock.symbol);
     setShowSearchModal(false);
     setSearchQuery("");
     showToast(`Viewing ${stock.symbol}`);
-  }, [showToast]);
+  }, [showToast, setHoodRoute]);
 
   const handleToggleWatchlist = useCallback((symbol: string) => {
     const existing = watchlistItems.find(item => item.symbol === symbol);
@@ -947,6 +968,7 @@ const MicroHood = () => {
                           shares: stock.shares,
                           avgCost: stock.avgCost,
                         });
+                        setHoodRoute("home", stock.symbol);
                       }}
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-900 rounded-xl transition-colors group"
                     >
@@ -1104,7 +1126,10 @@ const MicroHood = () => {
                 </div>
                 {liveSelectedStock && (
                   <button
-                    onClick={() => setSelectedStock(null)}
+                    onClick={() => {
+                      setSelectedStock(null);
+                      setHoodRoute("home", null);
+                    }}
                     className="w-full mt-3 py-2 text-sm text-[#00C805] hover:underline"
                   >
                     ← Back to MCRO

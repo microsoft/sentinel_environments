@@ -74,6 +74,7 @@ def compute_current_metrics(session: Session) -> dict:
     )
 
     playlist_count = len(session.microfy_user_created_playlists)
+    public_playlist_count = len(session.microfy_playlists)
 
     followed_artist_count = len(session.microfy_followed_artists)
 
@@ -84,6 +85,7 @@ def compute_current_metrics(session: Session) -> dict:
         "play_count": total_user_plays,
         "new_release_count": new_release_count,
         "playlist_count": playlist_count,
+        "public_playlist_count": public_playlist_count,
         "followed_artist_count": followed_artist_count,
         "track_count": track_count,
     }
@@ -164,13 +166,13 @@ def process_event(session: Session, event: dict) -> None:
 
 def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
     conn.execute(
-        "CREATE TABLE tracks (id TEXT, title TEXT, artistId TEXT, artistName TEXT, genre TEXT, isNewRelease INT)"
+        "CREATE TABLE tracks (id TEXT, title TEXT, artistId TEXT, artistName TEXT, genre TEXT, isNewRelease INT, lyrics TEXT)"
     )
     conn.executemany(
-        "INSERT INTO tracks VALUES (?,?,?,?,?,?)",
+        "INSERT INTO tracks VALUES (?,?,?,?,?,?,?)",
         [
             (t.get("id"), t.get("title"), t.get("artistId"), t.get("artistName"),
-             t.get("genre"), int(t.get("isNewRelease", False)))
+             t.get("genre"), int(t.get("isNewRelease", False)), t.get("lyrics", ""))
             for t in session.microfy_tracks
         ],
     )

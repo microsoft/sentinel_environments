@@ -1,0 +1,118 @@
+{
+  "id": "microdin-posts-relative-passive",
+  "environment": "microdin",
+  "start_page": "HOST_ADDRESS/microdin",
+  "prompt": "Keep the feed open and tell me once at least 5 new posts have shown up since I left.",
+  "condition_at": 29.21,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-1",
+          "post-2",
+          "post-3",
+          "post-4"
+        ],
+        "connection_ids": [
+          "conn-1",
+          "conn-2"
+        ],
+        "conversation_ids": [
+          "conv-1"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-2"
+        ],
+        "job_ids": [
+          "job-2",
+          "job-3"
+        ]
+      }
+    },
+    {
+      "time": 6.82,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-5"
+      }
+    },
+    {
+      "time": 11.68,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-4"
+      }
+    },
+    {
+      "time": 15.58,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-6"
+      }
+    },
+    {
+      "time": 19.47,
+      "type": "new_connection",
+      "payload": {
+        "connection_id": "conn-11"
+      }
+    },
+    {
+      "time": 22.88,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-7"
+      }
+    },
+    {
+      "time": 26.78,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-8"
+      }
+    },
+    {
+      "time": 29.21,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-9"
+      }
+    },
+    {
+      "time": 213.42,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-12"
+      }
+    },
+    {
+      "time": 397.63,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-10"
+      }
+    },
+    {
+      "time": 581.84,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-11"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM posts) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_post_count') + 5"
+}

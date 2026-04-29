@@ -1,0 +1,68 @@
+{
+  "id": "microhub-body-unresponsive-relative-active",
+  "environment": "microhub",
+  "start_page": "HOST_ADDRESS/microhub",
+  "prompt": "I saw a bug report earlier about the UI being unresponsive. Keep an eye on new issues and let me know if another one comes in that also mentions the UI being unresponsive -- you'll need to read through the issue descriptions to check.",
+  "condition_at": 502.82,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_repo",
+      "payload": {
+        "issue_ids": [
+          "i4",
+          "i8",
+          "i12",
+          "i15"
+        ]
+      }
+    },
+    {
+      "time": 134.09,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i16"
+      }
+    },
+    {
+      "time": 284.93,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i18"
+      }
+    },
+    {
+      "time": 419.02,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i20"
+      }
+    },
+    {
+      "time": 502.82,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i17"
+      }
+    },
+    {
+      "time": 589.69,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i19"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM issues WHERE LOWER(body) LIKE '%unresponsive%') >= 2"
+}

@@ -1,0 +1,83 @@
+{
+  "id": "microgram-dm-keyword-absolute-active",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "Watch my DMs for a new message about a mockup -- the word might not show in the preview, so you'll need to open conversations to check.",
+  "condition_at": 413.77,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-sailing-sunset",
+          "post-rock-climbing",
+          "post-beach-sunrise",
+          "post-marathon-finish",
+          "post-kayak-river",
+          "post-pasta-making"
+        ],
+        "story_ids": [
+          "story-coding-night-setup",
+          "story-social-media-analytics",
+          "story-team-wellness-event"
+        ],
+        "message_ids": [
+          "dm-4"
+        ],
+        "activity_ids": [
+          "act-5",
+          "act-6",
+          "act-7"
+        ]
+      }
+    },
+    {
+      "time": 137.92,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-1"
+      }
+    },
+    {
+      "time": 275.85,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-digital-art"
+      }
+    },
+    {
+      "time": 413.77,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-2"
+      }
+    },
+    {
+      "time": 515.85,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-architecture-photo"
+      }
+    },
+    {
+      "time": 617.92,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-8"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages WHERE data LIKE '%mockup%') >= 1"
+}

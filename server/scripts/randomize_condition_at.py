@@ -100,6 +100,21 @@ def rescale_price_waypoints(
     return total
 
 
+def rescale_star_waypoints(
+    payload: dict, old_ca: float, new_ca: float, old_end: float
+) -> int:
+    """Mutate preload_repo.payload.star_waypoints in place. Returns count."""
+    waypoints = payload.get("star_waypoints")
+    if not waypoints:
+        return 0
+    rescaled = []
+    for point in waypoints:
+        t, stars = float(point[0]), point[1]
+        rescaled.append([round(rescale_time(t, old_ca, new_ca, old_end), 2), stars])
+    payload["star_waypoints"] = rescaled
+    return len(rescaled)
+
+
 def transform(scenario: dict) -> tuple[dict, dict]:
     """Return (updated_scenario, summary)."""
     scenario_id = scenario["id"]
@@ -127,6 +142,10 @@ def transform(scenario: dict) -> tuple[dict, dict]:
         if ev.get("type") == "preload_stocks":
             payload = dict(ev.get("payload", {}))
             n_waypoints += rescale_price_waypoints(payload, old_ca, new_ca, old_end)
+            new_ev["payload"] = payload
+        elif ev.get("type") == "preload_repo":
+            payload = dict(ev.get("payload", {}))
+            n_waypoints += rescale_star_waypoints(payload, old_ca, new_ca, old_end)
             new_ev["payload"] = payload
         new_events.append(new_ev)
 
@@ -184,7 +203,7 @@ def run(dry_run: bool) -> int:
 
         if summary["n_targets"] == 0 and summary["n_waypoints"] == 0:
             warnings.append(
-                f"  {summary['id']}: 0 events at old condition_at AND no price waypoints — "
+                f"  {summary['id']}: 0 events at old condition_at AND no waypoints — "
                 f"likely nothing hits the target at condition_at. Check the scenario."
             )
 

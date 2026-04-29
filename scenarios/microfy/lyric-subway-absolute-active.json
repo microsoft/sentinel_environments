@@ -1,0 +1,99 @@
+{
+  "id": "microfy-lyric-subway-absolute-active",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "Watch the trending feed. When a song drops whose lyrics mention 'subway', like it for me.",
+  "condition_at": 448.79,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-020",
+          "track-021",
+          "track-022",
+          "track-023",
+          "track-024",
+          "track-025"
+        ],
+        "playlist_ids": [
+          "playlist-007",
+          "playlist-008",
+          "playlist-009"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-005",
+          "track-012"
+        ],
+        "followed_artist_ids": [
+          "artist-007"
+        ]
+      }
+    },
+    {
+      "time": 119.68,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-061"
+      }
+    },
+    {
+      "time": 224.4,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-062"
+      }
+    },
+    {
+      "time": 329.11,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-013"
+      }
+    },
+    {
+      "time": 539.19,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-063"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states ts JOIN tracks t ON t.id = ts.track_id WHERE LOWER(t.lyrics) LIKE '%subway%' AND ts.isLiked = 1) >= 1"
+}

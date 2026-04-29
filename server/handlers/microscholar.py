@@ -210,12 +210,12 @@ def process_event(session: Session, event: dict) -> None:
 
 def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
     conn.execute(
-        "CREATE TABLE papers (id TEXT, title TEXT, authors TEXT, year INT, isTargetPaper INT, taskType TEXT)"
+        "CREATE TABLE papers (id TEXT, title TEXT, authors TEXT, snippet TEXT, year INT, isTargetPaper INT, taskType TEXT)"
     )
     conn.executemany(
-        "INSERT INTO papers VALUES (?,?,?,?,?,?)",
+        "INSERT INTO papers VALUES (?,?,?,?,?,?,?)",
         [
-            (p.get("id"), p.get("title"), p.get("authors", ""),
+            (p.get("id"), p.get("title"), p.get("authors", ""), p.get("snippet", ""),
              int(p.get("year", 0)), int(p.get("isTargetPaper", False)),
              p.get("taskType"))
             for p in session.microscholar_papers

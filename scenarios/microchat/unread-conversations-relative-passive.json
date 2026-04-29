@@ -1,0 +1,90 @@
+{
+  "id": "microchat-unread-conversations-relative-passive",
+  "environment": "microchat",
+  "start_page": "HOST_ADDRESS/microchat",
+  "prompt": "Let me know when unread messages show up in 3 more of my chats than right now. Just watch the sidebar -- don't open any of the conversations, I don't want people seeing 'seen' on their messages before I've had a chance to read them.",
+  "condition_at": 388.26,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_messages",
+      "payload": {
+        "message_ids": [
+          "dm-18",
+          "dm-24",
+          "dm-03",
+          "dm-11",
+          "dm-29",
+          "dm-33",
+          "dm-39",
+          "grp-04",
+          "grp-08",
+          "grp-12",
+          "grp-16",
+          "mtg-03"
+        ]
+      }
+    },
+    {
+      "time": 97.06,
+      "type": "new_message",
+      "payload": {
+        "message_id": "grp-02"
+      }
+    },
+    {
+      "time": 194.13,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-31"
+      }
+    },
+    {
+      "time": 284.72,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-21"
+      }
+    },
+    {
+      "time": 388.26,
+      "type": "new_message",
+      "payload": {
+        "message_id": "mtg-04"
+      }
+    },
+    {
+      "time": 476.72,
+      "type": "new_message",
+      "payload": {
+        "message_id": "grp-14"
+      }
+    },
+    {
+      "time": 565.19,
+      "type": "new_message",
+      "payload": {
+        "message_id": "dm-37"
+      }
+    },
+    {
+      "time": 653.65,
+      "type": "new_message",
+      "payload": {
+        "message_id": "mtg-10"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(DISTINCT m.conversationId) FROM messages m JOIN message_states ms ON m.id = ms.message_id WHERE ms.isRead = 0) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_unread_conversation_count') + 3"
+}

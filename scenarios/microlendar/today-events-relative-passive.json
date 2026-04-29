@@ -1,0 +1,91 @@
+{
+  "id": "microlendar-today-events-relative-passive",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "I already have a few things scheduled for today -- let me know when 3 more events get added to today's schedule.",
+  "condition_at": 13.11,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_events",
+      "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
+        "event_ids": [
+          "today01",
+          "today02",
+          "today03",
+          "today04",
+          "today05",
+          "evt001",
+          "evt002"
+        ],
+        "task_ids": [
+          "task01",
+          "task02"
+        ]
+      }
+    },
+    {
+      "time": 3.5,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt003"
+      }
+    },
+    {
+      "time": 6.99,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today06"
+      }
+    },
+    {
+      "time": 8.74,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt004"
+      }
+    },
+    {
+      "time": 10.92,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today07"
+      }
+    },
+    {
+      "time": 13.11,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today08"
+      }
+    },
+    {
+      "time": 366.56,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today09"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt005"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT ((SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.start_time LIKE '2024-07-18%') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND date='2024-07-18')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_today_event_count') AS REAL) + 3"
+}

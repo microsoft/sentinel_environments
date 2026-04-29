@@ -141,9 +141,15 @@ def compute_current_metrics(session: Session) -> dict:
     unread_count = 0
     mention_count = 0
     urgent_count = 0
+    mention_total = 0
+    urgent_total = 0
     unread_convos: set[str] = set()
 
     for m in messages:
+        if m.get("mentionsMe", False):
+            mention_total += 1
+        if m.get("isUrgent", False):
+            urgent_total += 1
         is_read = states.get(m["id"], {}).get("isRead", False)
         if not is_read:
             unread_count += 1
@@ -162,6 +168,8 @@ def compute_current_metrics(session: Session) -> dict:
         "unread_conversation_count": len(unread_convos),
         "mention_count": mention_count,
         "urgent_count": urgent_count,
+        "mention_total": mention_total,
+        "urgent_total": urgent_total,
         "missed_call_count": missed_call_count,
         "total_message_count": len(messages),
     }

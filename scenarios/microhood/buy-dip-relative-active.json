@@ -1,0 +1,84 @@
+{
+  "id": "microhood-buy-dip-relative-active",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Watch Voltaic Motors (VOLT) for me. If it drops more than 10% from its current price, buy 3 shares at market price and let me know.",
+  "condition_at": 348.67,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "buying_power": 10000.0,
+        "price_waypoints": {
+          "VOLT": [
+            [
+              348.67,
+              222.0
+            ],
+            [
+              720.0,
+              240.0
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "time": 104.6,
+      "type": "new_news",
+      "payload": {
+        "news_id": "9"
+      }
+    },
+    {
+      "time": 232.45,
+      "type": "new_news",
+      "payload": {
+        "news_id": "10"
+      }
+    },
+    {
+      "time": 497.2,
+      "type": "new_news",
+      "payload": {
+        "news_id": "15"
+      }
+    },
+    {
+      "time": 670.49,
+      "type": "new_news",
+      "payload": {
+        "news_id": "16"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM orders WHERE symbol='VOLT' AND action='buy' AND quantity=3 AND type='market' AND price <= 223.58)"
+}

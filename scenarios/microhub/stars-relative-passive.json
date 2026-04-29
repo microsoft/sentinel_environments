@@ -1,0 +1,73 @@
+{
+  "id": "microhub-stars-relative-passive",
+  "environment": "microhub",
+  "start_page": "HOST_ADDRESS/microhub",
+  "prompt": "The repo is getting some attention lately. Watch the star count and tell me when it goes up by 200 from where it is now.",
+  "condition_at": 565.42,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_repo",
+      "payload": {
+        "issue_ids": [
+          "i8",
+          "i12"
+        ],
+        "star_waypoints": [
+          [
+            0.0,
+            1847
+          ],
+          [
+            565.42,
+            2047
+          ],
+          [
+            720.0,
+            2120
+          ]
+        ]
+      }
+    },
+    {
+      "time": 150.78,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i16"
+      }
+    },
+    {
+      "time": 339.25,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i18"
+      }
+    },
+    {
+      "time": 627.25,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i19"
+      }
+    },
+    {
+      "time": 699.39,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i20"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT CAST((SELECT value FROM repo_flags WHERE key='star_count') AS INTEGER) >= CAST((SELECT value FROM session_meta WHERE key='baseline_star_count') AS INTEGER) + 200"
+}

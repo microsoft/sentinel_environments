@@ -1,0 +1,95 @@
+{
+  "id": "microdin-react-relative-active",
+  "environment": "microdin",
+  "start_page": "HOST_ADDRESS/microdin",
+  "prompt": "If any new jobs pop up that ask for React experience, apply to at least two of them for me. You'll need to open each job listing to check the requirements.",
+  "condition_at": 100.58,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-30",
+          "post-31"
+        ],
+        "connection_ids": [
+          "conn-15",
+          "conn-16"
+        ],
+        "conversation_ids": [
+          "conv-4"
+        ],
+        "notification_ids": [
+          "notif-6"
+        ],
+        "job_ids": [
+          "job-2",
+          "job-7",
+          "job-16"
+        ]
+      }
+    },
+    {
+      "time": 25.14,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-1"
+      }
+    },
+    {
+      "time": 50.29,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-32"
+      }
+    },
+    {
+      "time": 70.41,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-8"
+      }
+    },
+    {
+      "time": 100.58,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-5"
+      }
+    },
+    {
+      "time": 265.76,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-7"
+      }
+    },
+    {
+      "time": 430.94,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-19"
+      }
+    },
+    {
+      "time": 596.12,
+      "type": "new_connection",
+      "payload": {
+        "connection_id": "conn-17"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM job_states WHERE job_id IN ('job-1', 'job-5', 'job-19') AND isApplied = 1) >= 2"
+}

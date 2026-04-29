@@ -171,6 +171,7 @@ def compute_current_metrics(session: Session) -> dict:
 
     post_count = len(session.microgram_posts)
     story_count = len(session.microgram_stories)
+    activity_count = len(session.microgram_activity)
 
     return {
         "liked_count": liked_count,
@@ -179,6 +180,7 @@ def compute_current_metrics(session: Session) -> dict:
         "followed_count": followed_count,
         "story_viewed_count": story_viewed_count,
         "post_count": post_count,
+        "activity_count": activity_count,
         "story_count": story_count,
     }
 
@@ -298,6 +300,13 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
              int(p.get("likes", 0)), int(p.get("isTargetPost", False)))
             for p in session.microgram_posts
         ],
+    )
+
+    conn.execute("CREATE TABLE comments (id TEXT, post_id TEXT, authorId TEXT, text TEXT)")
+    conn.executemany(
+        "INSERT INTO comments VALUES (?,?,?,?)",
+        [(c.get("id"), p.get("id"), c.get("authorId", c.get("author_id", "")), c.get("text", ""))
+         for p in session.microgram_posts for c in p.get("comments", [])],
     )
 
     conn.execute("CREATE TABLE post_states (post_id TEXT, isLiked INT, isSaved INT)")

@@ -1,0 +1,108 @@
+{
+  "id": "microdin-documentation-absolute-active",
+  "environment": "microdin",
+  "start_page": "HOST_ADDRESS/microdin",
+  "prompt": "Watch the jobs page. If a new role shows up that requires API documentation experience, apply to it for me.",
+  "condition_at": 458.57,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-1",
+          "post-2",
+          "post-3",
+          "post-4"
+        ],
+        "connection_ids": [
+          "conn-1",
+          "conn-2",
+          "conn-3"
+        ],
+        "conversation_ids": [
+          "conv-1",
+          "conv-2"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-2"
+        ],
+        "job_ids": [
+          "job-2",
+          "job-3",
+          "job-7",
+          "job-8"
+        ]
+      }
+    },
+    {
+      "time": 114.64,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-9"
+      }
+    },
+    {
+      "time": 206.36,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-12"
+      }
+    },
+    {
+      "time": 298.07,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-4"
+      }
+    },
+    {
+      "time": 366.86,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-17"
+      }
+    },
+    {
+      "time": 458.57,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-11"
+      }
+    },
+    {
+      "time": 528.28,
+      "type": "new_connection",
+      "payload": {
+        "connection_id": "conn-11"
+      }
+    },
+    {
+      "time": 598.0,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-14"
+      }
+    },
+    {
+      "time": 667.71,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-10"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM job_states WHERE job_id='job-11' AND isApplied=1)"
+}

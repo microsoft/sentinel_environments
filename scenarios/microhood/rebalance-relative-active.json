@@ -1,0 +1,83 @@
+{
+  "id": "microhood-rebalance-relative-active",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Keep an eye on Neos Pharmaceuticals (NEOS). If it goes up 15% or more from where it is now, sell all 12 of my shares to lock in the gains.",
+  "condition_at": 120.45,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7"
+        ],
+        "buying_power": 10000.0,
+        "price_waypoints": {
+          "NEOS": [
+            [
+              120.45,
+              107.0
+            ],
+            [
+              720.0,
+              115.0
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "time": 32.12,
+      "type": "new_news",
+      "payload": {
+        "news_id": "8"
+      }
+    },
+    {
+      "time": 72.27,
+      "type": "new_news",
+      "payload": {
+        "news_id": "12"
+      }
+    },
+    {
+      "time": 360.27,
+      "type": "new_news",
+      "payload": {
+        "news_id": "18"
+      }
+    },
+    {
+      "time": 640.06,
+      "type": "new_news",
+      "payload": {
+        "news_id": "19"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM orders WHERE symbol='NEOS' AND action='sell' AND quantity=12 AND type='market' AND price >= 106.15)"
+}

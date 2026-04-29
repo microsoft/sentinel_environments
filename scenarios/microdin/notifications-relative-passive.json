@@ -1,0 +1,104 @@
+{
+  "id": "microdin-notifications-relative-passive",
+  "environment": "microdin",
+  "start_page": "HOST_ADDRESS/microdin",
+  "prompt": "Ping me once at least 3 new unread notifications come in.",
+  "condition_at": 82.7,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-20",
+          "post-21",
+          "post-22"
+        ],
+        "connection_ids": [
+          "conn-5",
+          "conn-6"
+        ],
+        "conversation_ids": [
+          "conv-2",
+          "conv-3"
+        ],
+        "notification_ids": [
+          "notif-1",
+          "notif-2"
+        ],
+        "job_ids": [
+          "job-5",
+          "job-6"
+        ]
+      }
+    },
+    {
+      "time": 22.05,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-3"
+      }
+    },
+    {
+      "time": 38.59,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-23"
+      }
+    },
+    {
+      "time": 52.38,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-5"
+      }
+    },
+    {
+      "time": 67.54,
+      "type": "new_job",
+      "payload": {
+        "job_id": "job-12"
+      }
+    },
+    {
+      "time": 82.7,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-7"
+      }
+    },
+    {
+      "time": 252.65,
+      "type": "new_connection",
+      "payload": {
+        "connection_id": "conn-12"
+      }
+    },
+    {
+      "time": 422.59,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-8"
+      }
+    },
+    {
+      "time": 592.54,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-10"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM notifications n JOIN notification_states ns ON n.id = ns.notification_id WHERE ns.isRead = 0) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_unread_notification_count') + 3"
+}

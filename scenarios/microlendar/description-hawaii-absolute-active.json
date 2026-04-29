@@ -1,0 +1,82 @@
+{
+  "id": "microlendar-description-hawaii-absolute-active",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "I'm expecting a calendar invite about a trip to Hawaii -- the details should be in the event description, so you'll need to open each event to check.",
+  "condition_at": 572.46,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_events",
+      "payload": {
+        "today": "2026-03-18",
+        "initial_date": "2026-03-18",
+        "event_ids": [
+          "evt001",
+          "evt002",
+          "evt003",
+          "evt004",
+          "evt005"
+        ],
+        "task_ids": [
+          "task01",
+          "task02"
+        ]
+      }
+    },
+    {
+      "time": 152.66,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt008"
+      }
+    },
+    {
+      "time": 305.31,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt010"
+      }
+    },
+    {
+      "time": 457.97,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt011"
+      }
+    },
+    {
+      "time": 572.46,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt013"
+      }
+    },
+    {
+      "time": 646.23,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt014"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "evt016"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.description LIKE '%Hawaii%') >= 1"
+}

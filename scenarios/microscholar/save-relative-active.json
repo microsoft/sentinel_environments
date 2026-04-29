@@ -1,0 +1,83 @@
+{
+  "id": "microscholar-save-relative-active",
+  "environment": "microscholar",
+  "start_page": "HOST_ADDRESS/microscholar",
+  "prompt": "Some papers by Deborah Jackson should be getting indexed soon -- save each one to your library as it appears, and let me know once you've saved 3 of her papers.",
+  "condition_at": 256.14,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_papers",
+      "payload": {
+        "paper_ids": [
+          "paper-083",
+          "paper-084",
+          "paper-085",
+          "paper-086"
+        ],
+        "alert_ids": []
+      }
+    },
+    {
+      "time": 59.77,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-088"
+      }
+    },
+    {
+      "time": 119.53,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-067"
+      }
+    },
+    {
+      "time": 179.3,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-089"
+      }
+    },
+    {
+      "time": 213.45,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-068"
+      }
+    },
+    {
+      "time": 256.14,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-069"
+      }
+    },
+    {
+      "time": 410.76,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-070"
+      }
+    },
+    {
+      "time": 642.69,
+      "type": "new_paper",
+      "payload": {
+        "paper_id": "paper-090"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "high"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM paper_states ps JOIN papers p ON ps.paper_id = p.id WHERE ps.isSaved = 1 AND p.authors LIKE '%D Jackson%') >= 3"
+}

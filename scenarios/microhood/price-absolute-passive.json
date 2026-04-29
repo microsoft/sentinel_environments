@@ -1,0 +1,86 @@
+{
+  "id": "microhood-price-absolute-passive",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Watch ChipForge Industries (CHIP) for me and let me know when it reaches at least $520.",
+  "condition_at": 457.08,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10"
+        ],
+        "buying_power": 10000.0,
+        "price_waypoints": {
+          "CHIP": [
+            [
+              457.08,
+              521.0
+            ],
+            [
+              720.0,
+              535.0
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "time": 121.89,
+      "type": "new_news",
+      "payload": {
+        "news_id": "17"
+      }
+    },
+    {
+      "time": 274.25,
+      "type": "new_news",
+      "payload": {
+        "news_id": "18"
+      }
+    },
+    {
+      "time": 544.72,
+      "type": "new_news",
+      "payload": {
+        "news_id": "19"
+      }
+    },
+    {
+      "time": 649.89,
+      "type": "new_news",
+      "payload": {
+        "news_id": "20"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT price FROM current_prices WHERE symbol='CHIP') >= 520.0"
+}

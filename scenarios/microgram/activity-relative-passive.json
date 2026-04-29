@@ -1,0 +1,87 @@
+{
+  "id": "microgram-activity-relative-passive",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "I've already got some notifications in my activity feed -- keep an eye on it and let me know when 4 more show up.",
+  "condition_at": 61.85,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-golden-gate-run",
+          "post-coffee-code",
+          "post-sunset-hike",
+          "post-team-standup"
+        ],
+        "story_ids": [
+          "story-coding-night-setup",
+          "story-social-media-analytics"
+        ],
+        "message_ids": [],
+        "activity_ids": [
+          "act-5",
+          "act-6",
+          "act-7",
+          "act-8",
+          "act-9"
+        ]
+      }
+    },
+    {
+      "time": 15.46,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-10"
+      }
+    },
+    {
+      "time": 30.93,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-11"
+      }
+    },
+    {
+      "time": 46.39,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-12"
+      }
+    },
+    {
+      "time": 61.85,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-13"
+      }
+    },
+    {
+      "time": 281.23,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-14"
+      }
+    },
+    {
+      "time": 610.31,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-road-trip"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM activity) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_activity_count') + 4"
+}

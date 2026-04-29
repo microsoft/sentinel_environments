@@ -1,0 +1,78 @@
+{
+  "id": "microfy-public-playlists-relative-passive",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "MicroFy is rolling out playlist updates today. Once you've seen at least 3 new public playlists appear in the sidebar, let me know.",
+  "condition_at": 439.05,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "*"
+        ],
+        "playlist_ids": [
+          "playlist-001",
+          "playlist-002",
+          "playlist-003",
+          "playlist-004",
+          "playlist-005"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-006",
+          "track-014"
+        ],
+        "followed_artist_ids": [
+          "artist-004"
+        ]
+      }
+    },
+    {
+      "time": 146.35,
+      "type": "new_playlist",
+      "payload": {
+        "playlist_id": "playlist-010"
+      }
+    },
+    {
+      "time": 263.43,
+      "type": "new_playlist",
+      "payload": {
+        "playlist_id": "playlist-011"
+      }
+    },
+    {
+      "time": 380.51,
+      "type": "new_playlist",
+      "payload": {
+        "playlist_id": "playlist-012"
+      }
+    },
+    {
+      "time": 607.62,
+      "type": "new_playlist",
+      "payload": {
+        "playlist_id": "playlist-013"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM playlists) >= CAST((SELECT value FROM session_meta WHERE key='baseline_public_playlist_count') AS INT) + 3"
+}

@@ -16,6 +16,7 @@ import argparse
 import json
 import sys
 import time
+import random
 from pathlib import Path
 
 import requests
@@ -27,21 +28,42 @@ TIMEOUT = 10
 # The agent must interact with items delivered by events to meet these thresholds.
 NEEDS_USER_ACTION = {
     "microdin-notifications-absolute-active",
+    "microdin-documentation-absolute-active",
+    "microdin-python-relative-active",
+    "microdin-react-relative-active",
     "microhub-contribute-absolute-active",
     "microhood-orders-absolute-active",
+    "microhood-buy-dip-relative-active",
+    "microhood-rebalance-relative-active",
+    "microhood-sell-order-absolute-active",
+    "microhub-body-compliance-absolute-active",
     "microgram-follows-absolute-active",
     "microgram-likes-absolute-passive",
     "microgram-stories-absolute-passive",
     "microfy-followers-absolute-active",
     "microfy-likes-absolute-passive",
     "microfy-plays-absolute-passive",
+    "microfy-lyric-golden-relative-active",
+    "microfy-lyric-subway-absolute-active",
+    "microfy-lyric-whiskey-absolute-active",
+    "microfy-new-releases-relative-passive",
     "microscholar-search-absolute-active",
+    "microscholar-save-relative-active",
     "microtube-notifications-absolute-active",
     "microtube-views-relative-active",
 }
 
 # Scenarios exempt from negative testing (eval_sql passes from preload alone by design).
 NEGATIVE_EXEMPT = set()
+
+# Scenarios where the user action must happen mid-timeline (e.g., buy during a
+# transient price dip). Maps scenario_id -> simulation time at which to pause
+# advance_all and invoke simulate_actions, before continuing on to kill_at.
+MIDFLIGHT_ACTION_TIMES = {
+    # VOLT dips to 222.0 at t=348.67 then recovers; the eval requires the buy
+    # to have been recorded at price <= 223.58, which is true within ~327-381s.
+    "microhood-buy-dip-relative-active": 360.0,
+}
 
 
 # ---------------------------------------------------------------------------
@@ -103,6 +125,22 @@ def simulate_actions(scenario_id):
         # Apply to the Kubernetes role after it appears.
         post("/data/microdin-jobs/job-6/apply")
 
+    elif scenario_id == "microdin-documentation-absolute-active":
+        # Apply to the API Documentation role after it appears.
+        post("/data/microdin-jobs/job-11/apply")
+
+    elif scenario_id == "microdin-python-relative-active":
+        # Apply to the two Python role after they appears.
+        post("/data/microdin-jobs/job-4/apply")
+        post("/data/microdin-jobs/job-9/apply")
+
+    elif scenario_id == "microdin-react-relative-active":
+        # Apply to between 2 and 3 React roles after they appear.
+        react_jobs = ["job-1", "job-5", "job-19"]
+        sample = random.sample(react_jobs, random.randint(2, len(react_jobs)))
+        for job in sample:
+            post(f"/data/microdin-jobs/{job}/apply")
+
     elif scenario_id == "microhub-contribute-absolute-active":
         # Comment on the target TOTP issue.
         post("/data/microhub-issues/i14/comment", {"body": "test comment"})
@@ -111,6 +149,27 @@ def simulate_actions(scenario_id):
         # Buy 2 shares of DRNE once it reaches the target price.
         post("/data/microhood-stocks/DRNE/order",
              {"action": "buy", "quantity": 2, "type": "market"})
+
+    elif scenario_id == "microhood-buy-dip-relative-active":
+        # Buy 3 VOLT at market while the dip is still active (run_one pauses
+        # advance at MIDFLIGHT_ACTION_TIMES[sid] so the recorded price is
+        # within the trough, satisfying the eval's price <= 223.58 check).
+        post("/data/microhood-stocks/VOLT/order",
+             {"action": "buy", "quantity": 3, "type": "market"})
+
+    elif scenario_id == "microhood-rebalance-relative-active":
+        # Sell all 12 NEOS shares at market price after the >=15% gain.
+        post("/data/microhood-stocks/NEOS/order",
+             {"action": "sell", "quantity": 12, "type": "market"})
+
+    elif scenario_id == "microhood-sell-order-absolute-active":
+        # Sell 5 MCRO shares at market price after price clears $480.
+        post("/data/microhood-stocks/MCRO/order",
+             {"action": "sell", "quantity": 5, "type": "market"})
+
+    elif scenario_id == "microhub-body-compliance-absolute-active":
+        # Comment on the compliance issue (i20).
+        post("/data/microhub-issues/i20/comment", {"body": "test comment"})
 
     elif scenario_id == "microgram-follows-absolute-active":
         # Follow the 3 target creators.
@@ -150,9 +209,33 @@ def simulate_actions(scenario_id):
         for track_id in ("track-061", "track-062", "track-063"):
             post(f"/data/microfy-tracks/{track_id}/play")
 
+    elif scenario_id == "microfy-lyric-golden-relative-active":
+        # Play the existing 'golden' track plus the two new 'golden' tracks
+        # delivered by events to reach the >=3 played-golden threshold.
+        for track_id in ("track-001", "track-060", "track-075"):
+            post(f"/data/microfy-tracks/{track_id}/play")
+
+    elif scenario_id == "microfy-lyric-subway-absolute-active":
+        # Like the new track whose lyrics mention 'subway'.
+        post("/data/microfy-tracks/track-013/like")
+
+    elif scenario_id == "microfy-lyric-whiskey-absolute-active":
+        # Like the new track whose lyrics mention 'whiskey'.
+        post("/data/microfy-tracks/track-020/like")
+
+    elif scenario_id == "microfy-new-releases-relative-passive":
+        # Like 5 of the new trending tracks delivered by events.
+        for track_id in ("track-031", "track-032", "track-033", "track-034", "track-035"):
+            post(f"/data/microfy-tracks/{track_id}/like")
+
     elif scenario_id == "microscholar-search-absolute-active":
         # Cite the target paper once it appears.
         post("/data/microscholar-papers/paper-target-1/cite")
+
+    elif scenario_id == "microscholar-save-relative-active":
+        # Save 3 D Jackson papers as they're indexed.
+        for paper_id in ("paper-067", "paper-068", "paper-069"):
+            post(f"/data/microscholar-papers/{paper_id}/save")
 
     elif scenario_id == "microtube-notifications-absolute-active":
         # Like the new Science Explained upload.
@@ -189,10 +272,16 @@ def run_one(scenario_path: Path) -> tuple:
         if not init_resp.get("success"):
             return (sid, False, f"init failed: {init_resp}")
 
-        advance_all(scenario)
-
-        if sid in NEEDS_USER_ACTION:
+        if sid in MIDFLIGHT_ACTION_TIMES:
+            # Pause partway through the timeline so the action is recorded
+            # against the world state at that moment (e.g., a transient price).
+            get("/advance", params={"time": MIDFLIGHT_ACTION_TIMES[sid]})
             simulate_actions(sid)
+            advance_all(scenario)
+        else:
+            advance_all(scenario)
+            if sid in NEEDS_USER_ACTION:
+                simulate_actions(sid)
 
         touch_contact()  # satisfy /evaluate's contact gate
         result = post("/evaluate")
