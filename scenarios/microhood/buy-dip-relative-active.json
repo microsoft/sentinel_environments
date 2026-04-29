@@ -1,0 +1,70 @@
+{
+  "id": "microhood-buy-dip-relative-active",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Watch Voltaic Motors (VOLT) for me. If it drops more than 10% from its current price, buy 3 shares at market price and let me know.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8"
+        ],
+        "buying_power": 10000.0
+      }
+    },
+    {
+      "time": 90,
+      "type": "new_news",
+      "payload": {
+        "news_id": "9"
+      }
+    },
+    {
+      "time": 200,
+      "type": "new_news",
+      "payload": {
+        "news_id": "10"
+      }
+    },
+    {
+      "time": 420,
+      "type": "new_news",
+      "payload": {
+        "news_id": "15"
+      }
+    },
+    {
+      "time": 560,
+      "type": "new_news",
+      "payload": {
+        "news_id": "16"
+      }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM orders WHERE symbol='VOLT' AND action='buy' AND quantity=3 AND type='market' AND price <= 223.58)"
+}

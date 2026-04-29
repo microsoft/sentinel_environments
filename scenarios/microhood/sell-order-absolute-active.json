@@ -1,0 +1,68 @@
+{
+  "id": "microhood-sell-order-absolute-active",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Watch MCRO for me. If it goes above $480, sell 5 shares at market price and let me know.",
+  "condition_at": 300,
+  "duration": 600,
+  "events": [
+    {
+      "time": 0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6"
+        ],
+        "buying_power": 10000.0
+      }
+    },
+    {
+      "time": 100,
+      "type": "new_news",
+      "payload": {
+        "news_id": "7"
+      }
+    },
+    {
+      "time": 200,
+      "type": "new_news",
+      "payload": {
+        "news_id": "8"
+      }
+    },
+    {
+      "time": 420,
+      "type": "new_news",
+      "payload": {
+        "news_id": "9"
+      }
+    },
+    {
+      "time": 560,
+      "type": "new_news",
+      "payload": {
+        "news_id": "10"
+      }
+    }
+  ],
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM orders WHERE symbol='MCRO' AND action='sell' AND quantity=5 AND type='market' AND price >= 480.0)"
+}
