@@ -60,11 +60,46 @@ def load_config(config_path):
         return yaml.safe_load(f) or {}
 
 
-def discover_tasks():
-    """Yield (environment, scenario_id, path) for every scenario JSON file."""
+def _discover_apps():
+    """Return the sorted list of app names (subdirs of scenarios/ that contain JSON)."""
+    scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
+    return sorted(
+        p.name for p in scenarios_root.iterdir()
+        if p.is_dir() and any(p.glob("*.json"))
+    )
+
+
+def _parse_app_subset(raw):
+    """Parse the --app-subset CLI value into a set of app names, or None for 'all'.
+
+    Accepts comma-separated values, tolerates whitespace, and treats an omitted
+    flag, an empty string, or the literal 'all' as no filter.
+    """
+    if raw is None:
+        return None
+    parts = {s.strip() for s in raw.split(",") if s.strip()}
+    if not parts or parts == {"all"}:
+        return None
+    valid = set(_discover_apps())
+    unknown = parts - valid
+    if unknown:
+        raise SystemExit(
+            f"Unknown app(s) in --app-subset: {sorted(unknown)}. "
+            f"Valid apps: {sorted(valid)}"
+        )
+    return parts
+
+
+def discover_tasks(app_subset=None):
+    """Yield (environment, scenario_id, path) for every scenario JSON file.
+
+    If app_subset is a set of app names, only those apps are yielded; None means all.
+    """
     scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
     for path in sorted(scenarios_root.glob("*/*.json")):
         if path.name == "dev.json":
+            continue
+        if app_subset is not None and path.parent.name not in app_subset:
             continue
         with open(path) as f:
             scenario = json.load(f)
@@ -243,7 +278,10 @@ def cmd_run(args):
         config["frontend_url"] = args.frontend_url
     results_root = Path("results") / args.run_name
 
-    tasks = list(discover_tasks())
+    app_subset = _parse_app_subset(args.app_subset)
+    tasks = list(discover_tasks(app_subset=app_subset))
+    if app_subset is not None:
+        print(f"Filtering to apps: {sorted(app_subset)}", flush=True)
     print(f"Found {len(tasks)} tasks. Results -> {results_root}", flush=True)
 
     for environment, scenario_id, task_path in tasks:
@@ -341,6 +379,14 @@ def main():
     p_run.add_argument("--config", default="eval_config.yaml", help="Path to eval config YAML")
     p_run.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
     p_run.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
+    p_run.add_argument(
+        "--app-subset",
+        default=None,
+        help=(
+            "Comma-separated list of apps to run (e.g. 'micromail,microlendar'). "
+            "Whitespace tolerated. Default: all apps."
+        ),
+    )
     p_run.set_defaults(func=cmd_run)
 
     p_grade = sub.add_parser("grade", help="Summarize results from a previous run")
