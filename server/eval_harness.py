@@ -181,16 +181,20 @@ def run_task(config, task_json_file, task_result_folder):
         "when the necessary conditions were met and/or actions were taken."
     )
     agent_cmd = config["agent_subprocess"]
+    base_dir = str(Path(__file__).resolve().parent.parent)
 
     if isinstance(agent_cmd, list):
         agent_cmd = [
-            arg.replace("__TASK_URL__", task_url).replace("__TASK_PROMPT__", task_prompt)
+            arg.replace("__TASK_URL__", task_url)
+            .replace("__TASK_PROMPT__", task_prompt)
+            .replace("__BASE_DIR__", base_dir)
             for arg in agent_cmd
         ]
         shell = False
     else:
         agent_cmd = agent_cmd.replace("__TASK_URL__", shlex.quote(task_url))
         agent_cmd = agent_cmd.replace("__TASK_PROMPT__", shlex.quote(task_prompt))
+        agent_cmd = agent_cmd.replace("__BASE_DIR__", shlex.quote(base_dir))
         shell = True
 
     def _tee(src, file):

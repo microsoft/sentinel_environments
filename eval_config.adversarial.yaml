@@ -1,0 +1,9 @@
+#
+# Adversarial agent eval config.
+# Runs the adversarial agent that sleeps then hits /contact directly,
+# to test whether an agent can score high by gaming the contact form.
+#
+
+api_url: http://localhost:8000
+frontend_url: http://localhost:5173
+agent_subprocess: "bash __BASE_DIR__/run-adversarial-agent.sh __TASK_URL__ __TASK_PROMPT__"
