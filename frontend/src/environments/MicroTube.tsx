@@ -433,23 +433,62 @@ export default function MicroTube() {
     error,
   } = useMicrotubeData();
 
+  // Track which videos were present on first load (preloaded) vs. arrived later
+  const initialVideoIds = useRef<Set<string> | null>(null);
+  const videoArrivalTimes = useRef<Map<string, number>>(new Map());
+
+  if (apiVideos.length > 0 && initialVideoIds.current === null) {
+    initialVideoIds.current = new Set(apiVideos.map(v => v.id));
+  }
+
+  // Record arrival time for new videos
+  for (const v of apiVideos) {
+    if (initialVideoIds.current && !initialVideoIds.current.has(v.id) && !videoArrivalTimes.current.has(v.id)) {
+      videoArrivalTimes.current.set(v.id, Date.now());
+    }
+  }
+
   // Derive UI-format data from API
   const SAMPLE_VIDEOS: VideoData[] = useMemo(() =>
-    apiVideos.map((v): VideoData => ({
-      id: v.id,
-      title: v.title,
-      channel: v.channelName,
-      channelId: v.channel_id,
-      channelAvatar: v.channelName.split(' ').map((n: string) => n[0]).join('').slice(0, 2),
-      channelAvatarUrl: v.channelAvatarSrc ? `/${v.channelAvatarSrc}` : undefined,
-      views: formatViews(v.views),
-      timestamp: v.publishedAt || getRelativeTimestamp(v.order),
-      duration: v.duration,
-      thumbnailColor: v.thumbnailColor,
-      description: v.description,
-      videoSrc: v.videoSrc,
-      thumbnailSrc: v.thumbnailSrc,
-    })), [apiVideos]);
+    apiVideos.map((v): VideoData => {
+      let timestamp: string;
+      if (v.publishedAt) {
+        timestamp = v.publishedAt;
+      } else if (videoArrivalTimes.current.has(v.id)) {
+        const elapsedMs = Date.now() - videoArrivalTimes.current.get(v.id)!;
+        const elapsedMin = Math.floor(elapsedMs / 60000);
+        if (elapsedMin < 1) timestamp = "Just now";
+        else if (elapsedMin < 60) timestamp = `${elapsedMin} minute${elapsedMin === 1 ? '' : 's'} ago`;
+        else timestamp = `${Math.floor(elapsedMin / 60)} hour${Math.floor(elapsedMin / 60) === 1 ? '' : 's'} ago`;
+      } else {
+        timestamp = getRelativeTimestamp(v.order);
+      }
+
+      return {
+        id: v.id,
+        title: v.title,
+        channel: v.channelName,
+        channelId: v.channel_id,
+        channelAvatar: v.channelName.split(' ').map((n: string) => n[0]).join('').slice(0, 2),
+        channelAvatarUrl: v.channelAvatarSrc ? `/${v.channelAvatarSrc}` : undefined,
+        views: formatViews(v.views),
+        timestamp,
+        duration: v.duration,
+        thumbnailColor: v.thumbnailColor,
+        description: v.description,
+        videoSrc: v.videoSrc,
+        thumbnailSrc: v.thumbnailSrc,
+      };
+    }).sort((a, b) => {
+      const aIsNew = videoArrivalTimes.current.has(a.id);
+      const bIsNew = videoArrivalTimes.current.has(b.id);
+      if (aIsNew && !bIsNew) return -1;
+      if (!aIsNew && bIsNew) return 1;
+      if (aIsNew && bIsNew) {
+        return videoArrivalTimes.current.get(b.id)! - videoArrivalTimes.current.get(a.id)!;
+      }
+      return 0;
+    }), [apiVideos]);
 
   const CHANNELS: ChannelData[] = useMemo(() =>
     apiChannels.map((ch): ChannelData => ({
