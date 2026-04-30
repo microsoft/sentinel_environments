@@ -63,7 +63,7 @@ type Paper = ApiPaper;
 // ============================================================================
 // VIEW TYPES
 // ============================================================================
-type ViewType = "home" | "profile" | "library" | "labs" | "settings" | "help" | "alerts" | "metrics" | "scholar-profile" | "paper-detail" | "ai-search" | "citation-graph" | "privacy" | "terms";
+type ViewType = "home" | "profile" | "library" | "labs" | "settings" | "help" | "alerts" | "scholar-profile" | "paper-detail" | "ai-search" | "citation-graph" | "privacy" | "terms";
 
 // Task thresholds (for future use with different task types)
 const _TASK_THRESHOLDS = {
@@ -187,7 +187,7 @@ const MicroScholar = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [route, setRoute] = useHashRoute<ViewType>([
-    "home", "profile", "library", "labs", "settings", "help", "alerts", "metrics",
+    "home", "profile", "library", "labs", "settings", "help", "alerts",
     "scholar-profile", "paper-detail", "ai-search", "citation-graph", "privacy", "terms",
   ] as const, "home");
   const currentView = route.view;
@@ -2502,14 +2502,45 @@ JF ${selectedPaper.source}`;
                 <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50 w-56">
                   <button
                     onClick={() => {
-                      setRoute("settings");
+                      setRoute("profile");
                       setShowMenu(false);
                     }}
                     className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
                   >
-                    <Settings className="w-4 h-4 inline mr-2" />
-                    Settings
+                    <GraduationCap className="w-4 h-4 inline mr-2" />
+                    My profile
                   </button>
+                  <button
+                    onClick={() => {
+                      setRoute("library");
+                      setShowMenu(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                  >
+                    <Star className="w-4 h-4 inline mr-2" />
+                    My library
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRoute("alerts");
+                      setShowMenu(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                  >
+                    <Bell className="w-4 h-4 inline mr-2" />
+                    Alerts
+                  </button>
+                  <button
+                    onClick={() => {
+                      setRoute("labs");
+                      setShowMenu(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                  >
+                    <FlaskConical className="w-4 h-4 inline mr-2" />
+                    Labs
+                  </button>
+                  <hr className="my-2" />
                   <button
                     onClick={() => {
                       setShowAdvancedSearch(true);
@@ -2521,6 +2552,16 @@ JF ${selectedPaper.source}`;
                     Advanced search
                   </button>
                   <hr className="my-2" />
+                  <button
+                    onClick={() => {
+                      setRoute("settings");
+                      setShowMenu(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                  >
+                    <Settings className="w-4 h-4 inline mr-2" />
+                    Settings
+                  </button>
                   <button
                     onClick={() => {
                       setRoute("help");
