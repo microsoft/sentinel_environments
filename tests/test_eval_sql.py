@@ -45,7 +45,7 @@ NEEDS_USER_ACTION = {
     "microfy-plays-absolute-passive",
     "microfy-lyric-golden-relative-active",
     "microfy-lyric-subway-absolute-active",
-    "microfy-lyric-whiskey-absolute-active",
+    "microfy-lyric-whiskey-relative-active",
     "microfy-new-releases-relative-passive",
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
