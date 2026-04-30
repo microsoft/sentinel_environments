@@ -1,0 +1,90 @@
+{
+  "id": "micromail-sender-absolute-noop",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "I'm expecting an important email from Lena Whitford. Let me know as soon as it arrives.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 2.59,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-01"
+      }
+    },
+    {
+      "time": 5.82,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-02"
+      }
+    },
+    {
+      "time": 9.05,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    },
+    {
+      "time": 12.29,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-05"
+      }
+    },
+    {
+      "time": 16.17,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-06"
+      }
+    },
+    {
+      "time": 19.4,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-01"
+      }
+    },
+    {
+      "time": 194.55,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-07"
+      }
+    },
+    {
+      "time": 369.71,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-08"
+      }
+    },
+    {
+      "time": 569.87,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-09"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-10"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "medium"
+  }
+}
