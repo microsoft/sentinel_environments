@@ -1,5 +1,5 @@
 {
-  "id": "microfy-lyric-whiskey-relative-active",
+  "id": "microfy-lyric-whiskey-absolute-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "I'm watching for a new blues track. When one of the new trending songs has 'whiskey' in the lyrics, like it.",
