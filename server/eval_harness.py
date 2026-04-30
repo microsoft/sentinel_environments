@@ -255,7 +255,13 @@ def run_task(config, task_json_file, task_result_folder):
                                 pass
 
                     print("Agent subprocess timed out, killing process group...", flush=True)
-                    os.killpg(proc.pid, signal.SIGKILL)
+                    try:
+                        os.killpg(proc.pid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        print(
+                            "Process group already exited before kill; nothing to signal.",
+                            flush=True,
+                        )
                     proc.wait()
                 finally:
                     t.join()
