@@ -174,6 +174,7 @@ const MicroScholar = () => {
   // ---------------------------------------------------------------------------
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Paper[]>([]);
+  const [searchActive, setSearchActive] = useState(false);
   const [targetPaperShown, setTargetPaperShown] = useState(false);
   const [isSignedOut, setIsSignedOut] = useState(false);
   const [thresholdReachedAt, setThresholdReachedAt] = useState<number | null>(null);
@@ -291,36 +292,89 @@ const MicroScholar = () => {
     }
   }, [papers, targetPaperShown, thresholdReachedAt, searchResults]);
 
+  // Hash → search dispatcher. Treats `#q=…` (with optional adv params) as a
+  // shareable search URL. Empty hash or `#home` clears search state. Other
+  // view-name hashes (#profile, #library, #paper-detail/…) are owned by
+  // useHashRoute and ignored here.
+  useEffect(() => {
+    const onHash = () => {
+      const raw = window.location.hash.replace(/^#/, "");
+
+      if (raw === "" || raw === "home") {
+        setSearchQuery("");
+        setSearchResults([]);
+        setSearchActive(false);
+        return;
+      }
+
+      const firstSeg = raw.split("&", 1)[0];
+      if (!firstSeg.includes("=")) return;
+
+      const params = new URLSearchParams(raw);
+      const q       = params.get("q")       ?? "";
+      const phrase  = params.get("phrase")  ?? "";
+      const any     = params.get("any")     ?? "";
+      const without = params.get("without") ?? "";
+      const author  = params.get("author")  ?? "";
+      const pub     = params.get("pub")     ?? "";
+      const y1      = params.get("y1")      ?? "";
+      const y2      = params.get("y2")      ?? "";
+
+      setSearchQuery(q);
+      setAdvAllWords(q);
+      setAdvExactPhrase(phrase);
+      setAdvAtLeastOne(any);
+      setAdvWithout(without);
+      setAdvAuthor(author);
+      setAdvPublication(pub);
+      setAdvDateStart(y1);
+      setAdvDateEnd(y2);
+
+      const isAdvanced = !!(phrase || any || without || author || pub || y1 || y2);
+      const run = isAdvanced
+        ? hookAdvancedSearchPapers({
+            allWords: q, exactPhrase: phrase, atLeastOne: any, without,
+            author, publication: pub, dateStart: y1, dateEnd: y2,
+          })
+        : (q ? hookSearchPapers(q) : Promise.resolve([]));
+
+      run.then((results) => {
+        setSearchResults(results as Paper[]);
+        setCurrentPage(1);
+        setSearchActive(true);
+      });
+    };
+
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [hookSearchPapers, hookAdvancedSearchPapers]);
+
   // ---------------------------------------------------------------------------
   // Handlers
   // ---------------------------------------------------------------------------
 
-  const handleSearch = useCallback(async (e: React.FormEvent) => {
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    const q = searchQuery.trim();
+    if (!q) return;
+    window.location.hash = `q=${encodeURIComponent(q)}`;
+  }, [searchQuery]);
 
-    // Delegate search to server
-    const results = await hookSearchPapers(searchQuery);
-    setSearchResults(results as Paper[]);
-    setCurrentPage(1); // Reset to first page on new search
-  }, [searchQuery, hookSearchPapers]);
-
-  const handleAdvancedSearch = useCallback(async () => {
-    // Delegate advanced search to server
-    const results = await hookAdvancedSearchPapers({
-      allWords: advAllWords,
-      exactPhrase: advExactPhrase,
-      atLeastOne: advAtLeastOne,
-      without: advWithout,
-      author: advAuthor,
-      publication: advPublication,
-      dateStart: advDateStart,
-      dateEnd: advDateEnd,
-    });
-    setSearchResults(results as Paper[]);
-    setCurrentPage(1);
+  const handleAdvancedSearch = useCallback(() => {
+    const p = new URLSearchParams();
+    p.set("q", advAllWords);
+    if (advExactPhrase) p.set("phrase",  advExactPhrase);
+    if (advAtLeastOne)  p.set("any",     advAtLeastOne);
+    if (advWithout)     p.set("without", advWithout);
+    if (advAuthor)      p.set("author",  advAuthor);
+    if (advPublication) p.set("pub",     advPublication);
+    if (advDateStart)   p.set("y1",      advDateStart);
+    if (advDateEnd)     p.set("y2",      advDateEnd);
+    window.location.hash = p.toString();
     setShowAdvancedSearch(false);
-  }, [hookAdvancedSearchPapers, advAllWords, advExactPhrase, advAtLeastOne, advWithout, advAuthor, advPublication, advDateStart, advDateEnd]);
+  }, [advAllWords, advExactPhrase, advAtLeastOne, advWithout,
+      advAuthor, advPublication, advDateStart, advDateEnd]);
 
   const handleCiteClick = (paper: Paper) => {
     setSelectedPaper(paper);
@@ -2577,14 +2631,19 @@ JF ${selectedPaper.source}`;
           {/* LOGO - "Micro" colored + "Scholar" gray                          */}
           {/* ================================================================= */}
           <div className="text-center mb-6">
-            <h1 className="text-5xl font-normal tracking-tight">
+            <button
+              type="button"
+              onClick={() => setRoute("home")}
+              className="text-5xl font-normal tracking-tight focus:outline-none cursor-pointer"
+              aria-label="MicroScholar home"
+            >
               <span className="text-[#4285F4]">M</span>
               <span className="text-[#EA4335]">i</span>
               <span className="text-[#FBBC04]">c</span>
               <span className="text-[#4285F4]">r</span>
               <span className="text-[#34A853]">o</span>
               <span className="text-gray-500 font-light ml-2">Scholar</span>
-            </h1>
+            </button>
           </div>
 
           {/* ================================================================= */}
@@ -2628,9 +2687,31 @@ JF ${selectedPaper.source}`;
           </div>
 
           {/* ================================================================= */}
+          {/* NO-RESULTS PANEL                                                 */}
+          {/* ================================================================= */}
+          {searchActive && !searchResults.length && (
+            <div className="mt-6">
+              <p className="text-gray-800 mb-4">
+                Your search
+                {searchQuery ? (
+                  <> - <span className="font-semibold">{searchQuery}</span> - </>
+                ) : " "}
+                did not match any articles.
+              </p>
+              <p className="text-gray-800 mb-2">Suggestions:</p>
+              <ul className="list-none ml-8 space-y-1 text-gray-800">
+                <li>Make sure all words are spelled correctly.</li>
+                <li>Try different keywords.</li>
+                <li>Try more general keywords.</li>
+                <li>Try fewer keywords.</li>
+              </ul>
+            </div>
+          )}
+
+          {/* ================================================================= */}
           {/* NEW LABS BANNER                                                  */}
           {/* ================================================================= */}
-          {!searchResults.length && (
+          {!searchActive && !searchResults.length && (
             <div className="text-center mb-4">
               <span className="text-[#EA4335] font-medium">New!</span>{" "}
               <button
@@ -2645,7 +2726,7 @@ JF ${selectedPaper.source}`;
           {/* ================================================================= */}
           {/* NEW WAY TO SEARCH PROMO                                          */}
           {/* ================================================================= */}
-          {!searchResults.length && (
+          {!searchActive && !searchResults.length && (
             <div className="text-center my-8">
               <div className="inline-block bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-8 text-white text-center shadow-lg">
                 <p className="font-semibold mb-3">A new way to search</p>
@@ -2663,7 +2744,7 @@ JF ${selectedPaper.source}`;
           {/* ================================================================= */}
           {/* RECOMMENDED ARTICLES                                             */}
           {/* ================================================================= */}
-          {!searchResults.length && (
+          {!searchActive && !searchResults.length && (
             <div className="mt-8">
               <div className="flex justify-between items-center mb-3">
                 <h2 className="font-medium text-gray-800">Recommended articles</h2>
