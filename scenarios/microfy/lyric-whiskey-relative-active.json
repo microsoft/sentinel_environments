@@ -1,12 +1,12 @@
 {
-  "id": "microfy-lyric-whiskey-absolute-active",
+  "id": "microfy-lyric-whiskey-relative-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "I'm watching for a new blues track. When one of the new trending songs has 'whiskey' in the lyrics, like it.",
-  "condition_at": 217.93,
+  "condition_at": 174.34,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
-  "events": [
+  "events": [ 
     {
       "time": 0.0,
       "type": "preload_tracks",
@@ -95,7 +95,7 @@
   "annotator_notes": "",
   "taxonomy": {
     "criteria": "objective",
-    "milestone_type": "absolute",
+    "milestone_type": "relative",
     "event_persistence": "persistent",
     "monitoring_approach": "active",
     "difficulty": "medium",

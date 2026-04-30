@@ -3,8 +3,8 @@ import { useMicrofyData } from "../hooks/useMicrofyData";
 import type { ApiTrack, ApiPlaylist } from "../hooks/useMicrofyData";
 import { useHashRoute } from "../hooks/useHashRoute";
 
-type ViewType = "home" | "artist" | "playlist";
-const VIEWS: readonly ViewType[] = ["home", "artist", "playlist"] as const;
+type ViewType = "home" | "artist" | "playlist" | "song";
+const VIEWS: readonly ViewType[] = ["home", "artist", "playlist", "song"] as const;
 interface HistoryEntry { view: ViewType; id: string | null }
 import {
   Monitor,
@@ -408,6 +408,23 @@ const MicroFy = () => {
     setCurrentTime(0);
   }, []);
 
+  // Navigation helpers — single entry point that updates both the URL
+  // (so refresh/browser-Back/share work) and the in-app ‹/› chrome stack.
+  const navigateTo = useCallback((view: ViewType, id: string | null = null) => {
+    if (view === "song") {
+      setSelectedSongId(id);
+    } else if (view !== "playlist") {
+      setSelectedSongId(null);
+    }
+    internalNavRef.current = true;
+    setRoute(view, id);
+    setNavigationHistory(prev => {
+      const truncated = prev.slice(0, historyIndex + 1);
+      return [...truncated, { view, id }];
+    });
+    setHistoryIndex(prev => prev + 1);
+  }, [setRoute, historyIndex]);
+
   const handleSelectSong = useCallback(
     (song: Song, shouldPlay: boolean = false) => {
       if (shouldPlay) {
@@ -417,11 +434,11 @@ const MicroFy = () => {
         apiPlayTrack(song.id);
       } else {
         // View song details without interrupting current playback
-        setSelectedSongId(song.id);
+        navigateTo("song", song.id);
         setLyricsExpanded(false);
       }
     },
-    [addToRecentlyPlayed, triggerSongChange, apiPlayTrack]
+    [addToRecentlyPlayed, triggerSongChange, apiPlayTrack, navigateTo]
   );
 
   const handleNext = useCallback(() => {
@@ -475,28 +492,15 @@ const MicroFy = () => {
     setSearchQuery(event.target.value);
   }, []);
 
-  // Navigation helpers — single entry point that updates both the URL
-  // (so refresh/browser-Back/share work) and the in-app ‹/› chrome stack.
-  const navigateTo = useCallback((view: ViewType, id: string | null = null) => {
-    if (view !== "playlist") {
-      setSelectedSongId(null);
-    }
-    internalNavRef.current = true;
-    setRoute(view, id);
-    setNavigationHistory(prev => {
-      const truncated = prev.slice(0, historyIndex + 1);
-      return [...truncated, { view, id }];
-    });
-    setHistoryIndex(prev => prev + 1);
-  }, [setRoute, historyIndex]);
-
   const handleNavigateBack = useCallback(() => {
     if (historyIndex > 0) {
       const target = navigationHistory[historyIndex - 1];
       internalNavRef.current = true;
       setRoute(target.view, target.id);
       setHistoryIndex(historyIndex - 1);
-      if (target.view !== "playlist") {
+      if (target.view === "song") {
+        setSelectedSongId(target.id);
+      } else if (target.view !== "playlist") {
         setSelectedSongId(null);
       }
     }
@@ -508,7 +512,9 @@ const MicroFy = () => {
       internalNavRef.current = true;
       setRoute(target.view, target.id);
       setHistoryIndex(historyIndex + 1);
-      if (target.view !== "playlist") {
+      if (target.view === "song") {
+        setSelectedSongId(target.id);
+      } else if (target.view !== "playlist") {
         setSelectedSongId(null);
       }
     }
@@ -1364,7 +1370,7 @@ const MicroFy = () => {
                         key={mood.id}
                         onClick={() => handleSelectMood(mood.id)}
                         className={`flex-shrink-0 w-[180px] rounded-lg cursor-pointer transition-all duration-300 hover:bg-[#282828] group p-3 ${
-                          selectedMood === mood.id ? 'bg-[#282828] ring-2 ring-[#1DB954]' : 'bg-[#181818]'
+                          selectedMood === mood.id ? 'bg-[#282828]' : 'bg-[#181818]'
                         }`}
                       >
                         <div className="relative mb-4">
@@ -1428,7 +1434,7 @@ const MicroFy = () => {
                 </div>
               </footer>
             </>
-          ) : selectedSong ? (
+          ) : currentView === "song" && selectedSong ? (
             /* Song Detail View */
             <div>
               <div className="flex flex-col md:flex-row gap-8 mb-8 bg-gradient-to-b from-[#535353] to-[#121212] p-8 rounded-lg">

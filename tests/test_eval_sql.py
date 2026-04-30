@@ -45,7 +45,7 @@ NEEDS_USER_ACTION = {
     "microfy-plays-absolute-passive",
     "microfy-lyric-golden-relative-active",
     "microfy-lyric-subway-absolute-active",
-    "microfy-lyric-whiskey-absolute-active",
+    "microfy-lyric-whiskey-relative-active",
     "microfy-new-releases-relative-passive",
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
@@ -219,7 +219,7 @@ def simulate_actions(scenario_id):
         # Like the new track whose lyrics mention 'subway'.
         post("/data/microfy-tracks/track-013/like")
 
-    elif scenario_id == "microfy-lyric-whiskey-absolute-active":
+    elif scenario_id == "microfy-lyric-whiskey-relative-active":
         # Like the new track whose lyrics mention 'whiskey'.
         post("/data/microfy-tracks/track-020/like")
 

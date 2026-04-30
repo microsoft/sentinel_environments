@@ -3,7 +3,7 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "Watch the trending feed. When a song drops whose lyrics mention 'subway', like it for me.",
-  "condition_at": 448.79,
+  "condition_at": 329.11,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
   "events": [
