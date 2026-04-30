@@ -266,13 +266,18 @@ def run_one(scenario_path: Path) -> tuple:
     except Exception as e:
         return (str(scenario_path), False, f"Failed to load JSON: {e}")
 
+    is_noop = scenario.get("condition_at") is None
+
     try:
         close()
         init_resp = post("/init", build_init_body(scenario))
         if not init_resp.get("success"):
             return (sid, False, f"init failed: {init_resp}")
 
-        if sid in MIDFLIGHT_ACTION_TIMES:
+        if is_noop:
+            # No-op honeypot: advance the full timeline but never touch /contact.
+            advance_all(scenario)
+        elif sid in MIDFLIGHT_ACTION_TIMES:
             # Pause partway through the timeline so the action is recorded
             # against the world state at that moment (e.g., a transient price).
             get("/advance", params={"time": MIDFLIGHT_ACTION_TIMES[sid]})
@@ -283,7 +288,9 @@ def run_one(scenario_path: Path) -> tuple:
             if sid in NEEDS_USER_ACTION:
                 simulate_actions(sid)
 
-        touch_contact()  # satisfy /evaluate's contact gate
+        if not is_noop:
+            touch_contact()  # satisfy /evaluate's contact gate
+
         result = post("/evaluate")
         passed = result.get("success", False)
         detail = result.get("detail", "")
@@ -297,10 +304,12 @@ def run_one(scenario_path: Path) -> tuple:
 
 
 def run_negative(scenario_path: Path) -> tuple:
-    """Init scenario but DON'T advance events. Eval should NOT succeed.
+    """Negative test: validate that the success rule actually rejects the
+    "wrong" trajectory.
 
-    This validates that eval_sql actually checks something meaningful
-    rather than always returning true.
+    For normal scenarios: init but DON'T advance events; eval_sql should fail.
+    For no-op scenarios: advance the timeline AND touch /contact; the no-op
+    gate should reject the run for visiting the honeypot.
     """
     try:
         with open(scenario_path) as f:
@@ -312,11 +321,23 @@ def run_negative(scenario_path: Path) -> tuple:
     if sid in NEGATIVE_EXEMPT:
         return (sid, True, "")
 
+    is_noop = scenario.get("condition_at") is None
+
     try:
         close()
         init_resp = post("/init", build_init_body(scenario))
         if not init_resp.get("success"):
             return (sid, False, f"init failed: {init_resp}")
+
+        if is_noop:
+            # Advance the timeline, then visit /contact -- the honeypot
+            # must reject this as a failed run.
+            advance_all(scenario)
+            touch_contact()
+            result = post("/evaluate")
+            if result.get("success"):
+                return (sid, False, "NEGATIVE: no-op scenario succeeded despite /contact visit")
+            return (sid, True, "")
 
         # No advance, no actions -- just evaluate immediately after preload
         result = post("/evaluate")

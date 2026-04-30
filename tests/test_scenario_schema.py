@@ -1,11 +1,16 @@
 """Schema validation for scenario JSONs.
 
 Benchmark scenarios (scenarios/<env>/<name>.json, excluding dev.json):
-    required: id, environment, events, eval_sql, condition_at,
+    required: id, environment, events, condition_at,
               event_timeline_end, kill_at, prompt, start_page, taxonomy
     forbidden: duration
-    invariants: 0 < condition_at <= kill_at <= event_timeline_end
+    invariants: kill_at <= event_timeline_end
                 events sorted by time
+                Normal task (condition_at is a positive number):
+                    eval_sql must be present
+                    0 < condition_at <= kill_at
+                No-op task (condition_at is null): no condition_at ordering check;
+                    eval_sql is optional.
 
 Dev scenarios (scenarios/<env>/dev.json):
     required: id, environment, events, event_timeline_end
@@ -19,7 +24,7 @@ import pytest
 BASE = Path(__file__).resolve().parent.parent / "scenarios"
 
 BENCHMARK_REQUIRED = {
-    "id", "environment", "events", "eval_sql",
+    "id", "environment", "events",
     "condition_at", "event_timeline_end", "kill_at",
     "prompt", "start_page", "taxonomy",
 }
@@ -54,10 +59,18 @@ def test_benchmark_schema(path):
     condition_at = scenario["condition_at"]
     kill_at = scenario["kill_at"]
     end = scenario["event_timeline_end"]
-    assert condition_at > 0, f"{path.stem}: condition_at must be > 0"
-    assert condition_at <= kill_at, (
-        f"{path.stem}: condition_at ({condition_at}) > kill_at ({kill_at})"
-    )
+
+    if condition_at is None:
+        # No-op task: success requires the agent never visit /contact.
+        # eval_sql is optional; if present it's an additional world-state gate.
+        pass
+    else:
+        assert "eval_sql" in scenario, f"{path.stem}: missing required key eval_sql"
+        assert condition_at > 0, f"{path.stem}: condition_at must be > 0 or null (no-op)"
+        assert condition_at <= kill_at, (
+            f"{path.stem}: condition_at ({condition_at}) > kill_at ({kill_at})"
+        )
+
     assert kill_at <= end, (
         f"{path.stem}: kill_at ({kill_at}) > event_timeline_end ({end})"
     )

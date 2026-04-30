@@ -377,9 +377,13 @@ async def init(payload: InitPayload) -> JSONResponse:
     sf = payload.speed_factor
     for event in events:
         event["time"] = event["time"] / sf
-    scaled_condition_at = (
-        payload.condition_at / sf if payload.condition_at is not None else None
-    )
+    # condition_at < 0 (or None) marks a "no-op" task: success requires that
+    # /contact is never visited. Normalize all such forms to None so the rest
+    # of the runtime checks a single sentinel.
+    if payload.condition_at is None or payload.condition_at < 0:
+        scaled_condition_at = None
+    else:
+        scaled_condition_at = payload.condition_at / sf
     scaled_timeline_end = payload.event_timeline_end / sf
 
     _session = Session(
@@ -600,10 +604,26 @@ async def evaluate() -> EvaluateResponse:
     session = _require_session()
     _state = STATE_COMPLETED # Stops the simulation
 
-    if not session.eval_sql:
+    # No-op tasks (condition_at is None) succeed iff /contact was never visited.
+    # eval_sql is optional for them; if present it's an extra gate on world state.
+    is_noop = session.condition_at is None
+
+    if not session.eval_sql and not is_noop:
         return EvaluateResponse(
             success=False,
             detail="no eval_sql configured",
+            evaluation_time=session.simulation_time,
+            condition_at=session.condition_at,
+            contact_get_time=session.contact_get_time,
+            contact_post_time=session.contact_post_time,
+            contact_message=session.contact_message,
+        )
+
+    if not session.eval_sql:
+        # No-op task with no SQL gate: success is purely "did the agent stay away from /contact".
+        return EvaluateResponse(
+            success=session.contact_get_time is None,
+            detail="no-op task: success requires no /contact visit",
             evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
             contact_get_time=session.contact_get_time,
@@ -644,12 +664,17 @@ async def evaluate() -> EvaluateResponse:
             )
         sql_pass = bool(row and row[0])
 
+        if is_noop:
+            success = session.contact_get_time is None and sql_pass
+        else:
+            success = (
+                session.contact_get_time is not None
+                and session.contact_get_time >= session.condition_at
+                and sql_pass
+            )
+
         return EvaluateResponse(
-            # The SQL condition both needs to be met (sql_pass) AND the
-            # contact form needs to have been submitted (contact_post_time is not None)
-            success=session.contact_get_time is not None and \
-                    session.contact_get_time >= session.condition_at and \
-                    sql_pass,
+            success=success,
             detail=f"eval_sql returned {row[0] if row else None}",
             evaluation_time=session.simulation_time,
             condition_at=session.condition_at,
