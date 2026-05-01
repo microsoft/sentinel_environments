@@ -256,6 +256,8 @@ def process_event(session: Session, event: dict) -> None:
         post_id = event.get("payload", {}).get("post_id")
         if post_id:
             row = _build_post_row(post_id)
+            max_order = max((p["order"] for p in session.microgram_posts), default=0)
+            row["order"] = max(row["order"], max_order + 1)
             session.microgram_posts.append(row)
             session.microgram_post_states[post_id] = _init_post_state(post_id)
 
@@ -263,6 +265,8 @@ def process_event(session: Session, event: dict) -> None:
         story_id = event.get("payload", {}).get("story_id")
         if story_id:
             row = _build_story_row(story_id)
+            max_order = max((s["order"] for s in session.microgram_stories), default=0)
+            row["order"] = max(row["order"], max_order + 1)
             session.microgram_stories.append(row)
             session.microgram_story_states[story_id] = _init_story_state(story_id)
 
@@ -270,6 +274,8 @@ def process_event(session: Session, event: dict) -> None:
         msg_id = event.get("payload", {}).get("message_id")
         if msg_id:
             row = _build_message_row(msg_id)
+            max_order = max((m.get("order", 0) for m in session.microgram_messages), default=0)
+            row["order"] = max(row.get("order", 0), max_order + 1)
             session.microgram_messages.append(row)
             session.microgram_message_states.update(_init_message_states(row))
 
@@ -277,6 +283,8 @@ def process_event(session: Session, event: dict) -> None:
         act_id = event.get("payload", {}).get("activity_id")
         if act_id:
             row = _build_activity_row(act_id)
+            max_order = max((a["order"] for a in session.microgram_activity), default=0)
+            row["order"] = max(row["order"], max_order + 1)
             session.microgram_activity.append(row)
 
 
