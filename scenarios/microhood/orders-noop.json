@@ -1,0 +1,78 @@
+{
+  "id": "microhood-orders-noop",
+  "environment": "microhood",
+  "start_page": "HOST_ADDRESS/microhood",
+  "prompt": "Keep an eye on AgriTech Innovations (AGRI) for me. If it hits $500 or higher, place a market order to buy 5 shares and let me know once it's done.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_stocks",
+      "payload": {
+        "stock_symbols": [
+          "*"
+        ],
+        "watchlist_symbols": [
+          "*"
+        ],
+        "news_ids": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10"
+        ],
+        "buying_power": 10000.0,
+        "price_waypoints": {
+          "DRNE": [
+            [
+              100.52,
+              42.2
+            ],
+            [
+              720.0,
+              46.0
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "time": 33.51,
+      "type": "new_news",
+      "payload": {
+        "news_id": "14"
+      }
+    },
+    {
+      "time": 83.77,
+      "type": "new_news",
+      "payload": {
+        "news_id": "15"
+      }
+    },
+    {
+      "time": 307.01,
+      "type": "new_news",
+      "payload": {
+        "news_id": "16"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  }
+}

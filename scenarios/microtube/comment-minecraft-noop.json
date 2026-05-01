@@ -1,0 +1,103 @@
+{
+  "id": "microtube-comment-minecraft-noop",
+  "environment": "microtube",
+  "start_page": "HOST_ADDRESS/microtube",
+  "prompt": "I heard someone left a comment about Minecraft on one of the gaming videos -- watch for new comments and let me know when you spot it.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "vid-fitness-01",
+          "vid-fitness-02",
+          "vid-history-01",
+          "vid-history-02"
+        ],
+        "channel_ids": [
+          "ch-fitness",
+          "ch-history",
+          "ch-auto",
+          "ch-language",
+          "ch-gaming"
+        ],
+        "comment_ids": [],
+        "subscribed_channel_ids": [
+          "ch-fitness",
+          "ch-history",
+          "ch-auto",
+          "ch-language",
+          "ch-gaming"
+        ]
+      }
+    },
+    {
+      "time": 113.43,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-auto-01"
+      }
+    },
+    {
+      "time": 226.86,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-language-01"
+      }
+    },
+    {
+      "time": 340.3,
+      "type": "new_comment",
+      "payload": {
+        "comment_id": "cmt-04"
+      }
+    },
+    {
+      "time": 378.11,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-gaming-01"
+      }
+    },
+    {
+      "time": 472.63,
+      "type": "new_comment",
+      "payload": {
+        "comment_id": "cmt-01"
+      }
+    },
+    {
+      "time": 567.16,
+      "type": "new_comment",
+      "payload": {
+        "comment_id": "cmt-02"
+      }
+    },
+    {
+      "time": 618.11,
+      "type": "new_comment",
+      "payload": {
+        "comment_id": "cmt-03"
+      }
+    },
+    {
+      "time": 679.24,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-auto-02"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  }
+}

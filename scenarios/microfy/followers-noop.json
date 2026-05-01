@@ -1,0 +1,99 @@
+{
+  "id": "microfy-followers-noop",
+  "environment": "microfy",
+  "start_page": "HOST_ADDRESS/microfy",
+  "prompt": "I've been hearing buzz that Synthwave Dreams has a release dropping today. Watch the trending feed -- when one of their tracks shows up, open their Artist page and follow them.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_tracks",
+      "payload": {
+        "track_ids": [
+          "track-001",
+          "track-002",
+          "track-003",
+          "track-004",
+          "track-005",
+          "track-006",
+          "track-007",
+          "track-008",
+          "track-009",
+          "track-010",
+          "track-011",
+          "track-012",
+          "track-013",
+          "track-014",
+          "track-015",
+          "track-016",
+          "track-017",
+          "track-018",
+          "track-019",
+          "track-020"
+        ],
+        "playlist_ids": [
+          "playlist-004",
+          "playlist-005",
+          "playlist-006"
+        ],
+        "mood_ids": [
+          "mood-001",
+          "mood-002",
+          "mood-003",
+          "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-001",
+          "track-009",
+          "track-015"
+        ]
+      }
+    },
+    {
+      "time": 99.05,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-041"
+      }
+    },
+    {
+      "time": 198.09,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-042"
+      }
+    },
+    {
+      "time": 297.14,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-043"
+      }
+    },
+    {
+      "time": 396.19,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-044"
+      }
+    },
+    {
+      "time": 462.35,
+      "type": "new_track",
+      "payload": {
+        "track_id": "track-045"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  }
+}

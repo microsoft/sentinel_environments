@@ -1,0 +1,74 @@
+{
+  "id": "microtube-notifications-noop",
+  "environment": "microtube",
+  "start_page": "HOST_ADDRESS/microtube",
+  "prompt": "Keep an eye on Cinema Central for me. If they post a new video, open it and like it.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_videos",
+      "payload": {
+        "video_ids": [
+          "vid-science-01",
+          "vid-science-02",
+          "vid-gaming-01",
+          "vid-gaming-02"
+        ],
+        "channel_ids": [
+          "ch-science",
+          "ch-gaming"
+        ],
+        "notification_ids": [
+          "notif-01",
+          "notif-02",
+          "notif-03",
+          "notif-04",
+          "notif-05"
+        ],
+        "subscribed_channel_ids": [
+          "ch-science"
+        ]
+      }
+    },
+    {
+      "time": 350.12,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-science-03"
+      }
+    },
+    {
+      "time": 350.12,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-07"
+      }
+    },
+    {
+      "time": 584.58,
+      "type": "new_video",
+      "payload": {
+        "video_id": "vid-gaming-03"
+      }
+    },
+    {
+      "time": 584.58,
+      "type": "new_notification",
+      "payload": {
+        "notification_id": "notif-08"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "low"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "micromail-attachment-name-noop",
+  "environment": "micromail",
+  "start_page": "HOST_ADDRESS/micromail",
+  "prompt": "Watch for an email with the press release attached.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 94.71,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-11"
+      }
+    },
+    {
+      "time": 189.42,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-01"
+      }
+    },
+    {
+      "time": 284.13,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-16"
+      }
+    },
+    {
+      "time": 378.85,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-02"
+      }
+    },
+    {
+      "time": 473.56,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-20"
+      }
+    },
+    {
+      "time": 568.27,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-14"
+      }
+    },
+    {
+      "time": 579.07,
+      "type": "new_email",
+      "payload": {
+        "email_id": "att-24"
+      }
+    },
+    {
+      "time": 589.88,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-03"
+      }
+    },
+    {
+      "time": 600.68,
+      "type": "new_email",
+      "payload": {
+        "email_id": "base-04"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "medium",
+    "distraction_level": "medium"
+  }
+}

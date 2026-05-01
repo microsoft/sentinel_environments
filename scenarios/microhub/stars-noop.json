@@ -1,0 +1,72 @@
+{
+  "id": "microhub-stars-noop",
+  "environment": "microhub",
+  "start_page": "HOST_ADDRESS/microhub",
+  "prompt": "Watch the star count on this repo and let me know when it hits at least 100,000.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_repo",
+      "payload": {
+        "issue_ids": [
+          "i8",
+          "i12"
+        ],
+        "star_waypoints": [
+          [
+            0.0,
+            1847
+          ],
+          [
+            587.31,
+            2000
+          ],
+          [
+            720.0,
+            2080
+          ]
+        ]
+      }
+    },
+    {
+      "time": 195.77,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i15"
+      }
+    },
+    {
+      "time": 391.54,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i16"
+      }
+    },
+    {
+      "time": 631.54,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i18"
+      }
+    },
+    {
+      "time": 697.88,
+      "type": "new_issue",
+      "payload": {
+        "issue_id": "i19"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  }
+}

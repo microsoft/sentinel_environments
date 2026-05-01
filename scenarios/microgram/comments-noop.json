@@ -1,0 +1,94 @@
+{
+  "id": "microgram-comments-noop",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "I've noticed @dmiller has been commenting on posts in my feed -- keep checking new posts as they come in, and let me know when 3 more posts show up that have a comment from @dmiller (you'll need to open each post to see who commented).",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-sailing-sunset",
+          "post-beach-sunrise",
+          "post-marathon-finish",
+          "post-studio-session",
+          "post-mountain-bike",
+          "post-street-food"
+        ],
+        "story_ids": [
+          "story-security-ops-center",
+          "story-kubernetes-dashboard"
+        ],
+        "message_ids": [
+          "dm-4"
+        ],
+        "activity_ids": [
+          "act-15",
+          "act-16"
+        ]
+      }
+    },
+    {
+      "time": 84.44,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-code-conference"
+      }
+    },
+    {
+      "time": 157.62,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-skydiving"
+      }
+    },
+    {
+      "time": 225.17,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-art-gallery"
+      }
+    },
+    {
+      "time": 281.47,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-hiking-summit"
+      }
+    },
+    {
+      "time": 337.76,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-temple-visit"
+      }
+    },
+    {
+      "time": 465.17,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-aurora"
+      }
+    },
+    {
+      "time": 656.29,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-yoga-retreat"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "relative",
+    "event_persistence": "persistent",
+    "monitoring_approach": "active",
+    "difficulty": "hard",
+    "distraction_level": "medium"
+  }
+}

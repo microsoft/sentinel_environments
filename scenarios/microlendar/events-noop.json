@@ -1,0 +1,106 @@
+{
+  "id": "microlendar-events-noop",
+  "environment": "microlendar",
+  "start_page": "HOST_ADDRESS/microlendar",
+  "prompt": "Keep an eye on my calendar and tell me when it reaches 100 or more events this month.",
+  "condition_at": null,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_events",
+      "payload": {
+        "today": "2024-07-18",
+        "initial_date": "2024-07-18",
+        "event_ids": [
+          "evt001",
+          "evt002",
+          "evt003",
+          "evt004",
+          "evt005",
+          "evt006",
+          "evt007",
+          "evt008",
+          "evt009",
+          "evt010",
+          "evt011",
+          "evt012",
+          "evt013",
+          "evt014",
+          "evt015",
+          "evt016",
+          "evt017",
+          "evt018",
+          "evt019",
+          "evt020"
+        ],
+        "task_ids": [
+          "task01",
+          "task02",
+          "task03",
+          "task04",
+          "task05"
+        ]
+      }
+    },
+    {
+      "time": 6.86,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today01"
+      }
+    },
+    {
+      "time": 12.01,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today02"
+      }
+    },
+    {
+      "time": 17.16,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today03"
+      }
+    },
+    {
+      "time": 20.59,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today04"
+      }
+    },
+    {
+      "time": 320.33,
+      "type": "new_event",
+      "payload": {
+        "event_id": "today05"
+      }
+    },
+    {
+      "time": 520.17,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise01"
+      }
+    },
+    {
+      "time": 720.0,
+      "type": "new_event",
+      "payload": {
+        "event_id": "noise02"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  }
+}
