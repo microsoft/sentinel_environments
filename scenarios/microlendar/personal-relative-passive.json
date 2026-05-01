@@ -11,8 +11,8 @@
       "time": 0.0,
       "type": "preload_events",
       "payload": {
-        "today": "2026-03-18",
-        "initial_date": "2026-03-18",
+        "today": "2024-07-18",
+        "initial_date": "2024-07-18",
         "event_ids": [
           "evt002",
           "evt003",
