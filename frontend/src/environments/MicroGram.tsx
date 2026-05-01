@@ -114,6 +114,15 @@ const computeRelativeTimestamp = (
   return `${Math.floor(totalMinutesAgo / 10080)}w`;
 };
 
+const formatTimeSince = (arrivedAt: number): string => {
+  const minutes = Math.floor((Date.now() - arrivedAt) / 60000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m`;
+  if (minutes < 1440) return `${Math.floor(minutes / 60)}h`;
+  if (minutes < 10080) return `${Math.floor(minutes / 1440)}d`;
+  return `${Math.floor(minutes / 10080)}w`;
+};
+
 const getInitials = (name: string): string =>
   name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
@@ -289,6 +298,10 @@ const MicroGram = () => {
   // Profile tabs
   const [profileTab, setProfileTab] = useState<"posts" | "reels" | "saved">("posts");
 
+  // Activity notification badge
+  const baselineActivityCountRef = useRef<number | null>(null);
+  const [lastSeenActivityCount, setLastSeenActivityCount] = useState<number | null>(null);
+
   // DM conversation messages (user replies - local only)
   const [dmReplies, setDmReplies] = useState<Record<string, { id: string; text: string; fromSelf: boolean; sharedPostId?: string; timestamp: number }[]>>({});
   const [dmDraft, setDmDraft] = useState("");
@@ -301,9 +314,10 @@ const MicroGram = () => {
   // Toast notifications
   const [toast, setToast] = useState<{ message: string; type: "info" | "success" | "error" } | null>(null);
 
-  // Track when user last viewed DM and activity sections (for notification badges)
-  const [dmLastSeen, setDmLastSeen] = useState<number>(Infinity);
-  const [activityLastSeen, setActivityLastSeen] = useState<number>(Infinity);
+  // Track when user last viewed DM and activity sections (for notification badges).
+  // Initialize to now so preloaded items (no _arrivedAt) don't trigger badges.
+  const [dmLastSeen, setDmLastSeen] = useState(() => Date.now());
+  const [activityLastSeen, setActivityLastSeen] = useState(() => Date.now());
 
   const storyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -579,6 +593,15 @@ const MicroGram = () => {
   if (initialMaxOrder.current === null && maxOrder > 0) {
     initialMaxOrder.current = maxOrder;
   }
+  // Capture baseline activity count on first load
+  useEffect(() => {
+    if (activity.length > 0 && baselineActivityCountRef.current === null) {
+      baselineActivityCountRef.current = activity.length;
+      setLastSeenActivityCount(activity.length);
+    }
+  }, [activity]);
+
+  const hasNewActivity = lastSeenActivityCount !== null && activity.length > lastSeenActivityCount;
 
   // Merge server-backed conversations with locally-started ones for display.
   const allConversations = useMemo<ApiGramMessage[]>(
@@ -886,7 +909,7 @@ const MicroGram = () => {
     <div className="max-w-lg mx-auto p-4">
       <h2 className="font-semibold text-xl mb-4">Activity</h2>
       <div className="space-y-4">
-        {activity.map(entry => {
+        {activity.slice().sort((a, b) => b.order - a.order).map(entry => {
           const actor = getUserById(entry.actorId);
           return (
             <div key={entry.id} className="flex items-center gap-3">
@@ -900,7 +923,7 @@ const MicroGram = () => {
                   {entry.type === "follow" && "started following you."}
                   {entry.type === "comment" && `commented: "${entry.text}"`}
                   {entry.type === "mention" && entry.text}
-                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime, initialMaxOrder.current ?? maxOrder, entry._arrivedAt)}</span>
+                  <span className="text-gray-500 ml-1">{entry._arrivedAt ? formatTimeSince(entry._arrivedAt) : computeRelativeTimestamp(entry.order, startTime, maxOrder)}</span>
                 </p>
               </div>
               {entry.type === "follow" && !followedUserIds.includes(entry.actorId) && (
@@ -1263,12 +1286,12 @@ const MicroGram = () => {
                 className="w-full p-4 flex items-center gap-3 hover:bg-gray-50"
               >
                 {renderAvatar(otherUser, "md")}
-                <div className="flex-1 text-left">
-                  <p className="font-semibold text-sm">{otherUser?.username}</p>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="font-semibold text-sm truncate">{otherUser?.username}</p>
                   <p className="text-sm text-gray-500 truncate">{displayMessage}</p>
                 </div>
                 {dm.unreadCount > 0 && (
-                  <span className="w-5 h-5 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
+                  <span className="w-5 h-5 flex-shrink-0 bg-blue-500 text-white text-xs rounded-full flex items-center justify-center">
                     {dm.unreadCount}
                   </span>
                 )}
@@ -1567,9 +1590,9 @@ const MicroGram = () => {
                 </span>
               )}
             </button>
-            <button onClick={() => { setActivityLastSeen(Date.now()); setRoute("activity"); }} className="relative">
+            <button onClick={() => { setRoute("activity"); setLastSeenActivityCount(activity.length); }} className="relative">
               <Heart size={24} className={navSection === "activity" ? "fill-gray-900" : ""} />
-              {newActivityCount > 0 && navSection !== "activity" && (
+              {hasNewActivity && navSection !== "activity" && (
                 <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
               )}
             </button>

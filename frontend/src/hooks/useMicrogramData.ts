@@ -199,12 +199,15 @@ export function useMicrogramData() {
         setActivity((prev) => {
           const incoming: ApiGramActivity[] = activityData.activity ?? [];
           if (prev.length === 0) return incoming;
-          const knownIds = new Set(prev.map((a) => a.id));
-          return incoming.map((a) =>
-            knownIds.has(a.id)
-              ? { ...a, _arrivedAt: prev.find((x) => x.id === a.id)?._arrivedAt }
-              : { ...a, _arrivedAt: now }
-          );
+          const prevIds = new Set(prev.map((a) => a.id));
+          const now = Date.now();
+          return incoming.map((a) => {
+            if (prevIds.has(a.id)) {
+              const existing = prev.find((p) => p.id === a.id);
+              return existing ? { ...a, _arrivedAt: existing._arrivedAt } : a;
+            }
+            return { ...a, _arrivedAt: now };
+          });
         });
         setFollowedUserIds(followedData.followed_users ?? []);
         setError(null);
@@ -251,12 +254,11 @@ export function useMicrogramData() {
 
   const messages = useMemo<ApiGramMessage[]>(() => {
     return rawMessages.map((conversation) => {
-      const isNewConversation = conversation._arrivedAt != null;
       let unreadCount = 0;
       const mergedMessages = conversation.messages.map((message) => {
         const isRead = messageReadOverrides.has(message.id)
           ? (messageReadOverrides.get(message.id) as boolean)
-          : isNewConversation ? false : Boolean(message.isRead);
+          : Boolean(message.isRead);
         if (!isRead) {
           unreadCount += 1;
         }
@@ -328,12 +330,11 @@ export function useMicrogramData() {
     const conversation = rawMessages.find((item) => item.id === conversationId);
     if (!conversation) return;
 
-    const isNewConversation = conversation._arrivedAt != null;
     const unreadMessageIds = conversation.messages
       .filter((message) => {
         const isRead = messageReadOverrides.has(message.id)
           ? (messageReadOverrides.get(message.id) as boolean)
-          : isNewConversation ? false : Boolean(message.isRead);
+          : Boolean(message.isRead);
         return !isRead;
       })
       .map((message) => message.id);
