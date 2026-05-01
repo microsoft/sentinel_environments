@@ -317,7 +317,6 @@ const MicroGram = () => {
   // Track when user last viewed DM and activity sections (for notification badges).
   // Initialize to now so preloaded items (no _arrivedAt) don't trigger badges.
   const [dmLastSeen, setDmLastSeen] = useState(() => Date.now());
-  const [activityLastSeen, setActivityLastSeen] = useState(() => Date.now());
 
   const storyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -613,10 +612,6 @@ const MicroGram = () => {
   const newDmCount = useMemo(
     () => apiMessages.filter((m) => m._arrivedAt != null && m._arrivedAt > dmLastSeen).length,
     [apiMessages, dmLastSeen]
-  );
-  const newActivityCount = useMemo(
-    () => activity.filter((a) => a._arrivedAt != null && a._arrivedAt > activityLastSeen).length,
-    [activity, activityLastSeen]
   );
 
   const searchResults = useMemo(() => {
