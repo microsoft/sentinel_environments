@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useHashRoute } from "../hooks/useHashRoute";
+import { useHashRoute } from "../../hooks/useHashRoute";
 import {
   GitBranch,
-  GitCommit,
   GitFork,
   GitPullRequest,
   Star,
@@ -15,41 +14,55 @@ import {
   Shield,
   BarChart3,
   Search,
-  Bell,
-  Plus,
   ChevronDown,
   ChevronRight,
-  Menu,
   History,
   Tag,
-  Folder,
-  FileText,
   File,
   Copy,
   Check,
   MessageSquare,
-  Users,
   Link as LinkIcon,
-  Settings,
   CheckCircle2,
   XCircle,
   Clock,
   Lock,
   Globe,
   Package,
-  MapPin,
   Building2,
-  Mail,
   GitMerge,
   Verified,
-  Inbox,
   AlertTriangle,
   ShieldAlert,
   RefreshCw,
 } from "lucide-react";
 
-import { useMicrohubData } from "../hooks/useMicrohubData";
-import type { ApiFile, ApiIssue, ApiPullRequest, ApiHubUser } from "../hooks/useMicrohubData";
+import { useMicrohubData } from "../../hooks/useMicrohubData";
+import type { ApiFile, ApiIssue, ApiPullRequest, ApiHubUser } from "../../hooks/useMicrohubData";
+import { classNames, computeRelativeTimestamp } from "./utils";
+import {
+  ThemeProvider,
+  MicroHubDataProvider,
+  MicroHubUIProvider,
+  useTheme,
+  useMicrohubCtx,
+  useMicrohubUI,
+} from "./contexts";
+import type {
+  ThemeContextValue,
+  MicroHubDataContextValue,
+  MicroHubUIContextValue,
+  MicroHubNotification,
+  EditableProfileDraft,
+} from "./contexts";
+import { Avatar } from "./components/Avatar";
+import { ClickableUsername } from "./components/ClickableUsername";
+import { LabelBadge } from "./components/LabelBadge";
+import { Header } from "./components/Header";
+import { FileTreeItem } from "./components/FileTreeItem";
+import { CommandPalette } from "./components/CommandPalette";
+import { ProfileView } from "./components/ProfileView";
+import { SettingsView } from "./components/SettingsView";
 
 // ============================================================================
 // LOCAL TYPE DEFINITIONS (extending UserProfile with microhub data)
@@ -63,7 +76,9 @@ interface MicroHubAchievement {
   earnedDate: string;
 }
 
-interface MicroHubUser {
+export type { MicroHubAchievement };
+
+export interface MicroHubUser {
   id: string;
   isSelf?: boolean;
   name: string;
@@ -83,7 +98,7 @@ interface MicroHubUser {
   contributionData?: number[];
 }
 
-type RepoFile = ApiFile & { children?: RepoFile[] };
+export type RepoFile = ApiFile & { children?: RepoFile[] };
 
 // Build tree structure from flat file list
 const buildFileTree = (flatFiles: ApiFile[]): RepoFile[] => {
@@ -125,31 +140,14 @@ export const TASK_ID_MICROHUB = "microhub";
 // TYPE DEFINITIONS
 // ============================================================================
 
-type ViewType = "code" | "issues" | "pulls" | "actions" | "projects" | "wiki" | "security" | "insights" | "issue-detail" | "pr-detail" | "settings" | "profile" | "file-view" | "commits";
-type IssueState = "open" | "closed" | "all";
-type SortOption = "newest" | "oldest" | "most-commented" | "recently-updated";
+export type ViewType = "code" | "issues" | "pulls" | "actions" | "projects" | "wiki" | "security" | "insights" | "issue-detail" | "pr-detail" | "settings" | "profile" | "file-view" | "commits";
+export type IssueState = "open" | "closed" | "all";
+export type SortOption = "newest" | "oldest" | "most-commented" | "recently-updated";
 
 
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
-
-const classNames = (...classes: (string | false | null | undefined)[]) =>
-  classes.filter(Boolean).join(" ");
-
-const getInitials = (name: string) =>
-  name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
-
-const getAvatarColor = (name: string) => {
-  const colors = ["#e11d48", "#db2777", "#c026d3", "#9333ea", "#7c3aed", "#6366f1", "#3b82f6", "#0ea5e9", "#14b8a6", "#22c55e", "#eab308", "#f97316"];
-  const index = name.charCodeAt(0) % colors.length;
-  return colors[index];
-};
 
 // HTML escape helper for syntax highlighting
 const escapeHtml = (text: string): string => {
@@ -196,31 +194,145 @@ const highlightCode = (code: string, language: string): string => {
   return escaped;
 };
 
-/**
- * Compute a relative timestamp string based on order and session start time.
- * Lower order items appear earlier (newer), higher order items are older.
- * Each order step = 30 minutes in simulated time for code repository-style display.
- * If createdAt (real ms timestamp) is provided, it's used directly — for items
- * created in-session so they show "just now" at creation and age in real time.
- */
-const computeRelativeTimestamp = (order: number, sessionStartTime: number, createdAt?: number): string => {
-  let totalMinutesAgo: number;
-  if (createdAt && createdAt > 0) {
-    totalMinutesAgo = Math.floor((Date.now() - createdAt) / 60000);
-  } else {
-    const simulatedMinutesAgo = order * 30;
-    const realElapsedMinutes = Math.floor((Date.now() - sessionStartTime) / 60000);
-    totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
-  }
+// computeRelativeTimestamp lives in ./utils so extracted child components can
+// reuse it without creating a runtime cycle through index.tsx.
 
-  if (totalMinutesAgo < 1) return "just now";
-  if (totalMinutesAgo < 60) return `${totalMinutesAgo} minutes ago`;
-  if (totalMinutesAgo < 120) return "1 hour ago";
-  if (totalMinutesAgo < 1440) return `${Math.floor(totalMinutesAgo / 60)} hours ago`;
-  if (totalMinutesAgo < 2880) return "yesterday";
-  if (totalMinutesAgo < 10080) return `${Math.floor(totalMinutesAgo / 1440)} days ago`;
-  if (totalMinutesAgo < 43200) return `${Math.floor(totalMinutesAgo / 10080)} weeks ago`;
-  return `${Math.floor(totalMinutesAgo / 43200)} months ago`;
+// ============================================================================
+// MODULE-SCOPE COMPONENTS
+// ============================================================================
+//
+// IMPORTANT: Components rendered as <X /> JSX must live at module scope.
+// Defining them inside MicroHub() makes their function identity change on
+// every parent render — React then unmounts/remounts their entire DOM
+// subtree on each render. With useMicrohubData polling every 1s, that
+// remount churn destroys DOM identity for click targets like the Issues
+// tab below, breaking browser-agent screenshot→click flows.
+
+const RepoHeader = () => {
+  const { theme } = useTheme();
+  const { repository, openIssuesCount, openPRsCount } = useMicrohubCtx();
+  const {
+    currentView,
+    setRoute,
+    handleViewProfile,
+    handleWatchToggle,
+    handleFork,
+    handleStarToggle,
+  } = useMicrohubUI();
+
+  // Defensive: parent's success path (line ~3223 early-returns when repository
+  // is null) means RepoHeader is only mounted with a non-null repository,
+  // but the context exposes it as nullable.
+  if (!repository) return null;
+
+  return (
+    <div className={classNames("border-b px-4 py-4", theme.bgSecondary, theme.border)}>
+      <div className="flex items-center space-x-2 text-sm mb-3">
+        <Building2 className={classNames("w-4 h-4", theme.textSecondary)} />
+        <a href="#" className="text-blue-500 hover:underline" onClick={(e) => { e.preventDefault(); handleViewProfile(repository.owner); }}>
+          {repository.owner}
+        </a>
+        <span className={theme.textMuted}>/</span>
+        <a href="#" className="text-blue-500 hover:underline font-semibold" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
+          {repository.name}
+        </a>
+        <span className={classNames("px-2 py-0.5 text-xs border rounded-full", theme.border, theme.textSecondary)}>
+          {repository.isPrivate ? (
+            <><Lock className="w-3 h-3 inline mr-1" />Private</>
+          ) : (
+            <><Globe className="w-3 h-3 inline mr-1" />Public</>
+          )}
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center">
+            <button
+              onClick={handleWatchToggle}
+              className={classNames(
+                "flex items-center space-x-1 px-3 py-1 text-sm border rounded-l-md",
+                theme.bgTertiary, theme.border, theme.text,
+                repository.isWatched ? "border-blue-500" : theme.hover
+              )}
+            >
+              <Eye className="w-4 h-4" />
+              <span>{repository.isWatched ? "Unwatch" : "Watch"}</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            <span className={classNames("px-2 py-1 text-sm border border-l-0 rounded-r-md", theme.bgTertiary, theme.border)}>
+              {repository.watchers}
+            </span>
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={handleFork}
+              className={classNames(
+                "flex items-center space-x-1 px-3 py-1 text-sm border rounded-l-md",
+                theme.bgTertiary, theme.border, theme.text,
+                repository.isForked ? "border-green-500 text-green-600" : theme.hover
+              )}
+              disabled={repository.isForked}
+            >
+              <GitFork className="w-4 h-4" />
+              <span>{repository.isForked ? "Forked" : "Fork"}</span>
+            </button>
+            <span className={classNames("px-2 py-1 text-sm border border-l-0 rounded-r-md", theme.bgTertiary, theme.border)}>
+              {repository.forks}
+            </span>
+          </div>
+
+          <div className="flex items-center">
+            <button
+              onClick={handleStarToggle}
+              className={classNames(
+                "flex items-center space-x-1 px-3 py-1 text-sm border rounded-l-md",
+                theme.bgTertiary, theme.border, theme.text,
+                repository.isStarred ? "border-yellow-500 text-yellow-600" : theme.hover
+              )}
+            >
+              <Star className={classNames("w-4 h-4", repository.isStarred && "fill-yellow-400")} />
+              <span>{repository.isStarred ? "Starred" : "Star"}</span>
+            </button>
+            <span className={classNames("px-2 py-1 text-sm border border-l-0 rounded-r-md", theme.bgTertiary, theme.border)}>
+              {repository.stars.toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <nav className="flex items-center space-x-1 mt-4 overflow-x-auto">
+        {[
+          { key: "code", label: "Code", icon: Code },
+          { key: "issues", label: "Issues", icon: CircleDot, count: openIssuesCount },
+          { key: "pulls", label: "Pull requests", icon: GitPullRequest, count: openPRsCount },
+          { key: "actions", label: "Actions", icon: Play },
+          { key: "projects", label: "Projects", icon: Table2 },
+          { key: "wiki", label: "Wiki", icon: BookOpen },
+          { key: "security", label: "Security", icon: Shield },
+          { key: "insights", label: "Insights", icon: BarChart3 },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => { setRoute(tab.key as ViewType); }}
+            className={classNames(
+              "flex items-center space-x-1 px-3 py-2 text-sm rounded-md whitespace-nowrap",
+              currentView === tab.key || (tab.key === "code" && currentView === "file-view") || (tab.key === "issues" && currentView === "issue-detail") || (tab.key === "pulls" && currentView === "pr-detail")
+                ? classNames(theme.bgTertiary, theme.text, "border-b-2 border-orange-500")
+                : classNames(theme.textSecondary, theme.hover)
+            )}
+          >
+            <tab.icon className="w-4 h-4" />
+            <span>{tab.label}</span>
+            {tab.count !== undefined && (
+              <span className={classNames("ml-1 px-1.5 py-0.5 text-xs rounded-full", theme.badge)}>{tab.count}</span>
+            )}
+          </button>
+        ))}
+      </nav>
+    </div>
+  );
 };
 
 // ============================================================================
@@ -235,7 +347,7 @@ const MicroHub = () => {
     codeScanning, settings, deployments, packages, users, userCreatedRepos,
     config, isLoading, error,
     starRepo, watchRepo, forkRepo, updateRepo, mergePR, commentOnIssue, commentOnPR,
-    followUser, createRepo, createIssue,
+    closeIssue, followUser, createRepo, createIssue,
   } = useMicrohubData();
 
   // Derive users into MicroHubUser[]
@@ -351,13 +463,7 @@ const MicroHub = () => {
   useEffect(() => { if (wiki.length > 0 && !selectedWikiPage) setSelectedWikiPage(wiki[0].id); }, [wiki, selectedWikiPage]);
 
   // Editable profile data (for self user)
-  const [editedProfile, setEditedProfile] = useState<{
-    name: string;
-    bio: string;
-    company: string;
-    location: string;
-    website: string;
-  } | null>(null);
+  const [editedProfile, setEditedProfile] = useState<EditableProfileDraft | null>(null);
 
   // New issue/PR creation state
   const [newIssueModalOpen, setNewIssueModalOpen] = useState(false);
@@ -391,13 +497,13 @@ const MicroHub = () => {
   const [toast, setToast] = useState<{ message: string; type: "info" | "success" | "warning" } | null>(null);
 
   // Notifications (simple state)
-  const [notifications, setNotifications] = useState([
-    { id: "n1", title: "PR #167 approved by palves", read: false, type: "pr" as const, targetId: "pr1" },
-    { id: "n2", title: "New comment on issue #156", read: false, type: "issue" as const, targetId: "i1" },
-    { id: "n3", title: "Release v2.1.0 published", read: true, type: "release" as const, targetId: null },
+  const [notifications, setNotifications] = useState<MicroHubNotification[]>([
+    { id: "n1", title: "PR #167 approved by palves", read: false, type: "pr", targetId: "pr1" },
+    { id: "n2", title: "New comment on issue #156", read: false, type: "issue", targetId: "i1" },
+    { id: "n3", title: "Release v2.1.0 published", read: true, type: "release", targetId: null },
   ]);
 
-  const handleNotificationClick = (notification: typeof notifications[0]) => {
+  const handleNotificationClick = useCallback((notification: MicroHubNotification) => {
     // Mark as read
     setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
     setNotificationsOpen(false);
@@ -408,7 +514,7 @@ const MicroHub = () => {
     } else if (notification.type === "issue" && notification.targetId) {
       setRoute("issue-detail", notification.targetId);
     }
-  };
+  }, [setRoute]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -478,7 +584,7 @@ const MicroHub = () => {
   }, [mergePR, selectedMergeMethod]);
 
   // Theme colors - white mode (default) vs dark mode
-  const theme = {
+  const theme = useMemo(() => ({
     // Main backgrounds
     bg: darkMode ? "bg-[#0d1117]" : "bg-white",
     bgSecondary: darkMode ? "bg-[#161b22]" : "bg-gray-50",
@@ -504,7 +610,7 @@ const MicroHub = () => {
     badge: darkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700",
     // Topic tag styling
     topicBg: darkMode ? "bg-blue-900/30 text-blue-400 hover:bg-blue-900/50" : "bg-blue-100 text-blue-700 hover:bg-blue-200",
-  };
+  }), [darkMode]);
 
   // Combine API issues/pulls with locally-created ones
   const allIssues = useMemo(() => {
@@ -612,443 +718,19 @@ const MicroHub = () => {
   // ============================================================================
   // RENDER COMPONENTS
   // ============================================================================
-
-  // Avatar component
-  const Avatar = ({ user, size = "md", showTooltip = false }: { user?: MicroHubUser | null; size?: "sm" | "md" | "lg" | "xl"; showTooltip?: boolean }) => {
-    const sizeClasses = {
-      sm: "w-5 h-5 text-[10px]",
-      md: "w-8 h-8 text-xs",
-      lg: "w-10 h-10 text-sm",
-      xl: "w-20 h-20 text-xl",
-    };
-
-    if (!user) return null;
-
-    return user.avatarUrl ? (
-      <img
-        src={user.avatarUrl}
-        alt={user.name}
-        className={classNames(
-          "rounded-full object-cover cursor-pointer hover:opacity-80",
-          sizeClasses[size]
-        )}
-        title={showTooltip ? user.name : undefined}
-        onClick={() => handleViewProfile(user.username)}
-      />
-    ) : (
-      <div
-        className={classNames(
-          "rounded-full flex items-center justify-center text-white font-medium cursor-pointer hover:opacity-80",
-          sizeClasses[size]
-        )}
-        style={{ backgroundColor: getAvatarColor(user.name) }}
-        title={showTooltip ? user.name : undefined}
-        onClick={() => handleViewProfile(user.username)}
-      >
-        {getInitials(user.name)}
-      </div>
-    );
-  };
-
-  // Clickable Username component - ensures all username displays navigate to profile
-  const ClickableUsername = ({
-    username,
-    className = "",
-    stopPropagation = false,
-  }: {
-    username: string;
-    className?: string;
-    stopPropagation?: boolean;
-  }) => (
-    <span
-      className={classNames(
-        "text-blue-400 hover:underline cursor-pointer",
-        className
-      )}
-      onClick={(e) => {
-        if (stopPropagation) e.stopPropagation();
-        handleViewProfile(username);
-      }}
-    >
-      {username}
-    </span>
-  );
-
-  // Label component
-  const LabelBadge = ({ label }: { label: typeof labels[0] }) => (
-    <span
-      className="px-2 py-0.5 rounded-full text-xs font-medium"
-      style={{
-        backgroundColor: label.color + "20",
-        color: label.color === "#ffffff" ? "#24292f" : label.color,
-        border: label.color === "#ffffff" ? "1px solid #d0d7de" : "none",
-      }}
-    >
-      {label.name}
-    </span>
-  );
+  //
+  // Avatar, ClickableUsername, LabelBadge live at module scope (see
+  // ./components/) and are imported above. Larger view components (Header,
+  // FileTreeItem, ProfileView, etc.) remain inline below pending later
+  // extraction phases.
 
 
   // Header
-  const Header = () => (
-    <header className="bg-[#010409] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50">
-      <div className="flex items-center space-x-4">
-        {/* Hamburger menu */}
-        <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => setSideMenuOpen(!sideMenuOpen)}>
-          <Menu className="w-5 h-5" />
-        </button>
-
-        {/* MicroHub logo */}
-        <a href="#" className="text-white hover:text-gray-300" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
-          <img src="desktop/github-icon.png" alt="MicroHub" className="w-8 h-8 object-contain" />
-        </a>
-
-        {/* Repository path */}
-        <div className="flex items-center text-sm">
-          <a href="#" className="text-gray-300 hover:text-white hover:underline" onClick={(e) => { e.preventDefault(); handleViewProfile(repository!.owner); }}>
-            {repository!.owner}
-          </a>
-          <span className="mx-1 text-gray-500">/</span>
-          <a href="#" className="text-white font-semibold hover:underline" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
-            {repository!.name}
-          </a>
-          {repository!.isPrivate ? (
-            <Lock className="w-4 h-4 ml-2 text-gray-500" />
-          ) : (
-            <Globe className="w-4 h-4 ml-2 text-gray-500" />
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-3">
-        {/* Search bar */}
-        <div className="hidden md:flex items-center">
-          <button
-            onClick={() => setCommandPaletteOpen(true)}
-            className="flex items-center space-x-2 px-3 py-1.5 bg-[#0d1117] border border-gray-700 rounded-md text-gray-400 hover:border-gray-600"
-          >
-            <Search className="w-4 h-4" />
-            <span className="text-sm">Type</span>
-            <span className="text-xs border border-gray-600 rounded px-1.5 py-0.5">/</span>
-            <span className="text-sm">to search</span>
-          </button>
-        </div>
-
-        {isLoggedIn ? (
-          <>
-            <div className="flex items-center space-x-1">
-              {/* Create new dropdown */}
-              <div className="relative">
-                <button
-                  className="p-1.5 hover:bg-gray-700 rounded flex items-center"
-                  onClick={() => setCreateMenuOpen(!createMenuOpen)}
-                >
-                  <Plus className="w-4 h-4" />
-                  <ChevronDown className="w-3 h-3" />
-                </button>
-                {createMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-[#161b22] border border-gray-700 rounded-lg shadow-lg py-1 z-50">
-                    <button
-                      onClick={() => { setCreateMenuOpen(false); setNewRepoModalOpen(true); }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center"
-                    >
-                      <BookOpen className="w-4 h-4 mr-3" />New repository
-                    </button>
-                    <button
-                      onClick={() => { setCreateMenuOpen(false); setImportRepoModalOpen(true); }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center"
-                    >
-                      <Code className="w-4 h-4 mr-3" />Import repository
-                    </button>
-                    <div className="border-t border-gray-700 my-1" />
-                    <button
-                      onClick={() => { setCreateMenuOpen(false); setNewIssueModalOpen(true); }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center"
-                    >
-                      <CircleDot className="w-4 h-4 mr-3" />New issue
-                    </button>
-                    <button
-                      onClick={() => { setCreateMenuOpen(false); setNewPRModalOpen(true); }}
-                      className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center"
-                    >
-                      <GitPullRequest className="w-4 h-4 mr-3" />New pull request
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Issues icon */}
-              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setRoute("issues"); }}>
-                <CircleDot className="w-5 h-5" />
-              </button>
-
-              {/* PRs icon */}
-              <button className="p-1.5 hover:bg-gray-700 rounded" onClick={() => { setRoute("pulls"); }}>
-                <GitPullRequest className="w-5 h-5" />
-              </button>
-
-              {/* Notifications */}
-              <div className="relative">
-                <button
-                  className="p-1.5 hover:bg-gray-700 rounded relative"
-                  onClick={() => setNotificationsOpen(!notificationsOpen)}
-                >
-                  <Bell className="w-5 h-5" />
-                  {unreadNotifications > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full text-[10px] flex items-center justify-center">
-                      {unreadNotifications}
-                    </span>
-                  )}
-                </button>
-
-                {notificationsOpen && (
-                  <div className="absolute right-0 mt-2 w-80 bg-[#161b22] border border-gray-700 rounded-lg shadow-lg">
-                    <div className="p-3 border-b border-gray-700">
-                      <span className="font-medium">Notifications</span>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {notifications.map(n => (
-                        <button
-                          key={n.id}
-                          onClick={() => handleNotificationClick(n)}
-                          className={classNames(
-                            "w-full p-3 text-left hover:bg-gray-800 flex items-center space-x-3",
-                            !n.read && "bg-blue-900/20"
-                          )}
-                        >
-                          {!n.read && <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />}
-                          <span className="text-sm">{n.title}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Inbox */}
-              <div className="relative">
-                <button
-                  className="p-1.5 hover:bg-gray-700 rounded"
-                  onClick={() => setInboxOpen(!inboxOpen)}
-                >
-                  <Inbox className="w-5 h-5" />
-                </button>
-                {inboxOpen && (
-                  <div className="absolute right-0 mt-2 w-72 bg-[#161b22] border border-gray-700 rounded-lg shadow-lg z-50">
-                    <div className="p-3 border-b border-gray-700 flex items-center justify-between">
-                      <span className="font-medium">Inbox</span>
-                      <span className="text-xs text-gray-400">0 unread</span>
-                    </div>
-                    <div className="p-6 text-center text-gray-400">
-                      <Inbox className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">All caught up!</p>
-                      <p className="text-xs">No messages in your inbox</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* User avatar */}
-            <div className="relative">
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center hover:opacity-80"
-              >
-                {selfUser && <Avatar user={selfUser} size="sm" />}
-              </button>
-
-              {userMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-[#161b22] border border-gray-700 rounded-lg shadow-lg py-1 z-50">
-                  <div className="px-4 py-2 border-b border-gray-700">
-                    <p className="text-sm font-medium">{selfUser?.name}</p>
-                    <p className="text-xs text-gray-400">@{selfUser?.username}</p>
-                  </div>
-                  <button onClick={() => { handleViewProfile(selfUser?.username || ""); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
-                    <Users className="w-4 h-4 mr-3" />Your profile
-                  </button>
-                  <button onClick={() => { handleViewProfile(selfUser?.username || ""); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
-                    <BookOpen className="w-4 h-4 mr-3" />Your repositories
-                  </button>
-                  <button onClick={() => { handleViewProfile(selfUser?.username || ""); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
-                    <Star className="w-4 h-4 mr-3" />Your stars
-                  </button>
-                  <div className="border-t border-gray-700 my-1" />
-                  <button onClick={() => { setRoute("settings"); setUserMenuOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 flex items-center">
-                    <Settings className="w-4 h-4 mr-3" />Settings
-                  </button>
-                  <button
-                    onClick={() => setIsSignedOut(true)}
-                    className="w-full text-left px-4 py-2 text-sm hover:bg-gray-800 text-red-400 flex items-center"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center space-x-2">
-            <button className="px-3 py-1.5 text-sm hover:text-gray-300">Sign in</button>
-            <button className="px-3 py-1.5 text-sm bg-green-600 hover:bg-green-700 rounded-md">Sign up</button>
-          </div>
-        )}
-      </div>
-    </header>
-  );
-
-  // Repository Header
-  const RepoHeader = () => (
-    <div className={classNames("border-b px-4 py-4", theme.bgSecondary, theme.border)}>
-      <div className="flex items-center space-x-2 text-sm mb-3">
-        <Building2 className={classNames("w-4 h-4", theme.textSecondary)} />
-        <a href="#" className="text-blue-500 hover:underline" onClick={(e) => { e.preventDefault(); handleViewProfile(repository!.owner); }}>
-          {repository!.owner}
-        </a>
-        <span className={theme.textMuted}>/</span>
-        <a href="#" className="text-blue-500 hover:underline font-semibold" onClick={(e) => { e.preventDefault(); setRoute("code"); }}>
-          {repository!.name}
-        </a>
-        <span className={classNames("px-2 py-0.5 text-xs border rounded-full", theme.border, theme.textSecondary)}>
-          {repository!.isPrivate ? (
-            <><Lock className="w-3 h-3 inline mr-1" />Private</>
-          ) : (
-            <><Globe className="w-3 h-3 inline mr-1" />Public</>
-          )}
-        </span>
-      </div>
-
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center space-x-2">
-          <div className="flex items-center">
-            <button
-              onClick={handleWatchToggle}
-              className={classNames(
-                "flex items-center space-x-1 px-3 py-1 text-sm border rounded-l-md",
-                theme.bgTertiary, theme.border, theme.text,
-                repository!.isWatched ? "border-blue-500" : theme.hover
-              )}
-            >
-              <Eye className="w-4 h-4" />
-              <span>{repository!.isWatched ? "Unwatch" : "Watch"}</span>
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            <span className={classNames("px-2 py-1 text-sm border border-l-0 rounded-r-md", theme.bgTertiary, theme.border)}>
-              {repository!.watchers}
-            </span>
-          </div>
-
-          <div className="flex items-center">
-            <button
-              onClick={handleFork}
-              className={classNames(
-                "flex items-center space-x-1 px-3 py-1 text-sm border rounded-l-md",
-                theme.bgTertiary, theme.border, theme.text,
-                repository!.isForked ? "border-green-500 text-green-600" : theme.hover
-              )}
-              disabled={repository!.isForked}
-            >
-              <GitFork className="w-4 h-4" />
-              <span>{repository!.isForked ? "Forked" : "Fork"}</span>
-            </button>
-            <span className={classNames("px-2 py-1 text-sm border border-l-0 rounded-r-md", theme.bgTertiary, theme.border)}>
-              {repository!.forks}
-            </span>
-          </div>
-
-          <div className="flex items-center">
-            <button
-              onClick={handleStarToggle}
-              className={classNames(
-                "flex items-center space-x-1 px-3 py-1 text-sm border rounded-l-md",
-                theme.bgTertiary, theme.border, theme.text,
-                repository!.isStarred ? "border-yellow-500 text-yellow-600" : theme.hover
-              )}
-            >
-              <Star className={classNames("w-4 h-4", repository!.isStarred && "fill-yellow-400")} />
-              <span>{repository!.isStarred ? "Starred" : "Star"}</span>
-            </button>
-            <span className={classNames("px-2 py-1 text-sm border border-l-0 rounded-r-md", theme.bgTertiary, theme.border)}>
-              {repository!.stars.toLocaleString()}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <nav className="flex items-center space-x-1 mt-4 overflow-x-auto">
-        {[
-          { key: "code", label: "Code", icon: Code },
-          { key: "issues", label: "Issues", icon: CircleDot, count: openIssuesCount },
-          { key: "pulls", label: "Pull requests", icon: GitPullRequest, count: openPRsCount },
-          { key: "actions", label: "Actions", icon: Play },
-          { key: "projects", label: "Projects", icon: Table2 },
-          { key: "wiki", label: "Wiki", icon: BookOpen },
-          { key: "security", label: "Security", icon: Shield },
-          { key: "insights", label: "Insights", icon: BarChart3 },
-        ].map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => { setRoute(tab.key as ViewType); }}
-            className={classNames(
-              "flex items-center space-x-1 px-3 py-2 text-sm rounded-md whitespace-nowrap",
-              currentView === tab.key || (tab.key === "code" && currentView === "file-view") || (tab.key === "issues" && currentView === "issue-detail") || (tab.key === "pulls" && currentView === "pr-detail")
-                ? classNames(theme.bgTertiary, theme.text, "border-b-2 border-orange-500")
-                : classNames(theme.textSecondary, theme.hover)
-            )}
-          >
-            <tab.icon className="w-4 h-4" />
-            <span>{tab.label}</span>
-            {tab.count !== undefined && (
-              <span className={classNames("ml-1 px-1.5 py-0.5 text-xs rounded-full", theme.badge)}>{tab.count}</span>
-            )}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
+  // (extracted to ./components/Header.tsx — module-scope, consumes contexts)
 
   // File Tree Component
-  const FileTreeItem = ({ file, depth = 0 }: { file: RepoFile; depth?: number }) => {
-    const isFolder = file.type === "folder";
-    const isExpanded = expandedFolders.includes(file.path);
-
-    return (
-      <>
-        <div
-          onClick={() => isFolder ? toggleFolder(file.path) : handleViewFile(file.path)}
-          className={classNames(
-            "flex items-center justify-between px-4 py-2 cursor-pointer border-b",
-            theme.hover, theme.borderLight
-          )}
-          style={{ paddingLeft: `${16 + depth * 20}px` }}
-        >
-          <div className="flex items-center space-x-3">
-            {isFolder ? (
-              <>
-                <ChevronRight className={classNames("w-4 h-4 transition-transform", theme.textMuted, isExpanded && "rotate-90")} />
-                <Folder className="w-4 h-4 text-blue-400" />
-              </>
-            ) : (
-              <>
-                <span className="w-4" />
-                <FileText className={classNames("w-4 h-4", theme.textSecondary)} />
-              </>
-            )}
-            <span className={classNames("text-sm", isFolder ? "text-blue-400" : theme.text)}>
-              {file.name}
-            </span>
-          </div>
-          <div className={classNames("flex items-center space-x-8 text-sm", theme.textSecondary)}>
-            <span className={classNames("w-64 truncate", theme.textMuted)}>{file.lastCommit.message}</span>
-            <span className="w-24 text-right">recently</span>
-          </div>
-        </div>
-        {isFolder && isExpanded && file.children?.map(child => (
-          <FileTreeItem key={child.id} file={child} depth={depth + 1} />
-        ))}
-      </>
-    );
-  };
+  // (extracted to ./components/FileTreeItem.tsx — module-scope + React.memo,
+  // consumes Theme + UI contexts)
 
   // File Browser (Code view)
   const FileBrowser = () => (
@@ -1438,463 +1120,7 @@ npm run dev`}</code>
     </div>
   );
 
-  // Edit Profile Modal Component
-  const EditProfileModal = ({ profile, editedProfile, theme, onClose, onSave }: {
-    profile: MicroHubUser;
-    editedProfile: { name: string; bio: string; company: string; location: string; website: string } | null;
-    theme: Record<string, string>;
-    onClose: () => void;
-    onSave: (data: { name: string; bio: string; company: string; location: string; website: string }) => void;
-  }) => {
-    const [formData, setFormData] = useState({
-      name: editedProfile?.name ?? profile.name,
-      bio: editedProfile?.bio ?? profile.bio,
-      company: editedProfile?.company ?? profile.company ?? "",
-      location: editedProfile?.location ?? profile.location,
-      website: editedProfile?.website ?? profile.website ?? "",
-    });
 
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-        <div className={classNames("w-full max-w-lg rounded-lg shadow-xl", theme.bgSecondary)} onClick={e => e.stopPropagation()}>
-          <div className={classNames("flex items-center justify-between p-4 border-b", theme.border)}>
-            <h2 className="text-lg font-semibold">Edit profile</h2>
-            <button onClick={onClose} className={classNames("p-1 rounded", theme.hover)}>
-              <XCircle className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="p-4 space-y-4">
-            <div>
-              <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Name</label>
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-              />
-            </div>
-            <div>
-              <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Bio</label>
-              <textarea
-                value={formData.bio}
-                onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                rows={3}
-                className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-              />
-            </div>
-            <div>
-              <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Company</label>
-              <input
-                type="text"
-                value={formData.company}
-                onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
-                className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-              />
-            </div>
-            <div>
-              <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Location</label>
-              <input
-                type="text"
-                value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-              />
-            </div>
-            <div>
-              <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Website</label>
-              <input
-                type="text"
-                value={formData.website}
-                onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
-                placeholder="https://"
-                className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-              />
-            </div>
-          </div>
-          <div className={classNames("flex justify-end gap-2 p-4 border-t", theme.border)}>
-            <button
-              onClick={onClose}
-              className={classNames("px-4 py-2 text-sm rounded-md border", theme.border, theme.hover)}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => onSave(formData)}
-              className="px-4 py-2 text-sm bg-green-600 hover:bg-green-700 rounded-md text-white"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Profile Page
-  const ProfileView = () => {
-    const baseProfile = viewingProfile;
-    if (!baseProfile) return null;
-
-    // Apply edited profile data for self user
-    const profile = baseProfile.isSelf && editedProfile ? {
-      ...baseProfile,
-      name: editedProfile.name,
-      bio: editedProfile.bio,
-      company: editedProfile.company,
-      location: editedProfile.location,
-      website: editedProfile.website,
-    } : baseProfile;
-
-    const isFollowing = followingUsernames.includes(profile.username);
-    const displayedFollowers = profile.followers + (isFollowing ? 1 : 0);
-
-    const handleFollowToggle = () => {
-      if (profile.isSelf) return;
-      followUser(profile.username);
-    };
-
-    // Generate contribution graph data as 7 rows (days) x 52 columns (weeks)
-    // Shows Sun-Sat vertically, weeks horizontally
-    const getContributionGrid = () => {
-      if (!profile.contributionData) return null;
-
-      // Data has 52 weekly values - expand to 364 daily values with variance
-      const weeklyData = profile.contributionData;
-      const weeks: number[][] = [];
-
-      // Seeded pseudo-random based on username for consistent variance
-      const seed = profile.username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-
-      // Organize data into weeks (columns) with 7 days (rows) each
-      for (let week = 0; week < 52; week++) {
-        const weekTotal = weeklyData[week] ?? 0;
-        const weekData: number[] = [];
-
-        // Distribute weekly contributions across 7 days with variance
-        for (let day = 0; day < 7; day++) {
-          // Use deterministic pseudo-random based on week, day, and seed
-          const pseudoRandom = Math.sin(seed + week * 7 + day) * 10000;
-          const variance = (pseudoRandom - Math.floor(pseudoRandom));
-
-          // Weekends typically have less activity
-          const isWeekend = day === 0 || day === 6;
-          const baseMultiplier = isWeekend ? 0.3 : 1.2;
-
-          // Calculate daily contribution with variance
-          const dailyContribution = Math.max(0, Math.round(
-            (weekTotal / 7) * baseMultiplier * (0.5 + variance)
-          ));
-
-          weekData.push(dailyContribution);
-        }
-        weeks.push(weekData);
-      }
-
-      return weeks;
-    };
-
-    const contributionGrid = getContributionGrid();
-    const totalContributions = profile.contributionData?.reduce((a, b) => a + b, 0) ?? 0;
-
-    const getContributionColor = (count: number) => {
-      if (count === 0) return theme.contribEmpty;
-      if (count < 3) return "#0e4429";
-      if (count < 6) return "#006d32";
-      if (count < 9) return "#26a641";
-      return "#39d353";
-    };
-
-    const dayLabels = ["Sun", "", "Tue", "", "Thu", "", "Sat"];
-    const monthLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-    return (
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Left column - Profile info */}
-          <div className="w-full md:w-72 space-y-4">
-            <div className="flex flex-col items-center md:items-start">
-              {profile.avatarUrl ? (
-                <img
-                  src={profile.avatarUrl}
-                  alt={profile.name}
-                  className="w-64 h-64 rounded-full object-cover mb-4"
-                />
-              ) : (
-                <div
-                  className="w-64 h-64 rounded-full flex items-center justify-center text-6xl text-white font-bold mb-4"
-                  style={{ backgroundColor: getAvatarColor(profile.name) }}
-                >
-                  {getInitials(profile.name)}
-                </div>
-              )}
-              <h1 className="text-2xl font-bold">{profile.name}</h1>
-              <p className={classNames("text-xl", theme.textSecondary)}>{profile.username}</p>
-            </div>
-
-            <p className={classNames("text-sm", theme.textSecondary)}>{profile.bio}</p>
-
-            {profile.isSelf ? (
-              <button
-                className={classNames("w-full px-4 py-1.5 text-sm border rounded-md", theme.border, theme.hover)}
-                onClick={() => setEditProfileOpen(true)}
-              >
-                Edit profile
-              </button>
-            ) : (
-              <button
-                onClick={handleFollowToggle}
-                className={classNames(
-                  "w-full px-4 py-1.5 text-sm rounded-md font-medium",
-                  isFollowing
-                    ? classNames("border", theme.border, theme.hover, "hover:border-red-500 hover:text-red-400")
-                    : "bg-[#238636] hover:bg-[#2ea043] text-white"
-                )}
-              >
-                {isFollowing ? "Following" : "Follow"}
-              </button>
-            )}
-
-            <div className="flex items-center space-x-2 text-sm">
-              <Users className={classNames("w-4 h-4", theme.textSecondary)} />
-              <span><strong>{displayedFollowers}</strong> followers</span>
-              <span className={theme.textSecondary}>·</span>
-              <span><strong>{profile.following}</strong> following</span>
-            </div>
-
-            <div className={classNames("space-y-2 text-sm", theme.textSecondary)}>
-              <div className="flex items-center space-x-2">
-                <Building2 className="w-4 h-4" />
-                <span>{profile.jobTitle}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4" />
-                <span>{profile.location}</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Mail className="w-4 h-4" />
-                <span>{profile.email}</span>
-              </div>
-            </div>
-
-            {/* Achievements */}
-            {profile.achievements && profile.achievements.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-2">Achievements</h3>
-                <div className="flex flex-wrap gap-2">
-                  {profile.achievements.map(ach => (
-                    <div key={ach.id} className={classNames("flex items-center space-x-1 px-2 py-1 rounded-full text-sm", theme.bgTertiary)} title={ach.description}>
-                      <span>{ach.icon}</span>
-                      <span>{ach.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right column - Content */}
-          <div className="flex-1 space-y-6">
-            {/* Pinned Repos - Now FIRST */}
-            <div>
-              <h3 className="font-semibold mb-3">Pinned</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className={classNames("border rounded-md p-4", theme.border)}>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <BookOpen className={classNames("w-4 h-4", theme.textSecondary)} />
-                    <a href="#" onClick={(e) => { e.preventDefault(); setRoute("code"); }} className="text-blue-400 hover:underline font-semibold">
-                      {repository!.fullName}
-                    </a>
-                    <span className={classNames("text-xs border rounded-full px-2 py-0.5", theme.border, theme.textSecondary)}>Public</span>
-                  </div>
-                  <p className={classNames("text-sm mb-3", theme.textSecondary)}>{repository!.description}</p>
-                  <div className={classNames("flex items-center space-x-4 text-xs", theme.textSecondary)}>
-                    <span className="flex items-center">
-                      <span className="w-3 h-3 rounded-full mr-1" style={{ backgroundColor: repository!.languageColor }} />
-                      {repository!.language}
-                    </span>
-                    <span className="flex items-center">
-                      <Star className="w-3 h-3 mr-1" />{repository!.stars.toLocaleString()}
-                    </span>
-                    <span className="flex items-center">
-                      <GitFork className="w-3 h-3 mr-1" />{repository!.forks}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* User-created repositories */}
-            {profile.isSelf && userCreatedRepos.length > 0 && (
-              <div>
-                <h3 className="font-semibold mb-3">Repositories</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {userCreatedRepos.map((r) => (
-                    <div key={r.id} className={classNames("border rounded-md p-4", theme.border)}>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <BookOpen className={classNames("w-4 h-4", theme.textSecondary)} />
-                        <span className="text-blue-400 font-semibold">{r.fullName}</span>
-                        <span className={classNames("text-xs border rounded-full px-2 py-0.5", theme.border, theme.textSecondary)}>
-                          {r.isPrivate ? "Private" : "Public"}
-                        </span>
-                      </div>
-                      {r.description && <p className={classNames("text-sm mb-3", theme.textSecondary)}>{r.description}</p>}
-                      <div className={classNames("flex items-center space-x-4 text-xs", theme.textSecondary)}>
-                        <span className="flex items-center">
-                          <Star className="w-3 h-3 mr-1" />{r.stars}
-                        </span>
-                        <span className="flex items-center">
-                          <GitFork className="w-3 h-3 mr-1" />{r.forks}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Contribution Graph - Now BELOW Pinned Repos */}
-            {contributionGrid && (
-              <div className={classNames("border rounded-md p-4", theme.border)}>
-                <h3 className="font-semibold mb-3">{totalContributions} contributions in the last year</h3>
-
-                {/* Month labels */}
-                <div className="flex mb-1 ml-8">
-                  {monthLabels.map((month, i) => (
-                    <span key={i} className={classNames("text-xs", theme.textMuted)} style={{ width: `${100/12}%` }}>{month}</span>
-                  ))}
-                </div>
-
-                {/* Grid container */}
-                <div className="flex">
-                  {/* Day labels */}
-                  <div className="flex flex-col justify-between pr-2" style={{ height: "calc(7 * 11px + 6 * 2px)" }}>
-                    {dayLabels.map((day, i) => (
-                      <span key={i} className={classNames("text-xs leading-none", theme.textMuted)} style={{ height: "11px", lineHeight: "11px" }}>{day}</span>
-                    ))}
-                  </div>
-
-                  {/* Contribution squares - 52 columns x 7 rows */}
-                  <div className="flex gap-0.5 overflow-x-auto relative">
-                    {contributionGrid.map((week, weekIndex) => (
-                      <div key={weekIndex} className="flex flex-col gap-0.5">
-                        {week.map((count, dayIndex) => {
-                          // Calculate approximate date for this cell
-                          const daysAgo = (51 - weekIndex) * 7 + (6 - dayIndex);
-                          const cellDate = new Date();
-                          cellDate.setDate(cellDate.getDate() - daysAgo);
-                          const dateStr = cellDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-
-                          return (
-                            <div
-                              key={`${weekIndex}-${dayIndex}`}
-                              className="w-[11px] h-[11px] rounded-sm cursor-pointer"
-                              style={{ backgroundColor: getContributionColor(count) }}
-                              onMouseEnter={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setHoveredContribution({
-                                  week: weekIndex,
-                                  day: dayIndex,
-                                  count,
-                                  x: rect.left + rect.width / 2,
-                                  y: rect.top
-                                });
-                              }}
-                              onMouseLeave={() => setHoveredContribution(null)}
-                              title={`${count} contribution${count !== 1 ? 's' : ''} on ${dateStr}`}
-                            />
-                          );
-                        })}
-                      </div>
-                    ))}
-                    {/* Hover tooltip */}
-                    {hoveredContribution && contributionGrid && (
-                      <div
-                        className="fixed z-50 px-2 py-1 text-xs bg-[#1b1f23] text-white border border-gray-600 rounded shadow-lg whitespace-nowrap pointer-events-none"
-                        style={{
-                          left: hoveredContribution.x,
-                          top: hoveredContribution.y - 30,
-                          transform: 'translateX(-50%)'
-                        }}
-                      >
-                        <strong>{hoveredContribution.count} contribution{hoveredContribution.count !== 1 ? 's' : ''}</strong>
-                        <span className="text-gray-400 ml-1">
-                          on {(() => {
-                            const daysAgo = (51 - hoveredContribution.week) * 7 + (6 - hoveredContribution.day);
-                            const cellDate = new Date();
-                            cellDate.setDate(cellDate.getDate() - daysAgo);
-                            return cellDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-                          })()}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Legend */}
-                <div className={classNames("flex items-center justify-end mt-2 gap-1 text-xs", theme.textMuted)}>
-                  <span>Less</span>
-                  {[0, 2, 5, 8, 12].map((level) => (
-                    <div
-                      key={level}
-                      className="w-[11px] h-[11px] rounded-sm"
-                      style={{ backgroundColor: getContributionColor(level) }}
-                    />
-                  ))}
-                  <span>More</span>
-                </div>
-              </div>
-            )}
-
-            {/* Recent Activity */}
-            <div>
-              <h3 className="font-semibold mb-3">Recent activity</h3>
-              <div className="space-y-3">
-                {activity.filter(e => e.actor === profile.username).slice(0, 5).map(event => (
-                  <div key={event.id} className="flex items-start space-x-3 text-sm">
-                    <div className={classNames("w-8 h-8 rounded-full flex items-center justify-center", theme.bgTertiary)}>
-                      {event.type === "push" && <GitCommit className="w-4 h-4 text-green-500" />}
-                      {event.type === "pr_opened" && <GitPullRequest className="w-4 h-4 text-green-500" />}
-                      {event.type === "pr_merged" && <GitMerge className="w-4 h-4 text-purple-500" />}
-                      {event.type === "issue_opened" && <CircleDot className="w-4 h-4 text-green-500" />}
-                      {event.type === "comment" && <MessageSquare className="w-4 h-4 text-blue-500" />}
-                      {event.type === "star" && <Star className="w-4 h-4 text-yellow-500" />}
-                      {event.type === "release" && <Tag className="w-4 h-4 text-green-500" />}
-                    </div>
-                    <div>
-                      <p className={theme.textSecondary}>
-                        {event.type === "push" && `Pushed to ${(event.payload as { branch?: string }).branch}`}
-                        {event.type === "pr_opened" && `Opened PR #${(event.payload as { number?: number }).number}`}
-                        {event.type === "pr_merged" && `Merged PR #${(event.payload as { number?: number }).number}`}
-                        {event.type === "issue_opened" && `Opened issue #${(event.payload as { number?: number }).number}`}
-                        {event.type === "comment" && `Commented on ${(event.payload as { type?: string }).type} #${(event.payload as { number?: number }).number}`}
-                        {event.type === "star" && `Starred ${event.repo}`}
-                        {event.type === "release" && `Released ${(event.payload as { tagName?: string }).tagName}`}
-                      </p>
-                      <p className={classNames("text-xs", theme.textMuted)}>{computeRelativeTimestamp(event.order, startTime)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Edit Profile Modal */}
-        {editProfileOpen && profile.isSelf && (
-          <EditProfileModal
-            profile={profile}
-            editedProfile={editedProfile}
-            theme={theme}
-            onClose={() => setEditProfileOpen(false)}
-            onSave={(data) => {
-              setEditedProfile(data);
-              setEditProfileOpen(false);
-            }}
-          />
-        )}
-      </div>
-    );
-  };
 
   // Issues List
   const IssuesList = () => (
@@ -2899,250 +2125,29 @@ npm run dev`}</code>
     );
   };
 
-  // Settings View
-  const SettingsView = () => {
-    const repoSettings = settings as { general: { name: string; description: string; visibility: string; features: Record<string, boolean> }; branches: { protectionRules: { id: string; pattern: string; requirePullRequest: boolean; requiredApprovals: number; requireStatusChecks: boolean; requiredChecks: string[]; includeAdmins: boolean }[] }; collaborators: { userId: string; username: string; role: string }[] } | null;
 
-    const [nameDraft, setNameDraft] = useState(repository?.name || "");
-    const [descriptionDraft, setDescriptionDraft] = useState(repository?.description || "");
-    const [visibilityDraft, setVisibilityDraft] = useState(repository?.visibility || "public");
-    const [saving, setSaving] = useState(false);
-
-    useEffect(() => {
-      setNameDraft(repository?.name || "");
-      setDescriptionDraft(repository?.description || "");
-      setVisibilityDraft(repository?.visibility || "public");
-    }, []);
-
-    const isDirty = nameDraft !== (repository?.name || "") || descriptionDraft !== (repository?.description || "") || visibilityDraft !== (repository?.visibility || "public");
-
-    const handleSaveRepoSettings = async () => {
-      setSaving(true);
-      await updateRepo({ name: nameDraft, description: descriptionDraft, visibility: visibilityDraft });
-      setSaving(false);
-    };
-
-    return (
-      <div className={classNames("max-w-3xl mx-auto p-6", theme.text)}>
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
-
-        <div className="space-y-6">
-          {/* Appearance Section */}
-          <div className={classNames("border rounded-lg", theme.border)}>
-            <div className={classNames("px-4 py-3 border-b", theme.bgSecondary, theme.border)}>
-              <h2 className="font-semibold">Appearance</h2>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Theme</p>
-                  <p className={classNames("text-sm", theme.textSecondary)}>
-                    Choose between light and dark mode
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setDarkMode(false)}
-                    className={classNames(
-                      "px-4 py-2 rounded-l-md text-sm font-medium border",
-                      !darkMode
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : classNames(theme.bgTertiary, theme.border, theme.text)
-                    )}
-                  >
-                    Light
-                  </button>
-                  <button
-                    onClick={() => setDarkMode(true)}
-                    className={classNames(
-                      "px-4 py-2 rounded-r-md text-sm font-medium border -ml-px",
-                      darkMode
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : classNames(theme.bgTertiary, theme.border, theme.text)
-                    )}
-                  >
-                    Dark
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* General Settings */}
-          {repoSettings && (
-            <div className={classNames("border rounded-lg", theme.border)}>
-              <div className={classNames("px-4 py-3 border-b", theme.bgSecondary, theme.border)}>
-                <h2 className="font-semibold">General</h2>
-              </div>
-              <div className="p-4 space-y-4">
-                <div>
-                  <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Repository name</label>
-                  <input
-                    type="text"
-                    value={nameDraft}
-                    onChange={(e) => setNameDraft(e.target.value)}
-                    className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-                  />
-                </div>
-                <div>
-                  <label className={classNames("block text-sm font-medium mb-1", theme.textSecondary)}>Description</label>
-                  <textarea
-                    value={descriptionDraft}
-                    onChange={(e) => setDescriptionDraft(e.target.value)}
-                    rows={2}
-                    className={classNames("w-full px-3 py-2 rounded-md border text-sm", theme.inputBg, theme.border)}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Visibility</p>
-                    <p className={classNames("text-sm", theme.textSecondary)}>
-                      {visibilityDraft === "public" ? "Anyone can see this repository" : "Only collaborators can access"}
-                    </p>
-                  </div>
-                  <select
-                    value={visibilityDraft}
-                    onChange={(e) => setVisibilityDraft(e.target.value === "private" ? "private" : "public")}
-                    className={classNames("px-3 py-1 text-sm rounded-md border", theme.inputBg, theme.border)}
-                  >
-                    <option value="public">public</option>
-                    <option value="private">private</option>
-                  </select>
-                </div>
-                <div className="flex justify-end pt-2">
-                  <button
-                    onClick={handleSaveRepoSettings}
-                    disabled={!isDirty || saving}
-                    className={classNames(
-                      "px-4 py-2 text-sm font-medium rounded-md",
-                      isDirty && !saving ? "bg-blue-600 text-white hover:bg-blue-700" : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    )}
-                  >
-                    {saving ? "Saving..." : "Save changes"}
-                  </button>
-                </div>
-                <div className="pt-4 border-t" style={{ borderColor: darkMode ? "#374151" : "#e5e7eb" }}>
-                  <p className="font-medium mb-2">Features</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(repoSettings.general.features).map(([feature, enabled]) => (
-                      <div key={feature} className="flex items-center space-x-2">
-                        {enabled ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <XCircle className="w-4 h-4 text-gray-500" />}
-                        <span className="text-sm capitalize">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Branch Protection */}
-          {repoSettings && repoSettings.branches.protectionRules.length > 0 && (
-            <div className={classNames("border rounded-lg", theme.border)}>
-              <div className={classNames("px-4 py-3 border-b", theme.bgSecondary, theme.border)}>
-                <h2 className="font-semibold">Branch protection rules</h2>
-              </div>
-              <div className="divide-y" style={{ borderColor: darkMode ? "#374151" : "#e5e7eb" }}>
-                {repoSettings.branches.protectionRules.map(rule => (
-                  <div key={rule.id} className="p-4">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Shield className="w-4 h-4 text-yellow-500" />
-                      <span className="font-mono text-sm">{rule.pattern}</span>
-                    </div>
-                    <div className={classNames("text-sm space-y-1", theme.textSecondary)}>
-                      {rule.requirePullRequest && <p>• Require pull request ({rule.requiredApprovals} approval{rule.requiredApprovals > 1 ? "s" : ""})</p>}
-                      {rule.requireStatusChecks && <p>• Require status checks: {rule.requiredChecks.join(", ")}</p>}
-                      {rule.includeAdmins && <p>• Include administrators</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Collaborators */}
-          {repoSettings && repoSettings.collaborators.length > 0 && (
-            <div className={classNames("border rounded-lg", theme.border)}>
-              <div className={classNames("px-4 py-3 border-b", theme.bgSecondary, theme.border)}>
-                <h2 className="font-semibold">Collaborators</h2>
-              </div>
-              <div className="divide-y" style={{ borderColor: darkMode ? "#374151" : "#e5e7eb" }}>
-                {repoSettings.collaborators.map(collab => {
-                  const user = getUserByUsername(collab.username);
-                  return (
-                    <div key={collab.userId} className="p-4 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Avatar user={user} size="sm" />
-                        <span className="font-medium">{collab.username}</span>
-                      </div>
-                      <span className={classNames(
-                        "px-2 py-1 text-xs rounded",
-                        collab.role === "admin" ? "bg-red-900/30 text-red-400" :
-                        collab.role === "write" ? "bg-green-900/30 text-green-400" :
-                        "bg-gray-700/30 text-gray-400"
-                      )}>
-                        {collab.role}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <button
-          onClick={() => setRoute("code")}
-          className="mt-6 px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 text-white rounded-md"
-        >
-          Back to repository
-        </button>
-      </div>
-    );
-  };
-
-  // Command Palette
-  const CommandPalette = () => {
-    if (!commandPaletteOpen) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-start justify-center pt-24 z-50" onClick={() => setCommandPaletteOpen(false)}>
-        <div className={classNames("border rounded-lg w-full max-w-xl mx-4 shadow-2xl", theme.bgSecondary, theme.border)} onClick={e => e.stopPropagation()}>
-          <div className={classNames("px-4 py-3 border-b", theme.border)}>
-            <div className="flex items-center space-x-2">
-              <Search className={classNames("w-5 h-5", theme.textSecondary)} />
-              <input type="text" placeholder="Search or jump to..." autoFocus className={classNames("flex-1 bg-transparent outline-none text-sm", theme.text)} />
-              <kbd className={classNames("px-2 py-0.5 text-xs rounded border", theme.bgTertiary, theme.border)}>esc</kbd>
-            </div>
-          </div>
-          <div className="p-2">
-            <div className={classNames("text-xs px-2 py-1", theme.textSecondary)}>Pages</div>
-            {[
-              { label: "Code", icon: Code, view: "code" },
-              { label: "Issues", icon: CircleDot, view: "issues" },
-              { label: "Pull requests", icon: GitPullRequest, view: "pulls" },
-              { label: "Your profile", icon: Users, view: "profile", extra: () => { handleViewProfile(selfUser?.username || ""); } },
-            ].map(item => (
-              <button
-                key={item.view}
-                onClick={() => { if (item.extra) item.extra(); else setRoute(item.view as ViewType); setCommandPaletteOpen(false); }}
-                className={classNames("w-full flex items-center space-x-3 px-3 py-2 rounded", theme.hover)}
-              >
-                <item.icon className={classNames("w-4 h-4", theme.textSecondary)} />
-                <span className="text-sm">{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   // Render view content
   const renderContent = () => {
     if (currentView === "profile") return <ProfileView />;
     if (currentView === "settings") return <SettingsView />;
 
+    // ========================================================================
+    // LOAD-BEARING: do NOT convert these to <X /> JSX.
+    // ========================================================================
+    //
+    // The bare-call form (`FileBrowser()` etc.) inlines the function's JSX
+    // directly into this component's render output, so React never sees them
+    // as separate components. That sidesteps the unmount/remount bug that
+    // affected JSX-style usages (`<X />`) of inline-defined components when
+    // useMicrohubData polls every 1s — see plan.md, the Phase 0–6 history,
+    // and the comment block above `RepoHeader` for full background.
+    //
+    // If you want consistent `<X />` JSX everywhere, FIRST move each of these
+    // to a module-scope component file under ./components/ that consumes the
+    // contexts (the Phase 7 work). Doing the rename without the extraction
+    // will silently reintroduce DOM-identity churn for every Code/Issues/PR/
+    // Actions/etc. interactive element, breaking browser-agent click flows.
     return (
       <>
         <RepoHeader />
@@ -3163,6 +2168,125 @@ npm run dev`}</code>
       </>
     );
   };
+
+  // ============================================================================
+  // CONTEXT PROVIDER VALUES
+  // ============================================================================
+  //
+  // Three contexts (Theme, Data, UI) split the closure scope into semantic
+  // surfaces. Memoizing each value with useMemo keyed on its actual inputs
+  // is good hygiene, but the bug fix does *not* depend on context value
+  // stability — DOM identity is preserved by component-type stability
+  // (module-scope components), not by context value stability.
+
+  const themeContextValue = useMemo<ThemeContextValue>(
+    () => ({ theme, darkMode, setDarkMode }),
+    [theme, darkMode]
+  );
+
+  const dataContextValue = useMemo<MicroHubDataContextValue>(
+    () => ({
+      // Raw data
+      repository, issues, pulls, runs, activity, projects, followingUsernames,
+      files, commits, workflows, wiki, insights, releases, labels, security,
+      codeScanning, settings, deployments, packages, users, userCreatedRepos,
+      config,
+      // Mutators
+      starRepo, watchRepo, forkRepo, updateRepo, mergePR,
+      commentOnIssue, commentOnPR, closeIssue, followUser, createRepo, createIssue,
+      // Parent-derived
+      microhubUsers, selfUser, fileTree, allIssues, allPRs,
+      filteredIssues, filteredPRs, insightsContributorsData,
+      // Counts
+      openIssuesCount, closedIssuesCount, openPRsCount, closedPRsCount, unreadNotifications,
+      // Selections
+      selectedIssue, selectedPR, selectedFile, viewingProfile,
+      // Helpers
+      startTime, getUserByUsername, getFileByPath, getLabelsByIds,
+    }),
+    [
+      repository, issues, pulls, runs, activity, projects, followingUsernames,
+      files, commits, workflows, wiki, insights, releases, labels, security,
+      codeScanning, settings, deployments, packages, users, userCreatedRepos,
+      config,
+      starRepo, watchRepo, forkRepo, updateRepo, mergePR,
+      commentOnIssue, commentOnPR, closeIssue, followUser, createRepo, createIssue,
+      microhubUsers, selfUser, fileTree, allIssues, allPRs,
+      filteredIssues, filteredPRs, insightsContributorsData,
+      openIssuesCount, closedIssuesCount, openPRsCount, closedPRsCount, unreadNotifications,
+      selectedIssue, selectedPR, selectedFile, viewingProfile,
+      startTime, getUserByUsername, getFileByPath, getLabelsByIds,
+    ]
+  );
+
+  const uiContextValue = useMemo<MicroHubUIContextValue>(
+    () => ({
+      // Route
+      currentView, selectedIssueId, selectedPRId, selectedFilePath, viewingProfileUsername, setRoute,
+      // Auth
+      isLoggedIn, isSignedOut, setIsSignedOut,
+      // Search/filter/sort
+      searchQuery, setSearchQuery, issueFilter, setIssueFilter,
+      issueSort, setIssueSort, prFilter, setPrFilter,
+      // Repo / file-tree state
+      selectedBranch, setSelectedBranch, expandedFolders, setExpandedFolders, toggleFolder,
+      // Editor / comment state
+      newCommentText, setNewCommentText,
+      // View-specific state (lifted)
+      selectedWorkflow, setSelectedWorkflow, selectedWorkflowRun, setSelectedWorkflowRun,
+      securityActiveTab, setSecurityActiveTab, selectedProject, setSelectedProject,
+      selectedWikiPage, setSelectedWikiPage, mergeDropdownOpen, setMergeDropdownOpen,
+      selectedMergeMethod, setSelectedMergeMethod, expandedReleases, setExpandedReleases,
+      expandedDeployments, setExpandedDeployments,
+      // Header / chrome
+      createMenuOpen, setCreateMenuOpen, inboxOpen, setInboxOpen,
+      branchDropdownOpen, setBranchDropdownOpen, userMenuOpen, setUserMenuOpen,
+      notificationsOpen, setNotificationsOpen, headerDropdown, setHeaderDropdown,
+      codeDropdownOpen, setCodeDropdownOpen, sortDropdownOpen, setSortDropdownOpen,
+      commandPaletteOpen, setCommandPaletteOpen, sideMenuOpen, setSideMenuOpen,
+      // Modals + form state
+      editProfileOpen, setEditProfileOpen, editedProfile, setEditedProfile,
+      newIssueModalOpen, setNewIssueModalOpen, newPRModalOpen, setNewPRModalOpen,
+      newRepoModalOpen, setNewRepoModalOpen, importRepoModalOpen, setImportRepoModalOpen,
+      newIssueTitle, setNewIssueTitle, newIssueBody, setNewIssueBody,
+      newPRTitle, setNewPRTitle, newPRBody, setNewPRBody,
+      newPRSourceBranch, setNewPRSourceBranch, newPRTargetBranch, setNewPRTargetBranch,
+      newRepoName, setNewRepoName, newRepoDescription, setNewRepoDescription,
+      newRepoVisibility, setNewRepoVisibility, newRepoReadme, setNewRepoReadme,
+      newRepoGitignore, setNewRepoGitignore, newRepoSubmitting, setNewRepoSubmitting,
+      // User-created
+      userCreatedIssues, setUserCreatedIssues, userCreatedPRs, setUserCreatedPRs,
+      // Misc
+      hoveredContribution, setHoveredContribution, toast, setToast,
+      notifications, setNotifications,
+      // Stable handlers
+      handleViewProfile, handleStarToggle, handleWatchToggle, handleFork,
+      handleViewFile, handleMergePR, handleNotificationClick,
+    }),
+    [
+      currentView, selectedIssueId, selectedPRId, selectedFilePath, viewingProfileUsername, setRoute,
+      isLoggedIn, isSignedOut,
+      searchQuery, issueFilter, issueSort, prFilter,
+      selectedBranch, expandedFolders, toggleFolder,
+      newCommentText,
+      selectedWorkflow, selectedWorkflowRun, securityActiveTab, selectedProject,
+      selectedWikiPage, mergeDropdownOpen, selectedMergeMethod,
+      expandedReleases, expandedDeployments,
+      createMenuOpen, inboxOpen, branchDropdownOpen, userMenuOpen,
+      notificationsOpen, headerDropdown, codeDropdownOpen, sortDropdownOpen,
+      commandPaletteOpen, sideMenuOpen,
+      editProfileOpen, editedProfile,
+      newIssueModalOpen, newPRModalOpen, newRepoModalOpen, importRepoModalOpen,
+      newIssueTitle, newIssueBody, newPRTitle, newPRBody,
+      newPRSourceBranch, newPRTargetBranch,
+      newRepoName, newRepoDescription, newRepoVisibility,
+      newRepoReadme, newRepoGitignore, newRepoSubmitting,
+      userCreatedIssues, userCreatedPRs,
+      hoveredContribution, toast, notifications,
+      handleViewProfile, handleStarToggle, handleWatchToggle, handleFork,
+      handleViewFile, handleMergePR, handleNotificationClick,
+    ]
+  );
 
   if (!config || isLoading || !repository) {
     const isNetworkError = error && /failed to fetch|networkerror/i.test(error);
@@ -3208,8 +2332,11 @@ npm run dev`}</code>
   }
 
   return (
-    <div className={classNames("min-h-screen", theme.bg, theme.text)}>
-      <Header />
+    <ThemeProvider value={themeContextValue}>
+      <MicroHubDataProvider value={dataContextValue}>
+        <MicroHubUIProvider value={uiContextValue}>
+          <div className={classNames("min-h-screen", theme.bg, theme.text)}>
+            <Header />
 
       {/* Side Menu (hamburger menu) */}
       {sideMenuOpen && (
@@ -3662,6 +2789,9 @@ npm run dev`}</code>
         </div>
       )}
     </div>
+        </MicroHubUIProvider>
+      </MicroHubDataProvider>
+    </ThemeProvider>
   );
 };
 
