@@ -290,6 +290,14 @@ def cmd_run(args):
 
     app_subset = _parse_app_subset(args.app_subset)
     tasks = list(discover_tasks(app_subset=app_subset))
+    if args.task:
+        task_filter = args.task.removesuffix(".json")
+        tasks = [
+            (env, sid, path) for env, sid, path in tasks
+            if sid == task_filter or path.stem == task_filter
+        ]
+        if not tasks:
+            raise SystemExit(f"No task found matching --task '{args.task}'")
     if app_subset is not None:
         print(f"Filtering to apps: {sorted(app_subset)}", flush=True)
     print(f"Found {len(tasks)} tasks. Results -> {results_root}", flush=True)
@@ -395,6 +403,15 @@ def main():
         help=(
             "Comma-separated list of apps to run (e.g. 'micromail,microlendar'). "
             "Whitespace tolerated. Default: all apps."
+        ),
+    )
+    p_run.add_argument(
+        "--task",
+        default=None,
+        help=(
+            "Run a single task by scenario ID or JSON filename "
+            "(e.g. 'microfy-lyric-whiskey-absolute-active' or "
+            "'lyric-whiskey-absolute-active.json'). Default: all tasks."
         ),
     )
     p_run.set_defaults(func=cmd_run)

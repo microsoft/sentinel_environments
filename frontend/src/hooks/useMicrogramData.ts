@@ -20,6 +20,7 @@ export interface ApiGramPost {
   order: number;
   isLiked: boolean;
   isSaved: boolean;
+  _arrivedAt?: number;
 }
 
 export interface ApiGramStory {
@@ -41,6 +42,7 @@ export interface ApiGramMessage {
   unreadCount: number;
   messages: { id: string; senderId: string; senderName?: string; text: string; isRead?: boolean; order: number }[];
   order: number;
+  _arrivedAt?: number;
 }
 
 export interface ApiGramActivity {
@@ -52,6 +54,7 @@ export interface ApiGramActivity {
   targetPostId: string | null;
   text: string | null;
   order: number;
+  _arrivedAt?: number;
 }
 
 export interface ApiTaskConfig {
@@ -171,10 +174,38 @@ export function useMicrogramData() {
       }),
     ])
       .then(([postsData, storiesData, messagesData, activityData, followedData]) => {
-        setPosts(postsData.posts ?? []);
+        const now = Date.now();
+        setPosts((prev) => {
+          const incoming: ApiGramPost[] = postsData.posts ?? [];
+          if (prev.length === 0) return incoming;
+          const knownIds = new Set(prev.map((p) => p.id));
+          return incoming.map((p) =>
+            knownIds.has(p.id)
+              ? { ...p, _arrivedAt: prev.find((x) => x.id === p.id)?._arrivedAt }
+              : { ...p, _arrivedAt: now }
+          );
+        });
         setStories(storiesData.stories ?? []);
-        setRawMessages(messagesData.messages ?? []);
-        setActivity(activityData.activity ?? []);
+        setRawMessages((prev) => {
+          const incoming: ApiGramMessage[] = messagesData.messages ?? [];
+          if (prev.length === 0) return incoming;
+          const knownIds = new Set(prev.map((m) => m.id));
+          return incoming.map((m) =>
+            knownIds.has(m.id)
+              ? { ...m, _arrivedAt: prev.find((x) => x.id === m.id)?._arrivedAt }
+              : { ...m, _arrivedAt: now }
+          );
+        });
+        setActivity((prev) => {
+          const incoming: ApiGramActivity[] = activityData.activity ?? [];
+          if (prev.length === 0) return incoming;
+          const knownIds = new Set(prev.map((a) => a.id));
+          return incoming.map((a) =>
+            knownIds.has(a.id)
+              ? { ...a, _arrivedAt: prev.find((x) => x.id === a.id)?._arrivedAt }
+              : { ...a, _arrivedAt: now }
+          );
+        });
         setFollowedUserIds(followedData.followed_users ?? []);
         setError(null);
         setIsLoading(false);
@@ -220,11 +251,12 @@ export function useMicrogramData() {
 
   const messages = useMemo<ApiGramMessage[]>(() => {
     return rawMessages.map((conversation) => {
+      const isNewConversation = conversation._arrivedAt != null;
       let unreadCount = 0;
       const mergedMessages = conversation.messages.map((message) => {
         const isRead = messageReadOverrides.has(message.id)
           ? (messageReadOverrides.get(message.id) as boolean)
-          : Boolean(message.isRead);
+          : isNewConversation ? false : Boolean(message.isRead);
         if (!isRead) {
           unreadCount += 1;
         }
@@ -296,11 +328,12 @@ export function useMicrogramData() {
     const conversation = rawMessages.find((item) => item.id === conversationId);
     if (!conversation) return;
 
+    const isNewConversation = conversation._arrivedAt != null;
     const unreadMessageIds = conversation.messages
       .filter((message) => {
         const isRead = messageReadOverrides.has(message.id)
           ? (messageReadOverrides.get(message.id) as boolean)
-          : Boolean(message.isRead);
+          : isNewConversation ? false : Boolean(message.isRead);
         return !isRead;
       })
       .map((message) => message.id);

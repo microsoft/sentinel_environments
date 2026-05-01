@@ -80,17 +80,32 @@ const formatNumber = (num: number): string => {
 };
 
 /**
- * Compute a relative timestamp string based on order and session start time.
- * Higher order items are newer, lower order items are older.
- * Each order step = 10 minutes in simulated time.
- * maxOrder is the highest order seen so far — that item is the most recent.
+ * Compute a relative timestamp string.
+ *
+ * Items that arrived dynamically (have _arrivedAt) use real wall-clock time
+ * since they appeared, so a post that just showed up reads "Just now".
+ *
+ * Preloaded items (no _arrivedAt) use a simulated offset based on order
+ * difference from initialMaxOrder, plus real time elapsed since the session
+ * started. Using initialMaxOrder (not current maxOrder) prevents preloaded
+ * timestamps from jumping when new items arrive with higher orders.
  */
-const computeRelativeTimestamp = (order: number, sessionStartTime: number, maxOrder: number): string => {
-  const simulatedMinutesAgo = (maxOrder - order) * 10;
-  const realElapsedMs = Date.now() - sessionStartTime;
-  const realElapsedMinutes = Math.floor(realElapsedMs / 60000);
+const computeRelativeTimestamp = (
+  order: number,
+  sessionStartTime: number,
+  initialMaxOrder: number,
+  arrivedAt?: number,
+): string => {
+  let totalMinutesAgo: number;
 
-  const totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+  if (arrivedAt != null) {
+    const realMs = Date.now() - arrivedAt;
+    totalMinutesAgo = Math.floor(realMs / 60000);
+  } else {
+    const simulatedMinutesAgo = (initialMaxOrder - order) * 10;
+    const realElapsedMinutes = Math.floor((Date.now() - sessionStartTime) / 60000);
+    totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+  }
 
   if (totalMinutesAgo < 1) return "Just now";
   if (totalMinutesAgo < 60) return `${totalMinutesAgo}m`;
@@ -285,6 +300,10 @@ const MicroGram = () => {
 
   // Toast notifications
   const [toast, setToast] = useState<{ message: string; type: "info" | "success" | "error" } | null>(null);
+
+  // Track when user last viewed DM and activity sections (for notification badges)
+  const [dmLastSeen, setDmLastSeen] = useState<number>(Infinity);
+  const [activityLastSeen, setActivityLastSeen] = useState<number>(Infinity);
 
   const storyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -554,10 +573,27 @@ const MicroGram = () => {
     return max;
   }, [posts, stories, activity]);
 
+  // Freeze the initial max order from preloaded items so their timestamps
+  // don't jump when new items arrive with higher orders.
+  const initialMaxOrder = useRef<number | null>(null);
+  if (initialMaxOrder.current === null && maxOrder > 0) {
+    initialMaxOrder.current = maxOrder;
+  }
+
   // Merge server-backed conversations with locally-started ones for display.
   const allConversations = useMemo<ApiGramMessage[]>(
     () => [...apiMessages, ...localConversations],
     [apiMessages, localConversations]
+  );
+
+  // Badge counts: new items that arrived after the user last viewed that section.
+  const newDmCount = useMemo(
+    () => apiMessages.filter((m) => m._arrivedAt != null && m._arrivedAt > dmLastSeen).length,
+    [apiMessages, dmLastSeen]
+  );
+  const newActivityCount = useMemo(
+    () => activity.filter((a) => a._arrivedAt != null && a._arrivedAt > activityLastSeen).length,
+    [activity, activityLastSeen]
   );
 
   const searchResults = useMemo(() => {
@@ -751,7 +787,7 @@ const MicroGram = () => {
               View all {post.comments.length} comments
             </button>
           )}
-          <p className="text-xs text-gray-400 mt-1 uppercase">{computeRelativeTimestamp(post.order, startTime, maxOrder)}</p>
+          <p className="text-xs text-gray-400 mt-1 uppercase">{computeRelativeTimestamp(post.order, startTime, initialMaxOrder.current ?? maxOrder, post._arrivedAt)}</p>
         </div>
       </article>
     );
@@ -864,7 +900,7 @@ const MicroGram = () => {
                   {entry.type === "follow" && "started following you."}
                   {entry.type === "comment" && `commented: "${entry.text}"`}
                   {entry.type === "mention" && entry.text}
-                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime, maxOrder)}</span>
+                  <span className="text-gray-500 ml-1">{computeRelativeTimestamp(entry.order, startTime, initialMaxOrder.current ?? maxOrder, entry._arrivedAt)}</span>
                 </p>
               </div>
               {entry.type === "follow" && !followedUserIds.includes(entry.actorId) && (
@@ -1203,13 +1239,14 @@ const MicroGram = () => {
           </button>
         </div>
         <div className="divide-y">
-          {/* Sort DMs by most recent activity (user messages first, then original order) */}
+          {/* Sort DMs by most recent activity (user messages first, then by order) */}
           {[...allConversations].sort((a, b) => {
             const aReplies = dmReplies[a.id] || [];
             const bReplies = dmReplies[b.id] || [];
             const aLastTimestamp = aReplies.length > 0 ? aReplies[aReplies.length - 1].timestamp : 0;
             const bLastTimestamp = bReplies.length > 0 ? bReplies[bReplies.length - 1].timestamp : 0;
-            return bLastTimestamp - aLastTimestamp; // Most recent first
+            if (aLastTimestamp !== bLastTimestamp) return bLastTimestamp - aLastTimestamp;
+            return (b.order ?? 0) - (a.order ?? 0);
           }).map(dm => {
             const otherUserId = dm.participantIds.find(id => id !== "user000");
             const otherUser = otherUserId ? getUserById(otherUserId) : undefined;
@@ -1323,7 +1360,7 @@ const MicroGram = () => {
           <div className="absolute top-6 left-4 flex items-center gap-2 z-20">
             {renderAvatar(author, "sm")}
             <span className="text-white font-semibold text-sm">{author?.username}</span>
-            <span className="text-gray-300 text-xs">{story ? computeRelativeTimestamp(story.order, startTime, maxOrder) : ''}</span>
+            <span className="text-gray-300 text-xs">{story ? computeRelativeTimestamp(story.order, startTime, initialMaxOrder.current ?? maxOrder) : ''}</span>
           </div>
 
           {/* Story content */}
@@ -1396,7 +1433,7 @@ const MicroGram = () => {
                     <span className="font-semibold">{author?.username}</span>{" "}
                     {post.caption}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">{computeRelativeTimestamp(post.order, startTime, maxOrder)}</p>
+                  <p className="text-xs text-gray-400 mt-1">{computeRelativeTimestamp(post.order, startTime, initialMaxOrder.current ?? maxOrder, post._arrivedAt)}</p>
                 </div>
               </div>
               {post.comments.map((comment, commentIndex) => {
@@ -1411,7 +1448,7 @@ const MicroGram = () => {
                         {comment.text}
                       </p>
                       <div className="flex items-center gap-3 mt-1">
-                        <p className="text-xs text-gray-400">{computeRelativeTimestamp(commentOrder, startTime, maxOrder)}</p>
+                        <p className="text-xs text-gray-400">{computeRelativeTimestamp(commentOrder, startTime, initialMaxOrder.current ?? maxOrder)}</p>
                         <button
                           onClick={() => setReplyToComment({ id: comment.id, authorUsername: commenter?.username || "" })}
                           className="text-xs text-gray-500 font-semibold hover:text-gray-700"
@@ -1522,11 +1559,19 @@ const MicroGram = () => {
             <button onClick={() => setRoute("explore")}>
               <Compass size={24} className={navSection === "explore" ? "fill-gray-900" : ""} />
             </button>
-            <button onClick={() => setRoute("direct")}>
+            <button onClick={() => { setDmLastSeen(Date.now()); setRoute("direct"); }} className="relative">
               <Send size={24} className={navSection === "direct" ? "fill-gray-900" : ""} />
+              {newDmCount > 0 && navSection !== "direct" && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                  {newDmCount}
+                </span>
+              )}
             </button>
-            <button onClick={() => setRoute("activity")}>
+            <button onClick={() => { setActivityLastSeen(Date.now()); setRoute("activity"); }} className="relative">
               <Heart size={24} className={navSection === "activity" ? "fill-gray-900" : ""} />
+              {newActivityCount > 0 && navSection !== "activity" && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" />
+              )}
             </button>
             <button onClick={() => { setRoute("profile"); }}>
               <User size={24} className={navSection === "profile" ? "fill-gray-900" : ""} />
