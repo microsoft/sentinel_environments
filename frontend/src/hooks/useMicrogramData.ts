@@ -52,6 +52,7 @@ export interface ApiGramActivity {
   targetPostId: string | null;
   text: string | null;
   order: number;
+  _arrivedAt?: number;
 }
 
 export interface ApiTaskConfig {
@@ -174,7 +175,19 @@ export function useMicrogramData() {
         setPosts(postsData.posts ?? []);
         setStories(storiesData.stories ?? []);
         setRawMessages(messagesData.messages ?? []);
-        setActivity(activityData.activity ?? []);
+        setActivity((prev) => {
+          const incoming: ApiGramActivity[] = activityData.activity ?? [];
+          if (prev.length === 0) return incoming;
+          const prevIds = new Set(prev.map((a) => a.id));
+          const now = Date.now();
+          return incoming.map((a) => {
+            if (prevIds.has(a.id)) {
+              const existing = prev.find((p) => p.id === a.id);
+              return existing ? { ...a, _arrivedAt: existing._arrivedAt } : a;
+            }
+            return { ...a, _arrivedAt: now };
+          });
+        });
         setFollowedUserIds(followedData.followed_users ?? []);
         setError(null);
         setIsLoading(false);
