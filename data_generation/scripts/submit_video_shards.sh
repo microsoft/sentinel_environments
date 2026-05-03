@@ -5,15 +5,17 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 HF_ROOT="/blue/uf-dsi/${USER}/huggingface"
-PROMPTS="${REPO_ROOT}/data_generation/prompts/microtube/videoprompts.txt"
-NAMES="${REPO_ROOT}/data_generation/prompts/microtube/videopromptnames.txt"
+# Default to _missing/ subset (23 videos that are not already cached). Override with
+# PROMPTS/NAMES env vars to run on the full canonical 50-video set.
+PROMPTS="${PROMPTS:-${REPO_ROOT}/data_generation/prompts/microtube/_missing/prompts.txt}"
+NAMES="${NAMES:-${REPO_ROOT}/data_generation/prompts/microtube/_missing/names.txt}"
 OUT="${REPO_ROOT}/data_generation/_generated/microtube/videos"
 LOGS="${REPO_ROOT}/data_generation/scripts/logs"
 
 mkdir -p "${OUT}" "${LOGS}"
 
 TOTAL=$(wc -l < "${PROMPTS}")
-NSHARDS=4
+NSHARDS="${NSHARDS:-4}"
 PER_SHARD=$(( (TOTAL + NSHARDS - 1) / NSHARDS ))
 echo "total prompts=${TOTAL}, sharding into ${NSHARDS} jobs of ~${PER_SHARD} each"
 
