@@ -22,4 +22,4 @@ NDA legal document with confidentiality sections, signature blocks, date fields.
 Startup pitch deck slide with impressive growth chart trending upward, key metric cards, partner logos grid. Gradient purple to blue background, bold modern typography, no text. 400x300px.
 Service level agreement document with uptime metrics table, response time specifications, service credits section. Professional contract style with blue header accents, no text. 400x300px.
 Design asset icon library grid showing 36 consistent line icons in organized rows and columns, multiple size variants. Figma component library style with light gray background, no text. 400x300px.
-Financial forecast spreadsheet with revenue stream rows, monthly columns, comparison percentages, line chart with confidence band. Excel financial model style with green red highli
+Financial forecast spreadsheet with revenue stream rows, monthly columns, comparison percentages, line chart with confidence band. Excel financial model style with green red highlighted variances and totals row, no text. 400x300px.
