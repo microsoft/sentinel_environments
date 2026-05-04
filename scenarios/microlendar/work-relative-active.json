@@ -100,5 +100,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work')) >= CAST((SELECT value FROM session_meta WHERE key='baseline_work_event_count') AS REAL) + 4"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND e.category='Work' AND date(e.start_time) >= '2024-07-18' AND date(e.start_time) <= '2024-08-01') + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0 AND calendar='Work' AND date >= '2024-07-18' AND date <= '2024-08-01') >= 7"
 }

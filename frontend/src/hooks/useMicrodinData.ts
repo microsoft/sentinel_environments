@@ -19,6 +19,7 @@ export interface ApiPost {
   isLiked: boolean;
   timestamp: string;
   order: number;
+  _arrivedAt?: number;
 }
 
 export interface ApiConnection {
@@ -240,7 +241,17 @@ export function useMicrodinData() {
       }),
     ])
       .then(([postsData, connectionsData, conversationsData, notificationsData, jobsData, statsData, sectionsData]) => {
-        setPosts(postsData.posts ?? []);
+        setPosts((prev) => {
+          const incoming: ApiPost[] = postsData.posts ?? [];
+          if (prev.length === 0) return incoming;
+          const now = Date.now();
+          const knownIds = new Set(prev.map((p) => p.id));
+          return incoming.map((p) =>
+            knownIds.has(p.id)
+              ? { ...p, _arrivedAt: prev.find((x) => x.id === p.id)?._arrivedAt }
+              : { ...p, _arrivedAt: now }
+          );
+        });
         setConnections(connectionsData.connections ?? []);
         setConversations(conversationsData.conversations ?? []);
         setNotifications(notificationsData.notifications ?? []);
