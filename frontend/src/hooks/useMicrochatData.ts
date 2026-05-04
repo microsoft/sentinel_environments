@@ -13,6 +13,7 @@ export interface ApiMessage {
   senderAvatarUrl: string;
   content: string;
   isRead: boolean;
+  isUrgent: boolean;
   reactions: { emoji: string; userIds: string[] }[];
   attachments: { name: string; type: string; size?: string; url?: string }[];
   replyToId: string | null;
@@ -122,27 +123,21 @@ export function useMicrochatData() {
         .catch(() => {}); // Will retry on next poll
     }
 
-    // Retry teams/calls/users until loaded
+    // Retry teams until loaded
     if (!staticLoaded.current) {
-      Promise.all([
-        fetch("/api/data/microchat-teams").then((r) => {
+      fetch("/api/data/microchat-teams")
+        .then((r) => {
           if (!r.ok) throw new Error(`Teams fetch failed: ${r.status}`);
           return r.json();
-        }),
-        fetch("/api/data/microchat-calls").then((r) => {
-          if (!r.ok) throw new Error(`Calls fetch failed: ${r.status}`);
-          return r.json();
-        }),
-      ])
-        .then(([teamsData, callsData]) => {
+        })
+        .then((teamsData) => {
           staticLoaded.current = true;
           setTeams(teamsData.teams ?? []);
-          setCalls(callsData.calls ?? []);
         })
         .catch(() => {}); // Will retry on next poll
     }
 
-    // Always poll messages + conversations
+    // Always poll messages, conversations, and calls
     Promise.all([
       fetch("/api/data/microchat-messages").then((r) => {
         if (!r.ok) throw new Error(`Messages fetch failed: ${r.status}`);
@@ -152,10 +147,15 @@ export function useMicrochatData() {
         if (!r.ok) throw new Error(`Conversations fetch failed: ${r.status}`);
         return r.json();
       }),
+      fetch("/api/data/microchat-calls").then((r) => {
+        if (!r.ok) throw new Error(`Calls fetch failed: ${r.status}`);
+        return r.json();
+      }),
     ])
-      .then(([msgData, convData]) => {
+      .then(([msgData, convData, callsData]) => {
         setRawMessages(msgData.messages ?? []);
         setConversations(convData.conversations ?? []);
+        setCalls(callsData.calls ?? []);
         setError(null);
         setIsLoading(false);
       })
