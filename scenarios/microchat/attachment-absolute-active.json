@@ -95,5 +95,5 @@
     "difficulty": "hard",
     "distraction_level": "high"
   },
-  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages WHERE hasAttachment=1)"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages m JOIN message_states s ON s.message_id = m.id WHERE m.hasAttachment=1 AND s.isRead=1)"
 }
