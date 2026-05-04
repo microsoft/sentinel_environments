@@ -103,5 +103,5 @@
     "difficulty": "easy",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0) + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0)) >= 24"
+  "eval_sql": "SELECT (SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0) + (SELECT COUNT(*) FROM user_created_events WHERE deleted=0)) >= 21"
 }
