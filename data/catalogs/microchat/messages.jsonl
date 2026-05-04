@@ -115,7 +115,7 @@
 {"id": "mtg-25", "sender_id": "user018", "conversation_id": "meeting-budget-planning", "content": "Let's allocate a portion to the observability stack upgrade", "isRead": true}
 {"id": "urg-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Production is throwing 500 errors. Please look at this now.", "isUrgent": true}
 {"id": "urg-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "The client demo is in 30 minutes and the staging server is down", "isUrgent": true}
-{"id": "urg-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "We need to roll back the last deploy immediately, it broke the login flow", "isUrgent": true}
+{"id": "urg-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "We need to roll back the last deploy immediately, it broke the login flow", "isUrgent": true, "isRead": true}
 {"id": "urg-dm-04", "sender_id": "user005", "conversation_id": "direct-edward", "content": "The design assets for tomorrow's launch are still missing, need them ASAP", "isUrgent": true}
 {"id": "urg-dm-05", "sender_id": "user015", "conversation_id": "direct-oscar", "content": "Board meeting moved to today at 3 PM, need the deck updated now", "isUrgent": true}
 {"id": "urg-dm-06", "sender_id": "user003", "conversation_id": "direct-charles", "content": "The data pipeline is corrupting records, shut it down immediately", "isUrgent": true}
@@ -125,7 +125,7 @@
 {"id": "urg-dm-10", "sender_id": "user013", "conversation_id": "direct-michael", "content": "CI pipeline is completely broken, no one can merge. Looking into it now", "isUrgent": true}
 {"id": "urg-grp-01", "sender_id": "user001", "conversation_id": "group-platform-team", "content": "Alert: API latency spiked to 5 seconds, investigating root cause now", "isUrgent": true}
 {"id": "urg-grp-02", "sender_id": "user007", "conversation_id": "group-devops", "content": "The production database is at 95% disk capacity, need to free space urgently", "isUrgent": true}
-{"id": "urg-grp-03", "sender_id": "user013", "conversation_id": "group-product-launch", "content": "Launch date moved up by a week, all teams need to accelerate", "isUrgent": true}
+{"id": "urg-grp-03", "sender_id": "user013", "conversation_id": "group-product-launch", "content": "Launch date moved up by a week, all teams need to accelerate", "isUrgent": true, "isRead": true}
 {"id": "urg-grp-04", "sender_id": "user023", "conversation_id": "group-security-team", "content": "Potential data breach detected, initiating incident response protocol", "isUrgent": true}
 {"id": "urg-grp-05", "sender_id": "user042", "conversation_id": "group-frontend-crew", "content": "Critical rendering bug in Safari affecting all users, need a fix before EOD", "isUrgent": true}
 {"id": "urg-grp-06", "sender_id": "user003", "conversation_id": "group-data-science", "content": "The ML inference service is returning garbage predictions, pulling it offline now", "isUrgent": true}

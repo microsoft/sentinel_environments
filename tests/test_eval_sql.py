@@ -27,6 +27,7 @@ TIMEOUT = 10
 # The agent must interact with items delivered by events to meet these thresholds.
 NEEDS_USER_ACTION = {
     "microchat-attachment-absolute-active",
+    "microchat-urgent-relative-active",
     "microdin-jobs-absolute-active",
     "microdin-documentation-absolute-active",
     "microdin-python-relative-active",
@@ -123,6 +124,11 @@ def simulate_actions(scenario_id):
     if scenario_id == "microchat-attachment-absolute-active":
         # Open the message bearing the attachment to mark it as read.
         post("/data/microchat-messages/att-dm-04/read")
+
+    elif scenario_id == "microchat-urgent-relative-active":
+        # Mark 3 of the 4 new urgent messages as read.
+        for msg_id in ("urg-dm-04", "urg-grp-05", "urg-dm-05"):
+            post(f"/data/microchat-messages/{msg_id}/read")
 
     elif scenario_id == "microdin-jobs-absolute-active":
         # Apply to the Kubernetes role after it appears.
