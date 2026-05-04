@@ -2,7 +2,7 @@
   "id": "microchat-mentions-relative-active",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
-  "prompt": "I'm getting a lot of @mentions today. Let me know when at least 3 more come in than I already have. Note: you'll need to open conversations to see which messages are mentions.",
+  "prompt": "I'm getting a lot of @mentions today. As new messages come in, read them in full, then let me know as soon as I have 3 more with mentions.",
   "condition_at": 385.92,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -89,5 +89,5 @@
     "difficulty": "hard",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages WHERE mentionsMe = 1) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_mention_total') + 3"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages m JOIN message_states s ON s.message_id = m.id WHERE m.id IN ('mention-dm-03','mention-grp-03','mention-dm-05','mention-dm-06') AND s.isRead = 1) >= 3"
 }

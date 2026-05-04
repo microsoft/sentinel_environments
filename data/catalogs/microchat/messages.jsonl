@@ -133,7 +133,7 @@
 {"id": "urg-grp-08", "sender_id": "user002", "conversation_id": "group-q4-planning", "content": "The CEO wants revised Q4 projections by end of day, all hands needed", "isUrgent": true}
 {"id": "urg-grp-09", "sender_id": "user009", "conversation_id": "group-backend-guild", "content": "Memory leak in production causing OOM kills every 2 hours, need to triage", "isUrgent": true}
 {"id": "urg-grp-10", "sender_id": "user019", "conversation_id": "group-mobile-team", "content": "App store rejected our latest build, we need to fix and resubmit today", "isUrgent": true}
-{"id": "mention-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Hey @you, can you review my PR before the cutoff? You have the most context on the payments module", "mentionsMe": true}
+{"id": "mention-dm-01", "sender_id": "user001", "conversation_id": "direct-alex", "content": "Hey @you, can you review my PR before the cutoff? You have the most context on the payments module", "mentionsMe": true, "isRead": true}
 {"id": "mention-dm-02", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "@you I need your sign-off on the product spec before I send it to engineering", "mentionsMe": true}
 {"id": "mention-dm-03", "sender_id": "user013", "conversation_id": "direct-michael", "content": "@you you're the DRI for the API migration, can you share the status update?", "mentionsMe": true}
 {"id": "mention-dm-04", "sender_id": "user005", "conversation_id": "direct-edward", "content": "Hey @you, the design review needs your feedback on the accessibility improvements", "mentionsMe": true}
@@ -144,7 +144,7 @@
 {"id": "mention-dm-09", "sender_id": "user002", "conversation_id": "direct-brenda", "content": "@you can you draft the user story for the notification feature? You had the best ideas in the brainstorm", "mentionsMe": true}
 {"id": "mention-dm-10", "sender_id": "user013", "conversation_id": "direct-michael", "content": "Hey @you, can you join the incident bridge? We need someone from your team", "mentionsMe": true}
 {"id": "mention-grp-01", "sender_id": "user001", "conversation_id": "group-platform-team", "content": "@you can you take point on the database sharding investigation?", "mentionsMe": true}
-{"id": "mention-grp-02", "sender_id": "user005", "conversation_id": "group-frontend-crew", "content": "Hey @you, the accessibility audit flagged some issues in your component", "mentionsMe": true}
+{"id": "mention-grp-02", "sender_id": "user005", "conversation_id": "group-frontend-crew", "content": "Hey @you, the accessibility audit flagged some issues in your component", "mentionsMe": true, "isRead": true}
 {"id": "mention-grp-03", "sender_id": "user002", "conversation_id": "group-q4-planning", "content": "@you we need your team's capacity estimates for the Q4 roadmap", "mentionsMe": true}
 {"id": "mention-grp-04", "sender_id": "user007", "conversation_id": "group-devops", "content": "@you the deployment pipeline changes need your approval before we can go live", "mentionsMe": true}
 {"id": "mention-grp-05", "sender_id": "user019", "conversation_id": "group-hackathon-team", "content": "@you are you presenting at the hackathon demo? Your project was the most popular", "mentionsMe": true}
