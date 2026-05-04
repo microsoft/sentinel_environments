@@ -28,6 +28,7 @@ TIMEOUT = 10
 NEEDS_USER_ACTION = {
     "microchat-attachment-absolute-active",
     "microchat-mentions-relative-active",
+    "microchat-unread-absolute-active",
     "microchat-urgent-relative-active",
     "microdin-jobs-absolute-active",
     "microdin-documentation-absolute-active",
@@ -130,6 +131,10 @@ def simulate_actions(scenario_id):
         # Mark 3 of the 4 new mention messages as read.
         for msg_id in ("mention-dm-03", "mention-grp-03", "mention-dm-05"):
             post(f"/data/microchat-messages/{msg_id}/read")
+
+    elif scenario_id == "microchat-unread-absolute-active":
+        # Open the urgent payment-processing message from Alex.
+        post("/data/microchat-messages/urg-mention-dm-01/read")
 
     elif scenario_id == "microchat-urgent-relative-active":
         # Mark 3 of the 4 new urgent messages as read.
