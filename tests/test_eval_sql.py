@@ -26,7 +26,7 @@ TIMEOUT = 10
 # Scenarios whose eval_sql checks user-created state that events alone cannot satisfy.
 # The agent must interact with items delivered by events to meet these thresholds.
 NEEDS_USER_ACTION = {
-    "microdin-notifications-absolute-active",
+    "microdin-jobs-absolute-active",
     "microdin-documentation-absolute-active",
     "microdin-python-relative-active",
     "microdin-react-relative-active",
@@ -119,7 +119,7 @@ def touch_contact():
 def simulate_actions(scenario_id):
     """Simulate agent actions for scenarios whose eval_sql needs user interaction."""
 
-    if scenario_id == "microdin-notifications-absolute-active":
+    if scenario_id == "microdin-jobs-absolute-active":
         # Apply to the Kubernetes role after it appears.
         post("/data/microdin-jobs/job-6/apply")
 
