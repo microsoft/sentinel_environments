@@ -7,12 +7,11 @@ evaluate -> assert success), and reports pass/fail.
 
 Usage:
     cd sentinel_environments
-    .venv/bin/python tests/test_eval_sql.py             # positive tests only
-    .venv/bin/python tests/test_eval_sql.py --negative   # also run negative tests
+    .venv/bin/python tests/test_eval_sql.py
+        # runs positive, no-action, and negative phases
 
 Requires: server running on localhost:8000
 """
-import argparse
 import json
 import sys
 import time
@@ -39,7 +38,6 @@ NEEDS_USER_ACTION = {
     "microhub-body-compliance-absolute-active",
     "microgram-follows-absolute-active",
     "microgram-likes-absolute-passive",
-    "microgram-stories-absolute-passive",
     "microfy-followers-absolute-active",
     "microfy-likes-absolute-passive",
     "microfy-plays-absolute-passive",
@@ -185,15 +183,6 @@ def simulate_actions(scenario_id):
         ):
             post(f"/data/microgram-posts/{post_id}/like")
 
-    elif scenario_id == "microgram-stories-absolute-passive":
-        # View the 3 target stories that arrive.
-        for story_id in (
-            "story-drone-sunset-photography",
-            "story-user-interview-session",
-            "story-coffee-roasting-home",
-        ):
-            post(f"/data/microgram-stories/{story_id}/view")
-
     elif scenario_id == "microfy-followers-absolute-active":
         # Follow the 4 target artists from the new release feed.
         for artist_id in ("artist-040", "artist-041", "artist-042", "artist-043"):
@@ -303,6 +292,41 @@ def run_one(scenario_path: Path) -> tuple:
         close()
 
 
+def run_no_action(scenario_path: Path) -> tuple:
+    """Verify NEEDS_USER_ACTION scenarios actually require the user action.
+
+    Init, advance the full timeline (no midflight pause), touch /contact,
+    and evaluate WITHOUT calling simulate_actions(). Expect the eval to
+    fail; if it passes, the scenario is mis-marked as needing user action
+    (the events alone satisfy eval_sql).
+    """
+    try:
+        with open(scenario_path) as f:
+            scenario = json.load(f)
+        sid = scenario["id"]
+    except Exception as e:
+        return (str(scenario_path), False, f"Failed to load JSON: {e}")
+
+    try:
+        close()
+        init_resp = post("/init", build_init_body(scenario))
+        if not init_resp.get("success"):
+            return (sid, False, f"init failed: {init_resp}")
+
+        advance_all(scenario)
+        touch_contact()
+        result = post("/evaluate")
+        if result.get("success"):
+            return (sid, False, "eval passed without user action -- task does not actually require it")
+        return (sid, True, "")
+
+    except Exception as e:
+        return (sid, False, f"Exception: {e}")
+
+    finally:
+        close()
+
+
 def run_negative(scenario_path: Path) -> tuple:
     """Negative test: validate that the success rule actually rejects the
     "wrong" trajectory.
@@ -372,11 +396,6 @@ def discover_scenarios() -> list:
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Test all eval_sql scenarios end-to-end.")
-    parser.add_argument("--negative", action="store_true",
-                        help="Also run negative tests (eval should fail without events)")
-    args = parser.parse_args()
-
     # Verify server is running
     try:
         requests.get(f"{HOST}/status", timeout=3)
@@ -418,42 +437,70 @@ def main():
         for sid, d in pos_failed:
             print(f"  {sid}: {d}")
 
-    # --- Negative tests (optional) ---
-    neg_failed = []
-    neg_total = 0
-    if args.negative:
-        print(f"\n{'=' * 60}")
-        print("NEGATIVE TESTS (init only, no advance -- eval should fail)")
-        print("=" * 60)
-        neg_results = []
-        for s in scenarios:
-            sid, passed, detail = run_negative(s)
-            neg_results.append((sid, passed, detail))
-            status = "\033[32mPASS\033[0m" if passed else "\033[31mFAIL\033[0m"
-            line = f"  [{status}] {sid}"
-            if not passed:
-                line += f" -- {detail}"
-            print(line)
+    # --- No-action tests (always run) ---
+    # For every scenario marked as needing a user action (either via
+    # NEEDS_USER_ACTION or MIDFLIGHT_ACTION_TIMES), run the full lifecycle
+    # but skip simulate_actions(). Eval must fail; if it passes, the action
+    # is not actually required.
+    action_required_ids = NEEDS_USER_ACTION | MIDFLIGHT_ACTION_TIMES.keys()
+    action_scenarios = [s for s in scenarios if json.loads(s.read_text()).get("id") in action_required_ids]
 
-        neg_total = len(neg_results)
-        neg_passed = sum(1 for _, p, _ in neg_results if p)
-        neg_failed = [(sid, d) for sid, p, d in neg_results if not p]
+    print(f"\n{'=' * 60}")
+    print("NO-ACTION TESTS (advance all + /contact, no simulate_actions -- eval should fail)")
+    print("=" * 60)
+    na_results = []
+    for s in action_scenarios:
+        sid, passed, detail = run_no_action(s)
+        na_results.append((sid, passed, detail))
+        status = "\033[32mPASS\033[0m" if passed else "\033[31mFAIL\033[0m"
+        line = f"  [{status}] {sid}"
+        if not passed:
+            line += f" -- {detail}"
+        print(line)
 
-        print(f"\nNegative: {neg_passed}/{neg_total} passed")
-        if neg_failed:
-            print("FAILURES:")
-            for sid, d in neg_failed:
-                print(f"  {sid}: {d}")
+    na_total = len(na_results)
+    na_passed = sum(1 for _, p, _ in na_results if p)
+    na_failed = [(sid, d) for sid, p, d in na_results if not p]
+
+    print(f"\nNo-action: {na_passed}/{na_total} passed")
+    if na_failed:
+        print("FAILURES:")
+        for sid, d in na_failed:
+            print(f"  {sid}: {d}")
+
+    # --- Negative tests (always run) ---
+    print(f"\n{'=' * 60}")
+    print("NEGATIVE TESTS (init only, no advance -- eval should fail)")
+    print("=" * 60)
+    neg_results = []
+    for s in scenarios:
+        sid, passed, detail = run_negative(s)
+        neg_results.append((sid, passed, detail))
+        status = "\033[32mPASS\033[0m" if passed else "\033[31mFAIL\033[0m"
+        line = f"  [{status}] {sid}"
+        if not passed:
+            line += f" -- {detail}"
+        print(line)
+
+    neg_total = len(neg_results)
+    neg_passed = sum(1 for _, p, _ in neg_results if p)
+    neg_failed = [(sid, d) for sid, p, d in neg_results if not p]
+
+    print(f"\nNegative: {neg_passed}/{neg_total} passed")
+    if neg_failed:
+        print("FAILURES:")
+        for sid, d in neg_failed:
+            print(f"  {sid}: {d}")
 
     # --- Summary ---
     print(f"\n{'=' * 60}")
     print("SUMMARY")
     print("=" * 60)
     print(f"  Positive: {pos_passed}/{len(results)} passed")
-    if args.negative:
-        print(f"  Negative: {neg_total - len(neg_failed)}/{neg_total} passed")
+    print(f"  No-action: {na_passed}/{na_total} passed")
+    print(f"  Negative: {neg_passed}/{neg_total} passed")
 
-    all_ok = not pos_failed and not neg_failed
+    all_ok = not pos_failed and not na_failed and not neg_failed
     if all_ok:
         print("  ALL TESTS PASSED")
     print("=" * 60)
