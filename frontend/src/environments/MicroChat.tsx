@@ -374,6 +374,7 @@ interface ChatMessage {
   content: string;
   timestamp: Date;
   isRead: boolean;
+  isUrgent?: boolean;
   reactions?: { emoji: string; userIds: string[] }[];
   attachments?: { name: string; type: string; size: string; url?: string }[];
   replyTo?: string;
@@ -618,6 +619,7 @@ const MicroChat = () => {
         content: msg.content,
         timestamp: new Date(msg.timestamp),
         isRead: msg.isRead,
+        isUrgent: msg.isUrgent,
         reactions: msg.reactions,
         attachments: msg.attachments?.map((a) => ({ name: a.name, type: a.type, size: a.size || "", url: a.url })),
         replyTo: msg.replyToId || undefined,
@@ -2052,6 +2054,14 @@ const MicroChat = () => {
                     </div>
                   )}
 
+                  {/* Urgent indicator */}
+                  {message.isUrgent && (
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-red-500 font-bold text-xs">!</span>
+                      <span className="text-red-500 text-xs font-semibold uppercase">Urgent</span>
+                    </div>
+                  )}
+
                   {/* Message content or edit mode */}
                   {isEditing ? (
                     <div className="flex flex-col gap-2">
@@ -2150,7 +2160,8 @@ const MicroChat = () => {
                         isSelf
                           ? darkMode ? "bg-[#464775] text-white" : "bg-[#e8ebfa] text-gray-800"
                           : darkMode ? "bg-[#3d3d3d] text-gray-100" : "bg-gray-100 text-gray-800",
-                        searchMatch && "ring-2 ring-[#5b5fc7] ring-offset-1"
+                        searchMatch && "ring-2 ring-[#5b5fc7] ring-offset-1",
+                        message.isUrgent && "border-l-3 border-red-500"
                       )}
                     >
                       {/* Render message with markdown formatting (**bold**, _italic_, @mentions) */}

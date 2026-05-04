@@ -28,6 +28,20 @@ if TYPE_CHECKING:
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _resolve_attachments(raw: dict) -> list:
+    """Return the attachments array, generating a placeholder if hasAttachment is set."""
+    explicit = raw.get("attachments")
+    if isinstance(explicit, str):
+        parsed = json.loads(explicit)
+        if parsed:
+            return parsed
+    elif isinstance(explicit, list) and explicit:
+        return explicit
+    if raw.get("hasAttachment") or raw.get("has_attachment"):
+        return [{"name": "attachment.pdf", "type": "file", "size": "2.4 MB"}]
+    return []
+
+
 def _build_message_row(message_id: str, backdated: bool = False) -> dict:
     """Merge raw message data with sender info."""
     raw = MICROCHAT_MESSAGE_CATALOG.get(message_id)
@@ -51,9 +65,9 @@ def _build_message_row(message_id: str, backdated: bool = False) -> dict:
         "content": raw["content"],
         "isUrgent": bool(raw.get("is_urgent", False)),
         "mentionsMe": bool(raw.get("mentions_me", False)),
-        "hasAttachment": bool(raw.get("has_attachment", False)),
-        "reactions": json.loads(raw["reactions"]) if isinstance(raw["reactions"], str) else raw.get("reactions", []),
-        "attachments": json.loads(raw["attachments"]) if isinstance(raw["attachments"], str) else raw.get("attachments", []),
+        "hasAttachment": bool(raw.get("hasAttachment", raw.get("has_attachment", False))),
+        "reactions": json.loads(raw["reactions"]) if isinstance(raw.get("reactions"), str) else raw.get("reactions", []),
+        "attachments": _resolve_attachments(raw),
         "replyToId": raw.get("reply_to_id"),
         "timestamp": ts,
         "order": raw.get("order", 0),

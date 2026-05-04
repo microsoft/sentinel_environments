@@ -1,10 +1,37 @@
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState, useMemo, useRef } from "react";
 
 import { useHashRoute } from "../hooks/useHashRoute";
 import { useMicrodinData } from "../hooks/useMicrodinData";
 import type { ApiDinCompany, ApiDinUser } from "../hooks/useMicrodinData";
 
 export const TASK_ID_MICRODIN = "microdin";
+
+
+/**
+ * Compute a human-friendly relative timestamp for feed items.
+ * Items with _arrivedAt (dynamically added) use wall-clock time since arrival.
+ * Preloaded items use simulated time based on order difference.
+ */
+const computeRelativeTimestamp = (
+  order: number,
+  sessionStartTime: number,
+  initialMaxOrder: number,
+  arrivedAt?: number,
+): string => {
+  let totalMinutesAgo: number;
+  if (arrivedAt != null) {
+    totalMinutesAgo = Math.floor((Date.now() - arrivedAt) / 60000);
+  } else {
+    const simulatedMinutesAgo = (initialMaxOrder - order) * 10;
+    const realElapsedMinutes = Math.floor((Date.now() - sessionStartTime) / 60000);
+    totalMinutesAgo = simulatedMinutesAgo + realElapsedMinutes;
+  }
+  if (totalMinutesAgo < 1) return "Just now";
+  if (totalMinutesAgo < 60) return `${totalMinutesAgo}m`;
+  if (totalMinutesAgo < 1440) return `${Math.floor(totalMinutesAgo / 60)}h`;
+  if (totalMinutesAgo < 10080) return `${Math.floor(totalMinutesAgo / 1440)}d`;
+  return `${Math.floor(totalMinutesAgo / 10080)}w`;
+};
 
 
 const formatMessageTimestamp = (timestamp: string): string => {
@@ -174,6 +201,8 @@ interface Post {
   avatarUrl?: string;
   isTargetPost: boolean;
   isLiked?: boolean;
+  order: number;
+  _arrivedAt?: number;
 }
 
 interface Message {
@@ -549,12 +578,25 @@ const MicroDin = () => {
         avatarUrl: p.authorAvatarUrl,
         isTargetPost: false,
         isLiked: p.isLiked,
+        order: p.order,
+        _arrivedAt: p._arrivedAt,
       };
     });
-    return [...localPosts, ...mapped];
+    return [...localPosts, ...mapped].sort((a, b) => b.order - a.order);
   }, [apiPosts, localPosts, userMap]);
 
   const allPosts = posts;
+
+  const [startTime] = useState(Date.now);
+  const maxOrder = useMemo(() => {
+    let max = 0;
+    for (const p of apiPosts) max = Math.max(max, p.order);
+    return max;
+  }, [apiPosts]);
+  const initialMaxOrder = useRef<number | null>(null);
+  if (initialMaxOrder.current === null && maxOrder > 0) {
+    initialMaxOrder.current = maxOrder;
+  }
 
   const connectionInvitations = useMemo<ConnectionInvitation[]>(() => {
     return apiConnections.map(c => ({
@@ -707,7 +749,9 @@ const MicroDin = () => {
       avatar: "👨‍💼",
       avatarUrl: selfAvatarUrl,
       isTargetPost: false,
-      isLiked: false
+      isLiked: false,
+      order: maxOrder + 1000,
+      _arrivedAt: Date.now(),
     };
 
     setLocalPosts(prev => [newPost, ...prev]);
@@ -1418,7 +1462,7 @@ const MicroDin = () => {
                     </span>
                   </p>
                   <div className="flex items-center space-x-1 text-xs text-gray-500 mt-0.5">
-                    <span>{post.timestamp}</span>
+                    <span>{computeRelativeTimestamp(post.order, startTime, initialMaxOrder.current ?? maxOrder, post._arrivedAt)}</span>
                     <span>•</span>
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" /></svg>
                   </div>

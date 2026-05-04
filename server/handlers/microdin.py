@@ -345,6 +345,8 @@ def process_event(session: Session, event: dict) -> None:
         post_id = event.get("payload", {}).get("post_id")
         if post_id:
             row = _build_post_row(post_id, backdated=False)
+            max_order = max((p["order"] for p in session.microdin_posts), default=0)
+            row["order"] = max(row["order"], max_order + 1)
             session.microdin_posts.append(row)
             session.microdin_post_states[post_id] = _init_post_state(post_id)
 
