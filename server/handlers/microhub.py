@@ -393,10 +393,21 @@ def process_event(session: Session, event: dict) -> None:
         issue_ids = payload.get("issue_ids", ["*"])
         if issue_ids == ["*"]:
             issue_ids = list(MICROHUB_ISSUE_CATALOG.keys())
+        # Optional uniform backdate for the whole preload batch: stamps
+        # createdAt = now - (order * 30 min) - offset, preserving the existing
+        # order-based age spread while shifting everything cleanly into the
+        # past. Lets a scenario distinguish preloaded issues from in-session
+        # `new_issue` arrivals (which stamp createdAt = now → "just now").
+        # Same treatment could be added to PRs/commits if a future scenario
+        # needs it.
+        preload_offset_ms = payload.get("preload_age_offset_ms")
+        now_ms = int(time.time() * 1000)
         for iid in issue_ids:
             raw = MICROHUB_ISSUE_CATALOG.get(iid)
             if raw:
                 row = _build_issue_row(raw)
+                if preload_offset_ms is not None:
+                    row["createdAt"] = now_ms - (row["order"] * 30 * 60_000) - int(preload_offset_ms)
                 session.microhub_issues.append(row)
                 session.microhub_issue_states[iid] = {"state": row["state"]}
 
