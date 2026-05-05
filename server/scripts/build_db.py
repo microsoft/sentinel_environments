@@ -1765,7 +1765,8 @@ CREATE TABLE IF NOT EXISTS videos (
     video_src TEXT NOT NULL DEFAULT '',
     published_at TEXT NOT NULL DEFAULT '',
     is_live INTEGER NOT NULL DEFAULT 0,
-    is_short INTEGER NOT NULL DEFAULT 0
+    is_short INTEGER NOT NULL DEFAULT 0,
+    category TEXT NOT NULL DEFAULT ''
 );
 """
 
@@ -1840,8 +1841,8 @@ def build_microtube_db() -> None:
             """INSERT INTO videos
                (id, task, "order", channel_id, title, description, views, likes,
                 dislikes, comments, duration, thumbnail_color, thumbnail_src,
-                video_src, published_at, is_live, is_short)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                video_src, published_at, is_live, is_short, category)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
                 v["id"],
                 v.get("task", "general"),
@@ -1860,6 +1861,7 @@ def build_microtube_db() -> None:
                 v.get("publishedAt", ""),
                 int(v.get("isLive", False)),
                 int(v.get("isShort", False)),
+                v.get("category", ""),
             ),
         )
     print(f"  videos: {len(videos)} rows ({probed} durations probed from mp4)")

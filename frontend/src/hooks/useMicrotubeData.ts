@@ -27,6 +27,7 @@ export interface ApiTubeVideo {
   channelAvatarSrc: string;
   channelIsVerified: boolean;
   channelSubscribers: number;
+  category: string;
   task: string;
   order: number;
   // State
