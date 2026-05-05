@@ -73,5 +73,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE body LIKE '%platform scalability%') >= 1"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM emails e JOIN email_states es ON e.id = es.email_id WHERE e.body LIKE '%platform scalability%' AND es.isRead = 1)"
 }

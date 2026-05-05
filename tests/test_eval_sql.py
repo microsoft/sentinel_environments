@@ -32,6 +32,7 @@ NEEDS_USER_ACTION = {
     "microchat-urgent-relative-active",
     "micromail-attachment-name-absolute-active",
     "micromail-body-december-relative-active",
+    "micromail-body-keyword-absolute-active",
     "micromail-cc-relative-active",
     "microdin-jobs-absolute-active",
     "microdin-documentation-absolute-active",
@@ -153,6 +154,10 @@ def simulate_actions(scenario_id):
     elif scenario_id == "micromail-body-december-relative-active":
         # Open ext-21, the second December-mentioning email, so it's marked read.
         post("/data/micromail-emails/ext-21/read")
+
+    elif scenario_id == "micromail-body-keyword-absolute-active":
+        # Open base-13, the email whose body mentions 'platform scalability'.
+        post("/data/micromail-emails/base-13/read")
 
     elif scenario_id == "micromail-cc-relative-active":
         # Open the 3 new CC emails delivered by events.
