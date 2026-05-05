@@ -293,7 +293,7 @@ const MicroHub = () => {
     codeScanning, settings, deployments, packages, users, userCreatedRepos,
     config, isLoading, error,
     starRepo, watchRepo, forkRepo, updateRepo, mergePR, commentOnIssue, commentOnPR,
-    closeIssue, followUser, createRepo, createIssue,
+    closeIssue, viewIssue, followUser, createRepo, createIssue,
   } = useMicrohubData();
 
   // Derive users into MicroHubUser[]
@@ -724,7 +724,7 @@ const MicroHub = () => {
       config,
       // Mutators
       starRepo, watchRepo, forkRepo, updateRepo, mergePR,
-      commentOnIssue, commentOnPR, closeIssue, followUser, createRepo, createIssue,
+      commentOnIssue, commentOnPR, closeIssue, viewIssue, followUser, createRepo, createIssue,
       // Parent-derived
       microhubUsers, selfUser, fileTree, allIssues, allPRs,
       filteredIssues, filteredPRs, insightsContributorsData,
@@ -741,7 +741,7 @@ const MicroHub = () => {
       codeScanning, settings, deployments, packages, users, userCreatedRepos,
       config,
       starRepo, watchRepo, forkRepo, updateRepo, mergePR,
-      commentOnIssue, commentOnPR, closeIssue, followUser, createRepo, createIssue,
+      commentOnIssue, commentOnPR, closeIssue, viewIssue, followUser, createRepo, createIssue,
       microhubUsers, selfUser, fileTree, allIssues, allPRs,
       filteredIssues, filteredPRs, insightsContributorsData,
       openIssuesCount, closedIssuesCount, openPRsCount, closedPRsCount, unreadNotifications,

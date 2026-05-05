@@ -409,7 +409,7 @@ def process_event(session: Session, event: dict) -> None:
                 if preload_offset_ms is not None:
                     row["createdAt"] = now_ms - (row["order"] * 30 * 60_000) - int(preload_offset_ms)
                 session.microhub_issues.append(row)
-                session.microhub_issue_states[iid] = {"state": row["state"]}
+                session.microhub_issue_states[iid] = {"state": row["state"], "isViewed": False}
 
         # Load pull requests
         pr_ids = payload.get("pr_ids", ["*"])
@@ -560,7 +560,7 @@ def process_event(session: Session, event: dict) -> None:
             row["number"] = (max(existing_numbers) if existing_numbers else 0) + 1
             row["createdAt"] = int(time.time() * 1000)
             session.microhub_issues.append(row)
-            session.microhub_issue_states[issue_id] = {"state": row["state"]}
+            session.microhub_issue_states[issue_id] = {"state": row["state"], "isViewed": False}
 
     elif etype == "stars_waypoint":
         payload = event.get("payload", {})
@@ -605,10 +605,11 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         [(i.get("id"), int(i.get("number", 0)), i.get("title"), i.get("body", ""), i.get("state"), i.get("author")) for i in session.microhub_issues],
     )
 
-    conn.execute("CREATE TABLE issue_states (issue_id TEXT, state TEXT)")
+    conn.execute("CREATE TABLE issue_states (issue_id TEXT, state TEXT, isViewed INT)")
     conn.executemany(
-        "INSERT INTO issue_states VALUES (?,?)",
-        [(iid, s.get("state", "open")) for iid, s in session.microhub_issue_states.items()],
+        "INSERT INTO issue_states VALUES (?,?,?)",
+        [(iid, s.get("state", "open"), int(s.get("isViewed", False)))
+         for iid, s in session.microhub_issue_states.items()],
     )
 
     conn.execute("CREATE TABLE prs (id TEXT, number INT, title TEXT, state TEXT, author TEXT)")

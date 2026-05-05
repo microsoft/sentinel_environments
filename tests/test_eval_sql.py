@@ -38,6 +38,7 @@ NEEDS_USER_ACTION = {
     "microdin-documentation-absolute-active",
     "microdin-python-relative-active",
     "microdin-react-relative-active",
+    "microhub-body-reproduce-relative-active",
     "microhub-contribute-absolute-active",
     "microhood-orders-absolute-active",
     "microhood-buy-dip-relative-active",
@@ -185,6 +186,10 @@ def simulate_actions(scenario_id):
         sample = random.sample(react_jobs, random.randint(2, len(react_jobs)))
         for job in sample:
             post(f"/data/microdin-jobs/{job}/apply")
+
+    elif scenario_id == "microhub-body-reproduce-relative-active":
+        # Open i11, the new arrival whose body has 'steps to reproduce'.
+        post("/data/microhub-issues/i11/view")
 
     elif scenario_id == "microhub-contribute-absolute-active":
         # Comment on the target TOTP issue.

@@ -513,6 +513,14 @@ export function useMicrohubData() {
     return res.json();
   }, []);
 
+  const viewIssue = useCallback(async (issueId: string) => {
+    const res = await fetch(`/api/data/microhub-issues/${issueId}/view`, {
+      method: "POST",
+    }).catch(() => null);
+    if (!res) return { success: false };
+    return res.json();
+  }, []);
+
   const createRepo = useCallback(async (payload: {
     name: string;
     description?: string;
@@ -596,6 +604,7 @@ export function useMicrohubData() {
     commentOnIssue,
     commentOnPR,
     closeIssue,
+    viewIssue,
     followUser,
     createRepo,
     createIssue,

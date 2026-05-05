@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { CircleDot, CheckCircle2 } from "lucide-react";
 import { classNames, computeRelativeTimestamp } from "../utils";
 import { useTheme, useMicrohubCtx, useMicrohubUI } from "../contexts";
@@ -13,12 +14,17 @@ export const IssueDetail = () => {
     getLabelsByIds,
     startTime,
     commentOnIssue,
+    viewIssue,
   } = useMicrohubCtx();
   const {
     newCommentText,
     setNewCommentText,
     handleViewProfile,
   } = useMicrohubUI();
+
+  useEffect(() => {
+    if (selectedIssue?.id) viewIssue(selectedIssue.id);
+  }, [selectedIssue?.id, viewIssue]);
 
   if (!selectedIssue) return null;
   const author = getUserByUsername(selectedIssue.author);
