@@ -182,7 +182,12 @@ const MicroScholar = () => {
   const [, setActionCompletedAt] = useState<number | null>(null);
   const [showCiteModal, setShowCiteModal] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
-  const [savedPapers, setSavedPapers] = useState<string[]>([]);
+  // Derived from papers so it survives reloads — `papers[].isSaved` already
+  // reflects server state (with optimistic overrides applied by the hook).
+  const savedPapers = useMemo(
+    () => papers.filter((p) => p.isSaved).map((p) => p.id),
+    [papers]
+  );
   const [searchType, setSearchType] = useState<"articles" | "caselaw">("articles");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -402,9 +407,6 @@ const MicroScholar = () => {
   };
 
   const handleSavePaper = (paperId: string) => {
-    setSavedPapers((prev) =>
-      prev.includes(paperId) ? prev.filter((id) => id !== paperId) : [...prev, paperId]
-    );
     hookSavePaper(paperId);
   };
 
