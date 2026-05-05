@@ -24,7 +24,8 @@
           "4",
           "5"
         ],
-        "buying_power": 10000.0
+        "buying_power": 10000.0,
+        "preload_age_offset_ms": 18000000
       }
     },
     {

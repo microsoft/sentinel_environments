@@ -17,6 +17,7 @@ from __future__ import annotations
 import bisect
 import json
 import sqlite3
+import time
 from typing import TYPE_CHECKING
 
 from server.catalogs import (
@@ -149,13 +150,17 @@ def process_event(session: Session, event: dict) -> None:
             session.microhood_watchlist_states[symbol] = {"inWatchlist": True}
 
         # Load news -- "*" means all
+        preload_offset_ms = int(payload.get("preload_age_offset_ms", 0))
+        now_ms = int(time.time() * 1000)
         if news_ids == ["*"]:
             news_ids = list(MICROHOOD_NEWS_CATALOG.keys())
         for nid in news_ids:
             raw = MICROHOOD_NEWS_CATALOG.get(nid)
             if raw is None:
                 continue
-            session.microhood_news.append(dict(raw))
+            row = dict(raw)
+            row["created_at"] = now_ms - (raw.get("order", 1) * 30 * 60_000) - preload_offset_ms
+            session.microhood_news.append(row)
 
         session.microhood_buying_power = buying_power
 
@@ -163,8 +168,8 @@ def process_event(session: Session, event: dict) -> None:
         # of [time, price] pairs. We seed (0, starting_price) via _add_waypoint
         # if the scenario's first declared time is > 0.
         for symbol, points in price_waypoints.items():
-            for time, price in points:
-                _add_waypoint(session, symbol, float(time), float(price))
+            for wp_time, price in points:
+                _add_waypoint(session, symbol, float(wp_time) / session.speed_factor, float(price))
 
         # Capture baseline after preload
         session.baseline_metrics = compute_current_metrics(session)
@@ -173,7 +178,9 @@ def process_event(session: Session, event: dict) -> None:
         news_id = event.get("payload", {}).get("news_id")
         raw = MICROHOOD_NEWS_CATALOG.get(news_id)
         if raw:
-            session.microhood_news.append(dict(raw))
+            row = dict(raw)
+            row["created_at"] = int(time.time() * 1000)
+            session.microhood_news.append(row)
 
     elif etype == "set_price":
         payload = event.get("payload", {})

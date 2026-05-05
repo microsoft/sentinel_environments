@@ -46,6 +46,22 @@ export const TASK_ID_MICROHOOD = "microhood";
 
 
 
+const formatRelativeTime = (createdAtMs: number): string => {
+  const elapsedMs = Date.now() - createdAtMs;
+  const seconds = Math.floor(elapsedMs / 1000);
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months === 1 ? '' : 's'} ago`;
+};
+
 // ============================================================================
 // COMPONENT
 // ============================================================================
@@ -1296,9 +1312,9 @@ const MicroHood = () => {
             <div className={`${themeClasses.bgSecondary} rounded-xl p-5`}>
               <h3 className={`font-bold mb-4 ${themeClasses.text}`}>News</h3>
               <div className="space-y-4">
-                {news.map((item) => (
+                {[...news].sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0)).map((item) => (
                   <div key={item.id} className={`border-b ${themeClasses.border} pb-4 last:border-0 last:pb-0`}>
-                    <p className={`text-sm ${themeClasses.textSecondary} mb-1`}>{item.source} · {item.time}</p>
+                    <p className={`text-sm ${themeClasses.textSecondary} mb-1`}>{item.source} · {item.created_at ? formatRelativeTime(item.created_at) : item.time}</p>
                     <p className={`text-sm font-medium leading-snug ${themeClasses.text}`}>{item.title}</p>
                   </div>
                 ))}

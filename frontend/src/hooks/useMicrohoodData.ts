@@ -27,6 +27,7 @@ export interface ApiNews {
   source: string;
   title: string;
   time: string;
+  created_at?: number;
 }
 
 export interface ApiPortfolio {
