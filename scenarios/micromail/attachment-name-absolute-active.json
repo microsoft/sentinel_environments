@@ -80,5 +80,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE attachment_name LIKE '%mobile-app-mockups%') >= 1"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM emails e JOIN email_states es ON e.id = es.email_id WHERE e.attachment_name LIKE '%mobile-app-mockups%' AND es.isRead = 1)"
 }
