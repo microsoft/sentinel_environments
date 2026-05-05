@@ -64,5 +64,5 @@
     "difficulty": "medium",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM issues WHERE LOWER(body) LIKE '%unresponsive%') >= 2"
+  "eval_sql": "SELECT (SELECT isViewed FROM issue_states WHERE issue_id='i17') = 1"
 }

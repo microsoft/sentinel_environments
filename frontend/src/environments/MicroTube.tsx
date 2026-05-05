@@ -598,7 +598,7 @@ export default function MicroTube() {
   const [showSpeedMenu, setShowSpeedMenu] = useState(false);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
   const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [moreMenuVideoId, setMoreMenuVideoId] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [hoveredElement, setHoveredElement] = useState<string | null>(null);
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
@@ -728,6 +728,20 @@ export default function MicroTube() {
     document.title = "MicroTube";
     return () => { document.title = prev; };
   }, []);
+
+  const closeAllPopovers = useCallback(() => {
+    setMoreMenuVideoId(null);
+    setShowVideoSettings(false);
+    setShowSpeedMenu(false);
+    setShowQualityMenu(false);
+    setShowSettings(false);
+    setShowNotificationsPanel(false);
+  }, []);
+
+  // Close popover menus on navigation
+  useEffect(() => {
+    closeAllPopovers();
+  }, [currentView, closeAllPopovers]);
 
   // Fetch comments when current video changes
   useEffect(() => {
@@ -1054,6 +1068,7 @@ export default function MicroTube() {
     apiWatchVideo(videoId);
     setVideoError(false);
     setPlayerState("loading");
+    setMoreMenuVideoId(null);
     // If video has a real source, the video element will handle duration
     const video = SAMPLE_VIDEOS.find(v => v.id === videoId);
     if (!video?.videoSrc) {
@@ -1168,7 +1183,7 @@ export default function MicroTube() {
       setShowSettings(false);
       setShowSearchSuggestions(false);
       setShowVideoSettings(false);
-      setShowMoreMenu(false);
+      setMoreMenuVideoId(null);
       setShowShareModal(false);
     };
     window.addEventListener("keydown", handleEscape);
@@ -1266,6 +1281,13 @@ export default function MicroTube() {
       backgroundColor: colors.bg,
       color: colors.text,
     }}>
+      {/* Click-outside overlay for popover menus */}
+      {(moreMenuVideoId !== null || showVideoSettings || showSettings || showNotificationsPanel) && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 999 }}
+          onClick={closeAllPopovers}
+        />
+      )}
       {/* Header (elements 001-007) */}
       <header style={{
         ...styles.header,
@@ -1426,7 +1448,7 @@ export default function MicroTube() {
                 }}
                 aria-label="Notifications"
                 title="Notifications"
-                onClick={() => { setShowNotificationsPanel(!showNotificationsPanel); setShowSettings(false); }}
+                onClick={() => { const next = !showNotificationsPanel; closeAllPopovers(); setShowNotificationsPanel(next); }}
               >
                 <NotificationsIcon size={24} />
                 {activeNotifications.filter(n => !n.read).length > 0 && (
@@ -1534,7 +1556,7 @@ export default function MicroTube() {
             }}
             aria-label="Settings"
             title="Settings"
-            onClick={() => { setShowSettings(!showSettings); setShowNotificationsPanel(false); }}
+            onClick={() => { const next = !showSettings; closeAllPopovers(); setShowSettings(next); }}
           >
             <SettingsIcon size={24} />
           </button>
@@ -2026,7 +2048,7 @@ export default function MicroTube() {
                         }}
                         aria-label="Settings"
                         title="Settings"
-                        onClick={() => setShowVideoSettings(!showVideoSettings)}
+                        onClick={() => { const next = !showVideoSettings; closeAllPopovers(); setShowVideoSettings(next); }}
                       >
                         <SettingsIcon size={24} />
                       </button>
@@ -2265,16 +2287,16 @@ export default function MicroTube() {
                           ...styles.actionButton,
                           backgroundColor: hoveredElement === 'more' ? colors.hover : colors.cardBg,
                         }}
-                        onClick={() => setShowMoreMenu(!showMoreMenu)}
+                        onClick={() => { const next = moreMenuVideoId === watchingVideoId ? null : watchingVideoId; closeAllPopovers(); setMoreMenuVideoId(next); }}
                         title="More"
                       >
                         <MoreIcon size={24} />
                       </button>
-                      {showMoreMenu && (
+                      {moreMenuVideoId === watchingVideoId && (
                         <div style={{
                           position: 'absolute',
                           top: '100%',
-                          right: 0,
+                          left: 0,
                           backgroundColor: colors.cardBg,
                           color: colors.text,
                           borderRadius: 12,
@@ -2293,7 +2315,7 @@ export default function MicroTube() {
                           ].map((item, i) => (
                             <div
                               key={i}
-                              onClick={() => { item.action(); setShowMoreMenu(false); }}
+                              onClick={() => { item.action(); setMoreMenuVideoId(null); }}
                               style={{
                                 padding: '12px 16px',
                                 cursor: 'pointer',
@@ -3919,16 +3941,54 @@ export default function MicroTube() {
                         {video.views} • {video.timestamp}
                       </p>
                     </div>
-                    <button
-                      style={styles.videoCardMenu}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowMoreMenu(true);
-                      }}
-                      title="Action menu"
-                    >
-                      <MoreIcon size={20} />
-                    </button>
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        style={styles.videoCardMenu}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const next = moreMenuVideoId === video.id ? null : video.id;
+                          closeAllPopovers();
+                          setMoreMenuVideoId(next);
+                        }}
+                        title="Action menu"
+                      >
+                        <MoreIcon size={20} />
+                      </button>
+                      {moreMenuVideoId === video.id && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          backgroundColor: colors.cardBg,
+                          color: colors.text,
+                          borderRadius: 12,
+                          boxShadow: '0 4px 32px rgba(0,0,0,0.5)',
+                          overflow: 'hidden',
+                          zIndex: 1000,
+                          minWidth: 200,
+                        }}>
+                          {[
+                            { label: 'Add to queue', action: () => addToQueue(video.id) },
+                            { label: 'Save to Watch later', action: () => saveVideo(video.id) },
+                            { label: 'Not interested', action: () => {} },
+                          ].map((item, i) => (
+                            <div
+                              key={i}
+                              onClick={(e) => { e.stopPropagation(); item.action(); setMoreMenuVideoId(null); }}
+                              style={{
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                fontSize: 14,
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#3f3f3f')}
+                              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                            >
+                              {item.label}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

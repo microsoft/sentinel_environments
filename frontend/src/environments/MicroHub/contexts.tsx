@@ -159,6 +159,7 @@ export interface MicroHubDataContextValue {
   commentOnIssue: (issueId: string, body: string) => Promise<CommentResult>;
   commentOnPR: (prId: string, body: string) => Promise<CommentResult>;
   closeIssue: (issueId: string) => Promise<CommentResult>;
+  viewIssue: (issueId: string) => Promise<{ success: boolean }>;
   followUser: (username: string) => Promise<void>;
   createRepo: (payload: CreateRepoPayload) => Promise<ApiRepository | null>;
   createIssue: (title: string, body: string) => Promise<ApiIssue | null>;

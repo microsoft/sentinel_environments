@@ -16,7 +16,8 @@
           "i8",
           "i12",
           "i15"
-        ]
+        ],
+        "preload_age_offset_ms": 18000000
       }
     },
     {
@@ -64,5 +65,5 @@
     "difficulty": "medium",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM issues WHERE LOWER(body) LIKE '%steps to reproduce%') >= 2"
+  "eval_sql": "SELECT (SELECT isViewed FROM issue_states WHERE issue_id='i11') = 1"
 }
