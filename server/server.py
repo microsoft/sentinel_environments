@@ -1914,6 +1914,15 @@ async def data_hub_close_issue(issue_id: str) -> dict:
     return {"success": True, "state": new_state}
 
 
+@app.post("/data/microhub-issues/{issue_id}/view", response_model=SuccessResponse)
+async def data_hub_view_issue(issue_id: str) -> dict:
+    session = _require_session()
+    if issue_id not in session.microhub_issue_states:
+        raise HTTPException(status_code=404, detail=f"Issue not found: {issue_id}")
+    session.microhub_issue_states[issue_id]["isViewed"] = True
+    return {"success": True}
+
+
 @app.post("/data/microhub-pulls/{pr_id}/merge", response_model=MergeResponse)
 async def data_hub_merge_pr(pr_id: str, body: MicrohubMergeRequest) -> dict:
     session = _require_session()
