@@ -403,6 +403,19 @@ const SIDEBAR_EXPLORE = [
   { id: "element-022", icon: PodcastsIcon, label: "Podcasts", href: "/podcasts", section: "podcasts" as NavSection },
 ];
 
+const EXPLORE_TAB_CONFIG: Record<string, { emptyTitle: string; emptySubtitle: string }> = {
+  shopping: { emptyTitle: "No shopping content yet", emptySubtitle: "Discover products featured in videos from channels you love" },
+  music: { emptyTitle: "No music videos yet", emptySubtitle: "Music videos, live concerts, artist channels, and playlists" },
+  movies: { emptyTitle: "No movie content yet", emptySubtitle: "Rent, buy, or watch free movies and shows" },
+  live: { emptyTitle: "No live streams right now", emptySubtitle: "Check back later for live content from your favorite creators" },
+  gaming: { emptyTitle: "No gaming videos yet", emptySubtitle: "Let's plays, walkthroughs, esports, and gaming news" },
+  news: { emptyTitle: "No news content yet", emptySubtitle: "Breaking news, analysis, and coverage from trusted sources" },
+  sports: { emptyTitle: "No sports content yet", emptySubtitle: "Highlights, live sports, analysis, and athlete channels" },
+  courses: { emptyTitle: "No courses yet", emptySubtitle: "Tutorials, courses, and educational content from expert creators" },
+  fashion: { emptyTitle: "No fashion & beauty content yet", emptySubtitle: "Style guides, makeup tutorials, and fashion trends" },
+  podcasts: { emptyTitle: "No podcasts yet", emptySubtitle: "Discover video podcasts, interviews, and discussions" },
+};
+
 const SIDEBAR_MORE = [
   { id: "element-024", icon: TrendingIcon, label: "MicroTube Premium", href: "/premium", section: "premium" as NavSection },
   { id: "element-025", icon: LiveTvIcon, label: "MicroTube Music", href: "/yt-music", section: "yt-music" as NavSection },
@@ -3551,292 +3564,49 @@ export default function MicroTube() {
                 </div>
               )}
             </div>
-          ) : currentView === 'shopping' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <ShoppingBagIcon size={28} />
-                Shopping
-              </h2>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <p style={{ fontSize: 18, color: '#717171' }}>No shopping content yet</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Discover products featured in videos from channels you love</p>
+          ) : EXPLORE_TAB_CONFIG[currentView] ? (() => {
+            const sidebarItem = SIDEBAR_EXPLORE.find(s => s.section === currentView)!;
+            const tabConfig = EXPLORE_TAB_CONFIG[currentView];
+            const Icon = sidebarItem.icon;
+            const videos = getVideosForCategory(currentView);
+            return (
+              <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <Icon size={28} />
+                  {sidebarItem.label}
+                </h2>
+                {videos.length > 0 ? (
+                  <div style={styles.videoGrid}>
+                    {videos.map((video) => (
+                      <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
+                        <div style={styles.thumbnailContainer}>
+                          <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
+                          <span style={styles.videoDuration}>{video.duration}</span>
+                        </div>
+                        <div style={styles.videoDetails}>
+                          {video.channelAvatarUrl ? (
+                            <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
+                          ) : (
+                            <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
+                          )}
+                          <div style={styles.videoCardInfo}>
+                            <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
+                            <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
+                            <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                    <p style={{ fontSize: 18, color: '#717171' }}>{tabConfig.emptyTitle}</p>
+                    <p style={{ marginTop: 8, color: '#717171' }}>{tabConfig.emptySubtitle}</p>
+                  </div>
+                )}
               </div>
-            </div>
-          ) : currentView === 'music' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <MusicNoteIcon size={28} />
-                Music
-              </h2>
-              {getVideosForCategory('music').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('music').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No music videos yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Music videos, live concerts, artist channels, and playlists</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'movies' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <MovieIcon size={28} />
-                Movies
-              </h2>
-              {getVideosForCategory('movies').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('movies').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No movie content yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Rent, buy, or watch free movies and shows</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'live' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <LiveTvIcon size={28} />
-                Live
-              </h2>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <p style={{ fontSize: 18, color: '#717171' }}>No live streams right now</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Check back later for live content from your favorite creators</p>
-              </div>
-            </div>
-          ) : currentView === 'gaming' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SportsEsportsIcon size={28} />
-                Gaming
-              </h2>
-              {getVideosForCategory('gaming').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('gaming').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No gaming videos yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Let's plays, walkthroughs, esports, and gaming news</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'news' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <NewspaperIcon size={28} />
-                News
-              </h2>
-              {getVideosForCategory('news').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('news').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No news content yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Breaking news, analysis, and coverage from trusted sources</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'sports' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SportsIcon size={28} />
-                Sports
-              </h2>
-              {getVideosForCategory('sports').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('sports').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No sports content yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Highlights, live sports, analysis, and athlete channels</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'courses' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <SchoolIcon size={28} />
-                Courses
-              </h2>
-              {getVideosForCategory('courses').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('courses').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No courses yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Tutorials, courses, and educational content from expert creators</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'fashion' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <CheckroomIcon size={28} />
-                Fashion & Beauty
-              </h2>
-              {getVideosForCategory('fashion').length > 0 ? (
-                <div style={styles.videoGrid}>
-                  {getVideosForCategory('fashion').map((video) => (
-                    <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
-                      <div style={styles.thumbnailContainer}>
-                        <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
-                        <span style={styles.videoDuration}>{video.duration}</span>
-                      </div>
-                      <div style={styles.videoDetails}>
-                        {video.channelAvatarUrl ? (
-                          <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
-                        ) : (
-                          <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
-                        )}
-                        <div style={styles.videoCardInfo}>
-                          <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
-                          <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
-                          <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                  <p style={{ fontSize: 18, color: '#717171' }}>No fashion & beauty content yet</p>
-                  <p style={{ marginTop: 8, color: '#717171' }}>Style guides, makeup tutorials, and fashion trends</p>
-                </div>
-              )}
-            </div>
-          ) : currentView === 'podcasts' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-                <PodcastsIcon size={28} />
-                Podcasts
-              </h2>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <p style={{ fontSize: 18, color: '#717171' }}>No podcasts yet</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Discover video podcasts, interviews, and discussions</p>
-              </div>
-            </div>
-          ) : currentView === 'premium' ? (
+            );
+          })() : currentView === 'premium' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', padding: 48, backgroundColor: '#1a1a1a', borderRadius: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
