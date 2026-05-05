@@ -72,6 +72,7 @@ def _build_video_row(video_id: str) -> dict:
         "channelAvatarSrc": ch.get("avatar_src", ""),
         "channelIsVerified": bool(ch.get("is_verified", False)),
         "channelSubscribers": ch.get("subscribers", 0),
+        "category": raw.get("category", ""),
         "task": raw["task"],
         "order": raw["order"],
     }
@@ -288,12 +289,13 @@ def process_event(session: Session, event: dict) -> None:
 
 def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
     conn.execute(
-        "CREATE TABLE videos (id TEXT, channel_id TEXT, title TEXT, views INT, likes INT, isLive INT, isShort INT)"
+        "CREATE TABLE videos (id TEXT, channel_id TEXT, title TEXT, category TEXT, views INT, likes INT, isLive INT, isShort INT)"
     )
     conn.executemany(
-        "INSERT INTO videos VALUES (?,?,?,?,?,?,?)",
+        "INSERT INTO videos VALUES (?,?,?,?,?,?,?,?)",
         [
             (v.get("id"), v.get("channel_id"), v.get("title"),
+             v.get("category", ""),
              int(v.get("views", 0)), int(v.get("likes", 0)),
              int(v.get("isLive", False)), int(v.get("isShort", False)))
             for v in session.microtube_videos

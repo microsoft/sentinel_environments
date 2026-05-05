@@ -313,6 +313,7 @@ interface VideoData {
   videoSrc?: string;
   /** Path to thumbnail image relative to public/, e.g., "videos/microtube/thumbnails/vid-1.jpg" */
   thumbnailSrc?: string;
+  category?: string;
 }
 
 // Toast notification interface
@@ -402,6 +403,19 @@ const SIDEBAR_EXPLORE = [
   { id: "element-022", icon: PodcastsIcon, label: "Podcasts", href: "/podcasts", section: "podcasts" as NavSection },
 ];
 
+const EXPLORE_TAB_CONFIG: Record<string, { emptyTitle: string; emptySubtitle: string }> = {
+  shopping: { emptyTitle: "No shopping content yet", emptySubtitle: "Discover products featured in videos from channels you love" },
+  music: { emptyTitle: "No music videos yet", emptySubtitle: "Music videos, live concerts, artist channels, and playlists" },
+  movies: { emptyTitle: "No movie content yet", emptySubtitle: "Rent, buy, or watch free movies and shows" },
+  live: { emptyTitle: "No live streams right now", emptySubtitle: "Check back later for live content from your favorite creators" },
+  gaming: { emptyTitle: "No gaming videos yet", emptySubtitle: "Let's plays, walkthroughs, esports, and gaming news" },
+  news: { emptyTitle: "No news content yet", emptySubtitle: "Breaking news, analysis, and coverage from trusted sources" },
+  sports: { emptyTitle: "No sports content yet", emptySubtitle: "Highlights, live sports, analysis, and athlete channels" },
+  courses: { emptyTitle: "No courses yet", emptySubtitle: "Tutorials, courses, and educational content from expert creators" },
+  fashion: { emptyTitle: "No fashion & beauty content yet", emptySubtitle: "Style guides, makeup tutorials, and fashion trends" },
+  podcasts: { emptyTitle: "No podcasts yet", emptySubtitle: "Discover video podcasts, interviews, and discussions" },
+};
+
 const SIDEBAR_MORE = [
   { id: "element-024", icon: TrendingIcon, label: "MicroTube Premium", href: "/premium", section: "premium" as NavSection },
   { id: "element-025", icon: LiveTvIcon, label: "MicroTube Music", href: "/yt-music", section: "yt-music" as NavSection },
@@ -478,6 +492,7 @@ export default function MicroTube() {
         description: v.description,
         videoSrc: v.videoSrc,
         thumbnailSrc: v.thumbnailSrc,
+        category: v.category,
       };
     }).sort((a, b) => {
       const aIsNew = videoArrivalTimes.current.has(a.id);
@@ -666,6 +681,10 @@ export default function MicroTube() {
 
   const getVideosForChannel = useCallback((channelId: string): VideoData[] => {
     return SAMPLE_VIDEOS.filter(v => v.channelId === channelId);
+  }, [SAMPLE_VIDEOS]);
+
+  const getVideosForCategory = useCallback((category: string): VideoData[] => {
+    return SAMPLE_VIDEOS.filter(v => v.category === category);
   }, [SAMPLE_VIDEOS]);
 
   // Comments state -- fetched on demand from API
@@ -3567,127 +3586,49 @@ export default function MicroTube() {
                 </div>
               )}
             </div>
-          ) : currentView === 'shopping' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <ShoppingBagIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Shopping</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Browse products from your favorite creators</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Shopping is coming soon</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Discover products featured in videos from channels you love</p>
+          ) : EXPLORE_TAB_CONFIG[currentView] ? (() => {
+            const sidebarItem = SIDEBAR_EXPLORE.find(s => s.section === currentView)!;
+            const tabConfig = EXPLORE_TAB_CONFIG[currentView];
+            const Icon = sidebarItem.icon;
+            const videos = getVideosForCategory(currentView);
+            return (
+              <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
+                <h2 style={{ fontSize: 24, fontWeight: 600, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <Icon size={28} />
+                  {sidebarItem.label}
+                </h2>
+                {videos.length > 0 ? (
+                  <div style={styles.videoGrid}>
+                    {videos.map((video) => (
+                      <div key={video.id} style={styles.videoCard} onClick={() => loadVideo(video.id)}>
+                        <div style={styles.thumbnailContainer}>
+                          <img src={getThumbnail(video)} alt={video.title} style={styles.thumbnail} />
+                          <span style={styles.videoDuration}>{video.duration}</span>
+                        </div>
+                        <div style={styles.videoDetails}>
+                          {video.channelAvatarUrl ? (
+                            <img src={video.channelAvatarUrl} alt={video.channel} style={{ ...styles.videoCardAvatar, cursor: 'pointer', objectFit: 'cover' as const }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }} />
+                          ) : (
+                            <div style={{ ...styles.videoCardAvatar, cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channelAvatar}</div>
+                          )}
+                          <div style={styles.videoCardInfo}>
+                            <h3 style={{...styles.videoCardTitle, color: colors.text}}>{video.title}</h3>
+                            <p style={{...styles.videoCardChannel, cursor: 'pointer', color: colors.textSecondary}} onClick={(e) => { e.stopPropagation(); navigateToChannel(video.channelId); }}>{video.channel}</p>
+                            <p style={{...styles.videoCardMeta, color: colors.textSecondary}}>{video.views} • {video.timestamp}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
+                    <p style={{ fontSize: 18, color: '#717171' }}>{tabConfig.emptyTitle}</p>
+                    <p style={{ marginTop: 8, color: '#717171' }}>{tabConfig.emptySubtitle}</p>
+                  </div>
+                )}
               </div>
-            </div>
-          ) : currentView === 'music' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <MusicNoteIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Music</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Discover music videos, live performances, and more</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Explore Music content</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Music videos, live concerts, artist channels, and playlists</p>
-              </div>
-            </div>
-          ) : currentView === 'movies' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <MovieIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Movies</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch movies, documentaries, and TV shows</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Browse Movies & TV</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Rent, buy, or watch free movies and shows</p>
-              </div>
-            </div>
-          ) : currentView === 'live' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <LiveTvIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Live</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch live streams from around the world</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>No live streams right now</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Check back later for live content from your favorite creators</p>
-              </div>
-            </div>
-          ) : currentView === 'gaming' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <SportsEsportsIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Gaming</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch gaming videos, live streams, and esports</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Explore Gaming content</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Let's plays, walkthroughs, esports, and gaming news</p>
-              </div>
-            </div>
-          ) : currentView === 'news' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <NewspaperIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>News</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Stay informed with the latest news</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>News & Current Events</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Breaking news, analysis, and coverage from trusted sources</p>
-              </div>
-            </div>
-          ) : currentView === 'sports' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <SportsIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Sports</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Watch highlights, live games, and sports content</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Sports Hub</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Highlights, live sports, analysis, and athlete channels</p>
-              </div>
-            </div>
-          ) : currentView === 'courses' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <SchoolIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Courses</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Learn new skills with educational content</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Learning Hub</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Tutorials, courses, and educational content from expert creators</p>
-              </div>
-            </div>
-          ) : currentView === 'fashion' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <CheckroomIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Fashion & Beauty</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Discover style tips, tutorials, and trends</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Fashion & Beauty Hub</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Style guides, makeup tutorials, and fashion trends</p>
-              </div>
-            </div>
-          ) : currentView === 'podcasts' ? (
-            <div style={{ padding: '24px', maxWidth: 1200, margin: '0 auto' }}>
-              <div style={{ textAlign: 'center', padding: 64, backgroundColor: '#1a1a1a', borderRadius: 12 }}>
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <PodcastsIcon size={64} />
-                </div>
-                <h2 style={{ fontSize: 24, fontWeight: 600, marginTop: 24, marginBottom: 8, color: '#fff' }}>Podcasts</h2>
-                <p style={{ color: '#aaa', marginBottom: 24 }}>Listen to podcasts from your favorite creators</p>
-                <p style={{ fontSize: 18, color: '#717171' }}>Podcast Hub</p>
-                <p style={{ marginTop: 8, color: '#717171' }}>Discover video podcasts, interviews, and discussions</p>
-              </div>
-            </div>
-          ) : currentView === 'premium' ? (
+            );
+          })() : currentView === 'premium' ? (
             <div style={{ padding: '24px', maxWidth: 800, margin: '0 auto' }}>
               <div style={{ textAlign: 'center', padding: 48, backgroundColor: '#1a1a1a', borderRadius: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
