@@ -1,5 +1,5 @@
 {
-  "id": "microlendar-work-relative-active",
+  "id": "microlendar-work-relative-passive",
   "environment": "microlendar",
   "start_page": "HOST_ADDRESS/microlendar#week",
   "prompt": "I already have a few work events on my calendar. Tell me when 4 more work events get added in the next two weeks.",
@@ -96,7 +96,7 @@
     "criteria": "objective",
     "milestone_type": "relative",
     "event_persistence": "persistent",
-    "monitoring_approach": "active",
+    "monitoring_approach": "passive",
     "difficulty": "medium",
     "distraction_level": "medium"
   },
