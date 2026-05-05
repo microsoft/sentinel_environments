@@ -195,7 +195,7 @@ def process_event(session: Session, event: dict) -> None:
     if etype == "preload_videos":
         payload = event.get("payload", {})
 
-        preload_offset_ms = payload.get("preload_age_offset_ms")
+        preload_offset_ms = int(payload.get("preload_age_offset_ms", 0))
         now_ms = int(time.time() * 1000)
 
         # Load videos
@@ -204,8 +204,7 @@ def process_event(session: Session, event: dict) -> None:
             video_ids = list(MICROTUBE_VIDEO_CATALOG.keys())
         for vid in video_ids:
             row = _build_video_row(vid)
-            if preload_offset_ms is not None:
-                row["created_at"] = now_ms - (row["order"] * 30 * 60_000) - int(preload_offset_ms)
+            row["created_at"] = now_ms - (row["order"] * 30 * 60_000) - preload_offset_ms
             session.microtube_videos.append(row)
             session.microtube_video_states[vid] = _init_video_state()
 
@@ -232,8 +231,7 @@ def process_event(session: Session, event: dict) -> None:
             comment_ids = list(MICROTUBE_COMMENT_CATALOG.keys())
         for cmid in comment_ids:
             row = _build_comment_row(cmid)
-            if preload_offset_ms is not None:
-                row["created_at"] = now_ms - (row["order"] * 30 * 60_000) - int(preload_offset_ms)
+            row["created_at"] = now_ms - (row["order"] * 30 * 60_000) - preload_offset_ms
             session.microtube_comments.append(row)
 
         # Load notifications

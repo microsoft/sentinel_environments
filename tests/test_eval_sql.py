@@ -61,7 +61,8 @@ NEEDS_USER_ACTION = {
     "microscholar-snippet-absolute-active",
     "microtube-notifications-absolute-active",
     "microtube-views-relative-active",
-    "microtube-comment-keyword-absolute-active"
+    "microtube-comment-count-relative-active",
+    "microtube-comment-keyword-absolute-active",
 }
 
 # Scenarios exempt from negative testing (eval_sql passes from preload alone by design).
@@ -301,6 +302,15 @@ def simulate_actions(scenario_id):
         # Watch the 3 target uploads from subscribed channels.
         for video_id in ("vid-news-03", "vid-self-03", "vid-travel-03"):
             post(f"/data/microtube-videos/{video_id}/watch")
+
+    elif scenario_id == "microtube-comment-count-relative-active":
+        # Watch all 3 gaming videos to satisfy the watched_videos check.
+        for video_id in ("vid-gaming-01", "vid-gaming-02", "vid-gaming-03"):
+            post(f"/data/microtube-videos/{video_id}/watch")
+
+    elif scenario_id == "microtube-comment-keyword-absolute-active":
+        # Watch vid-gaming-01 so the Civilization comment joins with watched_videos.
+        post("/data/microtube-videos/vid-gaming-01/watch")
 
     else:
         raise ValueError(

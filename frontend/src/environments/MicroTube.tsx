@@ -373,13 +373,7 @@ const formatViews = (views: number): string => {
   return `${views} views`;
 };
 
-// Helper to get relative timestamp
-const getRelativeTimestamp = (order: number): string => {
-  const timestamps = ["1 day ago", "2 days ago", "3 days ago", "5 days ago", "1 week ago", "2 weeks ago"];
-  return timestamps[order % timestamps.length] || "1 week ago";
-};
-
-const formatCommentTimestamp = (createdAtMs: number): string => {
+const formatRelativeTime = (createdAtMs: number): string => {
   const elapsedMs = Date.now() - createdAtMs;
   const seconds = Math.floor(elapsedMs / 1000);
   if (seconds < 60) return "Just now";
@@ -486,15 +480,11 @@ export default function MicroTube() {
       if (v.publishedAt) {
         timestamp = v.publishedAt;
       } else if (v.created_at) {
-        timestamp = formatCommentTimestamp(v.created_at);
+        timestamp = formatRelativeTime(v.created_at);
       } else if (videoArrivalTimes.current.has(v.id)) {
-        const elapsedMs = Date.now() - videoArrivalTimes.current.get(v.id)!;
-        const elapsedMin = Math.floor(elapsedMs / 60000);
-        if (elapsedMin < 1) timestamp = "Just now";
-        else if (elapsedMin < 60) timestamp = `${elapsedMin} minute${elapsedMin === 1 ? '' : 's'} ago`;
-        else timestamp = `${Math.floor(elapsedMin / 60)} hour${Math.floor(elapsedMin / 60) === 1 ? '' : 's'} ago`;
+        timestamp = formatRelativeTime(videoArrivalTimes.current.get(v.id)!);
       } else {
-        timestamp = getRelativeTimestamp(v.order);
+        timestamp = "";
       }
 
       return {
@@ -724,7 +714,7 @@ export default function MicroTube() {
   const displayComments = useMemo(() =>
     loadedComments.map(c => ({
       ...c,
-      timestamp: c.createdAt ? formatCommentTimestamp(c.createdAt) : c.timestamp,
+      timestamp: c.createdAt ? formatRelativeTime(c.createdAt) : c.timestamp,
     })),
     [loadedComments, commentTick]
   );
@@ -753,7 +743,7 @@ export default function MicroTube() {
           content: c.content,
           likes: c.likes,
           createdAt: c.created_at,
-          timestamp: c.created_at ? formatCommentTimestamp(c.created_at) : 'Recently',
+          timestamp: c.created_at ? formatRelativeTime(c.created_at) : 'Recently',
         }));
         setLoadedComments(mapped);
       });
