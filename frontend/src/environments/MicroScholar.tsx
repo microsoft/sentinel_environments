@@ -354,11 +354,22 @@ const MicroScholar = () => {
   // Handlers
   // ---------------------------------------------------------------------------
 
+  // Assigning window.location.hash is a no-op when the value is unchanged,
+  // so browsers won't fire `hashchange` and the search wouldn't re-run.
+  // Dispatch the event manually in that case.
+  const setSearchHash = (next: string) => {
+    if (window.location.hash === `#${next}`) {
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    } else {
+      window.location.hash = next;
+    }
+  };
+
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
-    window.location.hash = `q=${encodeURIComponent(q)}`;
+    setSearchHash(`q=${encodeURIComponent(q)}`);
   }, [searchQuery]);
 
   const handleAdvancedSearch = useCallback(() => {
@@ -371,7 +382,7 @@ const MicroScholar = () => {
     if (advPublication) p.set("pub",     advPublication);
     if (advDateStart)   p.set("y1",      advDateStart);
     if (advDateEnd)     p.set("y2",      advDateEnd);
-    window.location.hash = p.toString();
+    setSearchHash(p.toString());
     setShowAdvancedSearch(false);
   }, [advAllWords, advExactPhrase, advAtLeastOne, advWithout,
       advAuthor, advPublication, advDateStart, advDateEnd]);
