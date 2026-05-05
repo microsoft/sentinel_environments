@@ -32,6 +32,7 @@ NEEDS_USER_ACTION = {
     "microchat-urgent-relative-active",
     "micromail-attachment-name-absolute-active",
     "micromail-body-december-relative-active",
+    "micromail-cc-relative-active",
     "microdin-jobs-absolute-active",
     "microdin-documentation-absolute-active",
     "microdin-python-relative-active",
@@ -152,6 +153,11 @@ def simulate_actions(scenario_id):
     elif scenario_id == "micromail-body-december-relative-active":
         # Open ext-21, the second December-mentioning email, so it's marked read.
         post("/data/micromail-emails/ext-21/read")
+
+    elif scenario_id == "micromail-cc-relative-active":
+        # Open the 3 new CC emails delivered by events.
+        for email_id in ("cc-03", "cc-04", "cc-05"):
+            post(f"/data/micromail-emails/{email_id}/read")
 
     elif scenario_id == "microdin-jobs-absolute-active":
         # Apply to the Kubernetes role after it appears.
