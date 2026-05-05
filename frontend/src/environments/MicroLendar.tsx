@@ -153,6 +153,7 @@ const MicroLendar = () => {
     createEvent: apiCreateEvent,
     updateEvent: apiUpdateEvent,
     deleteEvent: apiDeleteEvent,
+    viewEvent: apiViewEvent,
     createTask: apiCreateTask,
     toggleTask: apiToggleTask,
     deleteTask: apiDeleteTask,
@@ -577,7 +578,8 @@ const MicroLendar = () => {
   const handleEventClick = useCallback((event: CalendarEvent) => {
     setSelectedEvent(event);
     setShowEventDetails(true);
-  }, []);
+    apiViewEvent(event.id);
+  }, [apiViewEvent]);
 
   const toggleTask = useCallback((taskId: string) => {
     apiToggleTask(taskId);

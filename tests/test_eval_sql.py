@@ -41,6 +41,9 @@ NEEDS_USER_ACTION = {
     "microhub-body-reproduce-relative-active",
     "microhub-body-unresponsive-relative-active",
     "microhub-contribute-absolute-active",
+    "microlendar-description-analytics-relative-active",
+    "microlendar-description-hawaii-absolute-active",
+    "microlendar-description-notifications-absolute-active",
     "microhood-orders-absolute-active",
     "microhood-buy-dip-relative-active",
     "microhood-rebalance-relative-active",
@@ -195,6 +198,18 @@ def simulate_actions(scenario_id):
     elif scenario_id == "microhub-body-unresponsive-relative-active":
         # Open i17, the new arrival whose body mentions 'unresponsive'.
         post("/data/microhub-issues/i17/view")
+
+    elif scenario_id == "microlendar-description-analytics-relative-active":
+        # Open conflict02, the new arrival whose description mentions analytics.
+        post("/data/microlendar-events/conflict02/view")
+
+    elif scenario_id == "microlendar-description-hawaii-absolute-active":
+        # Open evt013, the Hawaii trip event.
+        post("/data/microlendar-events/evt013/view")
+
+    elif scenario_id == "microlendar-description-notifications-absolute-active":
+        # Open today04, the notifications-feature meeting.
+        post("/data/microlendar-events/today04/view")
 
     elif scenario_id == "microhub-contribute-absolute-active":
         # Comment on the target TOTP issue.
