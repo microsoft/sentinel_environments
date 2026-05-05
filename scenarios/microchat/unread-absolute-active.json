@@ -2,7 +2,7 @@
   "id": "microchat-unread-absolute-active",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
-  "prompt": "Keep an eye on my chat with Alex Chen. If he reports any problems with payment processing, let me know right away.",
+  "prompt": "Keep an eye on my chat with Alex Chen. If he reports any problems with payment processing, read the message to get the full scope of the problem, then let me know right away.",
   "condition_at": 374.51,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -146,5 +146,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages WHERE conversationId='direct-alex' AND content LIKE '%payment processing service is down%')"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM messages m JOIN message_states s ON s.message_id = m.id WHERE m.conversationId='direct-alex' AND m.content LIKE '%payment processing service is down%' AND s.isRead = 1)"
 }

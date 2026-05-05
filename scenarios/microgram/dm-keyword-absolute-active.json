@@ -79,5 +79,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages WHERE data LIKE '%mockup%') >= 1"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM message_states WHERE message_id = 'm12' AND isRead = 1)"
 }

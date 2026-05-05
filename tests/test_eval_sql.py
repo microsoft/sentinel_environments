@@ -26,6 +26,14 @@ TIMEOUT = 10
 # Scenarios whose eval_sql checks user-created state that events alone cannot satisfy.
 # The agent must interact with items delivered by events to meet these thresholds.
 NEEDS_USER_ACTION = {
+    "microchat-attachment-absolute-active",
+    "microchat-mentions-relative-active",
+    "microchat-unread-absolute-active",
+    "microchat-urgent-relative-active",
+    "micromail-attachment-name-absolute-active",
+    "micromail-body-december-relative-active",
+    "micromail-body-keyword-absolute-active",
+    "micromail-cc-relative-active",
     "microdin-jobs-absolute-active",
     "microdin-documentation-absolute-active",
     "microdin-python-relative-active",
@@ -36,6 +44,8 @@ NEEDS_USER_ACTION = {
     "microhood-rebalance-relative-active",
     "microhood-sell-order-absolute-active",
     "microhub-body-compliance-absolute-active",
+    "microgram-comments-relative-active",
+    "microgram-dm-keyword-absolute-active",
     "microgram-follows-absolute-active",
     "microgram-likes-absolute-passive",
     "microfy-followers-absolute-active",
@@ -45,8 +55,10 @@ NEEDS_USER_ACTION = {
     "microfy-lyric-subway-absolute-active",
     "microfy-lyric-whiskey-relative-active",
     "microfy-new-releases-relative-passive",
+    "microscholar-abstract-relative-active",
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
+    "microscholar-snippet-absolute-active",
     "microtube-notifications-absolute-active",
     "microtube-views-relative-active",
 }
@@ -119,7 +131,42 @@ def touch_contact():
 def simulate_actions(scenario_id):
     """Simulate agent actions for scenarios whose eval_sql needs user interaction."""
 
-    if scenario_id == "microdin-jobs-absolute-active":
+    if scenario_id == "microchat-attachment-absolute-active":
+        # Open the message bearing the attachment to mark it as read.
+        post("/data/microchat-messages/att-dm-04/read")
+
+    elif scenario_id == "microchat-mentions-relative-active":
+        # Mark 3 of the 4 new mention messages as read.
+        for msg_id in ("mention-dm-03", "mention-grp-03", "mention-dm-05"):
+            post(f"/data/microchat-messages/{msg_id}/read")
+
+    elif scenario_id == "microchat-unread-absolute-active":
+        # Open the urgent payment-processing message from Alex.
+        post("/data/microchat-messages/urg-mention-dm-01/read")
+
+    elif scenario_id == "microchat-urgent-relative-active":
+        # Mark 3 of the 4 new urgent messages as read.
+        for msg_id in ("urg-dm-04", "urg-grp-05", "urg-dm-05"):
+            post(f"/data/microchat-messages/{msg_id}/read")
+
+    elif scenario_id == "micromail-attachment-name-absolute-active":
+        # Open att-14, the email carrying the mobile-app-mockups attachment.
+        post("/data/micromail-emails/att-14/read")
+
+    elif scenario_id == "micromail-body-december-relative-active":
+        # Open ext-21, the second December-mentioning email, so it's marked read.
+        post("/data/micromail-emails/ext-21/read")
+
+    elif scenario_id == "micromail-body-keyword-absolute-active":
+        # Open base-13, the email whose body mentions 'platform scalability'.
+        post("/data/micromail-emails/base-13/read")
+
+    elif scenario_id == "micromail-cc-relative-active":
+        # Open the 3 new CC emails delivered by events.
+        for email_id in ("cc-03", "cc-04", "cc-05"):
+            post(f"/data/micromail-emails/{email_id}/read")
+
+    elif scenario_id == "microdin-jobs-absolute-active":
         # Apply to the Kubernetes role after it appears.
         post("/data/microdin-jobs/job-6/apply")
 
@@ -169,6 +216,15 @@ def simulate_actions(scenario_id):
         # Comment on the compliance issue (i20).
         post("/data/microhub-issues/i20/comment", {"body": "test comment"})
 
+    elif scenario_id == "microgram-comments-relative-active":
+        # View 3 of the 4 new @ahall-bearing posts delivered by events.
+        for post_id in ("post-skydiving", "post-hiking-summit", "post-temple-visit"):
+            post(f"/data/microgram-posts/{post_id}/view")
+
+    elif scenario_id == "microgram-dm-keyword-absolute-active":
+        # Open dm-6 to mark its sole sub-message (m12, the mockup message) as read.
+        post("/data/microgram-conversations/dm-6/read")
+
     elif scenario_id == "microgram-follows-absolute-active":
         # Follow the 3 target creators.
         for user_id in ("user097", "user098", "user099"):
@@ -217,9 +273,19 @@ def simulate_actions(scenario_id):
         for track_id in ("track-031", "track-032", "track-033", "track-034", "track-035"):
             post(f"/data/microfy-tracks/{track_id}/like")
 
+    elif scenario_id == "microscholar-abstract-relative-active":
+        # Save 2 of the incoming 'unstructured environments' papers (paper-071
+        # is already preloaded as saved); reaching 3 total satisfies eval_sql.
+        for paper_id in ("paper-072", "paper-073"):
+            post(f"/data/microscholar-papers/{paper_id}/save")
+
     elif scenario_id == "microscholar-search-absolute-active":
         # Cite the target paper once it appears.
         post("/data/microscholar-papers/paper-target-1/cite")
+
+    elif scenario_id == "microscholar-snippet-absolute-active":
+        # Save paper-099, the new arrival whose snippet mentions 'downstream tasks'.
+        post("/data/microscholar-papers/paper-099/save")
 
     elif scenario_id == "microscholar-save-relative-active":
         # Save 3 D Jackson papers as they're indexed.

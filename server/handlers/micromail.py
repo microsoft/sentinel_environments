@@ -150,15 +150,22 @@ def process_event(session: Session, event: dict) -> None:
     etype = event["type"]
 
     if etype == "preload_emails":
-        email_ids = event.get("payload", {}).get("email_ids") or event.get("email_ids", [])
+        payload = event.get("payload", {})
+        email_ids = payload.get("email_ids") or event.get("email_ids", [])
         if email_ids == ["*"]:
             email_ids = list(MICROMAIL_EMAIL_CATALOG.keys())
+        unread_overrides = set(payload.get("unread_email_ids", []))
         for email_id in email_ids:
             row = _build_email_row(email_id, backdated=True)
             session.micromail_emails.append(row)
-            session.micromail_email_states[email_id] = _init_email_state(
+            state = _init_email_state(
                 email_id, MICROMAIL_EMAIL_CATALOG.get(email_id, {})
             )
+            # Preloaded emails default to read (they represent already-seen
+            # inbox state at session start). Scenarios can opt specific ids
+            # back to unread via `unread_email_ids`.
+            state["isRead"] = email_id not in unread_overrides
+            session.micromail_email_states[email_id] = state
         # Capture baseline after preload
         session.baseline_metrics = compute_current_metrics(session)
 

@@ -85,5 +85,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states es ON e.id=es.email_id WHERE e.isCC=1 AND es.folder='inbox') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_cc_count') + 3"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails e JOIN email_states es ON e.id=es.email_id WHERE e.id IN ('cc-03','cc-04','cc-05') AND es.isRead=1) >= 3"
 }

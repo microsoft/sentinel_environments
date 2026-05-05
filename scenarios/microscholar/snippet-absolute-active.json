@@ -2,7 +2,7 @@
   "id": "microscholar-snippet-absolute-active",
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
-  "prompt": "I'm looking for a paper that mentions 'downstream tasks' in its abstract -- you'll need to read through the abstracts of new papers as they come in, so let me know when you find one.",
+  "prompt": "I'm looking for a paper that mentions 'downstream tasks' in its abstract -- you'll need to read through the abstracts of new papers as they come in. When one does, save it to my library, then let me know.",
   "condition_at": 228.1,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -76,5 +76,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT EXISTS(SELECT 1 FROM papers WHERE LOWER(snippet) LIKE '%downstream tasks%')"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM paper_states ps JOIN papers p ON ps.paper_id = p.id WHERE ps.isSaved = 1 AND LOWER(p.snippet) LIKE '%downstream tasks%')"
 }

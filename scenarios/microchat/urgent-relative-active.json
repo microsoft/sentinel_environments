@@ -89,5 +89,5 @@
     "difficulty": "hard",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages WHERE isUrgent = 1) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key = 'baseline_urgent_total') + 3"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM messages m JOIN message_states s ON s.message_id = m.id WHERE m.id IN ('urg-dm-04','urg-grp-05','urg-dm-05','urg-dm-06') AND s.isRead = 1) >= 3"
 }

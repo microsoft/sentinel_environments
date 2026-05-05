@@ -398,6 +398,7 @@ async def init(payload: InitPayload) -> JSONResponse:
         condition_at=scaled_condition_at,
         speed_factor=sf,
         baseline_metrics={},
+        start_page=payload.start_page,
     )
 
     # Process t=0 preload events immediately
@@ -477,7 +478,10 @@ async def redirect(
     _run_task = asyncio.create_task(_run_auto(session))
 
     redirect_origin = frontend_url or f"{request.url.scheme}://{request.url.hostname}:5173"
-    url = f"{redirect_origin}/{session.environment}"
+    if session.start_page:
+        url = session.start_page.replace("HOST_ADDRESS", redirect_origin)
+    else:
+        url = f"{redirect_origin}/{session.environment}"
     return RedirectResponse(url=url, status_code=302)
 
 
@@ -1379,6 +1383,15 @@ async def data_gram_comment_post(post_id: str, body: MicrogramCommentRequest) ->
     }
     session.microgram_user_created_comments.append(comment)
     return {"success": True, "comment": comment}
+
+
+@app.post("/data/microgram-posts/{post_id}/view", response_model=SuccessResponse)
+async def data_gram_view_post(post_id: str) -> dict:
+    session = _require_session()
+    if post_id not in session.microgram_post_states:
+        raise HTTPException(status_code=404, detail=f"Post not found: {post_id}")
+    session.microgram_post_states[post_id]["isViewed"] = True
+    return {"success": True}
 
 
 @app.post("/data/microgram-stories/{story_id}/view", response_model=SuccessResponse)

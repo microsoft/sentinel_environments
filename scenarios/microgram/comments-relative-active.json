@@ -17,7 +17,8 @@
           "post-marathon-finish",
           "post-studio-session",
           "post-mountain-bike",
-          "post-street-food"
+          "post-street-food",
+          "post-book-club"
         ],
         "story_ids": [
           "story-security-ops-center",
@@ -91,5 +92,5 @@
     "difficulty": "hard",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(DISTINCT post_id) FROM comments WHERE authorId='user027') >= 5"
+  "eval_sql": "SELECT (SELECT COUNT(DISTINCT c.post_id) FROM comments c JOIN post_states ps ON ps.post_id = c.post_id WHERE c.authorId='user027' AND c.post_id IN ('post-skydiving','post-hiking-summit','post-temple-visit','post-aurora') AND ps.isViewed = 1) >= 3"
 }

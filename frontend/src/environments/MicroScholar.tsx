@@ -182,7 +182,12 @@ const MicroScholar = () => {
   const [, setActionCompletedAt] = useState<number | null>(null);
   const [showCiteModal, setShowCiteModal] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
-  const [savedPapers, setSavedPapers] = useState<string[]>([]);
+  // Derived from papers so it survives reloads — `papers[].isSaved` already
+  // reflects server state (with optimistic overrides applied by the hook).
+  const savedPapers = useMemo(
+    () => papers.filter((p) => p.isSaved).map((p) => p.id),
+    [papers]
+  );
   const [searchType, setSearchType] = useState<"articles" | "caselaw">("articles");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -354,11 +359,22 @@ const MicroScholar = () => {
   // Handlers
   // ---------------------------------------------------------------------------
 
+  // Assigning window.location.hash is a no-op when the value is unchanged,
+  // so browsers won't fire `hashchange` and the search wouldn't re-run.
+  // Dispatch the event manually in that case.
+  const setSearchHash = (next: string) => {
+    if (window.location.hash === `#${next}`) {
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    } else {
+      window.location.hash = next;
+    }
+  };
+
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault();
     const q = searchQuery.trim();
     if (!q) return;
-    window.location.hash = `q=${encodeURIComponent(q)}`;
+    setSearchHash(`q=${encodeURIComponent(q)}`);
   }, [searchQuery]);
 
   const handleAdvancedSearch = useCallback(() => {
@@ -371,7 +387,7 @@ const MicroScholar = () => {
     if (advPublication) p.set("pub",     advPublication);
     if (advDateStart)   p.set("y1",      advDateStart);
     if (advDateEnd)     p.set("y2",      advDateEnd);
-    window.location.hash = p.toString();
+    setSearchHash(p.toString());
     setShowAdvancedSearch(false);
   }, [advAllWords, advExactPhrase, advAtLeastOne, advWithout,
       advAuthor, advPublication, advDateStart, advDateEnd]);
@@ -391,9 +407,6 @@ const MicroScholar = () => {
   };
 
   const handleSavePaper = (paperId: string) => {
-    setSavedPapers((prev) =>
-      prev.includes(paperId) ? prev.filter((id) => id !== paperId) : [...prev, paperId]
-    );
     hookSavePaper(paperId);
   };
 

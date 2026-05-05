@@ -2,7 +2,7 @@
   "id": "micromail-body-december-relative-active",
   "environment": "micromail",
   "start_page": "HOST_ADDRESS/micromail",
-  "prompt": "I got an email earlier mentioning a December deadline. Let me know if another one comes in that also mentions December. Note: December might only appear in the email body, so you should check there as well.",
+  "prompt": "I got an email earlier mentioning a December deadline. Let me know if any new email arrives that also mentions the month of December. Note: December might only appear in the email body, so you should check there as well.",
   "condition_at": 370.68,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -77,5 +77,5 @@
     "difficulty": "medium",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM emails WHERE LOWER(body) LIKE '%december%') >= 2"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM emails e JOIN email_states es ON e.id = es.email_id WHERE e.id = 'ext-21' AND es.isRead = 1)"
 }

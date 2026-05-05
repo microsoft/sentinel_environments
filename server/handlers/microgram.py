@@ -69,7 +69,7 @@ def _build_post_row(post_id: str) -> dict:
 
 
 def _init_post_state(post_id: str) -> dict:
-    return {"isLiked": False, "isSaved": False}
+    return {"isLiked": False, "isSaved": False, "isViewed": False}
 
 
 def _build_story_row(story_id: str) -> dict:
@@ -317,10 +317,10 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
          for p in session.microgram_posts for c in p.get("comments", [])],
     )
 
-    conn.execute("CREATE TABLE post_states (post_id TEXT, isLiked INT, isSaved INT)")
+    conn.execute("CREATE TABLE post_states (post_id TEXT, isLiked INT, isSaved INT, isViewed INT)")
     conn.executemany(
-        "INSERT INTO post_states VALUES (?,?,?)",
-        [(pid, int(s.get("isLiked", False)), int(s.get("isSaved", False))) for pid, s in session.microgram_post_states.items()],
+        "INSERT INTO post_states VALUES (?,?,?,?)",
+        [(pid, int(s.get("isLiked", False)), int(s.get("isSaved", False)), int(s.get("isViewed", False))) for pid, s in session.microgram_post_states.items()],
     )
 
     conn.execute("CREATE TABLE stories (id TEXT, authorId TEXT, mediaType TEXT)")

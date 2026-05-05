@@ -152,10 +152,14 @@ def process_event(session: Session, event: dict) -> None:
         paper_ids = event.get("payload", {}).get("paper_ids", [])
         if paper_ids == ["*"]:
             paper_ids = list(MICROSCHOLAR_PAPER_CATALOG.keys())
+        saved_paper_ids = set(event.get("payload", {}).get("saved_paper_ids", []))
         for pid in paper_ids:
             row = _build_paper_row(pid)
             session.microscholar_papers.append(row)
-            session.microscholar_paper_states[pid] = _init_paper_state()
+            state = _init_paper_state()
+            if pid in saved_paper_ids:
+                state["isSaved"] = True
+            session.microscholar_paper_states[pid] = state
 
         # Load alerts
         alert_ids = event.get("payload", {}).get("alert_ids", [])
