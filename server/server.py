@@ -2092,6 +2092,15 @@ async def data_lendar_delete_event(event_id: str) -> dict:
     raise HTTPException(status_code=404, detail=f"Event not found: {event_id}")
 
 
+@app.post("/data/microlendar-events/{event_id}/view", response_model=SuccessResponse)
+async def data_lendar_view_event(event_id: str) -> dict:
+    session = _require_session()
+    if event_id not in session.microlendar_event_states:
+        raise HTTPException(status_code=404, detail=f"Event not found: {event_id}")
+    session.microlendar_event_states[event_id]["isViewed"] = True
+    return {"success": True}
+
+
 @app.post("/data/microlendar-tasks", response_model=CreateTaskResponse)
 async def data_lendar_create_task(body: MicrolendarCreateTaskRequest) -> dict:
     session = _require_session()

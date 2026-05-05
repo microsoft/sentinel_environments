@@ -77,5 +77,5 @@
     "difficulty": "hard",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM events e JOIN event_states s ON e.id=s.event_id WHERE s.deleted=0 AND e.is_task=0 AND LOWER(e.description) LIKE '%analytics%') >= 2"
+  "eval_sql": "SELECT (SELECT isViewed FROM event_states WHERE event_id='conflict02') = 1"
 }

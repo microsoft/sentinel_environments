@@ -177,7 +177,7 @@ def process_event(session: Session, event: dict) -> None:
             if raw is None:
                 continue
             session.microlendar_events.append(_build_event_row(raw))
-            session.microlendar_event_states[eid] = {}
+            session.microlendar_event_states[eid] = {"isViewed": False}
 
         # Load tasks -- "*" means all task items
         if task_ids == ["*"]:
@@ -202,7 +202,7 @@ def process_event(session: Session, event: dict) -> None:
         raw = MICROLENDAR_EVENT_CATALOG.get(event_id)
         if raw:
             session.microlendar_events.append(_build_event_row(raw))
-            session.microlendar_event_states[event_id] = {}
+            session.microlendar_event_states[event_id] = {"isViewed": False}
 
     elif etype == "new_task":
         task_id = event.get("payload", {}).get("event_id")
@@ -236,10 +236,11 @@ def materialize_to_sqlite(session: Session, conn: sqlite3.Connection) -> None:
         ],
     )
 
-    conn.execute("CREATE TABLE event_states (event_id TEXT, deleted INT)")
+    conn.execute("CREATE TABLE event_states (event_id TEXT, deleted INT, isViewed INT)")
     conn.executemany(
-        "INSERT INTO event_states VALUES (?,?)",
-        [(eid, int(s.get("deleted", False))) for eid, s in session.microlendar_event_states.items()],
+        "INSERT INTO event_states VALUES (?,?,?)",
+        [(eid, int(s.get("deleted", False)), int(s.get("isViewed", False)))
+         for eid, s in session.microlendar_event_states.items()],
     )
 
     conn.execute("CREATE TABLE tasks (id TEXT, title TEXT, dueDate TEXT)")

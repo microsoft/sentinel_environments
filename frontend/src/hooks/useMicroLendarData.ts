@@ -157,6 +157,14 @@ export function useMicroLendarData() {
     return res.json();
   }, []);
 
+  const viewEvent = useCallback(async (eventId: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`/api/data/microlendar-events/${eventId}/view`, {
+      method: "POST",
+    }).catch(() => null);
+    if (!res) return { success: false };
+    return res.json();
+  }, []);
+
   const createTask = useCallback(
     async (body: {
       title: string;
@@ -198,6 +206,7 @@ export function useMicroLendarData() {
     createEvent,
     updateEvent,
     deleteEvent,
+    viewEvent,
     createTask,
     toggleTask,
     deleteTask,
