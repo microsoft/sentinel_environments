@@ -40,6 +40,7 @@ NEEDS_USER_ACTION = {
     "microhood-rebalance-relative-active",
     "microhood-sell-order-absolute-active",
     "microhub-body-compliance-absolute-active",
+    "microgram-comments-relative-active",
     "microgram-follows-absolute-active",
     "microgram-likes-absolute-passive",
     "microfy-followers-absolute-active",
@@ -190,6 +191,11 @@ def simulate_actions(scenario_id):
     elif scenario_id == "microhub-body-compliance-absolute-active":
         # Comment on the compliance issue (i20).
         post("/data/microhub-issues/i20/comment", {"body": "test comment"})
+
+    elif scenario_id == "microgram-comments-relative-active":
+        # View 3 of the 4 new @ahall-bearing posts delivered by events.
+        for post_id in ("post-skydiving", "post-hiking-summit", "post-temple-visit"):
+            post(f"/data/microgram-posts/{post_id}/view")
 
     elif scenario_id == "microgram-follows-absolute-active":
         # Follow the 3 target creators.

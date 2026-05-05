@@ -310,6 +310,12 @@ export function useMicrogramData() {
     }).catch(() => {});
   }, []);
 
+  const viewPost = useCallback(async (postId: string) => {
+    await fetch(`/api/data/microgram-posts/${postId}/view`, {
+      method: "POST",
+    }).catch(() => {});
+  }, []);
+
   const viewStory = useCallback(async (storyId: string) => {
     await fetch(`/api/data/microgram-stories/${storyId}/view`, {
       method: "POST",
@@ -365,6 +371,7 @@ export function useMicrogramData() {
     likePost,
     savePost,
     commentOnPost,
+    viewPost,
     viewStory,
     followUser,
     readConversation,

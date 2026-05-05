@@ -1381,6 +1381,15 @@ async def data_gram_comment_post(post_id: str, body: MicrogramCommentRequest) ->
     return {"success": True, "comment": comment}
 
 
+@app.post("/data/microgram-posts/{post_id}/view", response_model=SuccessResponse)
+async def data_gram_view_post(post_id: str) -> dict:
+    session = _require_session()
+    if post_id not in session.microgram_post_states:
+        raise HTTPException(status_code=404, detail=f"Post not found: {post_id}")
+    session.microgram_post_states[post_id]["isViewed"] = True
+    return {"success": True}
+
+
 @app.post("/data/microgram-stories/{story_id}/view", response_model=SuccessResponse)
 async def data_gram_view_story(story_id: str) -> dict:
     session = _require_session()

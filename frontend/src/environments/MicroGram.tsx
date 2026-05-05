@@ -153,6 +153,7 @@ const MicroGram = () => {
     likePost,
     savePost,
     commentOnPost,
+    viewPost: apiViewPost,
     viewStory: apiViewStory,
     followUser,
     readConversation: apiReadConversation,
@@ -417,7 +418,8 @@ const MicroGram = () => {
   const openPostModal = useCallback((postId: string) => {
     setSelectedPost(postId);
     setShowPostModal(true);
-  }, []);
+    apiViewPost(postId);
+  }, [apiViewPost]);
 
   // Toast helper
   const showToast = useCallback((message: string, type: "info" | "success" | "error" = "info") => {
