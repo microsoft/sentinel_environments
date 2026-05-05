@@ -2,7 +2,7 @@
   "id": "microtube-comment-keyword-absolute-active",
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
-  "prompt": "I heard someone left a comment about Civilization on one of the gaming videos -- watch for new comments and let me know when you spot it.",
+  "prompt": "A new Civilization game was just released -- watch for new comments and let me know when you spot any mentioning Civilization.",
   "condition_at": 567.16,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
@@ -100,5 +100,5 @@
     "difficulty": "hard",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT EXISTS(SELECT 1 FROM comments WHERE content LIKE '%Civilization%')"
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM comments c JOIN watched_videos w ON c.video_id = w.video_id WHERE c.video_id = 'vid-gaming-01' AND c.content LIKE '%Civilization%')"
 }

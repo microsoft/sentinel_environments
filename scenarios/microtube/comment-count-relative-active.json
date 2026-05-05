@@ -15,7 +15,10 @@
           "vid-lifestyle-06",
           "vid-lifestyle-02",
           "vid-auto-01",
-          "vid-auto-02"
+          "vid-auto-02",
+          "vid-gaming-01",
+          "vid-gaming-02",
+          "vid-gaming-03"
         ],
         "channel_ids": [
           "ch-lifestyle",
@@ -26,6 +29,7 @@
           "cmt-01",
           "cmt-04"
         ],
+        "preload_age_offset_ms": 86400000,
         "subscribed_channel_ids": [
           "ch-lifestyle",
           "ch-auto",
@@ -85,5 +89,5 @@
     "difficulty": "medium",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM comments) + (SELECT COUNT(*) FROM user_created_comments) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_comment_count') + 3"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM comments) + (SELECT COUNT(*) FROM user_created_comments) >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_comment_count') + 3 AND (SELECT COUNT(*) FROM watched_videos WHERE video_id IN ('vid-gaming-01','vid-gaming-02','vid-gaming-03')) = 3"
 }

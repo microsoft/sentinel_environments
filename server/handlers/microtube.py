@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import time
 from typing import TYPE_CHECKING
 
 from server.catalogs import (
@@ -194,12 +195,16 @@ def process_event(session: Session, event: dict) -> None:
     if etype == "preload_videos":
         payload = event.get("payload", {})
 
+        preload_offset_ms = int(payload.get("preload_age_offset_ms", 0))
+        now_ms = int(time.time() * 1000)
+
         # Load videos
         video_ids = payload.get("video_ids", [])
         if video_ids == ["*"]:
             video_ids = list(MICROTUBE_VIDEO_CATALOG.keys())
         for vid in video_ids:
             row = _build_video_row(vid)
+            row["created_at"] = now_ms - (row["order"] * 30 * 60_000) - preload_offset_ms
             session.microtube_videos.append(row)
             session.microtube_video_states[vid] = _init_video_state()
 
@@ -226,6 +231,7 @@ def process_event(session: Session, event: dict) -> None:
             comment_ids = list(MICROTUBE_COMMENT_CATALOG.keys())
         for cmid in comment_ids:
             row = _build_comment_row(cmid)
+            row["created_at"] = now_ms - (row["order"] * 30 * 60_000) - preload_offset_ms
             session.microtube_comments.append(row)
 
         # Load notifications
@@ -259,6 +265,7 @@ def process_event(session: Session, event: dict) -> None:
         video_id = event.get("payload", {}).get("video_id")
         if video_id and video_id not in session.microtube_video_states:
             row = _build_video_row(video_id)
+            row["created_at"] = time.time() * 1000
             session.microtube_videos.append(row)
             session.microtube_video_states[video_id] = _init_video_state()
 
@@ -266,6 +273,7 @@ def process_event(session: Session, event: dict) -> None:
         comment_id = event.get("payload", {}).get("comment_id")
         if comment_id:
             row = _build_comment_row(comment_id)
+            row["created_at"] = time.time() * 1000
             session.microtube_comments.append(row)
 
     elif etype == "new_notification":

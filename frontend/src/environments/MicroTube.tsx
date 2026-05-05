@@ -294,6 +294,7 @@ interface CommentData {
   content: string;
   likes: number;
   timestamp: string;
+  createdAt?: number;
   replies?: CommentData[];
 }
 
@@ -372,10 +373,20 @@ const formatViews = (views: number): string => {
   return `${views} views`;
 };
 
-// Helper to get relative timestamp
-const getRelativeTimestamp = (order: number): string => {
-  const timestamps = ["1 day ago", "2 days ago", "3 days ago", "5 days ago", "1 week ago", "2 weeks ago"];
-  return timestamps[order % timestamps.length] || "1 week ago";
+const formatRelativeTime = (createdAtMs: number): string => {
+  const elapsedMs = Date.now() - createdAtMs;
+  const seconds = Math.floor(elapsedMs / 1000);
+  if (seconds < 60) return "Just now";
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+  const months = Math.floor(days / 30);
+  return `${months} month${months === 1 ? '' : 's'} ago`;
 };
 
 // Sidebar navigation items (element-008 to element-029 from interaction map)
@@ -468,14 +479,12 @@ export default function MicroTube() {
       let timestamp: string;
       if (v.publishedAt) {
         timestamp = v.publishedAt;
+      } else if (v.created_at) {
+        timestamp = formatRelativeTime(v.created_at);
       } else if (videoArrivalTimes.current.has(v.id)) {
-        const elapsedMs = Date.now() - videoArrivalTimes.current.get(v.id)!;
-        const elapsedMin = Math.floor(elapsedMs / 60000);
-        if (elapsedMin < 1) timestamp = "Just now";
-        else if (elapsedMin < 60) timestamp = `${elapsedMin} minute${elapsedMin === 1 ? '' : 's'} ago`;
-        else timestamp = `${Math.floor(elapsedMin / 60)} hour${Math.floor(elapsedMin / 60) === 1 ? '' : 's'} ago`;
+        timestamp = formatRelativeTime(videoArrivalTimes.current.get(v.id)!);
       } else {
-        timestamp = getRelativeTimestamp(v.order);
+        timestamp = "";
       }
 
       return {
@@ -495,12 +504,18 @@ export default function MicroTube() {
         category: v.category,
       };
     }).sort((a, b) => {
-      const aIsNew = videoArrivalTimes.current.has(a.id);
-      const bIsNew = videoArrivalTimes.current.has(b.id);
+      const aArrival = videoArrivalTimes.current.get(a.id);
+      const bArrival = videoArrivalTimes.current.get(b.id);
+      const aCreated = apiVideos.find(v => v.id === a.id)?.created_at;
+      const bCreated = apiVideos.find(v => v.id === b.id)?.created_at;
+      const aIsNew = aArrival !== undefined || aCreated !== undefined;
+      const bIsNew = bArrival !== undefined || bCreated !== undefined;
       if (aIsNew && !bIsNew) return -1;
       if (!aIsNew && bIsNew) return 1;
       if (aIsNew && bIsNew) {
-        return videoArrivalTimes.current.get(b.id)! - videoArrivalTimes.current.get(a.id)!;
+        const aTime = aArrival ?? aCreated ?? 0;
+        const bTime = bArrival ?? bCreated ?? 0;
+        return bTime - aTime;
       }
       return 0;
     }), [apiVideos]);
@@ -690,9 +705,23 @@ export default function MicroTube() {
   // Comments state -- fetched on demand from API
   const [loadedComments, setLoadedComments] = useState<CommentData[]>([]);
 
+  const [commentTick, setCommentTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setCommentTick(t => t + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  const displayComments = useMemo(() => {
+    void commentTick;
+    return loadedComments.map(c => ({
+      ...c,
+      timestamp: c.createdAt ? formatRelativeTime(c.createdAt) : c.timestamp,
+    }));
+  }, [loadedComments, commentTick]);
+
   const getCommentsForVideo = useCallback((videoId: string): CommentData[] => {
-    return loadedComments.filter(c => c.videoId === videoId);
-  }, [loadedComments]);
+    return displayComments.filter(c => c.videoId === videoId);
+  }, [displayComments]);
 
   useEffect(() => {
     const prev = document.title;
@@ -727,7 +756,8 @@ export default function MicroTube() {
           userAvatarUrl: c.userAvatar ? `/${c.userAvatar}` : undefined,
           content: c.content,
           likes: c.likes,
-          timestamp: 'Recently',
+          createdAt: c.created_at,
+          timestamp: c.created_at ? formatRelativeTime(c.created_at) : 'Recently',
         }));
         setLoadedComments(mapped);
       });
@@ -753,6 +783,7 @@ export default function MicroTube() {
         userAvatarUrl: selfAvatarUrl,
         content: content.trim(),
         likes: 0,
+        createdAt: Date.now(),
         timestamp: "Just now",
       };
       setLoadedComments(prev => [newCommentData, ...prev]);
@@ -837,6 +868,7 @@ export default function MicroTube() {
         || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined),
       content: content.trim(),
       likes: 0,
+      createdAt: Date.now(),
       timestamp: "Just now",
     };
     setState(prev => ({
@@ -906,6 +938,7 @@ export default function MicroTube() {
         || (selfChannel?.avatarSrc ? `/${selfChannel.avatarSrc}` : undefined),
       content: content.trim(),
       likes: 0,
+      createdAt: Date.now(),
       timestamp: "Just now",
     };
     setState(prev => ({
@@ -957,7 +990,8 @@ export default function MicroTube() {
         time: '',
         avatar: n.channelAvatarSrc ? `/${n.channelAvatarSrc}` : '#666',
         read: n.isRead,
-      }));
+      }))
+      .reverse();
   }, [apiNotifications]);
 
   // Search suggestions (element-003)
