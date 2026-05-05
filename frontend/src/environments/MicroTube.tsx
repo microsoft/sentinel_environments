@@ -1130,7 +1130,7 @@ export default function MicroTube() {
       setShowSettings(false);
       setShowSearchSuggestions(false);
       setShowVideoSettings(false);
-      setShowMoreMenu(false);
+      setMoreMenuVideoId(null);
       setShowShareModal(false);
     };
     window.addEventListener("keydown", handleEscape);
