@@ -59,7 +59,7 @@ NEEDS_USER_ACTION = {
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
     "microscholar-snippet-absolute-active",
-    "microtube-notifications-absolute-active",
+    "microtube-video-absolute-active",
     "microtube-views-relative-active",
     "microtube-comment-count-relative-active",
     "microtube-comment-keyword-absolute-active",
@@ -294,7 +294,7 @@ def simulate_actions(scenario_id):
         for paper_id in ("paper-067", "paper-068", "paper-069"):
             post(f"/data/microscholar-papers/{paper_id}/save")
 
-    elif scenario_id == "microtube-notifications-absolute-active":
+    elif scenario_id == "microtube-video-absolute-active":
         # Like the new Science Explained upload.
         post("/data/microtube-videos/vid-science-03/like")
 

@@ -711,13 +711,13 @@ export default function MicroTube() {
     return () => clearInterval(id);
   }, []);
 
-  const displayComments = useMemo(() =>
-    loadedComments.map(c => ({
+  const displayComments = useMemo(() => {
+    void commentTick;
+    return loadedComments.map(c => ({
       ...c,
       timestamp: c.createdAt ? formatRelativeTime(c.createdAt) : c.timestamp,
-    })),
-    [loadedComments, commentTick]
-  );
+    }));
+  }, [loadedComments, commentTick]);
 
   const getCommentsForVideo = useCallback((videoId: string): CommentData[] => {
     return displayComments.filter(c => c.videoId === videoId);
