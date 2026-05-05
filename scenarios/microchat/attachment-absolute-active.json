@@ -2,7 +2,7 @@
   "id": "microchat-attachment-absolute-active",
   "environment": "microchat",
   "start_page": "HOST_ADDRESS/microchat",
-  "prompt": "Let me know the moment someone sends me a file in any of my chats. You'll need to open each conversation to check -- attachments aren't visible from the sidebar.",
+  "prompt": "Let me know the moment someone sends me a new file in any of my chats. Attachments aren't visible from the sidebar, so you'll have to keep an eye on the various chats. I want to be sure I don't miss any important files that come in.",
   "condition_at": 192.63,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
