@@ -1,5 +1,5 @@
 {
-  "id": "microtube-notifications-absolute-active",
+  "id": "microtube-video-absolute-active",
   "environment": "microtube",
   "start_page": "HOST_ADDRESS/microtube",
   "prompt": "Keep an eye on Science Explained for me. If they post a new video, open it and like it.",

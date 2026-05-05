@@ -2422,6 +2422,7 @@ async def data_tube_post_comment(body: MicrotubeCommentRequest) -> dict:
         "userAvatar": "",
         "likes": 0,
         "replies": 0,
+        "created_at": time.time() * 1000,
     }
     session.microtube_user_created_comments.append(comment)
     return {"success": True, "comment": comment}

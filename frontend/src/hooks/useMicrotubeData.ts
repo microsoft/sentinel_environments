@@ -30,6 +30,7 @@ export interface ApiTubeVideo {
   category: string;
   task: string;
   order: number;
+  created_at?: number;
   // State
   isLiked: boolean;
   isDisliked: boolean;
@@ -62,6 +63,7 @@ export interface ApiTubeComment {
   replies: number;
   userName: string;
   userAvatar: string;
+  created_at?: number;
 }
 
 export interface ApiTubeNotification {

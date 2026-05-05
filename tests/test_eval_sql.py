@@ -61,6 +61,7 @@ NEEDS_USER_ACTION = {
     "microscholar-snippet-absolute-active",
     "microtube-notifications-absolute-active",
     "microtube-views-relative-active",
+    "microtube-comment-keyword-absolute-active"
 }
 
 # Scenarios exempt from negative testing (eval_sql passes from preload alone by design).
