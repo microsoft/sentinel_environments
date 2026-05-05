@@ -58,6 +58,7 @@ NEEDS_USER_ACTION = {
     "microscholar-abstract-relative-active",
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
+    "microscholar-snippet-absolute-active",
     "microtube-notifications-absolute-active",
     "microtube-views-relative-active",
 }
@@ -281,6 +282,10 @@ def simulate_actions(scenario_id):
     elif scenario_id == "microscholar-search-absolute-active":
         # Cite the target paper once it appears.
         post("/data/microscholar-papers/paper-target-1/cite")
+
+    elif scenario_id == "microscholar-snippet-absolute-active":
+        # Save paper-099, the new arrival whose snippet mentions 'downstream tasks'.
+        post("/data/microscholar-papers/paper-099/save")
 
     elif scenario_id == "microscholar-save-relative-active":
         # Save 3 D Jackson papers as they're indexed.
