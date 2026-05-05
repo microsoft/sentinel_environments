@@ -255,6 +255,7 @@ const MicroGram = () => {
   const [route, setRoute] = useHashRoute<NavSection>(["home", "explore", "create", "activity", "profile", "direct", "search"] as const, "home");
   const navSection = route.view;
   const selectedProfile = navSection === "profile" ? route.id : null;
+  const directUsername = navSection === "direct" ? route.id : null;
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState<number | null>(null);
@@ -544,9 +545,19 @@ const MicroGram = () => {
   }, [selectedDM, dmDraft]);
 
   const handleOpenDM = useCallback((dmId: string) => {
-    setSelectedDM(dmId);
-    apiReadConversation(dmId);
-  }, [apiReadConversation]);
+    const selfId = config?.selfUser?.id || "user000";
+    const dm = [...apiMessages, ...localConversations].find(c => c.id === dmId);
+    const otherId = dm?.participantIds.find(id => id !== selfId);
+    const username = otherId ? users[otherId]?.username : undefined;
+    if (username) {
+      setRoute("direct", username);
+    } else {
+      // Fallback for malformed conversations: keep the legacy direct selection
+      // so the user isn't stranded.
+      setSelectedDM(dmId);
+      apiReadConversation(dmId);
+    }
+  }, [apiMessages, localConversations, users, config?.selfUser?.id, setRoute, apiReadConversation]);
 
   const handleStartConversation = useCallback((userId: string) => {
     const selfId = config?.selfUser?.id || "user000";
@@ -609,6 +620,31 @@ const MicroGram = () => {
     () => [...apiMessages, ...localConversations],
     [apiMessages, localConversations]
   );
+
+  // Sync selectedDM from the URL hash. `#direct/<username>` opens (or auto-creates)
+  // the DM with that user; `#direct` alone clears the selection.
+  useEffect(() => {
+    if (navSection !== "direct") return;
+    if (!directUsername) {
+      setSelectedDM(null);
+      return;
+    }
+    const selfId = config?.selfUser?.id || "user000";
+    const targetUser = Object.values(users).find(u => u.username === directUsername);
+    if (!targetUser || targetUser.id === selfId) {
+      setSelectedDM(null);
+      return;
+    }
+    const existing = allConversations.find(c =>
+      c.participantIds.includes(targetUser.id) && c.participantIds.includes(selfId)
+    );
+    if (existing) {
+      setSelectedDM(existing.id);
+      apiReadConversation(existing.id);
+    } else {
+      handleStartConversation(targetUser.id);
+    }
+  }, [navSection, directUsername, users, allConversations, config?.selfUser?.id, apiReadConversation, handleStartConversation]);
 
   // Badge counts: new items that arrived after the user last viewed that section.
   const newDmCount = useMemo(
@@ -1137,7 +1173,7 @@ const MicroGram = () => {
         <div className="max-w-lg mx-auto h-[calc(100vh-120px)] flex flex-col">
           {/* Header */}
           <div className="p-4 border-b flex items-center gap-3">
-            <button onClick={() => setSelectedDM(null)} className="p-1 hover:bg-gray-100 rounded-full">
+            <button onClick={() => setRoute("direct")} className="p-1 hover:bg-gray-100 rounded-full">
               <ArrowLeft size={24} />
             </button>
             <button onClick={() => otherUserId && navigateToProfile(otherUserId)} className="flex items-center gap-3">
@@ -1861,7 +1897,7 @@ const MicroGram = () => {
                         return;
                       }
                       setShowNewDMModal(false);
-                      handleStartConversation(user.id);
+                      setRoute("direct", user.username);
                     }}
                     className="w-full p-3 flex items-center gap-3 hover:bg-gray-50"
                   >
