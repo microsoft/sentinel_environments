@@ -55,6 +55,7 @@ NEEDS_USER_ACTION = {
     "microfy-lyric-subway-absolute-active",
     "microfy-lyric-whiskey-relative-active",
     "microfy-new-releases-relative-passive",
+    "microscholar-abstract-relative-active",
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
     "microtube-notifications-absolute-active",
@@ -270,6 +271,12 @@ def simulate_actions(scenario_id):
         # Like 5 of the new trending tracks delivered by events.
         for track_id in ("track-031", "track-032", "track-033", "track-034", "track-035"):
             post(f"/data/microfy-tracks/{track_id}/like")
+
+    elif scenario_id == "microscholar-abstract-relative-active":
+        # Save 2 of the incoming 'unstructured environments' papers (paper-071
+        # is already preloaded as saved); reaching 3 total satisfies eval_sql.
+        for paper_id in ("paper-072", "paper-073"):
+            post(f"/data/microscholar-papers/{paper_id}/save")
 
     elif scenario_id == "microscholar-search-absolute-active":
         # Cite the target paper once it appears.
