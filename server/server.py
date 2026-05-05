@@ -398,6 +398,7 @@ async def init(payload: InitPayload) -> JSONResponse:
         condition_at=scaled_condition_at,
         speed_factor=sf,
         baseline_metrics={},
+        start_page=payload.start_page,
     )
 
     # Process t=0 preload events immediately
@@ -477,7 +478,10 @@ async def redirect(
     _run_task = asyncio.create_task(_run_auto(session))
 
     redirect_origin = frontend_url or f"{request.url.scheme}://{request.url.hostname}:5173"
-    url = f"{redirect_origin}/{session.environment}"
+    if session.start_page:
+        url = session.start_page.replace("HOST_ADDRESS", redirect_origin)
+    else:
+        url = f"{redirect_origin}/{session.environment}"
     return RedirectResponse(url=url, status_code=302)
 
 

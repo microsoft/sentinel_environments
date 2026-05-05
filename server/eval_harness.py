@@ -164,6 +164,7 @@ def run_task(config, task_json_file, task_result_folder):
         "condition_at": scenario.get("condition_at"),
         "speed_factor": speed_factor,
         "events": scenario["events"],
+        "start_page": scenario.get("start_page"),
     }
     resp = requests.post(f"{api_url}/init", json=init_payload)
     _raise_for_status_with_body(resp)

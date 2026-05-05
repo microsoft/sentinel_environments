@@ -35,6 +35,7 @@ class Session:
     contact_get_time: Optional[int] = None
     contact_post_time: Optional[int] = None
     contact_message: Optional[str] = None
+    start_page: Optional[str] = None
 
     # MicroMail
     micromail_emails: list[dict] = field(default_factory=list)

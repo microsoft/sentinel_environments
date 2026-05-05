@@ -28,6 +28,7 @@ class InitPayload(BaseModel):
     condition_at: Optional[float] = None
     speed_factor: float = 1.0
     events: list[EventPayload]
+    start_page: Optional[str] = None
 
     @field_validator("speed_factor")
     @classmethod
