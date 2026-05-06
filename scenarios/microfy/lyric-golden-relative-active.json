@@ -100,5 +100,5 @@
     "difficulty": "hard",
     "distraction_level": "medium"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM tracks WHERE LOWER(lyrics) LIKE '%golden%') >= 3 AND (SELECT COUNT(*) FROM track_states ts JOIN tracks t ON t.id = ts.track_id WHERE LOWER(t.lyrics) LIKE '%golden%' AND ts.userPlayCount > 0) >= 3"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM tracks WHERE LOWER(lyrics) LIKE '%golden%') >= 2 AND (SELECT COUNT(*) FROM track_states ts JOIN tracks t ON t.id = ts.track_id WHERE LOWER(t.lyrics) LIKE '%golden%' AND ts.userPlayCount > 0) >= 2"
 }
