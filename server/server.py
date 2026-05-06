@@ -2146,6 +2146,29 @@ async def data_lendar_delete_task(task_id: str) -> dict:
 # MicroScholar data endpoints
 # ---------------------------------------------------------------------------
 
+# Minimum fraction of query shingles that a paper's combined searchable text
+# must contain for the paper to be returned by basic search.
+SCHOLAR_SEARCH_MIN_SCORE = 0.3
+
+
+def _shingles(text: str, k: int = 3) -> set[str]:
+    """Length-k character shingles (stride 1) over a lowercased, space-padded
+    copy of `text`. Padding ensures any non-empty input yields at least one
+    valid k-shingle and that word-initial / word-final positions get distinct
+    shingles."""
+    s = " " + text.lower() + " "
+    if len(s) < k:
+        return set()
+    return {s[i : i + k] for i in range(len(s) - k + 1)}
+
+
+def _query_containment(query_shingles: set[str], doc_text: str) -> float:
+    """|Q ∩ D| / |Q|. Returns 0.0 when query has no shingles."""
+    if not query_shingles:
+        return 0.0
+    return len(query_shingles & _shingles(doc_text)) / len(query_shingles)
+
+
 @app.get("/data/microscholar-papers", response_model=MicroscholarPapersResponse)
 async def data_scholar_papers(
     search: Optional[str] = Query(None),
@@ -2219,14 +2242,20 @@ async def data_scholar_papers(
             except ValueError:
                 pass
     elif search and search.strip():
-        q = search.lower()
-        papers = [
-            p for p in papers
-            if q in p.get("title", "").lower()
-            or q in p.get("authors", "").lower()
-            or q in p.get("snippet", "").lower()
-            or q in p.get("source", "").lower()
-        ]
+        qs = _shingles(search.strip())
+        scored = []
+        for p in papers:
+            haystack = " ".join([
+                p.get("title", "") or "",
+                p.get("authors", "") or "",
+                p.get("snippet", "") or "",
+                p.get("source", "") or "",
+            ])
+            score = _query_containment(qs, haystack)
+            if score >= SCHOLAR_SEARCH_MIN_SCORE:
+                scored.append((score, p))
+        scored.sort(key=lambda sp: sp[0], reverse=True)
+        papers = [p for _, p in scored]
 
     return MicroscholarPapersResponse(papers=papers)
 
