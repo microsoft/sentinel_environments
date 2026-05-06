@@ -853,9 +853,9 @@ const MicroFy = () => {
             )}
 
             {/* Catalog Playlists (filtered by owner) */}
-            {catalogPlaylists.filter(p => p.ownerId === selfUser?.id).length > 0 && (
+            {catalogPlaylists.length > 0 && (
               <div className="space-y-2">
-                {catalogPlaylists.filter(p => p.ownerId === selfUser?.id).map((playlist) => (
+                {catalogPlaylists.map((playlist) => (
                   <div
                     key={playlist.id}
                     className={`flex items-center gap-3 p-2 hover:bg-[#282828] rounded transition cursor-pointer ${selectedPlaylistId === `public-${playlist.id}` ? 'bg-[#282828]' : ''}`}
@@ -868,7 +868,7 @@ const MicroFy = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <h4 className="text-white text-sm font-semibold truncate">{playlist.name}</h4>
-                      <p className="text-[#b3b3b3] text-xs">Playlist • {playlist.trackIds.length} songs</p>
+                      <p className="text-[#b3b3b3] text-xs">Playlist • {playlist.ownerId === selfUser?.id ? `${playlist.trackIds.length} songs` : playlist.ownerName}</p>
                     </div>
                   </div>
                 ))}
