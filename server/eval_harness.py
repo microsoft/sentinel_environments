@@ -177,9 +177,10 @@ def run_task(config, task_json_file, task_result_folder):
     task_prompt = scenario.get("prompt", "")
     task_prompt = (
         f"{task_prompt}\n\n"
-        f"You can reach me by submitting the form at {contact_url}. "
-        "Visit and submit this form *only once*, at the end of the task, to let me know "
-        "when the necessary conditions were met and/or actions were taken."
+        f"Once the necessary conditions are met and/or actions are taken, you can reach "
+        f"me by submitting the form at {contact_url}. Visit and submit this form *ONLY ONCE, "
+        f"AT THE END OF THE TASK*. If you visit this page too early, you will not be able to "
+        f"return, and the task will fail."
     )
     agent_cmd = config["agent_subprocess"]
     base_dir = str(Path(__file__).resolve().parent.parent)
