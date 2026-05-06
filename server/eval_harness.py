@@ -340,6 +340,15 @@ def cmd_grade(args):
         else:
             reaction_time = None
 
+        costs_file = results_file.parent / "costs.json"
+        prompt_tokens = completion_tokens = tool_calls = None
+        if costs_file.is_file():
+            with open(costs_file) as f:
+                costs = json.load(f)
+            prompt_tokens = costs.get("prompt_tokens")
+            completion_tokens = costs.get("completion_tokens")
+            tool_calls = costs.get("tool_calls")
+
         rows.append({
             "name": name,
             "evaluation_time": evaluation_time,
@@ -347,12 +356,18 @@ def cmd_grade(args):
             "stop_time": stop_time,
             "condition_at": condition_at,
             "reaction_time": reaction_time,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "tool_calls": tool_calls,
         })
 
     def fmt(v):
         return "" if v is None else str(v)
 
-    headers = ["name", "evaluation_time", "success", "stop_time", "condition_at", "reaction_time"]
+    headers = [
+        "name", "evaluation_time", "success", "stop_time", "condition_at",
+        "reaction_time", "prompt_tokens", "completion_tokens", "tool_calls",
+    ]
     widths = {h: len(h) for h in headers}
     for r in rows:
         for h in headers:
@@ -372,6 +387,14 @@ def cmd_grade(args):
     reaction_times = [r["reaction_time"] for r in successes if r["reaction_time"] is not None]
     avg_reaction = (sum(reaction_times) / len(reaction_times)) if reaction_times else None
 
+    def avg(field):
+        vals = [r[field] for r in rows if r[field] is not None]
+        return (sum(vals) / len(vals)) if vals else None
+
+    avg_prompt = avg("prompt_tokens")
+    avg_completion = avg("completion_tokens")
+    avg_tool_calls = avg("tool_calls")
+
     print()
     print(f"Total Tasks: {total}")
     print(f"Task Success Rate: {success_rate:.1%} ({len(successes)}/{total})")
@@ -379,6 +402,9 @@ def cmd_grade(args):
         print("Average Reaction Time: N/A")
     else:
         print(f"Average Reaction Time: {avg_reaction:.1f}s")
+    print(f"Average Prompt Tokens: {'N/A' if avg_prompt is None else f'{avg_prompt:.1f}'}")
+    print(f"Average Completion Tokens: {'N/A' if avg_completion is None else f'{avg_completion:.1f}'}")
+    print(f"Average Tool Calls: {'N/A' if avg_tool_calls is None else f'{avg_tool_calls:.1f}'}")
 
 
 def main():
