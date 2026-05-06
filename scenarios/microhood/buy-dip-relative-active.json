@@ -3,7 +3,7 @@
   "environment": "microhood",
   "start_page": "HOST_ADDRESS/microhood",
   "prompt": "Watch Voltaic Motors (VOLT) for me. If it drops more than 10% from its current price, buy 3 shares at market price and let me know.",
-  "condition_at": 348.67,
+  "condition_at": 265.95,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
   "events": [
@@ -31,8 +31,16 @@
         "price_waypoints": {
           "VOLT": [
             [
-              348.67,
-              222.0
+              315.0,
+              219.0
+            ],
+            [
+              360.0,
+              217.0
+            ],
+            [
+              405.0,
+              219.0
             ],
             [
               720.0,

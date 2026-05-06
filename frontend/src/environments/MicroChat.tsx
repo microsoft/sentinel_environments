@@ -956,6 +956,22 @@ const MicroChat = () => {
     }
   }, [apiMessages, markRead, setSelectedConversationId]);
 
+  // Auto-mark messages as read when they arrive in the currently-open conversation,
+  // not just when the conversation is first selected. Without this, messages that
+  // land in an already-open chat stay isRead=false server-side.
+  useEffect(() => {
+    if (!selectedConversationId) return;
+    for (const msg of apiMessages) {
+      if (
+        msg.conversationId === selectedConversationId &&
+        !msg.isRead &&
+        msg.senderId !== selfUser.id
+      ) {
+        markRead(msg.id);
+      }
+    }
+  }, [apiMessages, selectedConversationId, markRead, selfUser.id]);
+
   const handleSendMessage = useCallback(
     (e: FormEvent) => {
       e.preventDefault();

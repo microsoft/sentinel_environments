@@ -3,7 +3,7 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "Keep an eye on the trending feed today -- once at least 5 new tracks have dropped since I logged in, save them all to my Liked Songs.",
-  "condition_at": 10.69,
+  "condition_at": 45.0,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
   "events": [
@@ -60,35 +60,35 @@
       }
     },
     {
-      "time": 2.14,
+      "time": 9.0,
       "type": "new_track",
       "payload": {
         "track_id": "track-031"
       }
     },
     {
-      "time": 4.81,
+      "time": 20.25,
       "type": "new_track",
       "payload": {
         "track_id": "track-032"
       }
     },
     {
-      "time": 7.48,
+      "time": 31.5,
       "type": "new_track",
       "payload": {
         "track_id": "track-033"
       }
     },
     {
-      "time": 9.62,
+      "time": 40.5,
       "type": "new_track",
       "payload": {
         "track_id": "track-034"
       }
     },
     {
-      "time": 10.69,
+      "time": 45.0,
       "type": "new_track",
       "payload": {
         "track_id": "track-035"
