@@ -3,7 +3,7 @@
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "MicroFy is rolling out playlist updates today. Once you've seen at least 3 new playlists appear in the sidebar, let me know.",
-  "condition_at": 439.05,
+  "condition_at": 380.51,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
   "events": [
