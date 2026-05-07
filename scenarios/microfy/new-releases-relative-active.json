@@ -1,9 +1,9 @@
 {
-  "id": "microfy-likes-absolute-passive",
+  "id": "microfy-new-releases-relative-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
-  "prompt": "Keep checking for new trending songs. Like the next 4 new songs to appear.",
-  "condition_at": 92.37,
+  "prompt": "Keep an eye on the trending feed today -- once at least 5 new tracks have dropped since I logged in, save them all to my Liked Songs.",
+  "condition_at": 45.0,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,
   "events": [
@@ -35,7 +35,8 @@
           "track-021",
           "track-022",
           "track-023",
-          "track-024"
+          "track-024",
+          "track-025"
         ],
         "playlist_ids": [
           "playlist-001",
@@ -47,60 +48,68 @@
           "mood-002",
           "mood-003",
           "mood-004"
+        ],
+        "liked_track_ids": [
+          "track-004",
+          "track-011"
+        ],
+        "followed_artist_ids": [
+          "artist-002",
+          "artist-008"
         ]
       }
     },
     {
-      "time": 23.09,
+      "time": 9.0,
       "type": "new_track",
       "payload": {
-        "track_id": "track-041"
+        "track_id": "track-031"
       }
     },
     {
-      "time": 46.19,
+      "time": 20.25,
       "type": "new_track",
       "payload": {
-        "track_id": "track-042"
+        "track_id": "track-032"
       }
     },
     {
-      "time": 69.28,
+      "time": 31.5,
       "type": "new_track",
       "payload": {
-        "track_id": "track-043"
+        "track_id": "track-033"
       }
     },
     {
-      "time": 92.37,
+      "time": 40.5,
       "type": "new_track",
       "payload": {
-        "track_id": "track-044"
+        "track_id": "track-034"
       }
     },
     {
-      "time": 406.18,
+      "time": 45.0,
       "type": "new_track",
       "payload": {
-        "track_id": "track-045"
+        "track_id": "track-035"
       }
     },
     {
-      "time": 720.0,
+      "time": 483.56,
       "type": "new_track",
       "payload": {
-        "track_id": "track-046"
+        "track_id": "track-036"
       }
     }
   ],
   "annotator_notes": "",
   "taxonomy": {
     "criteria": "objective",
-    "milestone_type": "absolute",
+    "milestone_type": "relative",
     "event_persistence": "persistent",
-    "monitoring_approach": "passive",
+    "monitoring_approach": "active",
     "difficulty": "easy",
     "distraction_level": "low"
   },
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM track_states WHERE track_id IN ('track-041','track-042','track-043','track-044') AND isLiked=1) >= 4"
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM tracks) >= CAST((SELECT value FROM session_meta WHERE key='baseline_track_count') AS INT) + 5 AND (SELECT COUNT(*) FROM track_states WHERE isLiked = 1) >= CAST((SELECT value FROM session_meta WHERE key='baseline_liked_count') AS INT) + 5"
 }

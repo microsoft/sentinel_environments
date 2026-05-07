@@ -52,14 +52,14 @@ NEEDS_USER_ACTION = {
     "microgram-comments-relative-active",
     "microgram-dm-keyword-absolute-active",
     "microgram-follows-absolute-active",
-    "microgram-likes-absolute-passive",
+    "microgram-likes-absolute-active",
     "microfy-followers-absolute-active",
-    "microfy-likes-absolute-passive",
-    "microfy-plays-absolute-passive",
+    "microfy-likes-absolute-active",
+    "microfy-plays-absolute-active",
     "microfy-lyric-golden-relative-active",
     "microfy-lyric-subway-absolute-active",
     "microfy-lyric-whiskey-relative-active",
-    "microfy-new-releases-relative-passive",
+    "microfy-new-releases-relative-active",
     "microscholar-abstract-relative-active",
     "microscholar-search-absolute-active",
     "microscholar-save-relative-active",
@@ -257,7 +257,7 @@ def simulate_actions(scenario_id):
         for user_id in ("user097", "user098", "user099"):
             post(f"/data/microgram-users/{user_id}/follow")
 
-    elif scenario_id == "microgram-likes-absolute-passive":
+    elif scenario_id == "microgram-likes-absolute-active":
         # Like the 3 target posts that arrive.
         for post_id in (
             "post-phoenix-camelback-mountain-sunrise",
@@ -271,12 +271,12 @@ def simulate_actions(scenario_id):
         for artist_id in ("artist-040", "artist-041", "artist-042", "artist-043"):
             post(f"/data/microfy-artists/{artist_id}/follow")
 
-    elif scenario_id == "microfy-likes-absolute-passive":
+    elif scenario_id == "microfy-likes-absolute-active":
         # Like the 4 target tracks as they arrive.
         for track_id in ("track-041", "track-042", "track-043", "track-044"):
             post(f"/data/microfy-tracks/{track_id}/like")
 
-    elif scenario_id == "microfy-plays-absolute-passive":
+    elif scenario_id == "microfy-plays-absolute-active":
         # Play the first 3 new tracks that arrive.
         for track_id in ("track-061", "track-062", "track-063"):
             post(f"/data/microfy-tracks/{track_id}/play")
@@ -295,7 +295,7 @@ def simulate_actions(scenario_id):
         # Like the new track whose lyrics mention 'whiskey'.
         post("/data/microfy-tracks/track-020/like")
 
-    elif scenario_id == "microfy-new-releases-relative-passive":
+    elif scenario_id == "microfy-new-releases-relative-active":
         # Like 5 of the new trending tracks delivered by events.
         for track_id in ("track-031", "track-032", "track-033", "track-034", "track-035"):
             post(f"/data/microfy-tracks/{track_id}/like")

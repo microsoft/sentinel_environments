@@ -1,5 +1,5 @@
 {
-  "id": "microgram-likes-absolute-passive",
+  "id": "microgram-likes-absolute-active",
   "environment": "microgram",
   "start_page": "HOST_ADDRESS/microgram",
   "prompt": "Keep an eye on my feed and like the next 3 new posts that show up.",
@@ -79,7 +79,7 @@
     "criteria": "objective",
     "milestone_type": "absolute",
     "event_persistence": "persistent",
-    "monitoring_approach": "passive",
+    "monitoring_approach": "active",
     "difficulty": "easy",
     "distraction_level": "low"
   },

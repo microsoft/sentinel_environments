@@ -1,5 +1,5 @@
 {
-  "id": "microfy-plays-absolute-passive",
+  "id": "microfy-plays-absolute-active",
   "environment": "microfy",
   "start_page": "HOST_ADDRESS/microfy",
   "prompt": "Keep checking for new songs in trending. Play the next 3 new songs to appear.",
@@ -94,7 +94,7 @@
     "criteria": "objective",
     "milestone_type": "absolute",
     "event_persistence": "persistent",
-    "monitoring_approach": "passive",
+    "monitoring_approach": "active",
     "difficulty": "easy",
     "distraction_level": "low"
   },
