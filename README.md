@@ -370,7 +370,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 Citation information will be provided upon publication.
 
-## 👥 Authors
+## Authors
 
 - Matheus Kunzler Maldaner -- [GitHub](https://github.com/matheusmaldaner)
 - Adam Fourney -- [GitHub](https://github.com/afourney)
