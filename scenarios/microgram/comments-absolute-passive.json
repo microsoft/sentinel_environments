@@ -1,0 +1,81 @@
+{
+  "id": "microgram-comments-absolute-passive",
+  "environment": "microgram",
+  "start_page": "HOST_ADDRESS/microgram",
+  "prompt": "Let me know when any post in my feed gets 4 or more comments.",
+  "condition_at": 350.12,
+  "event_timeline_end": 720.0,
+  "kill_at": 630.0,
+  "events": [
+    {
+      "time": 0.0,
+      "type": "preload_posts",
+      "payload": {
+        "post_ids": [
+          "post-sailing-sunset",
+          "post-beach-sunrise",
+          "post-camping-tent",
+          "post-pottery-wheel",
+          "post-book-club",
+          "post-skateboard-park"
+        ],
+        "story_ids": [
+          "story-coding-night-setup",
+          "story-social-media-analytics"
+        ],
+        "message_ids": [
+          "dm-4"
+        ],
+        "activity_ids": [
+          "act-9",
+          "act-10"
+        ]
+      }
+    },
+    {
+      "time": 95.32,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-mountain-bike"
+      }
+    },
+    {
+      "time": 210.47,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-studio-session"
+      }
+    },
+    {
+      "time": 350.12,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-gaming-setup"
+      }
+    },
+    {
+      "time": 510.85,
+      "type": "new_post",
+      "payload": {
+        "post_id": "post-code-conference"
+      }
+    },
+    {
+      "time": 615.93,
+      "type": "new_activity",
+      "payload": {
+        "activity_id": "act-15"
+      }
+    }
+  ],
+  "annotator_notes": "",
+  "taxonomy": {
+    "criteria": "objective",
+    "milestone_type": "absolute",
+    "event_persistence": "persistent",
+    "monitoring_approach": "passive",
+    "difficulty": "easy",
+    "distraction_level": "low"
+  },
+  "eval_sql": "SELECT EXISTS(SELECT 1 FROM comments GROUP BY post_id HAVING COUNT(*) >= 4)"
+}

@@ -3,6 +3,7 @@
 # flow: enumerate all scenario json files -> create result folders -> call run_task() for each
 # example: python -m server.eval_harness my_run --config eval_config.yaml
 import argparse
+import csv
 import json
 import os
 import shlex
@@ -60,51 +61,22 @@ def load_config(config_path):
         return yaml.safe_load(f) or {}
 
 
-def _discover_apps():
-    """Return the sorted list of app names (subdirs of scenarios/ that contain JSON)."""
-    scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
-    return sorted(
-        p.name for p in scenarios_root.iterdir()
-        if p.is_dir() and any(p.glob("*.json"))
-    )
-
-
-def _parse_app_subset(raw):
-    """Parse the --app-subset CLI value into a set of app names, or None for 'all'.
-
-    Accepts comma-separated values, tolerates whitespace, and treats an omitted
-    flag, an empty string, or the literal 'all' as no filter.
-    """
-    if raw is None:
-        return None
-    parts = {s.strip() for s in raw.split(",") if s.strip()}
-    if not parts or parts == {"all"}:
-        return None
-    valid = set(_discover_apps())
-    unknown = parts - valid
-    if unknown:
-        raise SystemExit(
-            f"Unknown app(s) in --app-subset: {sorted(unknown)}. "
-            f"Valid apps: {sorted(valid)}"
-        )
-    return parts
-
-
-def discover_tasks(app_subset=None):
+def discover_tasks(name_filter=None):
     """Yield (environment, scenario_id, path) for every scenario JSON file.
 
-    If app_subset is a set of app names, only those apps are yielded; None means all.
+    If name_filter is a lowercased substring, only scenarios whose id contains
+    it are yielded; None means all.
     """
     scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
     for path in sorted(scenarios_root.glob("*/*.json")):
         if path.name == "dev.json":
             continue
-        if app_subset is not None and path.parent.name not in app_subset:
-            continue
         with open(path) as f:
             scenario = json.load(f)
         if not scenario.get("prompt"):
             print(f"Skipping {path}: empty or missing prompt", file=sys.stderr, flush=True)
+            continue
+        if name_filter is not None and name_filter not in scenario["id"].lower():
             continue
         yield scenario["environment"], scenario["id"], path
 
@@ -290,10 +262,10 @@ def cmd_run(args):
         config["frontend_url"] = args.frontend_url
     results_root = Path("results") / args.run_name
 
-    app_subset = _parse_app_subset(args.app_subset)
-    tasks = list(discover_tasks(app_subset=app_subset))
-    if app_subset is not None:
-        print(f"Filtering to apps: {sorted(app_subset)}", flush=True)
+    name_filter = args.filter.lower() if args.filter else None
+    tasks = list(discover_tasks(name_filter=name_filter))
+    if name_filter is not None:
+        print(f"Filtering to tasks containing: {args.filter!r}", flush=True)
     print(f"Found {len(tasks)} tasks. Results -> {results_root}", flush=True)
 
     for environment, scenario_id, task_path in tasks:
@@ -320,9 +292,13 @@ def cmd_grade(args):
     if not results_root.is_dir():
         raise SystemExit(f"Results directory not found: {results_root}")
 
+    name_filter = args.filter.lower() if args.filter else None
+
     rows = []
     for results_file in sorted(results_root.glob("*/*/results.json")):
         name = results_file.parent.name
+        if name_filter is not None and name_filter not in name.lower():
+            continue
         with open(results_file) as f:
             data = json.load(f)
         success = bool(data.get("success"))
@@ -362,6 +338,9 @@ def cmd_grade(args):
             "tool_calls": tool_calls,
         })
 
+    if name_filter is not None and not rows:
+        raise SystemExit(f"No tasks in {results_root} matched --filter {args.filter!r}.")
+
     def fmt(v):
         return "" if v is None else str(v)
 
@@ -369,18 +348,6 @@ def cmd_grade(args):
         "name", "evaluation_time", "success", "stop_time", "condition_at",
         "reaction_time", "prompt_tokens", "completion_tokens", "tool_calls",
     ]
-    widths = {h: len(h) for h in headers}
-    for r in rows:
-        for h in headers:
-            widths[h] = max(widths[h], len(fmt(r[h])))
-
-    def print_row(vals):
-        print(" | ".join(fmt(v).ljust(widths[h]) for h, v in zip(headers, vals)))
-
-    print_row(headers)
-    print("-+-".join("-" * widths[h] for h in headers))
-    for r in rows:
-        print_row([r[h] for h in headers])
 
     total = len(rows)
     successes = [r for r in rows if r["success"]]
@@ -395,6 +362,38 @@ def cmd_grade(args):
     avg_prompt = avg("prompt_tokens")
     avg_completion = avg("completion_tokens")
     avg_tool_calls = avg("tool_calls")
+
+    if args.csv:
+        writer = csv.writer(sys.stdout)
+        writer.writerow(headers)
+        for r in rows:
+            writer.writerow([fmt(r[h]) for h in headers])
+        sys.stdout.write("\n")
+        summary = [
+            ("Total Tasks", total),
+            ("Successes", len(successes)),
+            ("Task Success Rate", f"{success_rate:.4f}"),
+            ("Average Reaction Time", "" if avg_reaction is None else f"{avg_reaction:.1f}"),
+            ("Average Prompt Tokens", "" if avg_prompt is None else f"{avg_prompt:.1f}"),
+            ("Average Completion Tokens", "" if avg_completion is None else f"{avg_completion:.1f}"),
+            ("Average Tool Calls", "" if avg_tool_calls is None else f"{avg_tool_calls:.1f}"),
+        ]
+        for key, value in summary:
+            writer.writerow([key, value])
+        return
+
+    widths = {h: len(h) for h in headers}
+    for r in rows:
+        for h in headers:
+            widths[h] = max(widths[h], len(fmt(r[h])))
+
+    def print_row(vals):
+        print(" | ".join(fmt(v).ljust(widths[h]) for h, v in zip(headers, vals)))
+
+    print_row(headers)
+    print("-+-".join("-" * widths[h] for h in headers))
+    for r in rows:
+        print_row([r[h] for h in headers])
 
     print()
     print(f"Total Tasks: {total}")
@@ -418,17 +417,24 @@ def main():
     p_run.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
     p_run.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
     p_run.add_argument(
-        "--app-subset",
+        "--filter",
         default=None,
-        help=(
-            "Comma-separated list of apps to run (e.g. 'micromail,microlendar'). "
-            "Whitespace tolerated. Default: all apps."
-        ),
+        help="Optional case-insensitive substring; only scenarios whose id contains it are run.",
     )
     p_run.set_defaults(func=cmd_run)
 
     p_grade = sub.add_parser("grade", help="Summarize results from a previous run")
     p_grade.add_argument("run_name", help="Name of the evaluation run to grade")
+    p_grade.add_argument(
+        "--filter",
+        default=None,
+        help="Optional case-insensitive substring; only tasks whose name contains it are graded.",
+    )
+    p_grade.add_argument(
+        "--csv",
+        action="store_true",
+        help="Render output as CSV (rows, blank line, then key,value summary) instead of the default table.",
+    )
     p_grade.set_defaults(func=cmd_grade)
 
     args = parser.parse_args()
