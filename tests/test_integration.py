@@ -431,13 +431,13 @@ def test_microdin():
 # Test: MicroFy
 # ---------------------------------------------------------------------------
 def test_microfy():
-    t = IntegrationResult("MicroFy (microfy-likes-absolute-passive)")
+    t = IntegrationResult("MicroFy (microfy-likes-absolute-active)")
     ensure_closed()
 
     try:
         # 1. Load scenario
-        scenario = get("/scenarios/microfy-likes-absolute-passive")
-        t.check("Load scenario", scenario["id"] == "microfy-likes-absolute-passive")
+        scenario = get("/scenarios/microfy-likes-absolute-active")
+        t.check("Load scenario", scenario["id"] == "microfy-likes-absolute-active")
 
         # 2. Init
         body = build_init_body(scenario)
@@ -533,13 +533,13 @@ def test_microfy():
 # Test: MicroGram
 # ---------------------------------------------------------------------------
 def test_microgram():
-    t = IntegrationResult("MicroGram (microgram-likes-absolute-passive)")
+    t = IntegrationResult("MicroGram (microgram-likes-absolute-active)")
     ensure_closed()
 
     try:
         # 1. Load scenario
-        scenario = get("/scenarios/microgram-likes-absolute-passive")
-        t.check("Load scenario", scenario["id"] == "microgram-likes-absolute-passive")
+        scenario = get("/scenarios/microgram-likes-absolute-active")
+        t.check("Load scenario", scenario["id"] == "microgram-likes-absolute-active")
 
         # 2. Init
         body = build_init_body(scenario)
