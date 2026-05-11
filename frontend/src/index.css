@@ -17,6 +17,11 @@
   animation: slide-up 0.3s ease-out;
 }
 
+@keyframes microgram-story-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
 @keyframes slide-down {
   from {
     opacity: 0;
