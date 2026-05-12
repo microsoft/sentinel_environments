@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Suspense } from "react";
 import Desktop from "../pages/Desktop";
-import LandingBento from "../pages/LandingBento";
+import Landing from "../pages/Landing";
 import NotFound from "../pages/NotFound";
 import RouteErrorBoundary from "../components/RouteErrorBoundary";
 import { routes } from "./routes";
@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/",
-    element: <LandingBento />,
+    element: <Landing />,
     errorElement: <RouteErrorBoundary />,
   },
   ...uniqueRoutableRoutes
