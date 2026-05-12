@@ -14,8 +14,6 @@
 
 **Sentinel Environments** is a benchmark for evaluating AI agents on **long-horizon monitoring tasks**, addressing a critical gap in current evaluations by testing whether agents can *wait*, *monitor*, and *act* over extended periods of time.
 
-> **Status**: Under active development. Part of ongoing research on enabling agents to complete long-duration tasks.
-
 ## Motivation
 
 Modern Browser Use Agents (BUA) and Computer Use Agents (CUA) excel at short-horizon tasks, but their performance declines sharply on tasks requiring continual monitoring. Recent studies show that while state-of-the-art models succeed in nearly all tasks taking humans less than four minutes, their success rate falls below 10% for tasks exceeding four hours. This decay follows a constant "hazard rate," meaning the probability of success decreases exponentially with task duration.
@@ -31,7 +29,7 @@ This benchmark provides a controlled testbed to evaluate these failure modes and
 
 ## Benchmark Structure
 
-The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with a set of monitoring scenarios. Every scenario shares a fixed event-timeline budget; per-scenario variation comes from a randomized `condition_at` target and a runtime `speed_factor` that scales wall-clock time. The target matrix is **8 scenarios per environment** (80 total when fully populated); see [Task Dimensions](#task-dimensions) below.
+The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with a set of monitoring scenarios. Every scenario shares a fixed event-timeline budget, and per-scenario variation comes from a randomized `condition_at` target and a runtime `speed_factor` that scales wall-clock time. The target matrix is **10 scenarios per environment** (100 total when fully populated); see [Task Dimensions](#task-dimensions) below.
 
 ### Environments
 
@@ -52,7 +50,7 @@ The benchmark consists of **10 high-fidelity web-app environment replicas** (Mic
 
 ### Task Dimensions
 
-Each environment targets **8 scenarios** via scenario JSON files, spanning the full `criteria × activity` matrix with two distinct monitoring targets per cell:
+Each environment targets **10 scenarios** via scenario JSON files. 8 are classified from the taxonomy below, plus 2 no-op tasks. The 8 tasks span the full `criteria × activity` matrix with two distinct monitoring targets per cell:
 
 ```
 4 cells × 2 targets per cell = 8 scenarios per environment
@@ -60,12 +58,14 @@ Each environment targets **8 scenarios** via scenario JSON files, spanning the f
 
 | Dimension | Options | Description |
 |-----------|---------|-------------|
-| **Criteria** | `absolute` / `relative` | Fixed threshold vs. threshold relative to baseline at task start |
-| **Activity** | `passive` / `active` | Condition visible from the list/summary view (passive) vs. condition hidden inside detail views, requiring the agent to click into individual items each poll cycle (active). Examples of "active" content: email body past the 140-char preview, song lyrics, PR review comments, paper abstracts. |
+| **Criteria** | `absolute` / `relative` | Fixed threshold vs. threshold relative to baseline at task start. Examples of "relative" threshold: A repository has 10 more stars, a new email appears |
+| **Activity** | `passive` / `active` | The condition is visible from the list/summary view (passive) vs. the condition is hidden inside detail views, requiring the agent to click into individual items each poll cycle (active). Examples of "active" content: email body past the 140-char preview, song lyrics, PR review comments, paper abstracts. |
 
-The four cells are `passive-absolute`, `passive-relative`, `active-absolute`, `active-relative`. Each is populated with two distinct environment-specific monitoring targets (e.g., MicroMail's `active-absolute` pair is `body-keyword` (keyword past the 140-char body preview) and `attachment-name` (attachment filename only visible when the email is opened)).
+The four cells are `passive-absolute`, `passive-relative`, `active-absolute`, `active-relative`. We populate each with two distinct environment-specific monitoring targets (e.g., MicroMail's `active-absolute` pair is `body-keyword` (keyword past the 140-char body preview) and `attachment-name` (attachment filename only visible when the email is opened)).
 
-Scenario filenames follow `<target>-<criteria>-<activity>.json` under `scenarios/<env>/`. Each scenario's internal `id` is env-prefixed (e.g. `micromail-body-keyword-absolute-active`). Present-day scenario counts per environment are uneven while the matrix is still being filled out.
+We also include two no-op scenarios per environment. These are scenarios where the monitored condition never trigeers. These test false-positive resistance: a correct agent should wait the full duration and report nothing.
+
+Scenario filenames follow `<target>-<criteria>-<activity>.json` under `scenarios/<env>/`. Each scenario's internal `id` is env-prefixed (e.g. `micromail-body-keyword-absolute-active`). No-op scenarios follow `<target>-<criteria>-noop.json`. 
 
 ### Timing
 
