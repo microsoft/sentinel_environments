@@ -333,15 +333,16 @@ const MicroGram = () => {
   // Snapshot the sort the first time a story opens; otherwise polling marks
   // the current story viewed, the memo re-sorts viewed-last, and the visible
   // story shifts mid-view.
-  const sortStories = (list: typeof stories) =>
-    list.slice().sort((a, b) => {
-      const aViewed = a.isViewed ? 1 : 0;
-      const bViewed = b.isViewed ? 1 : 0;
-      if (aViewed !== bViewed) return aViewed - bViewed;
-      return (b.order || 0) - (a.order || 0);
-    });
-
-  const activeStories = useMemo(() => sortStories(stories), [stories]);
+  const activeStories = useMemo(
+    () =>
+      stories.slice().sort((a, b) => {
+        const aViewed = a.isViewed ? 1 : 0;
+        const bViewed = b.isViewed ? 1 : 0;
+        if (aViewed !== bViewed) return aViewed - bViewed;
+        return (b.order || 0) - (a.order || 0);
+      }),
+    [stories]
+  );
 
   const storyOrderSnapshotRef = useRef<typeof stories | null>(null);
   const viewerStories = useMemo(() => {
