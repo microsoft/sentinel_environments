@@ -71,8 +71,8 @@ Scenario filenames follow `<target>-<criteria>-<activity>.json` under `scenarios
 
 All tasks are **time-based**. Each benchmark scenario carries three timing fields (all in simulation-seconds):
 
-- **`condition_at`** -- the earliest sim-time at which the success condition can become true. Randomized per scenario in `[10, 600]`, deterministic from `scenario_id` (so adding a new scenario never reshuffles existing ones). Tasks cannot complete before this point.
-- **`kill_at`** -- sim-time at which the harness terminates the agent's run. Constant across all scenarios (`630`). The agent's observable window is `[0, kill_at]`.
+- **`condition_at`** -- the earliest simulation-time at which the success condition can become true. This is randomized per scenario in the range of `[10, 600]`, deterministic from `scenario_id` (so adding a new scenario never reshuffles existing ones). Tasks cannot complete before this point.
+- **`kill_at`** -- simulation-time at which the harness terminates the agent's run. Constant across all scenarios (`630`). The agent's observable window is `[0, kill_at]`.
 - **`event_timeline_end`** -- right-edge of the authored event timeline (`720`). Constant across all scenarios.
 
 Invariant: `0 < condition_at <= kill_at <= event_timeline_end`. Enforced by `tests/test_scenario_schema.py`.
@@ -114,15 +114,16 @@ The `eval_sql` is orthogonal to passive/active: it always checks the monitored c
 
 | Metric | Description |
 |--------|-------------|
-| **Accuracy** | Binary: did the agent achieve the desired state? (eval_sql returns true) |
+| **Task completion** | Binary: did the agent achieve the desired state? (eval_sql returns true) |
 | **Elapsed Time** | Wall-clock time until termination (agent stop or timeout) |
-| **Cost** | Token usage and API costs |
+| **Tokens / Task** | Token usage per task (API cost dependent on model under evaluation) |
+
 
 ### Anti-Gaming Measures
 
-- **Server-side state**: All task state is managed by the API server, not exposed to the agent
-- **Deterministic timing**: Events fire at fixed sim-times; `condition_at` is randomized per scenario (seeded by `scenario_id`) so a single "sleep until t=X" strategy cannot win the suite
-- **SQL-based evaluation**: Success is determined by `eval_sql` queries against materialized session state
+- **Server-side state**: All task state is managed by the API server, and is not exposed to the agent. 
+- **Deterministic timing**: Events fire at fixed simulation-times, and we randomize `condition_at` per scenario (seeded by `scenario_id`) so a single "sleep until t=X" strategy cannot win the benchmark. 
+- **SQL-based evaluation**: Success is determined by `eval_sql` queries against materialized session state. 
 
 ### Recommended Dataset Splits
 
@@ -130,11 +131,11 @@ For system development, split at the **environment level**:
 
 | Split | Environments | Scenarios | Purpose |
 |-------|--------------|-----------|---------|
-| Reporting | 7 | 56 | Main results |
-| Validation | 2 | 16 | System selection/tuning |
-| Held-out Test | 1 | 8 | Blind evaluation (not released) |
+| Reporting | 7 | 70 | Main results |
+| Validation | 2 | 20 | System selection/tuning |
+| Held-out Test | 1 | 10 | Blind evaluation (not released) |
 
-Scenario counts assume the 8-per-env target matrix. Wall-clock scaling comes from the runtime `speed_factor` knob, not from per-scenario duration fields.
+Scenario counts assume the 10-per-env target matrix. Wall-clock scaling comes from the runtime `speed_factor` knob, not from per-scenario duration fields.
 
 ## Quick Start
 
@@ -281,13 +282,14 @@ This benchmark is designed to complement existing agent benchmarks:
 
 ## Research Context
 
-This benchmark is part of research on **SentinelSteps**, a method for enabling multi-agent orchestration systems to handle long-duration conditional tasks. SentinelSteps extend standard plan steps with:
+This benchmark extends our research on SentinelSteps, a method for enabling multi-agent orchestration systems to handle long-duration conditional tasks ([blog post](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/)). SentinelSteps extended standard plan steps with:
 
 - A natural-language termination condition
 - An adaptive sleep schedule between checks
 - State preservation across monitoring iterations
 
-The approach is implemented in [Magentic-UI](https://github.com/microsoft/magentic-ui), an open-source multi-agent system.
+
+
 
 ## Repository Structure
 
