@@ -550,6 +550,65 @@ async def close() -> JSONResponse:
     return JSONResponse(content={"success": True, "status": _state})
 
 
+@app.post("/dev_init")
+async def dev_init(environment: str = Query(...)) -> JSONResponse:
+    """Initialize an environment from scenarios/<env>/dev.json without event replay.
+
+    Loads base sample data (the t=0 preload event) and leaves the session in
+    STATE_READY with no further events to fire. Used by the landing page so
+    users can browse a populated environment without running the harness.
+    """
+    global _state, _session, _run_task
+
+    if environment not in _ENV_NAMES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown environment: {environment!r}. Valid: {', '.join(_ENV_NAMES)}",
+        )
+
+    dev_path = _SCENARIO_DIRS[environment] / "dev.json"
+    if not dev_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"No dev.json found for {environment} at {dev_path}",
+        )
+
+    # Tear down any running auto-task / existing session.
+    if _run_task is not None and not _run_task.done():
+        _run_task.cancel()
+        try:
+            await _run_task
+        except (asyncio.CancelledError, Exception):
+            pass
+    _run_task = None
+
+    with open(dev_path, encoding="utf-8") as f:
+        dev_scenario = json.load(f)
+
+    session = Session(
+        status=STATE_READY,
+        simulation_time=0,
+        start_wall_time=None,
+        events=[],
+        next_event_index=0,
+        environment=environment,
+        event_timeline_end=float(dev_scenario.get("event_timeline_end", 9999)),
+        eval_sql="",
+        baseline_metrics={},
+    )
+    for event in build_event_timeline(dev_scenario["events"]):
+        _dispatch_process_event(session, event)
+
+    _session = session
+    _state = STATE_READY
+
+    return JSONResponse(content={
+        "success": True,
+        "status": _state,
+        "environment": environment,
+    })
+
+
 # ---------------------------------------------------------------------------
 # Data endpoints -- shared
 # ---------------------------------------------------------------------------
