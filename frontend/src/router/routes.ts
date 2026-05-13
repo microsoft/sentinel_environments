@@ -62,7 +62,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROMAIL,
     title: "MicroMail",
-    description: "Email client environment (variant selectable via URL params).",
+    description: "Email client with inbox, folders, search, and filtering.",
     url: "{base_url}/micromail",
     icon: "📧",
     component: MicroMail,
@@ -81,7 +81,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROHUB,
     title: "MicroHub",
-    description: "Code repository environment with repositories, issues, and pull requests",
+    description: "Code hosting with repositories, issues, pull requests, and releases.",
     url: "{base_url}/microhub",
     icon: "⌨️",
     component: MicroHub,
@@ -100,7 +100,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROGRAM,
     title: "MicroGram",
-    description: "Photo sharing environment with task variants via URL parameters.",
+    description: "Photo sharing with a feed, stories, comments, and DMs.",
     url: "{base_url}/microgram",
     icon: "📸",
     component: MicroGram,
@@ -119,7 +119,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROLENDAR,
     title: "MicroLendar",
-    description: "Calendar environment with task variants via URL parameters.",
+    description: "Calendar for scheduling events, tasks, and reminders.",
     url: "{base_url}/microlendar",
     icon: "📅",
     component: MicroLendar,
@@ -138,7 +138,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROSCHOLAR,
     title: "MicroScholar",
-    description: "Academic search environment with task variants via URL parameters",
+    description: "Academic search for papers, citations, and authors.",
     url: "{base_url}/microscholar",
     icon: "🎓",
     component: MicroScholar,
@@ -157,7 +157,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROCHAT,
     title: "MicroChat",
-    description: "Team collaboration environment with chat and workspaces",
+    description: "Team chat with channels, DMs, calls, and reactions.",
     url: "{base_url}/microchat",
     icon: "💬",
     component: MicroChat,
@@ -176,7 +176,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICRODIN,
     title: "MicroDin",
-    description: "Professional network environment with task variants via URL parameters",
+    description: "Professional network with posts, connections, jobs, and messages.",
     url: "{base_url}/microdin",
     icon: "💼",
     component: MicroDin,
@@ -195,7 +195,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROHOOD,
     title: "MicroHood",
-    description: "Stock trading platform environment with task variants via URL parameters",
+    description: "Stock trading with prices, portfolio, orders, and watchlists.",
     url: "{base_url}/microhood",
     icon: "📈",
     component: MicroHood,
@@ -214,7 +214,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROTUBE,
     title: "MicroTube",
-    description: "Video streaming platform environment with task variants via URL parameters",
+    description: "Video streaming with channels, subscriptions, and comments.",
     url: "{base_url}/microtube",
     icon: "📺",
     component: MicroTube,
@@ -233,7 +233,7 @@ export const routes: RouteConfig[] = [
   {
     path: TASK_ID_MICROFY,
     title: "MicroFy",
-    description: "Music streaming environment with task variants via URL parameters",
+    description: "Music streaming with playlists, artists, and new releases.",
     url: "{base_url}/microfy",
     icon: "🎧",
     component: MicroFy,

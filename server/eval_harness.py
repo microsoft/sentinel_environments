@@ -62,11 +62,12 @@ def load_config(config_path):
         return yaml.safe_load(f) or {}
 
 
-def discover_tasks(name_filter=None):
+def discover_tasks(name_filter=None, task_id=None):
     """Yield (environment, scenario_id, path) for every scenario JSON file.
 
     If name_filter is a lowercased substring, only scenarios whose id contains
-    it are yielded; None means all.
+    it are yielded. If task_id is given, only the scenario with that exact id
+    is yielded. Both filters can be combined; None means no constraint.
     """
     scenarios_root = Path(__file__).resolve().parent.parent / "scenarios"
     for path in sorted(scenarios_root.glob("*/*.json")):
@@ -76,6 +77,8 @@ def discover_tasks(name_filter=None):
             scenario = json.load(f)
         if not scenario.get("prompt"):
             print(f"Skipping {path}: empty or missing prompt", file=sys.stderr, flush=True)
+            continue
+        if task_id is not None and scenario["id"] != task_id:
             continue
         if name_filter is not None and name_filter not in scenario["id"].lower():
             continue
@@ -266,8 +269,13 @@ def cmd_run(args):
     results_root = Path("results") / args.run_name
 
     name_filter = args.filter.lower() if args.filter else None
-    tasks = list(discover_tasks(name_filter=name_filter))
-    if name_filter is not None:
+    task_id = args.task
+    tasks = list(discover_tasks(name_filter=name_filter, task_id=task_id))
+    if task_id is not None:
+        if not tasks:
+            raise SystemExit(f"No scenario found with id {task_id!r}.")
+        print(f"Selecting task: {task_id}", flush=True)
+    elif name_filter is not None:
         print(f"Filtering to tasks containing: {args.filter!r}", flush=True)
     print(f"Found {len(tasks)} tasks. Results -> {results_root}", flush=True)
 
@@ -296,10 +304,13 @@ def cmd_grade(args):
         raise SystemExit(f"Results directory not found: {results_root}")
 
     name_filter = args.filter.lower() if args.filter else None
+    task_id = args.task
 
     rows = []
     for results_file in sorted(results_root.glob("*/*/results.json")):
         name = results_file.parent.name
+        if task_id is not None and name != task_id:
+            continue
         if name_filter is not None and name_filter not in name.lower():
             continue
         with open(results_file) as f:
@@ -341,6 +352,8 @@ def cmd_grade(args):
             "tool_calls": tool_calls,
         })
 
+    if task_id is not None and not rows:
+        raise SystemExit(f"No task in {results_root} matched --task {task_id!r}.")
     if name_filter is not None and not rows:
         raise SystemExit(f"No tasks in {results_root} matched --filter {args.filter!r}.")
 
@@ -451,6 +464,11 @@ def main():
         default=None,
         help="Optional case-insensitive substring; only scenarios whose id contains it are run.",
     )
+    p_run.add_argument(
+        "--task",
+        default=None,
+        help="Exact scenario id to run (single task). Combinable with --filter.",
+    )
     p_run.set_defaults(func=cmd_run)
 
     p_grade = sub.add_parser("grade", help="Summarize results from a previous run")
@@ -459,6 +477,11 @@ def main():
         "--filter",
         default=None,
         help="Optional case-insensitive substring; only tasks whose name contains it are graded.",
+    )
+    p_grade.add_argument(
+        "--task",
+        default=None,
+        help="Exact scenario id to grade (single task). Combinable with --filter.",
     )
     p_grade.add_argument(
         "--csv",
