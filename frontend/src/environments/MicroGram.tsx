@@ -62,9 +62,6 @@ type Post = ApiGramPost;
 
 export const TASK_ID_MICROGRAM = "microgram";
 
-/**
- * UI CONSTANTS
- */
 const STORY_DURATION_MS = 5000;
 
 type NavSection = "home" | "explore" | "create" | "activity" | "profile" | "direct" | "search";
@@ -258,7 +255,7 @@ const MicroGram = () => {
   const directUsername = navSection === "direct" ? route.id : null;
   const [selectedPost, setSelectedPost] = useState<string | null>(null);
   const [selectedDM, setSelectedDM] = useState<string | null>(null);
-  const [currentStoryIndex, setCurrentStoryIndex] = useState<number | null>(null);
+  const [currentStoryId, setCurrentStoryId] = useState<string | null>(null);
 
   // Additional UI state
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -320,9 +317,6 @@ const MicroGram = () => {
   // Initialize to now so preloaded items (no _arrivedAt) don't trigger badges.
   const [dmLastSeen, setDmLastSeen] = useState(() => Date.now());
 
-  const storyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-
   // Update profile display name / bio if selfUser loads after initial render
   useEffect(() => {
     if (selfUser && !profileDisplayName) {
@@ -334,38 +328,68 @@ const MicroGram = () => {
   }, [selfUser, profileDisplayName, profileBio]);
 
   // ---------------------------------------------------------------------------
-  // Story auto-advance
+  // Story ordering
   // ---------------------------------------------------------------------------
-  const activeStories = useMemo(() =>
-    stories.slice().sort((a, b) => {
-      const aViewed = a.isViewed ? 1 : 0;
-      const bViewed = b.isViewed ? 1 : 0;
-      if (aViewed !== bViewed) return aViewed - bViewed;
-      return (b.order || 0) - (a.order || 0);
-    }),
+  // Snapshot the sort the first time a story opens; otherwise polling marks
+  // the current story viewed, the memo re-sorts viewed-last, and the visible
+  // story shifts mid-view.
+  const activeStories = useMemo(
+    () =>
+      stories.slice().sort((a, b) => {
+        const aViewed = a.isViewed ? 1 : 0;
+        const bViewed = b.isViewed ? 1 : 0;
+        if (aViewed !== bViewed) return aViewed - bViewed;
+        return (b.order || 0) - (a.order || 0);
+      }),
     [stories]
   );
 
+  const storyOrderSnapshotRef = useRef<typeof stories | null>(null);
+  const viewerStories = useMemo(() => {
+    if (currentStoryId === null) {
+      storyOrderSnapshotRef.current = null;
+      return activeStories;
+    }
+    if (storyOrderSnapshotRef.current === null) {
+      storyOrderSnapshotRef.current = activeStories;
+    }
+    // Reconcile snapshot with latest story data (isViewed flips, etc.) without
+    // changing order.
+    const byId = new Map(stories.map((s) => [s.id, s]));
+    return storyOrderSnapshotRef.current
+      .map((s) => byId.get(s.id))
+      .filter((s): s is (typeof stories)[number] => Boolean(s));
+  }, [currentStoryId, activeStories, stories]);
+
+  // Keep a ref to the latest viewerStories so the auto-advance timer can
+  // read it without re-arming every render (which would prevent it from
+  // ever firing on the 1s poll cadence).
+  const viewerStoriesRef = useRef(viewerStories);
   useEffect(() => {
-    if (currentStoryIndex === null) return;
+    viewerStoriesRef.current = viewerStories;
+  }, [viewerStories]);
 
-    storyTimerRef.current = setTimeout(() => {
-      if (currentStoryIndex < activeStories.length - 1) {
-        const nextIndex = currentStoryIndex + 1;
-        setCurrentStoryIndex(nextIndex);
-        const nextStory = activeStories[nextIndex];
-        if (nextStory && !nextStory.isViewed) {
-          apiViewStory(nextStory.id);
-        }
-      } else {
-        setCurrentStoryIndex(null);
+  // Auto-advance: re-arms only when currentStoryId changes, so each visible
+  // story gets the full STORY_DURATION_MS before advancing.
+  useEffect(() => {
+    if (currentStoryId === null) return;
+    const timer = setTimeout(() => {
+      const list = viewerStoriesRef.current;
+      const idx = list.findIndex((s) => s.id === currentStoryId);
+      if (idx === -1) {
+        setCurrentStoryId(null);
+        return;
       }
+      const next = list[idx + 1];
+      if (!next) {
+        setCurrentStoryId(null);
+        return;
+      }
+      if (!next.isViewed) apiViewStory(next.id);
+      setCurrentStoryId(next.id);
     }, STORY_DURATION_MS);
-
-    return () => {
-      if (storyTimerRef.current) clearTimeout(storyTimerRef.current);
-    };
-  }, [currentStoryIndex, activeStories, apiViewStory]);
+    return () => clearTimeout(timer);
+  }, [currentStoryId, apiViewStory]);
 
 
   // ---------------------------------------------------------------------------
@@ -386,10 +410,11 @@ const MicroGram = () => {
 
   const handleViewStory = useCallback((storyIndex: number) => {
     const story = activeStories[storyIndex];
-    if (story && !story.isViewed) {
+    if (!story) return;
+    if (!story.isViewed) {
       apiViewStory(story.id);
     }
-    setCurrentStoryIndex(storyIndex);
+    setCurrentStoryId(story.id);
   }, [activeStories, apiViewStory]);
 
   const handleAddComment = useCallback((postId: string) => {
@@ -739,11 +764,34 @@ const MicroGram = () => {
     );
   };
 
+  const getStoryAuthor = (story: { authorId: string; authorName?: string; authorAvatarUrl?: string }): MicroGramUser | undefined => {
+    const known = getUserById(story.authorId);
+    if (known) return known;
+    if (!story.authorName && !story.authorAvatarUrl) return undefined;
+    const fallbackName = story.authorName ?? story.authorId;
+    return {
+      id: story.authorId,
+      isSelf: false,
+      name: fallbackName,
+      username: fallbackName.replace(/\s+/g, "").toLowerCase(),
+      email: "",
+      avatarUrl: story.authorAvatarUrl ?? "",
+      bio: "",
+      jobTitle: "",
+      location: "",
+      interests: [],
+      followers: 0,
+      following: 0,
+      postsCount: 0,
+    };
+  };
+
   const renderStoryBar = () => (
     <div className="bg-white border-b border-gray-200 px-4 py-3 overflow-x-auto">
       <div className="flex gap-4">
         {activeStories.map((story, idx) => {
-          const user = getUserById(story.authorId);
+          const user = getStoryAuthor(story);
+          if (!user) return null;
           const isViewed = story.isViewed;
           return (
             <button
@@ -753,7 +801,7 @@ const MicroGram = () => {
             >
               {renderAvatar(user, "lg", true, isViewed)}
               <span className="text-xs text-gray-600 w-16 truncate text-center">
-                {user?.isSelf ? "Your story" : user?.username}
+                {user.isSelf ? "Your story" : user.username}
               </span>
             </button>
           );
@@ -1337,51 +1385,51 @@ const MicroGram = () => {
   };
 
   const renderStoryViewer = () => {
-    if (currentStoryIndex === null) return null;
-    const story = activeStories[currentStoryIndex];
-    const author = getUserById(story?.authorId || "");
+    if (currentStoryId === null) return null;
+    const currentIndex = viewerStories.findIndex(s => s.id === currentStoryId);
+    if (currentIndex === -1) return null;
+    const story = viewerStories[currentIndex];
+    const author = getStoryAuthor(story);
 
-    // Get all stories for the current author
-    const currentAuthorId = story?.authorId;
-    const authorStories = activeStories.filter(s => s.authorId === currentAuthorId);
-    const storyIndexInAuthor = authorStories.findIndex(s => s.id === story?.id);
+    // Get all stories for the current author (within the snapshot ordering).
+    const currentAuthorId = story.authorId;
+    const authorStories = viewerStories.filter(s => s.authorId === currentAuthorId);
+    const storyIndexInAuthor = authorStories.findIndex(s => s.id === story.id);
 
     const goToPrevStory = () => {
+      let prev;
       if (storyIndexInAuthor > 0) {
-        const prevStory = authorStories[storyIndexInAuthor - 1];
-        const globalIndex = activeStories.findIndex(s => s.id === prevStory.id);
-        setCurrentStoryIndex(globalIndex);
-      } else if (currentStoryIndex > 0) {
-        setCurrentStoryIndex(currentStoryIndex - 1);
+        prev = authorStories[storyIndexInAuthor - 1];
+      } else if (currentIndex > 0) {
+        prev = viewerStories[currentIndex - 1];
+      }
+      if (prev) {
+        if (!prev.isViewed) apiViewStory(prev.id);
+        setCurrentStoryId(prev.id);
       } else {
-        setCurrentStoryIndex(null);
+        setCurrentStoryId(null);
       }
     };
 
     const goToNextStory = () => {
+      let next;
       if (storyIndexInAuthor < authorStories.length - 1) {
-        const nextStory = authorStories[storyIndexInAuthor + 1];
-        const globalIndex = activeStories.findIndex(s => s.id === nextStory.id);
-        setCurrentStoryIndex(globalIndex);
-        if (!nextStory.isViewed) {
-          apiViewStory(nextStory.id);
-        }
-      } else if (currentStoryIndex < activeStories.length - 1) {
-        const nextIndex = currentStoryIndex + 1;
-        setCurrentStoryIndex(nextIndex);
-        const nextStory = activeStories[nextIndex];
-        if (nextStory && !nextStory.isViewed) {
-          apiViewStory(nextStory.id);
-        }
+        next = authorStories[storyIndexInAuthor + 1];
+      } else if (currentIndex < viewerStories.length - 1) {
+        next = viewerStories[currentIndex + 1];
+      }
+      if (next) {
+        if (!next.isViewed) apiViewStory(next.id);
+        setCurrentStoryId(next.id);
       } else {
-        setCurrentStoryIndex(null);
+        setCurrentStoryId(null);
       }
     };
 
     return (
       <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
         <button
-          onClick={() => setCurrentStoryIndex(null)}
+          onClick={() => setCurrentStoryId(null)}
           className="absolute top-4 right-4 text-white z-10"
         >
           <X size={24} />
@@ -1400,16 +1448,27 @@ const MicroGram = () => {
             aria-label="Next story"
           />
 
-          {/* Progress bars - only for current author's stories */}
+          {/* Progress bars - past stories full, current animates, future empty.
+              `key` includes currentStoryId so the active bar's CSS animation
+              restarts cleanly each time we advance. */}
           <div className="absolute top-2 left-2 right-2 flex gap-1 z-20">
-            {authorStories.map((_, idx) => (
-              <div key={idx} className="flex-1 h-0.5 bg-gray-600 rounded-full overflow-hidden">
-                <div
-                  className={`h-full bg-white ${idx < storyIndexInAuthor ? 'w-full' : idx === storyIndexInAuthor ? 'animate-progress' : 'w-0'}`}
-                  style={idx === storyIndexInAuthor ? { animation: `progress ${STORY_DURATION_MS}ms linear` } : undefined}
-                />
-              </div>
-            ))}
+            {authorStories.map((s, idx) => {
+              const isPast = idx < storyIndexInAuthor;
+              const isCurrent = idx === storyIndexInAuthor;
+              return (
+                <div key={s.id} className="flex-1 h-0.5 bg-gray-600 rounded-full overflow-hidden">
+                  <div
+                    key={isCurrent ? currentStoryId : undefined}
+                    className={`h-full bg-white ${isPast ? 'w-full' : isCurrent ? '' : 'w-0'}`}
+                    style={
+                      isCurrent
+                        ? { animation: `microgram-story-progress ${STORY_DURATION_MS}ms linear forwards` }
+                        : undefined
+                    }
+                  />
+                </div>
+              );
+            })}
           </div>
 
           {/* Author info */}
