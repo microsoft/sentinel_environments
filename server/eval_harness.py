@@ -8,6 +8,7 @@ import json
 import os
 import shlex
 import signal
+import statistics
 import subprocess
 import sys
 import threading
@@ -260,6 +261,8 @@ def cmd_run(args):
         config["api_url"] = args.api_url
     if args.frontend_url:
         config["frontend_url"] = args.frontend_url
+    if args.speed_factor is not None:
+        config["speed_factor"] = args.speed_factor
     results_root = Path("results") / args.run_name
 
     name_filter = args.filter.lower() if args.filter else None
@@ -354,14 +357,22 @@ def cmd_grade(args):
     success_rate = (len(successes) / total) if total else 0.0
     reaction_times = [r["reaction_time"] for r in successes if r["reaction_time"] is not None]
     avg_reaction = (sum(reaction_times) / len(reaction_times)) if reaction_times else None
+    med_reaction = statistics.median(reaction_times) if reaction_times else None
 
     def avg(field):
         vals = [r[field] for r in rows if r[field] is not None]
         return (sum(vals) / len(vals)) if vals else None
 
+    def med(field):
+        vals = [r[field] for r in rows if r[field] is not None]
+        return statistics.median(vals) if vals else None
+
     avg_prompt = avg("prompt_tokens")
     avg_completion = avg("completion_tokens")
     avg_tool_calls = avg("tool_calls")
+    med_prompt = med("prompt_tokens")
+    med_completion = med("completion_tokens")
+    med_tool_calls = med("tool_calls")
 
     if args.csv:
         writer = csv.writer(sys.stdout)
@@ -374,9 +385,13 @@ def cmd_grade(args):
             ("Successes", len(successes)),
             ("Task Success Rate", f"{success_rate:.4f}"),
             ("Average Reaction Time", "" if avg_reaction is None else f"{avg_reaction:.1f}"),
+            ("Median Reaction Time", "" if med_reaction is None else f"{med_reaction:.1f}"),
             ("Average Prompt Tokens", "" if avg_prompt is None else f"{avg_prompt:.1f}"),
+            ("Median Prompt Tokens", "" if med_prompt is None else f"{med_prompt:.1f}"),
             ("Average Completion Tokens", "" if avg_completion is None else f"{avg_completion:.1f}"),
+            ("Median Completion Tokens", "" if med_completion is None else f"{med_completion:.1f}"),
             ("Average Tool Calls", "" if avg_tool_calls is None else f"{avg_tool_calls:.1f}"),
+            ("Median Tool Calls", "" if med_tool_calls is None else f"{med_tool_calls:.1f}"),
         ]
         for key, value in summary:
             writer.writerow([key, value])
@@ -399,12 +414,21 @@ def cmd_grade(args):
     print(f"Total Tasks: {total}")
     print(f"Task Success Rate: {success_rate:.1%} ({len(successes)}/{total})")
     if avg_reaction is None:
-        print("Average Reaction Time: N/A")
+        print("Reaction Time: N/A")
     else:
-        print(f"Average Reaction Time: {avg_reaction:.1f}s")
-    print(f"Average Prompt Tokens: {'N/A' if avg_prompt is None else f'{avg_prompt:.1f}'}")
-    print(f"Average Completion Tokens: {'N/A' if avg_completion is None else f'{avg_completion:.1f}'}")
-    print(f"Average Tool Calls: {'N/A' if avg_tool_calls is None else f'{avg_tool_calls:.1f}'}")
+        print(f"Reaction Time: avg {avg_reaction:.1f}s, median {med_reaction:.1f}s")
+    if avg_prompt is None:
+        print("Prompt Tokens: N/A")
+    else:
+        print(f"Prompt Tokens: avg {avg_prompt:.1f}, median {med_prompt:.1f}")
+    if avg_completion is None:
+        print("Completion Tokens: N/A")
+    else:
+        print(f"Completion Tokens: avg {avg_completion:.1f}, median {med_completion:.1f}")
+    if avg_tool_calls is None:
+        print("Tool Calls: N/A")
+    else:
+        print(f"Tool Calls: avg {avg_tool_calls:.1f}, median {med_tool_calls:.1f}")
 
 
 def main():
@@ -416,6 +440,12 @@ def main():
     p_run.add_argument("--config", default="eval_config.yaml", help="Path to eval config YAML")
     p_run.add_argument("--api-url", default=DEFAULT_API_URL, help="Sentinel API base URL")
     p_run.add_argument("--frontend-url", help="Frontend base URL passed to /redirect")
+    p_run.add_argument(
+        "--speed-factor",
+        type=float,
+        default=None,
+        help="Override speed_factor from config YAML (e.g. 0.25 = 4x slower, 4.0 = 4x faster).",
+    )
     p_run.add_argument(
         "--filter",
         default=None,
