@@ -195,6 +195,12 @@ test-results/
 !frontend/public/**
 !data/public/**
 
+# Re-ignore Jupyter checkpoints that the !data/public/** rule would otherwise bring back.
+data/public/**/.ipynb_checkpoints/
+
+# Generation scratch (intermediate outputs; installed copies live under data/public/)
+data_generation/_generated/
+
 # AI tools
 # --------
 .claude/
