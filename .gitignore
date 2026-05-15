@@ -178,7 +178,7 @@ test-results/
 .vercel
 .netlify/
 
-# Large media files (except those in frontend/public/)
+# Large media files (except those in frontend/public/ and data/public/)
 # ---------------------------------------------------------
 *.mp4
 *.avi
@@ -193,6 +193,7 @@ test-results/
 !icon.*
 !*.svg
 !frontend/public/**
+!data/public/**
 
 # AI tools
 # --------
