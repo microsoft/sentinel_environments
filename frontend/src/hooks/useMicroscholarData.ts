@@ -20,6 +20,7 @@ export interface ApiPaper {
   taskType: string;
   order: number;
   isSaved?: boolean;
+  _arrivedAt?: number;
 }
 
 export interface ApiAlert {
@@ -163,7 +164,16 @@ export function useMicroscholarData() {
       }),
     ])
       .then(([papersData, alertsData, coauthorsData]) => {
-        setRawPapers(papersData.papers ?? []);
+        const now = Date.now();
+        const incoming: ApiPaper[] = papersData.papers ?? [];
+        setRawPapers((prev) => {
+          const knownIds = new Set(prev.map((p) => p.id));
+          return incoming.map((p) =>
+            knownIds.has(p.id)
+              ? { ...p, _arrivedAt: prev.find((x) => x.id === p.id)?._arrivedAt }
+              : { ...p, _arrivedAt: now }
+          );
+        });
         setRawAlerts(alertsData.alerts ?? []);
         setCoauthors(coauthorsData.coauthors ?? []);
         setError(null);

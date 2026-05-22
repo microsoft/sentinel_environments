@@ -2,7 +2,7 @@
   "id": "microscholar-papercount-relative-passive",
   "environment": "microscholar",
   "start_page": "HOST_ADDRESS/microscholar",
-  "prompt": "I already have a bunch of papers in my results -- keep an eye out and let me know when 5 more show up.",
+  "prompt": "I already have a bunch of papers recommended to me -- keep an eye out and let me know when 5 more show up.",
   "condition_at": 199.94,
   "event_timeline_end": 720.0,
   "kill_at": 630.0,

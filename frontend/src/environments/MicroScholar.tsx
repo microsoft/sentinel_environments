@@ -164,10 +164,18 @@ const MicroScholar = () => {
     return Array.from(ids).map(id => getUserById(id)).filter((u): u is ScholarUser => u !== undefined);
   }, [coauthors, getUserById]);
 
-  const getRegularPapers = useCallback((): Paper[] =>
-    papers.filter(p => !p.isTargetPaper),
-    [papers]
-  );
+  const getRegularPapers = useCallback((): Paper[] => {
+    const regular = papers.filter(p => !p.isTargetPaper);
+    // Sort so newly arrived papers (with _arrivedAt) appear first, newest on top
+    return regular.sort((a, b) => {
+      const aNew = a._arrivedAt ?? 0;
+      const bNew = b._arrivedAt ?? 0;
+      if (aNew && !bNew) return -1;
+      if (!aNew && bNew) return 1;
+      if (aNew && bNew) return bNew - aNew;
+      return 0;
+    });
+  }, [papers]);
 
   // ---------------------------------------------------------------------------
   // State Variables
