@@ -4,7 +4,7 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-HF_ROOT="/blue/uf-dsi/${USER}/huggingface"
+HF_ROOT="${HF_ROOT:-${HOME}/huggingface}"
 # Default to _missing/ subset (23 videos that are not already cached). Override with
 # PROMPTS/NAMES env vars to run on the full canonical 50-video set.
 PROMPTS="${PROMPTS:-${REPO_ROOT}/data_generation/prompts/microtube/_missing/prompts.txt}"
@@ -37,8 +37,8 @@ for shard in $(seq 0 $((NSHARDS-1))); do
         --output="${LOGS}/video_shard${shard}_%j.out" \
         --error="${LOGS}/video_shard${shard}_%j.err" \
         --time=12:00:00 \
-        --partition=hpg-b200 \
-        --account=woodard --qos=woodard \
+        --partition="${SLURM_PARTITION:-gpu}" \
+        --account="${SLURM_ACCOUNT:-$(id -gn)}" --qos="${SLURM_QOS:-${SLURM_ACCOUNT:-$(id -gn)}}" \
         --gres=gpu:1 --cpus-per-task=10 --mem=180G \
         --export="ALL,SHARD_PROMPTS=${SHARD_PROMPTS},SHARD_NAMES=${SHARD_NAMES},OUT=${OUT},HF_ROOT=${HF_ROOT}" \
         "$(dirname "${BASH_SOURCE[0]}")/run_video_shard.slurm"

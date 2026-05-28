@@ -6,10 +6,9 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
-#SBATCH --partition=hpg-b200
+#SBATCH --partition=gpu
 #SBATCH --mem=180G
-#SBATCH --account=woodard
-#SBATCH --qos=woodard
+# override account/qos via: sbatch --account=YOUR_ACCOUNT --qos=YOUR_QOS run_video_gen.slurm
 
 # Disable output buffering for immediate log visibility
 export PYTHONUNBUFFERED=1
@@ -22,11 +21,13 @@ mkdir -p logs
 module load cuda/12.8.1
 module load ffmpeg
 
-# set environment variables for Hugging Face cache (use blue storage)
-export HF_HOME=/blue/uf-dsi/$USER/.cache/huggingface
-export HF_DATASETS_CACHE=/blue/uf-dsi/$USER/.cache/huggingface/datasets
-export TRANSFORMERS_CACHE=/blue/uf-dsi/$USER/.cache/huggingface/transformers
-export HUGGINGFACE_HUB_CACHE=/blue/uf-dsi/$USER/.cache/huggingface/hub
+# set environment variables for Hugging Face cache
+# override HF_CACHE_DIR to use cluster-local storage (e.g. scratch or project space)
+HF_CACHE_DIR="${HF_CACHE_DIR:-${HOME}/.cache/huggingface}"
+export HF_HOME="${HF_CACHE_DIR}"
+export HF_DATASETS_CACHE="${HF_CACHE_DIR}/datasets"
+export TRANSFORMERS_CACHE="${HF_CACHE_DIR}/transformers"
+export HUGGINGFACE_HUB_CACHE="${HF_CACHE_DIR}/hub"
 
 # set environment variables for cpu threading
 export OMP_NUM_THREADS="$SLURM_CPUS_PER_TASK"
@@ -48,8 +49,8 @@ export KMP_AFFINITY=disabled
 # navigate to project directory
 cd "${PROJECT_DIR:-.}"
 
-# activate virtual environment (inside ImageGenerator/)
-source ImageGenerator/.venv/bin/activate
+# activate virtual environment
+source "${VENV_PATH:-.venv/bin/activate}"
 
 # print job information
 echo "=================================="

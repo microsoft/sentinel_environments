@@ -1,371 +1,231 @@
 <div align="center">
 
-<!-- Replace with your own banner/logo path -->
 <img src="banner.svg" alt="Sentinel Environments Logo">
 
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
-[![Citation](https://img.shields.io/badge/Cite-BibTeX-blue)](#citation)
-[![Blog](https://img.shields.io/badge/Blog-Post-6f42c1)](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/)
+<!-- TODO: replace placeholder arXiv and blog URLs before public release -->
+[![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b)](https://arxiv.org/abs/0000.00000)
+[![Blog](https://img.shields.io/badge/Blog-Post-6f42c1)](https://example.com/sentinel-environments-blog)
+[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
 </div>
 
 ---
 
-**Sentinel Environments** is a benchmark for evaluating AI agents on **long-horizon monitoring tasks**, addressing a critical gap in current evaluations by testing whether agents can *wait*, *monitor*, and *act* over extended periods of time.
+**Sentinel Environments** is a benchmark of 10 high-fidelity web-app replicas that tests whether an agent can *wait*, *monitor*, and *act* only when a condition is met. Each environment replays a scripted timeline of events; the agent must notice the right moment and respond, without wasting resources polling in between.
 
-## Motivation
+This README covers **how to run the benchmark**. For the motivation, task design, and baseline results, see the [paper](https://arxiv.org/abs/0000.00000) and [blog post](https://example.com/sentinel-environments-blog).
 
-Modern Browser Use Agents (BUA) and Computer Use Agents (CUA) excel at short-horizon tasks, but their performance declines sharply on tasks requiring continual monitoring. Recent studies show that while state-of-the-art models succeed in nearly all tasks taking humans less than four minutes, their success rate falls below 10% for tasks exceeding four hours. This decay follows a constant "hazard rate," meaning the probability of success decreases exponentially with task duration.
+## Environments
 
-Current agents fail at long-duration monitoring due to:
+The benchmark ships 10 environments (`Micro*`), each with 10 monitoring scenarios (100 total).
 
-- **Exponential decay**: Success rates drop exponentially with task duration
-- **Context overflow**: Repeated information storage overwhelms context windows
-- **Rate limiting**: Aggressive polling triggers API and website limits
-- **Attention drift**: Agents lose focus, hallucinate, or deviate from instructions
+| Environment | Mimics | Surface | Data Type |
+|-------------|--------|---------|-----------|
+| MicroMail | Email (Gmail/Outlook) | Inbox, folders, attachments, search | Synthetic images |
+| MicroChat | Team messaging (Slack/Teams) | Teams, channels, DMs, calls | Synthetic images |
+| MicroDin | Professional network (LinkedIn) | Feed, connections, jobs, messaging | Synthetic images |
+| MicroHub | Code hosting (GitHub) | Repo, issues, PRs, commits, releases | Text-only (JSONL) |
+| MicroHood | Stock trading (Robinhood) | Portfolio, orders, watchlist, news | Text-only (JSONL) |
+| MicroGram | Photo sharing (Instagram) | Feed, stories, DMs, activity | Synthetic images |
+| MicroTube | Video platform (YouTube) | Feed, player, comments, subscriptions | Synthetic video/images |
+| MicroFy | Music streaming (Spotify) | Tracks, playlists, artists, lyrics | Synthetic audio |
+| MicroLendar | Calendar (Google Calendar) | Month/week/day views, events, tasks | Text-only (JSONL) |
+| MicroScholar | Academic search (Google Scholar) | Search, papers, authors, alerts | Text-only (JSONL) |
 
-This benchmark provides a controlled testbed to evaluate these failure modes and measure progress on long-horizon agent capabilities.
-
-## Benchmark Structure
-
-The benchmark consists of **10 high-fidelity web-app environment replicas** (Micro* environments), each with a set of monitoring scenarios. Every scenario shares a fixed event-timeline budget, and per-scenario variation comes from a randomized `condition_at` target and a runtime `speed_factor` that scales wall-clock time. The target matrix is **10 scenarios per environment** (100 total when fully populated); see [Task Dimensions](#task-dimensions) below.
-
-### Environments
-
-| Environment | Category | Description | Data Type |
-|-------------|----------|-------------|-----------|
-| MicroMail | Email client | Inbox, folders, filtering | Synthetic images |
-| MicroChat | Team messaging | Chat and notifications | Synthetic images |
-| MicroDin | Professional network | Connections, posts, jobs | Synthetic images |
-| MicroHub | Code hosting | Repository stars, issues, PRs, releases | Text-only (JSONL) |
-| MicroHood | Stock trading | Price and portfolio tracking | Text-only (JSONL) |
-| MicroGram | Photo sharing | Social feed and engagement metrics | Synthetic images |
-| MicroTube | Video platform | Video uploads and subscriber counts | Synthetic video/images |
-| MicroFy | Music streaming | Playlist updates and new releases | Synthetic audio |
-| MicroLendar | Calendar | Event scheduling and reminders | Text-only (JSONL) |
-| MicroScholar | Academic search | Citation counts and new papers | Text-only (JSONL) |
-
-> **Note on Data Types**: Environments marked "Text-only (JSONL)" use structured text data without AI-generated media. Environments with synthetic data use AI-generated images, videos, or audio created via the scripts in `data_generation/`. See [Synthetic Data Generation](#synthetic-data-generation) for details.
-
-### Task Dimensions
-
-Each environment targets **10 scenarios** via scenario JSON files. 8 are classified from the taxonomy below, plus 2 no-op tasks. The 8 tasks span the full `criteria × activity` matrix with two distinct monitoring targets per cell:
-
-```
-4 cells × 2 targets per cell = 8 scenarios per environment
-```
-
-| Dimension | Options | Description |
-|-----------|---------|-------------|
-| **Criteria** | `absolute` / `relative` | Fixed threshold vs. threshold relative to baseline at task start. Examples of "relative" threshold: A repository has 10 more stars, a new email appears |
-| **Activity** | `passive` / `active` | The condition is visible from the list/summary view (passive) vs. the condition is hidden inside detail views, requiring the agent to click into individual items each poll cycle (active). Examples of "active" content: email body past the 140-char preview, song lyrics, PR review comments, paper abstracts. |
-
-The four cells are `passive-absolute`, `passive-relative`, `active-absolute`, `active-relative`. We populate each with two distinct environment-specific monitoring targets (e.g., MicroMail's `active-absolute` pair is `body-keyword` (keyword past the 140-char body preview) and `attachment-name` (attachment filename only visible when the email is opened)).
-
-We also include two no-op scenarios per environment. These are scenarios where the monitored condition never trigeers. These test false-positive resistance: a correct agent should wait the full duration and report nothing.
-
-Scenario filenames follow `<target>-<criteria>-<activity>.json` under `scenarios/<env>/`. Each scenario's internal `id` is env-prefixed (e.g. `micromail-body-keyword-absolute-active`). No-op scenarios follow `<target>-<criteria>-noop.json`. 
-
-### Timing
-
-All tasks are **time-based**. Each benchmark scenario carries three timing fields (all in simulation-seconds):
-
-- **`condition_at`** -- the earliest simulation-time at which the success condition can become true. This is randomized per scenario in the range of `[10, 600]`, deterministic from `scenario_id` (so adding a new scenario never reshuffles existing ones). Tasks cannot complete before this point.
-- **`kill_at`** -- simulation-time at which the harness terminates the agent's run. Constant across all scenarios (`630`). The agent's observable window is `[0, kill_at]`.
-- **`event_timeline_end`** -- right-edge of the authored event timeline (`720`). Constant across all scenarios.
-
-Invariant: `0 < condition_at <= kill_at <= event_timeline_end`. Enforced by `tests/test_scenario_schema.py`.
-
-The knob for wall-clock scaling is not in the scenario JSON -- it's the runtime **`speed_factor`** (see [Runtime tuning](#runtime-tuning)).
-
-### Example Scenario
-
-Each task is defined as a JSON file in `scenarios/<env>/`:
-
-```json
-{
-  "id": "micromail-junk-relative-passive",
-  "environment": "micromail",
-  "prompt": "Keep an eye on the junk folder for me, tell me when 3 more emails end up there.",
-  "condition_at": 312.47,
-  "event_timeline_end": 720.0,
-  "kill_at": 630.0,
-  "events": [ { "time": 0, "type": "preload_emails", "payload": { ... } }, ... ],
-  "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_junk_count') + 3"
-}
-```
-
-- `condition_at`, `kill_at`, `event_timeline_end` -- as above. `condition_at` is the per-scenario randomized timing target; the released values are frozen and should not be hand-edited.
-- `events` -- deterministic list of state changes; `time` is in simulation-seconds.
-- `eval_sql` -- the SQL query run against a materialized snapshot of session state at `/evaluate`; a truthy result counts as success.
-
-The eval harness discovers these scenarios automatically and runs them against an agent subprocess.
-
-## Evaluation Protocol
-
-### Success Criteria
-
-Each task has a SQL evaluation query (`eval_sql`). The harness calls `POST /evaluate` after the agent completes, which materializes session state to an in-memory SQLite database and runs the query. Success is determined solely by whether the query returns a truthy value.
-
-The `eval_sql` is orthogonal to passive/active: it always checks the monitored condition against the materialized session state (e.g., "at least 10 unread emails in inbox", "a paper titled X exists"). Passive vs. active only changes what the agent must do during monitoring -- list-view polling vs. detail-view drilldown -- not what the evaluator checks.
-
-### Metrics
-
-| Metric | Description |
-|--------|-------------|
-| **Task completion** | Binary: did the agent achieve the desired state? (eval_sql returns true) |
-| **Elapsed Time** | Wall-clock time until termination (agent stop or timeout) |
-| **Tokens / Task** | Token usage per task (API cost dependent on model under evaluation) |
-
-
-### Anti-Gaming Measures
-
-- **Server-side state**: All task state is managed by the API server, and is not exposed to the agent. 
-- **Deterministic timing**: Events fire at fixed simulation-times, and we randomize `condition_at` per scenario (seeded by `scenario_id`) so a single "sleep until t=X" strategy cannot win the benchmark. 
-- **SQL-based evaluation**: Success is determined by `eval_sql` queries against materialized session state. 
-
-### Recommended Dataset Splits
-
-For system development, split at the **environment level**:
-
-| Split | Environments | Scenarios | Purpose |
-|-------|--------------|-----------|---------|
-| Reporting | 7 | 70 | Main results |
-| Validation | 2 | 20 | System selection/tuning |
-| Held-out Test | 1 | 10 | Blind evaluation (not released) |
-
-Scenario counts assume the 10-per-env target matrix. Wall-clock scaling comes from the runtime `speed_factor` knob, not from per-scenario duration fields.
+> Environments marked **Text-only (JSONL)** use structured text data with no AI-generated media. The others use AI-generated images, video, or audio produced by the pipeline in [`data_generation/`](#regenerating-synthetic-media).
 
 ## Quick Start
 
-A convenience script launches all components in a single tmux session:
+Set up local dependencies, build the SQLite databases, and run all three
+components (API server, frontend, harness shell) in one tmux session:
 
 ```bash
 ./start.sh
 ```
 
-This opens 3 tmux windows: **server** (API on `:8000`), **frontend** (Vite on `:5173`), and **harness** (shell ready for eval runs).
+On the first run, this creates `.venv`, installs Python and Node dependencies,
+and builds the gitignored `.db` files. It then opens windows for the **server**
+(API on `:8000`), the **frontend** (Vite on `:5173`), and a **harness** shell
+ready for eval runs. To set things up manually instead, follow the three steps
+below.
 
-### 1. API Server
+### 1. API server
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r server/requirements.txt
 
-# Build the SQLite databases from JSONL catalogs (required on first setup)
+# Build the SQLite databases from the JSONL catalogs (required on first setup,
+# and whenever data/catalogs/ changes). The .db files are gitignored.
 python -m server.scripts.build_db
 
 uvicorn server.server:app --host 0.0.0.0 --port 8000
 ```
 
-> **Note:** The `.db` files are not checked into git. You must run `build_db` before starting the server. Re-run it whenever the JSONL catalogs in `data/catalogs/` change.
-
 ### 2. Frontend
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Visit `http://localhost:5173` to interact with environments manually. The frontend proxies API requests to `localhost:8000`, so the API server must be running.
+Open `http://localhost:5173` to use the environments by hand. The frontend proxies API calls to `localhost:8000`, so the API server must be running.
 
-### Dev Mode
+### 3. Eval harness
 
-Set `SENTINEL_DEV` to skip the `/init` flow and preload environment data on startup:
-
-```bash
-# Backend -- preload all environments
-SENTINEL_DEV=all uvicorn server.server:app --reload --port 8000
-
-# Backend -- preload a single environment
-SENTINEL_DEV=microfy uvicorn server.server:app --reload --port 8000
-
-# Frontend (separate terminal)
-cd frontend && npm run dev
-```
-
-Each environment has a `scenarios/dev.json` that uses `["*"]` wildcards to load all catalog data. New catalog entries are picked up automatically.
-
-### 3. Eval Harness
-
-The eval harness discovers all scenario JSON files, runs each against an agent subprocess, and collects results.
-
-**Configure your agent** by creating an `eval_config.yaml` in the repo root:
+The harness discovers every scenario JSON, runs each one against your agent as a subprocess, and collects results. Configure your agent in an `eval_config.yaml` at the repo root:
 
 ```yaml
 server_url: http://localhost:8000
 frontend_url: http://localhost:5173
 
-# Wall-clock vs sim-clock exchange rate. 1.0 = real-time (default), >1 is faster,
-# <1 is slower. Harness sizes the per-task subprocess timeout as
-# MAX_CONDITION_AT / speed_factor + REACTION_WINDOW (see Runtime tuning below).
+# Wall-clock vs sim-clock exchange rate. 1.0 = real-time (default),
+# >1 is faster, <1 is slower. See "Runtime tuning" below.
 speed_factor: 1.0
 
-# Command to launch your agent. Placeholders:
-#   __TASK_URL__    - replaced with the task start URL (GET triggers simulation start + redirect)
-#   __TASK_PROMPT__ - replaced with the task's natural language prompt
-#
-# Use a list for direct execution, or a string for shell execution (placeholders are shell-escaped).
+# Command to launch your agent. Placeholders are substituted per task:
+#   __TASK_URL__    - task start URL (a GET starts the simulation + redirects)
+#   __TASK_PROMPT__ - the task's natural-language prompt
+# Use a list for direct execution, or a string for shell execution.
 agent_subprocess: ["your-agent-command", "--url", "__TASK_URL__", "--prompt", "__TASK_PROMPT__"]
 ```
 
-### Runtime tuning
-
-`speed_factor` controls how fast the simulation clock advances relative to wall-clock. It's a top-level key in `eval_config.yaml` (and `--speed` on `run_simulation` for local playback) -- never stored in scenario JSON. The harness sizes the per-task subprocess timeout as `kill_at_wall = MAX_CONDITION_AT / speed_factor + REACTION_WINDOW`. `speed_factor > 1` compresses the timeline (less wall-clock time per scenario); `speed_factor < 1` stretches it.
-
-| speed_factor | Effect | kill_at_wall (subprocess timeout) |
-|--------------|--------|-----------------------------------|
-| `4.0` (max allowed) | 4x faster than real-time | 180s (3 min) |
-| `2.0` | 2x faster than real-time | 330s (5.5 min) |
-| `1.0` (default) | Real-time | 630s (10.5 min) |
-| `0.5` | 2x slower than real-time | 1230s (20.5 min) |
-| `0.25` | 4x slower than real-time | 2430s (40.5 min) |
-
-The 30-second reaction window past `condition_at` stays constant in wall-clock across all speeds; only the pre-target portion scales. `MAX_SPEED_FACTOR = 4.0` is enforced by `server/timing.py`; the lower bound is only `speed_factor > 0`. All constants live in `server/timing.py`.
-
-The harness exposes two subcommands: `run` (execute scenarios) and `grade` (summarize a completed run).
-
-**Run:**
+Run all scenarios, then grade:
 
 ```bash
-python -m server.eval_harness run <run_name> [--config eval_config.yaml] [--server-url http://localhost:8000]
+# Execute scenarios (resumable: tasks with an existing result are skipped)
+python -m server.eval_harness run my_first_run --config eval_config.yaml
+
+# Optional: override the API URL from the config file
+python -m server.eval_harness run my_first_run --config eval_config.yaml --server-url http://localhost:8000
+
+# Summarize a completed run as a per-task table + aggregate stats
+python -m server.eval_harness grade my_first_run
+```
+
+For a first smoke test, run a single scenario with `--task`:
+
+```bash
+python -m server.eval_harness run micromail_smoke \
+  --config eval_config.yaml \
+  --task micromail-unread-absolute-passive
+
+python -m server.eval_harness grade micromail_smoke \
+  --task micromail-unread-absolute-passive
+```
+
+To list available task IDs:
+
+```bash
+find scenarios -maxdepth 2 -name '*.json' ! -name dev.json -printf '%f\n' | sed 's/.json$//'
 ```
 
 Results are written to `results/<run_name>/<environment>/<scenario_id>/`:
 
 | File | Description |
 |------|-------------|
-| `results.json` | Evaluation result (`success`, `detail`, `simulation_time`, `condition_at`) |
+| `results.json` | Evaluation result (`success`, `detail`, `evaluation_time`, `condition_at`, `contact_get_time`) |
 | `output.txt` | Agent subprocess stdout/stderr |
-| `error.txt` | Harness error traceback (if the task failed to run) |
+| `error.txt` | Harness error traceback (only if the task failed to run) |
 
-Tasks with an existing `results.json` or `error.txt` are skipped, so runs can be resumed after interruption.
-
-**Example:**
-
-```bash
-python -m server.eval_harness run my_first_run
-# Found 32 tasks. Results -> results/my_first_run
-#   Running micromail-attachment-name-absolute-active ...
-#   Running micromail-body-december-relative-active ...
-#   ...
-# Done.
+```text
+$ python -m server.eval_harness run my_first_run
+Found 100 tasks. Results -> results/my_first_run
+  Running micromail-attachment-name-absolute-active ...
+  Running micromail-body-december-relative-active ...
+  ...
+Done.
 ```
 
-**Grade:**
+### Dev mode
 
-Summarize a completed run by printing a per-task table and aggregate stats:
+Set `SENTINEL_DEV` to skip the `/init` flow and preload an environment with all of its catalog data, so the UI is populated without running the harness:
 
 ```bash
-python -m server.eval_harness grade <run_name>
+# Preload every environment
+SENTINEL_DEV=all uvicorn server.server:app --reload --port 8000
+
+# Preload a single environment
+SENTINEL_DEV=microfy uvicorn server.server:app --reload --port 8000
 ```
 
-## System Requirements
+Each environment ships a `scenarios/<env>/dev.json` that loads all catalog rows via `["*"]` wildcards. The eval harness always skips `dev.json`.
+
+### Runtime tuning
+
+`speed_factor` controls how fast the simulation clock advances relative to wall-clock. It is a top-level key in `eval_config.yaml` (and `--speed` on `run_simulation` for local playback) — never stored in scenario JSON. The harness sizes each task's subprocess timeout as `kill_at_wall = MAX_CONDITION_AT / speed_factor + REACTION_WINDOW`. `speed_factor > 1` compresses the timeline; `speed_factor < 1` stretches it.
+
+| speed_factor | Effect | kill_at_wall (subprocess timeout) |
+|--------------|--------|-----------------------------------|
+| `4.0` (max) | 4× faster than real-time | 180s (3 min) |
+| `2.0` | 2× faster than real-time | 330s (5.5 min) |
+| `1.0` (default) | real-time | 630s (10.5 min) |
+| `0.5` | 2× slower than real-time | 1230s (20.5 min) |
+| `0.25` | 4× slower than real-time | 2430s (40.5 min) |
+
+The 30-second reaction window past `condition_at` stays constant in wall-clock across all speeds; only the pre-target portion scales. `MAX_SPEED_FACTOR = 4.0` is enforced; the lower bound is only `speed_factor > 0`. All constants live in `server/timing.py`.
+
+## How a scenario works
+
+Each scenario is a JSON file under `scenarios/<env>/`, named `<target>-<criteria>-<activity>.json` (no-op scenarios use `<target>-<criteria>-noop.json`):
+
+```json
+{
+  "id": "micromail-junk-relative-passive",
+  "environment": "micromail",
+  "prompt": "Keep an eye on the junk folder for me, tell me when 3 more emails end up there.",
+  "condition_at": 297.75,
+  "kill_at": 630.0,
+  "event_timeline_end": 720.0,
+  "events": [ { "time": 0, "type": "preload_emails", "payload": { } } ],
+  "eval_sql": "SELECT (SELECT COUNT(*) FROM email_states WHERE folder='junk') >= (SELECT CAST(value AS INTEGER) FROM session_meta WHERE key='baseline_junk_count') + 3"
+}
+```
+
+Timing fields, all in simulation-seconds:
+
+- **`condition_at`** — earliest sim-time the success condition can become true. Randomized per scenario in `[10, 600]`, deterministic from `scenario_id`. For no-op scenarios it is `null` (the condition never fires). The released values are frozen; do not hand-edit them.
+- **`kill_at`** — sim-time the harness terminates the run (`630`, constant).
+- **`event_timeline_end`** — right edge of the authored timeline (`720`, constant).
+
+Invariant (enforced by `tests/test_scenario_schema.py`): `0 < condition_at <= kill_at <= event_timeline_end` for normal scenarios, or `condition_at = null` for no-ops.
+
+**Success.** After the agent finishes, the harness calls `POST /evaluate`, which materializes session state into an in-memory SQLite database and runs the scenario's `eval_sql`. A run passes when **both**: (1) `eval_sql` returns truthy, and (2) the agent hit the `/contact` endpoint at or after `condition_at`. No-op scenarios invert rule (2): success requires *never* visiting `/contact`.
+
+## System requirements
 
 - **OS**: Linux (Ubuntu 20.04+), macOS, or Windows WSL2
 - **Python**: 3.11+
 - **Node.js**: 18+
-- **Memory**: 8GB+ recommended for AI evaluations
-- **API Keys**: OpenAI, Anthropic, or Google (depending on models tested)
+- **API keys**: none for the harness itself — only your agent (via `agent_subprocess`) needs provider keys, depending on the model you evaluate.
 
-## Related Work
-
-This benchmark is designed to complement existing agent benchmarks:
-
-| Benchmark | Focus | Long-Horizon Aspect |
-|-----------|-------|---------------------|
-| GAIA | General AI Q&A | Single-turn, no persistent monitoring |
-| WebVoyager | Real web browsing | Multi-step navigation, one session |
-| AssistantBench | User-like web tasks | Time-consuming but continuous runs |
-| WebGames | Interactive web challenges | Complex tasks, no idle periods |
-| **Sentinel Environments** | Monitoring tasks | Configurable-duration waits with periodic checking |
-
-## Research Context
-
-This benchmark extends our research on SentinelSteps, a method for enabling multi-agent orchestration systems to handle long-duration conditional tasks ([blog post](https://www.microsoft.com/en-us/research/blog/tell-me-when-building-agents-that-can-wait-monitor-and-act/)). SentinelSteps extended standard plan steps with:
-
-- A natural-language termination condition
-- An adaptive sleep schedule between checks
-- State preservation across monitoring iterations
-
-
-
-
-## Repository Structure
+## Repository structure
 
 ```
 sentinel_environments/
 ├── server/                # FastAPI backend
 │   ├── handlers/          # Per-environment request handlers
-│   ├── scripts/           # build_db.py (JSONL/JSON → SQLite)
-│   ├── <env>/             # .db file per environment (generated, gitignored)
+│   ├── scripts/           # build_db.py (JSONL/JSON -> SQLite)
 │   ├── server.py          # Main FastAPI app
 │   ├── eval_harness.py    # CLI evaluation harness (discovers scenarios/)
-│   └── run_simulation.py  # Scenario playback tool for local testing
-├── scenarios/             # Scenario JSON files per environment
+│   ├── run_simulation.py  # Scenario playback tool for local testing
+│   └── timing.py          # speed_factor / kill_at constants
+├── scenarios/             # Scenario JSON per environment
 │   └── <env>/             # <target>-<criteria>-<activity>.json + dev.json
-├── data/catalogs/         # Immutable catalogs (users.json, per-env JSONL files)
-├── frontend/              # React/Vite frontend
-│   ├── src/
-│   │   ├── environments/  # Micro* UI components
-│   │   ├── hooks/         # API data hooks
-│   │   └── types/         # Shared TypeScript types
-│   └── public/            # Static media (images, audio, video)
-├── data_generation/       # Synthetic data generation scripts and prompts
-│   ├── scripts/           # Generation scripts (batch_image_gen.py, SLURM jobs)
-│   ├── prompts/           # Prompt files organized by environment
-│   └── docs/              # REPRODUCTION.md, COMPLIANCE.md
-└── tests/                 # Backend pytest integration + eval_sql tests
+├── data/catalogs/         # Immutable catalogs (users.json, per-env JSONL)
+├── data/public/           # Static media served to the frontend
+├── frontend/              # React + Vite + TypeScript frontend
+├── data_generation/       # Synthetic-media pipeline (scripts, prompts, docs)
+└── tests/                 # pytest suites (schema, eval_sql, integration, ...)
 ```
 
-## Synthetic Data Generation
+## Regenerating synthetic media
 
-The `data_generation/` folder contains all scripts and prompts used to generate synthetic media for Sentinel Environments.
-
-### Generated Asset Types
-
-| Asset Type | Model | Environments |
-|------------|-------|--------------|
-| User avatars & banners | FLUX.2-dev | All environments |
-| Post/story images | FLUX.2-dev | MicroGram, MicroDin |
-| Document attachments | FLUX.2-dev | MicroMail |
-| Company logos & banners | FLUX.2-dev | MicroDin, MicroTube |
-| Video content | Wan2.2-T2V-14B | MicroTube |
-| Music tracks | ACE-Step | MicroFy |
-
-### Environments Without Synthetic Media
-
-The following environments use **text-only JSONL data** and do not require AI-generated media:
-
-- **MicroHub** (code hosting) - Uses structured repository data (commits, issues, PRs, releases)
-- **MicroHood** (stock trading) - Uses stock price traces and market data
-- **MicroLendar** (calendar) - Uses calendar event data
-- **MicroScholar** (academic search) - Uses academic paper metadata
-
-These environments rely solely on the JSONL/JSON files in `data/catalogs/<env>/` which contain all necessary text-based content for benchmark tasks.
-
-### Running Data Generation
-
-See [`data_generation/docs/REPRODUCTION.md`](data_generation/docs/REPRODUCTION.md) for detailed instructions on regenerating synthetic assets. Requirements include:
-
-- **GPU**: NVIDIA A100 (images) or B200 Blackwell (video/audio)
-- **VRAM**: 32GB+ for images, 80GB+ for video
-- **HuggingFace account**: Required for gated model access (FLUX.2-dev)
-
-```bash
-cd data_generation/scripts
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-huggingface-cli login
-
-# Generate user avatars
-python batch_image_gen.py --mode image --model flux2-dev \
-    --prompt_file ../prompts/users/avatars-prompts.txt \
-    --output_dir ./generated_avatars
-```
+The catalogs and media ship with the repo, so you do **not** need to regenerate anything to run the benchmark. To reproduce the synthetic assets, see [`data_generation/docs/REPRODUCTION.md`](data_generation/docs/REPRODUCTION.md). Generation needs a CUDA GPU (NVIDIA A100 for images, B200 for video/audio) and a HuggingFace account for gated model access (FLUX.2-dev).
 
 ## License
 
@@ -373,13 +233,21 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Citation
 
-Citation information will be provided upon publication.
+<!-- TODO: replace with the published citation on release -->
+```bibtex
+@misc{maldaner2026sentinelenvironments,
+  title  = {Sentinel Environments: A Benchmark for Long-Running Monitoring Agents},
+  author = {Maldaner, Matheus Kunzler and Fourney, Adam and Swearngin, Amanda and Mozannar, Hussein and Bansal, Gagan and Murad, Maya},
+  year   = {2026},
+  note   = {Preprint}
+}
+```
 
 ## Authors
 
-- Matheus Kunzler Maldaner -- [GitHub](https://github.com/matheusmaldaner)
-- Adam Fourney -- [GitHub](https://github.com/afourney)
-- Amanda Swearngin -- [GitHub](https://github.com/amaswea)
-- Hussein Mozannar -- [GitHub](https://github.com/husseinmozannar)
-- Gagan Bansal -- [GitHub](https://github.com/gagb)
-- Maya Murad -- [GitHub](https://github.com/mmurad2)
+- Matheus Kunzler Maldaner — [GitHub](https://github.com/matheusmaldaner)
+- Adam Fourney — [GitHub](https://github.com/afourney)
+- Amanda Swearngin — [GitHub](https://github.com/amaswea)
+- Hussein Mozannar — [GitHub](https://github.com/husseinmozannar)
+- Gagan Bansal — [GitHub](https://github.com/gagb)
+- Maya Murad — [GitHub](https://github.com/mmurad2)

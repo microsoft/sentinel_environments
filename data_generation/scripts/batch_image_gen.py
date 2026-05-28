@@ -3,13 +3,13 @@
 Batch Generation Script - Images, Videos, Audio
 
 Models used for Sentinel Benchmark:
-- Images: FLUX.2-dev (black-forest-labs/FLUX.2-dev) - 20 steps, guidance 4.0
+- Images: FLUX.2-dev (black-forest-labs/FLUX.2-dev) - 28 steps, guidance 4.0
 - Videos: Wan2.2-T2V-14B (Wan-AI/Wan2.2-T2V-A14B-Diffusers) - 50 steps, 81 frames, 720p
 - Audio: ACE-Step-HQ (ACE-Step/ACE-Step-v1-3.5B) - 150 steps, 2 min, 44.1kHz
 
 Usage:
     # Images
-    python batch_image_gen.py --mode image --model flux2-dev --prompt_file prompts.txt --output_dir ./output --steps 20
+    python batch_image_gen.py --mode image --model flux2-dev --prompt_file prompts.txt --output_dir ./output --steps 28
 
     # Videos (requires 80GB+ VRAM)
     python batch_image_gen.py --mode video --model wan2.2-t2v-14b --prompt_file prompts.txt --output_dir ./videos --steps 50

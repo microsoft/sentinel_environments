@@ -9,8 +9,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:a100:1
-#SBATCH --account=uf-dsi
-#SBATCH --qos=uf-dsi
+# override account/qos via: sbatch --account=YOUR_ACCOUNT --qos=YOUR_QOS run_batch_gen.slurm
 
 # ============================================================================
 # Batch Image Generation SLURM Script
@@ -59,22 +58,22 @@ mkdir -p logs
 # Load modules
 module load cuda/12.9.1
 
-# Set up cache directories (use local scratch for speed)
-BASE="/scratch/local/$SLURM_JOB_ID"
+# Set up cache directories (use local scratch for speed if available)
+SCRATCH_ROOT="${SCRATCH_ROOT:-/tmp}"
+BASE="${SCRATCH_ROOT}/${SLURM_JOB_ID:-$$}"
 mkdir -p "$BASE/.cache" "$BASE/tmp"
 
 export TMPDIR="$BASE/tmp"
 export XDG_CACHE_HOME="$BASE/.cache"
 export UV_CACHE_DIR="$XDG_CACHE_HOME/uv"
 export TORCH_HOME="$XDG_CACHE_HOME/torch"
-export HF_HOME="$XDG_CACHE_HOME/huggingface"
+export HF_HOME="${HF_CACHE_DIR:-$XDG_CACHE_HOME/huggingface}"
 export TRANSFORMERS_CACHE="$HF_HOME/hub"
 
-# Optional: Set HuggingFace token if needed for gated models
-# export HF_TOKEN="your_token_here"
+# set HF_TOKEN in your environment for gated models (e.g. FLUX.2-dev)
 
 # Change to working directory
-cd /blue/uf-dsi/$USER/huggingface
+cd "${PROJECT_DIR:-.}"
 
 # Verify environment
 echo "Python: $(python --version)"

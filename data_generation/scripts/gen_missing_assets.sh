@@ -9,7 +9,7 @@
 #   - 50 microtube videos      (Wan2.2-T2V-14B, 1280x720, 81 frames) -- via SLURM
 #
 # FLUX runs are foreground on the current B200/A100 (~20-40 min total).
-# Wan2.2 runs are submitted as 4 sharded SLURM jobs to the hpg-b200 partition.
+# Wan2.2 runs are submitted as 4 sharded SLURM jobs via SLURM.
 #
 # Usage:
 #   bash data_generation/scripts/gen_missing_assets.sh images   # FLUX only
@@ -19,14 +19,15 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 GEN_ROOT="${REPO_ROOT}/data_generation/scripts"
-HF_ROOT="/blue/uf-dsi/${USER}/huggingface"
-VENV="${HF_ROOT}/ImageGenerator/.venv"
-GEN_SCRIPT="${HF_ROOT}/batch_image_gen.py"
+HF_ROOT="${HF_ROOT:-${HOME}/huggingface}"
+VENV="${VENV:-${HF_ROOT}/ImageGenerator/.venv}"
+GEN_SCRIPT="${GEN_SCRIPT:-${HF_ROOT}/batch_image_gen.py}"
 
 # Snapshot path bypasses HF gating since FLUX.2-dev is gated but cached.
-FLUX_SNAPSHOT="${HF_ROOT}/.cache/huggingface/hub/models--black-forest-labs--FLUX.2-dev/snapshots/6aab690f8379b70adc89edfa6bb99b3537ba52a3"
+# Set FLUX_SNAPSHOT to point at your local cached snapshot directory.
+FLUX_SNAPSHOT="${FLUX_SNAPSHOT:-${HF_ROOT}/.cache/huggingface/hub/models--black-forest-labs--FLUX.2-dev/snapshots/6aab690f8379b70adc89edfa6bb99b3537ba52a3}"
 
-export HF_HOME="${HF_ROOT}/.cache/huggingface"
+export HF_HOME="${HF_HOME:-${HF_ROOT}/.cache/huggingface}"
 export HUGGINGFACE_HUB_CACHE="${HF_HOME}/hub"
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
