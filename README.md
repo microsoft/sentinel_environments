@@ -236,8 +236,8 @@ This project is licensed under the [MIT License](LICENSE).
 <!-- TODO: replace with the published citation on release -->
 ```bibtex
 @misc{maldaner2026sentinelenvironments,
-  title  = {Sentinel Environments: A Benchmark for Long-Running Monitoring Agents},
-  author = {Maldaner, Matheus Kunzler and Fourney, Adam and Swearngin, Amanda and Mozannar, Hussein and Bansal, Gagan and Murad, Maya},
+  title  = {SentinelBench: A Benchmark for Long-Running Monitoring Agents},
+  author = {Maldaner, Matheus Kunzler and Fourney, Adam and Swearngin, Amanda and Mozannar, Hussein and Bansal, Gagan and Murad, Maya and Hosn, Rafah and Amershi, Saleema},
   year   = {2026},
   note   = {Preprint}
 }
@@ -251,3 +251,5 @@ This project is licensed under the [MIT License](LICENSE).
 - Hussein Mozannar — [GitHub](https://github.com/husseinmozannar)
 - Gagan Bansal — [GitHub](https://github.com/gagb)
 - Maya Murad — [GitHub](https://github.com/mmurad2)
+- Rafah Hosn - [GitHub](https://github.com/msftbozo)
+- Saleema Amershi - [GitHub](https://github.com/samershi)
