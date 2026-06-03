@@ -7,7 +7,7 @@
 <!-- TODO: replace placeholder arXiv and blog URLs before public release -->
 <a href="https://arxiv.org/abs/0000.00000"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b" alt="Paper"></a> <a href="https://example.com/sentinel-environments-blog"><img src="https://img.shields.io/badge/Blog-Post-6f42c1" alt="Blog"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
 
-<img src="figures/videos/collage-mosaic.gif" alt="Collage mosaic of Sentinel Environments" width="600">
+<img src="figures/collage-mosaic.gif" alt="Collage mosaic of Sentinel Environments" width="600">
 
 </div>
 
