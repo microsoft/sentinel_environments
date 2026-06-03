@@ -5,9 +5,9 @@
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
 <!-- TODO: replace placeholder arXiv and blog URLs before public release -->
-[![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b)](https://arxiv.org/abs/0000.00000)
-[![Blog](https://img.shields.io/badge/Blog-Post-6f42c1)](https://example.com/sentinel-environments-blog)
-[![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
+<a href="https://arxiv.org/abs/0000.00000"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b" alt="Paper"></a> <a href="https://example.com/sentinel-environments-blog"><img src="https://img.shields.io/badge/Blog-Post-6f42c1" alt="Blog"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
+
+<img src="figures/videos/collage-mosaic.gif" alt="Collage mosaic of Sentinel Environments" width="600">
 
 </div>
 
