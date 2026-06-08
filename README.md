@@ -5,7 +5,7 @@
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
 <!-- TODO: replace placeholder arXiv and blog URLs before public release -->
-<a href="https://arxiv.org/abs/2606.05342"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b" alt="Paper"></a> <a href=""><img src="https://www.microsoft.com/en-us/research/articles/sentinelbench-a-benchmark-for-long-running-monitoring-agents/" alt="Blog"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
+<a href="https://arxiv.org/abs/2606.05342"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b" alt="Paper"></a> <a href="https://www.microsoft.com/en-us/research/articles/sentinelbench-a-benchmark-for-long-running-monitoring-agents/"><img src="https://img.shields.io/badge/Blog-Post-6f42c1" alt="Blog"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
 
 <img src="figures/collage-mosaic.gif" alt="Collage mosaic of Sentinel Environments" width="600">
 
