@@ -5,7 +5,7 @@
 *A benchmark for evaluating AI agents on long-horizon monitoring tasks.*
 
 <!-- TODO: replace placeholder arXiv and blog URLs before public release -->
-<a href="https://arxiv.org/abs/0000.00000"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b" alt="Paper"></a> <a href="https://example.com/sentinel-environments-blog"><img src="https://img.shields.io/badge/Blog-Post-6f42c1" alt="Blog"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
+<a href="https://arxiv.org/abs/2606.05342"><img src="https://img.shields.io/badge/Paper-arXiv-b31b1b" alt="Paper"></a> <a href=""><img src="https://www.microsoft.com/en-us/research/articles/sentinelbench-a-benchmark-for-long-running-monitoring-agents/" alt="Blog"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue" alt="License"></a>
 
 <img src="figures/collage-mosaic.gif" alt="Collage mosaic of Sentinel Environments" width="600">
 
@@ -15,7 +15,7 @@
 
 **Sentinel Environments** is a benchmark of 10 high-fidelity web-app replicas that tests whether an agent can *wait*, *monitor*, and *act* only when a condition is met. Each environment replays a scripted timeline of events; the agent must notice the right moment and respond, without wasting resources polling in between.
 
-This README covers **how to run the benchmark**. For the motivation, task design, and baseline results, see the [paper](https://arxiv.org/abs/0000.00000) and [blog post](https://example.com/sentinel-environments-blog).
+This README covers **how to run the benchmark**. For the motivation, task design, and baseline results, see the [paper](https://arxiv.org/abs/2606.05342) and [blog post](https://www.microsoft.com/en-us/research/articles/sentinelbench-a-benchmark-for-long-running-monitoring-agents/).
 
 ## Environments
 
@@ -235,21 +235,24 @@ This project is licensed under the [MIT License](LICENSE).
 
 <!-- TODO: replace with the published citation on release -->
 ```bibtex
-@misc{maldaner2026sentinelenvironments,
-  title  = {SentinelBench: A Benchmark for Long-Running Monitoring Agents},
-  author = {Maldaner, Matheus Kunzler and Fourney, Adam and Swearngin, Amanda and Mozannar, Hussein and Bansal, Gagan and Murad, Maya and Hosn, Rafah and Amershi, Saleema},
-  year   = {2026},
-  note   = {Preprint}
+@misc{maldaner2026sentinelbenchbenchmarklongrunningmonitoring,
+      title={SentinelBench: A Benchmark for Long-Running Monitoring Agents}, 
+      author={Matheus Kunzler Maldaner and Adam Fourney and Amanda Swearngin and Hussein Mozannar and Gagan Bansal and Maya Murad and Rafah Hosn and Saleema Amershi},
+      year={2026},
+      eprint={2606.05342},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2606.05342}, 
 }
 ```
 
 ## Authors
 
-- Matheus Kunzler Maldaner — [GitHub](https://github.com/matheusmaldaner)
-- Adam Fourney — [GitHub](https://github.com/afourney)
-- Amanda Swearngin — [GitHub](https://github.com/amaswea)
-- Hussein Mozannar — [GitHub](https://github.com/husseinmozannar)
-- Gagan Bansal — [GitHub](https://github.com/gagb)
-- Maya Murad — [GitHub](https://github.com/mmurad2)
+- Matheus Kunzler Maldaner - [GitHub](https://github.com/matheusmaldaner)
+- Adam Fourney - [GitHub](https://github.com/afourney)
+- Amanda Swearngin - [GitHub](https://github.com/amaswea)
+- Hussein Mozannar - [GitHub](https://github.com/husseinmozannar)
+- Gagan Bansal - [GitHub](https://github.com/gagb)
+- Maya Murad - [GitHub](https://github.com/mmurad2)
 - Rafah Hosn - [GitHub](https://github.com/msftbozo)
 - Saleema Amershi - [GitHub](https://github.com/samershi)
