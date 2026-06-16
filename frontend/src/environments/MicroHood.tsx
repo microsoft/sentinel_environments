@@ -429,11 +429,6 @@ const MicroHood = () => {
     setSelectedTimeframe(tf);
   }, []);
 
-  const _handleComingSoon = useCallback((feature: string) => {
-    showToast(`${feature} coming soon!`);
-  }, [showToast]);
-  void _handleComingSoon; // Mark as intentionally unused for now
-
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",

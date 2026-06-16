@@ -5,7 +5,7 @@ test.use({ viewport: { width: 1440, height: 900 } });
 
 const API = process.env.PLAYWRIGHT_SERVER_URL ?? "http://localhost:8000";
 const SCENARIO_PATH =
-  "../scenarios/microfy/plays-absolute-passive.json";
+  "../scenarios/microfy/plays-absolute-active.json";
 const SCREENSHOTS = "../.cache/audit_screenshots/microfy";
 
 // ---------------------------------------------------------------------------
@@ -39,7 +39,8 @@ async function initAndAdvanceAll() {
   const scenario = JSON.parse(fs.readFileSync(SCENARIO_PATH, "utf-8"));
   await apiPost("/init", {
     environment: scenario.environment,
-    duration: scenario.duration,
+    event_timeline_end: scenario.event_timeline_end,
+    condition_at: scenario.condition_at,
     eval_sql: scenario.eval_sql ?? "",
     events: scenario.events,
   });

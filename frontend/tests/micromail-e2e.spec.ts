@@ -25,7 +25,8 @@ async function initAndAdvanceAll() {
 
   const initPayload = {
     environment: scenario.environment,
-    duration: scenario.duration,
+    event_timeline_end: scenario.event_timeline_end,
+    condition_at: scenario.condition_at,
     eval_sql: scenario.eval_sql ?? "",
     events: scenario.events,
   };
@@ -84,6 +85,11 @@ test.describe("MicroMail E2E", () => {
 
   test("evaluate returns success after all events", async () => {
     await initAndAdvanceAll();
+
+    // Non-noop scenarios require the /contact gate at or after condition_at
+    // before /evaluate can pass. Advancing all events puts sim-time past
+    // condition_at, so visiting /contact now satisfies the gate.
+    await fetch(`${API}/contact`);
 
     const result = await apiPost("/evaluate");
     expect(result.success).toBe(true);

@@ -1,7 +1,8 @@
 {
   "name": "sentinel-environments",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
@@ -20,23 +21,12 @@
     "test:watch": "vitest --watch"
   },
   "dependencies": {
-    "@types/canvas-confetti": "^1.9.0",
-    "@types/matter-js": "^0.19.8",
-    "@types/styled-components": "^5.1.34",
-    "axios": "^1.7.9",
-    "canvas-confetti": "^1.9.3",
     "lucide-react": "^0.552.0",
-    "matter-js": "^0.20.0",
-    "otpauth": "^9.4.0",
-    "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.3.1",
-    "react-google-recaptcha": "^3.1.0",
-    "react-router-dom": "^6.30.1",
-    "recharts": "^2.15.0",
-    "styled-components": "^6.1.14"
+    "react-router-dom": "^6.30.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -46,7 +36,6 @@
     "@types/jest": "^29.5.14",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
-    "@types/react-google-recaptcha": "^2.1.9",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.1.2",

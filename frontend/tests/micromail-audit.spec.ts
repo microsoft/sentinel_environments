@@ -58,7 +58,8 @@ async function initAndAdvanceAll() {
 
   const initPayload = {
     environment: scenario.environment,
-    duration: scenario.duration,
+    event_timeline_end: scenario.event_timeline_end,
+    condition_at: scenario.condition_at,
     eval_sql: scenario.eval_sql ?? "",
     events: scenario.events,
   };

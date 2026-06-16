@@ -389,9 +389,10 @@ const MicroFy = () => {
 
   const addToRecentlyPlayed = useCallback((songId: string) => {
     setRecentlyPlayed((prev) => {
-      const updated = [...prev, songId];
-      if (updated.length > 15) return updated.slice(updated.length - 15);
-      return updated;
+      // Dedupe by id so replaying a track doesn't yield duplicate-key
+      // warnings in the Recently Played list. Most recent first.
+      const deduped = [songId, ...prev.filter((id) => id !== songId)];
+      return deduped.length > 15 ? deduped.slice(0, 15) : deduped;
     });
   }, []);
 

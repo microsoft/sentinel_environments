@@ -49,9 +49,9 @@ def _build_email_row(email_id: str, backdated: bool = False) -> dict:
     attachment = attachments[0] if attachments else None
 
     if backdated:
-        ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=5)).isoformat() + "Z"
+        ts = (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) - datetime.timedelta(minutes=5)).isoformat() + "Z"
     else:
-        ts = datetime.datetime.utcnow().isoformat() + "Z"
+        ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
     cc = raw.get("cc", [])
 
@@ -73,7 +73,12 @@ def _build_email_row(email_id: str, backdated: bool = False) -> dict:
         "importance": raw.get("importance", "normal"),
         "mentionsMe": bool(raw.get("mentionsMe", False)),
         "attachment": (
-            {"id": attachment["id"], "name": attachment["name"], "size": attachment["size"]}
+            {
+                "id": attachment["id"],
+                "name": attachment["name"],
+                "size": attachment["size"],
+                "url": f"/images/micromail/attachments/{attachment['name']}",
+            }
             if attachment
             else None
         ),
@@ -187,7 +192,7 @@ def send_email(session: Session, *, to: list[str], cc: list[str], bcc: list[str]
     """Create a new outgoing email and place it in the given folder (sent or drafts)."""
     me = _self_user()
     email_id = f"{folder}-{uuid.uuid4().hex[:12]}"
-    ts = datetime.datetime.utcnow().isoformat() + "Z"
+    ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
     row = {
         "id": email_id,

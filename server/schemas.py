@@ -57,8 +57,8 @@ class EvaluateResponse(BaseModel):
     detail: str = ""
     evaluation_time: Optional[float] = None
     condition_at: Optional[float] = None
-    contact_get_time: Optional[int] = None
-    contact_post_time: Optional[int] = None
+    contact_get_time: Optional[float] = None
+    contact_post_time: Optional[float] = None
     contact_message: Optional[str] = None
 
 

@@ -7,4 +7,5 @@
 
 server_url: http://localhost:8000
 frontend_url: http://localhost:5173
+speed_factor: 1.0
 agent_subprocess: "echo __TASK_URL__ __TASK_PROMPT__"

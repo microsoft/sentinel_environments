@@ -12,7 +12,7 @@ export interface ApiEmail {
   isExternal: boolean;
   isCC: boolean;
   hasAttachment: boolean;
-  attachment?: { id: string; name: string; size: string };
+  attachment?: { id: string; name: string; size: string; url?: string };
   recipients: string[];
   cc: string[];
   mentionsMe: boolean;

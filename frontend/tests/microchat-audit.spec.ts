@@ -38,7 +38,8 @@ async function initAndAdvanceAll() {
   const scenario = JSON.parse(fs.readFileSync(SCENARIO_PATH, "utf-8"));
   await apiPost("/init", {
     environment: scenario.environment,
-    duration: scenario.duration,
+    event_timeline_end: scenario.event_timeline_end,
+    condition_at: scenario.condition_at,
     eval_sql: scenario.eval_sql ?? "",
     events: scenario.events,
   });

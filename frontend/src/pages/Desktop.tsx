@@ -8,6 +8,12 @@ import {
 } from "react";
 import { useNavigate } from "react-router-dom";
 import { routes, RouteConfig } from "../router/routes";
+import adamPhoto from "../../../data/author-photos/adam.png";
+import amandaPhoto from "../../../data/author-photos/amanda.png";
+import gaganPhoto from "../../../data/author-photos/gagan.png";
+import husseinPhoto from "../../../data/author-photos/hussein.png";
+import matheusPhoto from "../../../data/author-photos/matheus.jpeg";
+import mayaPhoto from "../../../data/author-photos/maya.png";
 
 // Authors data for the Authors window
 interface Author {
@@ -21,37 +27,37 @@ const authorsData: Author[] = [
   {
     name: "Matheus Kunzler Maldaner",
     affiliation: "University of Florida",
-    photo: "/author-photos/matheus.jpeg",
+    photo: matheusPhoto,
     profileUrl: "https://matheuskunzler.com",
   },
   {
     name: "Adam Fourney",
     affiliation: "Microsoft Research",
-    photo: "/author-photos/adam.png",
+    photo: adamPhoto,
     profileUrl: "https://www.adamfourney.com",
   },
   {
     name: "Amanda Swearngin",
     affiliation: "Microsoft Research",
-    photo: "/author-photos/amanda.png",
+    photo: amandaPhoto,
     profileUrl: "https://amaswea.github.io",
   },
   {
     name: "Hussein Mozannar",
     affiliation: "Microsoft Research",
-    photo: "/author-photos/hussein.png",
+    photo: husseinPhoto,
     profileUrl: "https://husseinmozannar.github.io",
   },
   {
     name: "Gagan Bansal",
     affiliation: "Microsoft Research",
-    photo: "/author-photos/gagan.png",
+    photo: gaganPhoto,
     profileUrl: "https://homes.cs.washington.edu/~bansalg/",
   },
   {
     name: "Maya Murad",
     affiliation: "Microsoft Research",
-    photo: "/author-photos/maya.png",
+    photo: mayaPhoto,
     profileUrl: "https://www.mayamurad.com",
   },
 ];
