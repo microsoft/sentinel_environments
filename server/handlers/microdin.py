@@ -45,9 +45,9 @@ def _build_post_row(post_id: str, backdated: bool = False) -> dict:
     user = USER_CATALOG.get(author_id, {})
 
     if backdated:
-        ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=5)).isoformat() + "Z"
+        ts = (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) - datetime.timedelta(minutes=5)).isoformat() + "Z"
     else:
-        ts = datetime.datetime.utcnow().isoformat() + "Z"
+        ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
     # Resolve comment authors
     raw_comments = raw.get("comments", [])
@@ -113,9 +113,9 @@ def _build_message_row(message_id: str, backdated: bool = False) -> dict:
     user = USER_CATALOG.get(sender_id, {})
 
     if backdated:
-        ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=5)).isoformat() + "Z"
+        ts = (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) - datetime.timedelta(minutes=5)).isoformat() + "Z"
     else:
-        ts = datetime.datetime.utcnow().isoformat() + "Z"
+        ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
     return {
         "id": message_id,
@@ -142,9 +142,9 @@ def _build_notification_row(notification_id: str, backdated: bool = False) -> di
     user = USER_CATALOG.get(actor_id, {})
 
     if backdated:
-        ts = (datetime.datetime.utcnow() - datetime.timedelta(minutes=5)).isoformat() + "Z"
+        ts = (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) - datetime.timedelta(minutes=5)).isoformat() + "Z"
     else:
-        ts = datetime.datetime.utcnow().isoformat() + "Z"
+        ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
     # Build content string based on notification type
     ntype = raw.get("type", "")

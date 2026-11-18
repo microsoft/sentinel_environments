@@ -15,6 +15,7 @@ import json
 import os
 import sqlite3
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Optional
 
@@ -164,7 +165,33 @@ STATE_RUNNING_AUTO = "running_auto"
 STATE_RUNNING_MANUAL = "running_manual"
 STATE_COMPLETED = "completed"  # terminal state after /evaluate, /contact, or no more events
 
-app = FastAPI(title="Sentinel API")
+# Global simulation state -- one active session at a time, matching Docker protocol
+_state: str = STATE_STARTING
+_session: Optional[Session] = None
+_run_task: Optional[asyncio.Task] = None
+
+
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    # Startup: load catalogs + scenarios, then optionally preload a dev session.
+    global _state, _session
+    load_catalogs()
+    _load_scenarios()
+    _state = STATE_PREINIT
+
+    dev = os.getenv("SENTINEL_DEV")
+    if dev:
+        session = _build_dev_session(dev)
+        if session is not None:
+            _session = session
+            _state = STATE_READY
+
+    yield
+    # Shutdown: no cleanup needed -- /close is idempotent and run_task is
+    # already cancelled by the time uvicorn unloads the app.
+
+
+app = FastAPI(title="Sentinel API", lifespan=_lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -172,11 +199,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Global simulation state -- one active session at a time, matching Docker protocol
-_state: str = STATE_STARTING
-_session: Optional[Session] = None
-_run_task: Optional[asyncio.Task] = None
 
 
 _ENV_NAMES = [
@@ -250,21 +272,6 @@ def _build_dev_session(dev_value: str) -> Optional[Session]:
     session.environment = loaded[0] if len(loaded) == 1 else "all"
     print(f"[DEV] Loaded: {', '.join(loaded)}")
     return session
-
-
-@app.on_event("startup")
-def _startup() -> None:
-    global _state, _session
-    load_catalogs()
-    _load_scenarios()
-    _state = STATE_PREINIT
-
-    dev = os.getenv("SENTINEL_DEV")
-    if dev:
-        session = _build_dev_session(dev)
-        if session is not None:
-            _session = session
-            _state = STATE_READY
 
 
 # ---------------------------------------------------------------------------
@@ -1054,7 +1061,7 @@ async def data_din_post_comment(post_id: str, payload: dict) -> dict:
         raise HTTPException(status_code=400, detail="Comment text is required")
 
     self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
-    comment_id = f"user-comment-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    comment_id = f"user-comment-{int(datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).timestamp() * 1000)}"
     comment = {
         "id": comment_id,
         "authorId": self_user.get("id", "self"),
@@ -1128,7 +1135,7 @@ async def data_din_create_conversation(payload: dict) -> dict:
             return {"conversationId": conv["id"], "created": False}
 
     target_user = USER_CATALOG.get(target_user_id, {})
-    conv_id = f"user-conv-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    conv_id = f"user-conv-{int(datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).timestamp() * 1000)}"
     conv_row = {
         "id": conv_id,
         "participantIds": [self_id, target_user_id],
@@ -1153,8 +1160,8 @@ async def data_din_send_message(conversation_id: str, payload: dict) -> dict:
 
     self_user = next((u for u in USER_CATALOG.values() if u.get("isSelf")), {})
     sender_id = self_user.get("id", "self")
-    msg_id = f"user-msg-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
-    ts = datetime.datetime.utcnow().isoformat() + "Z"
+    msg_id = f"user-msg-{int(datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).timestamp() * 1000)}"
+    ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z"
     order = max((m.get("order", 0) for m in session.microdin_messages if m.get("conversationId") == conversation_id), default=0) + 1
 
     row = {
@@ -1228,14 +1235,14 @@ async def data_din_add_profile_section(payload: dict) -> dict:
     content = (payload or {}).get("content", "").strip()
     if not title and not content:
         raise HTTPException(status_code=400, detail="title or content is required")
-    section_id = f"user-section-{int(datetime.datetime.utcnow().timestamp() * 1000)}"
+    section_id = f"user-section-{int(datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).timestamp() * 1000)}"
     row = {
         "id": section_id,
         "type": section_type,
         "title": title,
         "subtitle": subtitle,
         "content": content,
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).isoformat() + "Z",
     }
     session.microdin_profile_sections.append(row)
     return {"section": row}
